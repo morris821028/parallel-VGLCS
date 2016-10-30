@@ -1,0 +1,13 @@
+*.log
+
+## testdata
+
+*.in
+*.out
+
+## executeable file
+
+pin
+VGLCS
+VGLCS-parallel
+*.exe
