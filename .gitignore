@@ -10,4 +10,6 @@
 pin
 VGLCS
 VGLCS-parallel
+unit
 *.exe
+*.o
