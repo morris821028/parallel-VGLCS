@@ -1,15 +1,22 @@
-*.log
+## Debug files
 
-## testdata
+*.log
+*.out
+
+## Testdata
 
 *.in
 *.out
 
-## executeable file
+## Executables
 
 pin
 VGLCS
 VGLCS-parallel
 unit
+benchmark
 *.exe
+
+## Object files
+
 *.o
