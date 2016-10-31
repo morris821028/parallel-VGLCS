@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <assert.h>
+#include <time.h>
 #include "VGLCS.h"
 
 #define RDTSC_START(cycles)                                                   \
@@ -29,35 +30,40 @@
         (cycles) = ((uint64_t)cyc_high << 32) | cyc_low;                      \
     } while (0)
 
-
-
-#define BEST_TIME(test,  repeat, size)                         \
+#define BEST_TIME(test, repeat, size)                                 \
     do {                                                              \
         printf("%s: ", #test);                                        \
         fflush(NULL);                                                 \
         uint64_t cycles_start, cycles_final, cycles_diff;             \
         uint64_t min_diff = (uint64_t)-1;                             \
+		float min_time = 1e+10 * CLOCKS_PER_SEC;                      \
         for (int i = 0; i < repeat; i++) {                            \
+			struct timespec tt1, tt2;                                 \
+			clock_gettime(CLOCK_REALTIME, &tt1);                      \
             __asm volatile("" ::: /* pretend to clobber */ "memory"); \
             RDTSC_START(cycles_start);                                \
             test;                                                     \
             RDTSC_FINAL(cycles_final);                                \
             cycles_diff = (cycles_final - cycles_start);              \
+			clock_gettime(CLOCK_REALTIME, &tt2);                      \
             if (cycles_diff < min_diff) min_diff = cycles_diff;       \
+			double diff_time = (tt2.tv_sec + 1e-9*tt2.tv_nsec) -      \
+								(tt1.tv_sec + 1e-9*tt1.tv_nsec);      \
+			if (diff_time < min_time)                                 \
+				min_time = diff_time;                                 \
         }                                                             \
         uint64_t S = (uint64_t)size;                                  \
         float cycle_per_op = (min_diff) / (float)S;                   \
-        printf(" %.2f cycles per operation", cycle_per_op);           \
+        printf(" %.2f cycles", cycle_per_op);                         \
+		printf(" %.3f seconds", min_time);                            \
         printf("\n");                                                 \
         fflush(NULL);                                                 \
-} while (0)
+	} while (0)
 
 void benchmark_large_serial() {
 #define MAXN 5005
 	FILE *fin = fopen("5.in", "r");
-	FILE *fout = fopen("5.out", "r");
-	assert(fin != NULL && "cannot open file 5.in");
-	assert(fout != NULL && "cannot open file 5.out");
+	assert(fin != NULL && "cannot open file");
 
 	static char A[MAXN], B[MAXN];
 	static short GA[MAXN], GB[MAXN];
@@ -70,11 +76,7 @@ void benchmark_large_serial() {
 		nB = strlen(B);
 		for (int i = 0; i < nB; i++)
 			assert(fscanf(fin, "%hd", &GB[i]) == 1);
-		int ret = parallel_VGLCS(nA, A, GA, nB, B, GB);
-		int ac_ret;
-		assert(fscanf(fout, "%d", &ac_ret) == 1);
-		assert(ac_ret == ret && "failed compare output");
-		BEST_TIME(serial_VGLCS(nA, A, GA, nB, B, GB), 10, 1);
+		BEST_TIME(serial_VGLCS(nA,A,GA,nB,B,GB), 10, 1);
 		// printf("%d\n", ret);
 	}
 #undef MAXN
@@ -83,9 +85,7 @@ void benchmark_large_serial() {
 void benchmark_large_parallel() {
 #define MAXN 5005
 	FILE *fin = fopen("5.in", "r");
-	FILE *fout = fopen("5.out", "r");
-	assert(fin != NULL && "cannot open file 5.in");
-	assert(fout != NULL && "cannot open file 5.out");
+	assert(fin != NULL && "cannot open file");
 
 	static char A[MAXN], B[MAXN];
 	static short GA[MAXN], GB[MAXN];
@@ -98,11 +98,7 @@ void benchmark_large_parallel() {
 		nB = strlen(B);
 		for (int i = 0; i < nB; i++)
 			assert(fscanf(fin, "%hd", &GB[i]) == 1);
-		int ret = parallel_VGLCS(nA, A, GA, nB, B, GB);
-		int ac_ret;
-		assert(fscanf(fout, "%d", &ac_ret) == 1);
-		assert(ac_ret == ret && "failed compare output");
-		BEST_TIME(parallel_VGLCS(nA, A, GA, nB, B, GB), 10, 1);
+		BEST_TIME(parallel_VGLCS(nA,A,GA,nB,B,GB), 10, 1);
 		// printf("%d\n", ret);
 	}
 #undef MAXN
@@ -110,6 +106,6 @@ void benchmark_large_parallel() {
 
 int main() {
 	benchmark_large_parallel();
-	benchmark_large_serial();
+//	benchmark_large_serial();
 	return 0;
 }

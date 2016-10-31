@@ -10,10 +10,9 @@ double mrandom() {
 int main() {
 //	freopen("in.txt", "w", stdout);
     srand(time(NULL));
-    int N;
     int testcase = 10;
     while (testcase--) {
-    	int n = 5000, m = 5000;
+    	int n = 1000, m = 1000;
     	for (int i = 0; i < n; i++)
     		printf("%c", "ATCG"[rand()%4]);
     	puts("");

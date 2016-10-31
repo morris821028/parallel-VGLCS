@@ -19,12 +19,12 @@ VGLCS-parallel.o: ./src/VGLCS-parallel.cpp $(HEADERS)
 unit: VGLCS-parallel.o ./tests/unit.c $(HEADERS)
 	$(CXX) $(CFLAGS) ./tests/unit.c VGLCS-parallel.o  -o unit
 
-testdata: src/pin.cpp
+testdata: ./src/pin.cpp
 	$(CXX) $(CFLAGS) src/pin.cpp -o pin
 
 benchmark: VGLCS-parallel.o ./benchmarks/benchmark.c $(HEADERS)
-	$(CXX) $(CFLAGS) ./benchmarks/benchmark.c VGLCS-parallel.o -o benchmark
+	$(CXX) $(CFLAGS) ./benchmarks/benchmark.c VGLCS-parallel.o -o benchmark -lrt
 
 clean:
-	rm VGLCS-parallel VGLCS pin
+	rm unit benchmark VGLCS-parallel.o
 	
