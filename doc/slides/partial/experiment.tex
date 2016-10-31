@@ -4,3 +4,29 @@
 \begin{frame}
     \frametitle{Environment}
 \end{frame}
+
+\subsection{Result}
+\begin{frame}
+    \frametitle{Speedup}
+    \begin{table}
+    	\caption{$n = 5000, \; \forall G[i] < 10$}
+		\begin{tabular}{| l | l | l | l |}
+			\hline
+			Algorithm 		& n = 5000 & n = 2000 & n = 1000\\ \hline
+			serial 			& 1.172 & 0.190 & 0.044\\ \hline
+			parallel 	& 0.218 & 0.077 & 0.033\\ \hline
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Scalability}
+    \begin{table}
+    	\caption{$n = 5000$}
+		\begin{tabular}{| l | l | l | l | l |}
+			\hline
+			Algorithm 	& p = 1 & p = 2 & p = 4 & p = 8\\ \hline
+			parallel 	& 0.928  & 0.508 & 0.303 & 0.240 \\ \hline
+		\end{tabular}
+	\end{table}
+\end{frame}
