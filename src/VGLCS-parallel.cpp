@@ -1,8 +1,8 @@
-#include <bits/stdc++.h>
+#include <stdlib.h>
+#include <string.h>
+#include <algorithm>
 #include <omp.h>
 #include "VGLCS.h"
-
-using namespace std;
 
 const int MAXN = 5005;
 const int MAXLOGN = 16;
@@ -50,6 +50,8 @@ struct ISMQ {
 	}
 };
 
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 int serial_VGLCS(int nA, char A[], short GA[],
         int nB, char B[], short GB[]) {
     A--, B--, GA--, GB--;
@@ -60,20 +62,20 @@ int serial_VGLCS(int nA, char A[], short GA[],
 
     short ret = 0;
     for (int i = 1; i <= nA; i++) {
-        int p_begin = i - min(GA[i]+1, i);
+        int p_begin = i - MIN(GA[i]+1, i);
         short dp[MAXN] = {};
         ISMQ RQ;
         RQ.init(nB);
         for (int j = 1; j <= nB; j++) {
             if (A[i] == B[j]) {
-                dp[j] = RQ.get(j - min(GB[j]+1, j))+1;
+                dp[j] = RQ.get(j - MIN(GB[j]+1, j))+1;
             } else {
                 dp[j] = 0;
             }
             RQ.set(j, Q[j].get(p_begin));
         }
         for (int j = 1; j <= nB; j++) {
-            ret = max(ret, dp[j]);
+            ret = MAX(ret, dp[j]);
             Q[j].set(i, dp[j]);
         }
     }
@@ -86,11 +88,9 @@ static inline int log2int(int x) {
 }
 int parallel_VGLCS(int nA, char A[], short GA[], 
 					int nB, char B[], short GB[]) {
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
 	A--, B--, GA--, GB--;
 	if (nA > nB) {
-		swap(GA, GB), swap(nA, nB), swap(A, B);
+		std::swap(GA, GB), std::swap(nA, nB), std::swap(A, B);
 	}
 	static ISMQ Q[MAXN];
 
@@ -99,18 +99,20 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 	
 	short tb[MAXLOGN][MAXN] = {};
 	omp_set_num_threads(20);
-	const int chunk = max(nB / 20, 1);
-	#pragma omp parallel for schedule(static, chunk)	
-	for (int i = 0; i <= nB; i++)
-		Q[i].init(nA);
+	const int chunk = MAX(nB / 20, 1);
 
 	#pragma omp parallel
 	{
+		// init ISMQ
+		#pragma omp for schedule(static, chunk)
+		for (int i = 0; i <= nB; i++)
+			Q[i].init(nA);
+
 		char tmpB[MAXN];
 		for (int i = 1; i <= nB; i++)
 			tmpB[i] = B[i];
 		for (int i = 1; i <= nA; i++) {
-			int p_begin = i - min(GA[i]+1, i);
+			int p_begin = i - MIN(GA[i]+1, i);
 			char Ai = A[i];
 			// query: incremental suffix maximum query
 			#pragma omp for schedule(static, chunk)
@@ -151,34 +153,7 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 */
 		}
 	}
-#undef MIN
-#undef MAX
 	return ret;
 }
-/*
-int main() {
-	freopen("5.in", "r", stdin);
-	static char A[MAXN], B[MAXN];
-	static short GA[MAXN], GB[MAXN];
-	int nA, nB;
-	while (scanf("%s", A) == 1) {
-		nA = strlen(A);
-		for (int i = 0; i < nA; i++)
-			assert(scanf("%hd", &GA[i]) == 1);
-		assert(scanf("%s", B) == 1);
-		nB = strlen(B);
-		for (int i = 0; i < nB; i++)
-			assert(scanf("%hd", &GB[i]) == 1);
-		int ret = parallel_VGLCS(nA, A, GA, nB, B, GB);
-		printf("%d\n", ret);
-	}
-	return 0;
-}
-*/
-/*
-RCLPCRR
-2 3 0 0 3 2 2
-RPPLCPLRC
-2 0 0 0 3 0 0 2 3
-*/
-
+#undef MIN
+#undef MAX
