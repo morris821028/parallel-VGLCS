@@ -10,7 +10,7 @@ CFLAGS+= -Iinclude
 
 all: unit
 
-VGLCS-parallel.o: ./src/VGLCS-parallel.cpp ./src/VGLCS-dev.cpp ./src/VGLCS-nm.cpp
+VGLCS-parallel.o: ./src/VGLCS-parallel.cpp
 	$(CXX) $(CFLAGS) -c src/VGLCS-parallel.cpp
 
 unit: VGLCS-parallel.o ./tests/unit.c
