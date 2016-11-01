@@ -40,7 +40,7 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Parallel Algorithm}
+	\frametitle{Parallel VGLCS Algorithm}
 \end{frame}
 
 \begin{frame}
@@ -49,12 +49,12 @@
 		\setlength\itemsep{1em}
 		\item Disjoint set has a lot of indirect jumps, and it leads cache miss penatly.
 		\item Due to the compensatory hardware threading and L2 cache layout, affinity 
-			is important on the MIC. We can control of thread affinity via 
+			is important on the MIC. We can control of thread affinity via \tt{KMP\_AFFINITY}
 	\end{itemize}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Improve Workload}
+	\frametitle{Improve Workload (TODO)}
 	\begin{itemize}
 		\setlength\itemsep{1em}
 		\item Reduce cache miss
@@ -73,7 +73,24 @@
 	\end{itemize}
 \end{frame}
 
-\subsection{Optimization}
+\subsection{Serial part-VG LCS Algorithm (TODO)}
 \begin{frame}
-	\frametitle{}
+	\frametitle{Serial part-VG LCS Algorithm}
+\end{frame}
+
+\subsection{Parallel part-VG LCS Algorithm (TODO)}
+\begin{frame}
+	\frametitle{Parallel part-VG LCS Algorithm}
+\end{frame}
+
+\subsection{Optimization (TODO)}
+\begin{frame}
+	\frametitle{Optimization (TODO)}
+	\begin{itemize}
+		\item Coalesced memory access or memory coalescing
+			\begin{itemize}
+				\item Doubling algorithm creates smaller table
+					and uses more computation in query.
+			\end{itemize}
+	\end{itemize}
 \end{frame}
