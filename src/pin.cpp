@@ -12,7 +12,7 @@ int main() {
     srand(time(NULL));
     int testcase = 10;
     while (testcase--) {
-    	int n = 1000, m = 1000;
+    	int n = 500, m = 500;
     	for (int i = 0; i < n; i++)
     		printf("%c", "ATCG"[rand()%4]);
     	puts("");

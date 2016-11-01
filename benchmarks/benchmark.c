@@ -62,7 +62,7 @@
 
 void benchmark_large_serial() {
 #define MAXN 5005
-	FILE *fin = fopen("5.in", "r");
+	FILE *fin = fopen("test.in", "r");
 	assert(fin != NULL && "cannot open file");
 
 	static char A[MAXN], B[MAXN];
@@ -84,7 +84,7 @@ void benchmark_large_serial() {
 
 void benchmark_large_parallel() {
 #define MAXN 5005
-	FILE *fin = fopen("5.in", "r");
+	FILE *fin = fopen("test.in", "r");
 	assert(fin != NULL && "cannot open file");
 
 	static char A[MAXN], B[MAXN];
@@ -106,6 +106,6 @@ void benchmark_large_parallel() {
 
 int main() {
 	benchmark_large_parallel();
-//	benchmark_large_serial();
+	benchmark_large_serial();
 	return 0;
 }

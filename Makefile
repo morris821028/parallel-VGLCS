@@ -11,7 +11,7 @@ CFLAGS+= -Iinclude
 HEADERS=./include/VGLCS.h
 OBJECTS=VGLCS-parallel.o
 
-all: unit benchmark $(OBJECTS)
+all: unit benchmark pin $(OBJECTS)
 
 VGLCS-parallel.o: ./src/VGLCS-parallel.cpp $(HEADERS)
 	$(CXX) $(CFLAGS) -c src/VGLCS-parallel.cpp
@@ -19,7 +19,7 @@ VGLCS-parallel.o: ./src/VGLCS-parallel.cpp $(HEADERS)
 unit: VGLCS-parallel.o ./tests/unit.c $(HEADERS)
 	$(CXX) $(CFLAGS) ./tests/unit.c VGLCS-parallel.o  -o unit
 
-testdata: ./src/pin.cpp
+pin: ./src/pin.cpp
 	$(CXX) $(CFLAGS) src/pin.cpp -o pin
 
 benchmark: VGLCS-parallel.o ./benchmarks/benchmark.c $(HEADERS)
