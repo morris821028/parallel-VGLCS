@@ -96,10 +96,13 @@
 \begin{frame}
 	\frametitle{Optimization (TODO)}
 	\begin{itemize}
+		\setlength\itemsep{1em}
 		\item Coalesced memory access or memory coalescing
 			\begin{itemize}
 				\item Doubling algorithm creates smaller table
 					and uses more computation in query.
 			\end{itemize}
+		\item Loop fission / fusion: improve data locality, 
+			but maybe increase thread overhead.
 	\end{itemize}
 \end{frame}
