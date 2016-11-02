@@ -20,7 +20,7 @@
     			\item Segment Tree: $\mathcal{O}(\log n)$
     			\item Van Emde Boas Tree: $\mathcal{O}(\log \log n)$
     			\item Disjoint Set: $\Omega(\alpha(n))$
-    			\item Sparse Table: $\mathcal{O}(n \log n)$ - $\mathcal{O}(1)$
+    			\item Sparse Table: $\mathcal{O}(n \log n)$ -- $\mathcal{O}(1)$
     		\end{itemize}
     	\item Which one is cache-friendly/ exploit parallelism easily?
     \end{itemize}
@@ -33,7 +33,7 @@
 		\setlength\itemsep{1em}
 		\item We want to remove \texttt{All[i][j]} because its data dependency 
 			is hard to parallel.
-		\item The $O(n \log n)$ - $O(1)$ sparse table is a good alternative plan. 
+		\item The $O(n \log n)$ -- $O(1)$ sparse table is a good alternative plan. 
 		\item However, parallel algorithm will be $O(n^2 \max(\log n, \alpha(n)) / p + n \max(\log n, \alpha(n)))$ 
 			with $p$ processors.
 	\end{itemize}
@@ -76,9 +76,12 @@
 \begin{frame}
 	\frametitle{Exploit Parallelism (TODO)}
 	\begin{itemize}
+		\setlength\itemsep{1em}
 		\item Using rank convergence in dynamic programming algorithm
 			\footnote{Paper: Efficient Parallelization Using Rank Convergence in 
 				Dynamic Programming Algorithm}
+		\item Simultaneously, it reduces memory usage on a single processor,
+			less cache miss penalty will be faster(?).
 	\end{itemize}
 \end{frame}
 
