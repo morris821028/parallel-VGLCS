@@ -14,7 +14,7 @@ struct ISMQ {
 		while (u != parent[u])
 			u = parent[u];
 		while (x != parent[x]) {
-			int tmp = parent[x];
+			short tmp = parent[x];
 			parent[x] = u;
 			x = tmp;
 		}
@@ -38,7 +38,6 @@ struct ISMQ {
 	}
 	void set(int x, int val) {
 		value[x] = val;
-		
 		int y = x-1;
 		while (y >= 0) {
 			y = findp(y);
@@ -49,6 +48,9 @@ struct ISMQ {
 		}
 	}
 };
+static inline int log2int(int x) {
+    return __builtin_clz((int)1) - __builtin_clz(x);
+}
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
@@ -82,10 +84,6 @@ int serial_VGLCS(int nA, char A[], short GA[],
     return ret;
 }
 
-
-static inline int log2int(int x) {
-    return __builtin_clz((int)1) - __builtin_clz(x);
-}
 int parallel_VGLCS(int nA, char A[], short GA[], 
 					int nB, char B[], short GB[]) {
 	A--, B--, GA--, GB--;
@@ -94,12 +92,21 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 	}
 	static ISMQ Q[MAXN];
 
-	short ret = 0;
-	const int lognB = log2int(nB);
-	
+	short ret = 0, max_gap = 0;
+	for (int i = 1; i <= nB; i++)
+		max_gap = MAX(max_gap, GB[i]);
+	const int lognB = log2int(max_gap+1);
+
 	short tb[MAXLOGN][MAXN] = {};
-	omp_set_num_threads(20);
-	const int chunk = MAX(nB / 20, 1);
+	const int P = 20;
+	omp_set_num_threads(P);
+	const int chunk = MAX((nB+P-1) / P, 1);
+	
+	char logGB[MAXN];
+	for (int i = 1; i <= nB; i++) {
+		int l = i - MIN(GB[i]+1, i), r = i-1;
+		logGB[i] = log2int(r-l+1);
+	}
 
 	#pragma omp parallel
 	{
@@ -107,10 +114,10 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 		#pragma omp for schedule(static, chunk)
 		for (int i = 0; i <= nB; i++)
 			Q[i].init(nA);
-
+		// copy to stack
 		char tmpB[MAXN];
-		for (int i = 1; i <= nB; i++)
-			tmpB[i] = B[i];
+		memcpy(tmpB, B, sizeof(char)*(nB+1));
+		
 		for (int i = 1; i <= nA; i++) {
 			int p_begin = i - MIN(GA[i]+1, i);
 			char Ai = A[i];
@@ -126,7 +133,9 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 				#pragma omp for schedule(static, chunk)
 				for (int j = 1; j <= nB; j++) {
 					if (j-(1<<(k-1)) >= 0) {
-						tbu[j] = MAX(tbv[j-(1<<(k-1))], tbv[j]);
+						const short p = tbv[j-(1<<(k-1))];
+						const short q = tbv[j];
+						tbu[j] = MAX(q, p);
 					}
 				}
 			}
@@ -136,21 +145,14 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 			for (int j = 1; j <= nB; j++) {
 				if (Ai == tmpB[j]) {
 					int l = j - MIN(GB[j]+1, j), r = j-1;
-					int t = log2int(r-l+1);
-					short val = MAX(tb[t][l+(1<<t)-1], tb[t][r])+1;
+					int t = logGB[j];
+					const short p = tb[t][l+(1<<t)-1];
+					const short q = tb[t][r];
+					short val = MAX(q, p)+1;
 					Q[j].set(i, val);
 					ret = MAX(ret, val);
 				}
 			}
-			
-/*
-			// update: incremental suffix maximum query
-			#pragma omp for schedule(static, chunk) reduction(max: ret)
-			for (int j = 1; j <= nB; j++) {
-				Q[j].set(i, dp[j]);
-				ret = MAX(ret, dp[j]);
-			}
-*/
 		}
 	}
 	return ret;
