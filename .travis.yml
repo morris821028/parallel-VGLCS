@@ -1,0 +1,12 @@
+language: c
+sudo: false
+compiler:
+  - gcc
+  - clang
+
+branches:
+  only:
+    - master
+
+script: make && ./unit
+
