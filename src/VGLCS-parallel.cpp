@@ -1,5 +1,5 @@
-#include <cstdlib>
-#include <cstring>
+#include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <algorithm>
 #include <omp.h>
@@ -8,14 +8,14 @@
 const int MAXN = 5005;
 const int MAXLOGN = 16;
 struct ISMQ {
-	short *value;
-	short *parent, *left;
+	uint16_t *value;
+	uint16_t *parent, *left;
 	int findp(int x) {
 		int u = x;
 		while (u != parent[u])
 			u = parent[u];
 		while (x != parent[x]) {
-			short tmp = parent[x];
+			uint16_t tmp = parent[x];
 			parent[x] = u;
 			x = tmp;
 		}
@@ -27,7 +27,7 @@ struct ISMQ {
 		parent[l] = r, left[r] = left[l];
 		return left[l];
 	}
-	void init(int n, short *mem_base) {
+	void init(int n, uint16_t *mem_base) {
 		parent = mem_base;
 		left = mem_base+n+1;
 		value = mem_base+2*n+2;
@@ -58,26 +58,26 @@ static inline int log2int(int x) {
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
-int serial_VGLCS(int nA, char A[], short GA[],
-        int nB, char B[], short GB[]) {
+int serial_VGLCS(int nA, char A[], uint16_t GA[],
+        int nB, char B[], uint16_t GB[]) {
     A--, B--, GA--, GB--;
 	assert(nA < MAXN);
 
-	short *mem_base = (short *) malloc(sizeof(short)*(nA+1)*(nB+1)*3);
-	short *mem_ismq = (short *) malloc(sizeof(short)*(nB+1)*3);
+	uint16_t *mem_base = (uint16_t *) malloc(sizeof(uint16_t)*(nA+1)*(nB+1)*3);
+	uint16_t *mem_ismq = (uint16_t *) malloc(sizeof(uint16_t)*(nB+1)*3);
 	assert(mem_base != NULL);
 	assert(mem_ismq != NULL);
     ISMQ Q[MAXN];
     for (int i = 0; i <= nB; i++)
         Q[i].init(nA, mem_base+(i*(nA+1)*3));
 
-    short ret = 0;
+    uint16_t ret = 0;
     for (int i = 1; i <= nA; i++) {
         int p_begin = i - MIN(GA[i]+1, i);
         ISMQ RQ;
         RQ.init(nB, mem_ismq);
         for (int j = 1; j <= nB; j++) {
-			short tmp = 0;
+			uint16_t tmp = 0;
             if (A[i] == B[j]) {
                 tmp = RQ.get(j - MIN(GB[j]+1, j))+1;
             }
@@ -91,25 +91,25 @@ int serial_VGLCS(int nA, char A[], short GA[],
     return ret;
 }
 
-int parallel_VGLCS(int nA, char A[], short GA[], 
-					int nB, char B[], short GB[]) {
+int parallel_VGLCS(int nA, char A[], uint16_t GA[], 
+					int nB, char B[], uint16_t GB[]) {
 	A--, B--, GA--, GB--;
 	if (nA > nB) {
 		std::swap(GA, GB), std::swap(nA, nB), std::swap(A, B);
 	}
 	assert(nA < MAXN && nB < MAXN);
-	short *mem_base = (short *) malloc(sizeof(short)*(nA+1)*(nB+1)*3);
+	uint16_t *mem_base = (uint16_t *) malloc(sizeof(uint16_t)*(nA+1)*(nB+1)*3);
 	assert(mem_base != NULL);
 	ISMQ Q[MAXN];
 
-	short ret = 0, max_gap = 0;
+	uint16_t ret = 0, max_gap = 0;
 	for (int i = 1; i <= nB; i++)
 		max_gap = MAX(max_gap, GB[i]);
 	max_gap = MIN(max_gap, nB);
 
 	const int lognB = log2int(max_gap+1);
 
-	short tb[MAXLOGN][MAXN] = {};
+	uint16_t tb[MAXLOGN][MAXN] = {};
 	const int P = 20;
 	omp_set_num_threads(P);
 	const int chunk = MAX((nB+P-1) / P, 1);
@@ -140,13 +140,13 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 				
 			// doubling algorithm
 			for (int k = 1; k <= lognB; k++) {
-				short *tbu = tb[k];
-				const short *tbv = tb[k-1];
+				uint16_t *tbu = tb[k];
+				const uint16_t *tbv = tb[k-1];
 				#pragma omp for schedule(static, chunk)
 				for (int j = 1; j <= nB; j++) {
 					if (j-(1<<(k-1)) >= 0) {
-						const short p = tbv[j-(1<<(k-1))];
-						const short q = tbv[j];
+						const uint16_t p = tbv[j-(1<<(k-1))];
+						const uint16_t q = tbv[j];
 						tbu[j] = MAX(q, p);
 					}
 				}
@@ -158,9 +158,9 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 				if (Ai == tmpB[j]) {
 					int l = j - MIN(GB[j]+1, j), r = j-1;
 					int t = logGB[j];
-					const short p = tb[t][l+(1<<t)-1];
-					const short q = tb[t][r];
-					short val = MAX(q, p)+1;
+					const uint16_t p = tb[t][l+(1<<t)-1];
+					const uint16_t q = tb[t][r];
+					uint16_t val = MAX(q, p)+1;
 					Q[j].set(i, val);
 					ret = MAX(ret, val);
 				}

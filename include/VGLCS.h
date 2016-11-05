@@ -1,10 +1,12 @@
 #ifndef VGLCS_H
 #define VGLCS_H
 
-int serial_VGLCS(int nA, char A[], short GA[],
-					int nB, char B[], short GB[]);
+#include <stdint.h>
 
-int parallel_VGLCS(int nA, char A[], short GA[],
-					int nB, char B[], short GB[]);
+int serial_VGLCS(int nA, char A[], uint16_t GA[],
+					int nB, char B[], uint16_t GB[]);
+
+int parallel_VGLCS(int nA, char A[], uint16_t GA[],
+					int nB, char B[], uint16_t GB[]);
 
 #endif
