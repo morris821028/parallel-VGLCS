@@ -108,11 +108,14 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 	max_gap = MIN(max_gap, nB);
 
 	const int lognB = log2int(max_gap+1);
+	uint16_t *mem_tlb = (uint16_t *) malloc(sizeof(uint16_t)*(nB+1)*(lognB+1));
+	uint16_t *tb[MAXLOGN] = {};
+	for (int i = 0; i < MAXLOGN; i++)
+		tb[i] = mem_tlb + (i * (nB+1));
 
-	uint16_t tb[MAXLOGN][MAXN] = {};
 	const int P = 20;
 	omp_set_num_threads(P);
-	const int chunk = MAX((nB+P-1) / P, 1);
+	const int chunk = MAX((nB+P-1) / P, 16);
 	
 	char logGB[MAXN];
 	for (int i = 1; i <= nB; i++) {
@@ -168,6 +171,7 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 		}
 	}
 	free(mem_base);
+	free(mem_tlb);
 	return ret;
 }
 #undef MIN
