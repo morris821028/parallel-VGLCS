@@ -61,7 +61,7 @@
 	} while (0)
 
 void benchmark_large_serial() {
-#define MAXN 5005
+#define MAXN 32768
 	FILE *fin = fopen("test.in", "r");
 	assert(fin != NULL && "cannot open file");
 
@@ -83,7 +83,7 @@ void benchmark_large_serial() {
 }
 
 void benchmark_large_parallel() {
-#define MAXN 5005
+#define MAXN 32768
 	FILE *fin = fopen("test.in", "r");
 	assert(fin != NULL && "cannot open file");
 

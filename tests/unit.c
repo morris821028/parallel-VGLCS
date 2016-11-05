@@ -22,7 +22,7 @@ void test_same() {
 		GB[i] = rand();
 	int expected = n < m ? n : m;
 	assert(serial_VGLCS(n, A, GA, m, B, GB) == expected);
-//	assert(parallel_VGLCS(n, A, GA, m, B, GB) == expected);
+	assert(parallel_VGLCS(n, A, GA, m, B, GB) == expected);
 }
 
 void test_small() {

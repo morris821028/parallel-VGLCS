@@ -2,7 +2,7 @@
 CXX=g++
 
 ifeq ($(DEBUG), 1)
-CFLAGS=-fPIC -std=c++11 -O2 -fopenmp -g3 -march=native -Wall -Wextra -Wshadow -fsanitize=undefined  -fno-omit-frame-pointer -fsanitize=address
+CFLAGS=-fPIC -std=c++11 -O2 -fopenmp -g3 -march=native -Wall -Wextra -Wshadow -fno-omit-frame-pointer -fsanitize=address
 else
 CFLAGS=-fPIC -std=c++11 -O2 -fopenmp -march=native -Wall -Wextra -Wshadow
 endif

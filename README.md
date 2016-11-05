@@ -29,3 +29,10 @@ int main() {
 make
 ./unit
 ```
+
+### Run in Debug Mode ###
+
+```bash
+make DEBUG=1
+./unit
+```

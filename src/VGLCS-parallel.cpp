@@ -5,7 +5,7 @@
 #include <omp.h>
 #include "VGLCS.h"
 
-const int MAXN = 5005;
+const int MAXN = 10005;
 const int MAXLOGN = 16;
 struct ISMQ {
 	uint16_t *value;
@@ -123,19 +123,36 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 		logGB[i] = log2int(r-l+1);
 	}
 
+#ifdef _LIMIT_DA
+	char limGB[MAXN] = {};
+	for (int i = nB; i >= 1; i--) {
+		limGB[i] = MAX(logGB[i], limGB[i]);
+		for (int k = 1; k <= limGB[i]; k++) {
+			int p = MAX(i-(1<<(k-1)), 0);
+			limGB[p] = MAX(limGB[p], k-1);
+		}
+		int l = i - MIN(GB[i]+1, i);
+		int t = logGB[i];
+		limGB[l+(1<<t)-1] = MAX(limGB[l+(1<<t)-1], t);
+	}
+#endif
+
+#if defined(_REPORT) and defined(_LIMIT_DA)
+	int reduce = 0;
+	for (int i = 1; i <= nB; i++)
+		reduce += lognB - limGB[i];
+	printf("target reduces %d\n", reduce);
+#endif
+
 	#pragma omp parallel
 	{
 		// init ISMQ
 		#pragma omp for schedule(static, chunk)
 		for (int i = 0; i <= nB; i++)
 			Q[i].init(nA, mem_base+(i*(nA+1)*3));
-		// copy to stack
-		char tmpB[MAXN];
-		memcpy(tmpB, B, sizeof(char)*(nB+1));
-		
+
 		for (int i = 1; i <= nA; i++) {
 			int p_begin = i - MIN(GA[i]+1, i);
-			char Ai = A[i];
 			// query: incremental suffix maximum query
 			#pragma omp for schedule(static, chunk)
 			for (int j = 1; j <= nB; j++)
@@ -147,7 +164,11 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 				const uint16_t *tbv = tb[k-1];
 				#pragma omp for schedule(static, chunk)
 				for (int j = 1; j <= nB; j++) {
+#ifdef _LIMIT_DA
+					if (j-(1<<(k-1)) >= 0 && k <= limGB[j]) {
+#else					
 					if (j-(1<<(k-1)) >= 0) {
+#endif
 						const uint16_t p = tbv[j-(1<<(k-1))];
 						const uint16_t q = tbv[j];
 						tbu[j] = MAX(q, p);
@@ -155,10 +176,11 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 				}
 			}
 
+			char Ai = A[i];
 			// dynamic programming
 			#pragma omp for schedule(static, chunk) reduction(max: ret)
 			for (int j = 1; j <= nB; j++) {
-				if (Ai == tmpB[j]) {
+				if (Ai == B[j]) {
 					int l = j - MIN(GB[j]+1, j), r = j-1;
 					int t = logGB[j];
 					const uint16_t p = tb[t][l+(1<<t)-1];
