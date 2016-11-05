@@ -105,6 +105,8 @@ int parallel_VGLCS(int nA, char A[], short GA[],
 	short ret = 0, max_gap = 0;
 	for (int i = 1; i <= nB; i++)
 		max_gap = MAX(max_gap, GB[i]);
+	max_gap = MIN(max_gap, nB);
+
 	const int lognB = log2int(max_gap+1);
 
 	short tb[MAXLOGN][MAXN] = {};
