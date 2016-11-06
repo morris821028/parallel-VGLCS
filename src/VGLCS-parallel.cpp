@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <omp.h>
 #include "VGLCS.h"
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 const int MAXN = 10005;
 const int MAXLOGN = 16;
@@ -52,12 +54,61 @@ struct ISMQ {
 		}
 	}
 };
+
 static inline int log2int(int x) {
     return __builtin_clz((int)1) - __builtin_clz(x);
 }
 
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
+struct SparseTable {
+	uint16_t *tb[MAXLOGN];
+	// create tb[0..logN][0..n]
+	void init(int n, int logN, uint16_t *mem_base) {
+		for (int i = 0; i <= logN; i++)
+			tb[i] = mem_base + i*(n+1);
+	}
+	// parallel build 
+	inline void parallel_build(int n, int logN) {
+		for (int k = 1; k <= logN; k++) {
+			uint16_t *tbu = tb[k];
+			const uint16_t *tbv = tb[k-1];
+			#pragma omp for schedule(static)
+			for (int i = 1; i <= n; i++) {
+				if (i-(1<<(k-1)) >= 0) {
+					uint16_t p = tbv[i-(1<<(k-1))];
+					uint16_t q = tbv[i];
+					tbu[i] = MAX(q, p);
+				}
+			}
+		}
+	}
+	// set tb[0][x] = val, and update its relationship
+	void set(int x, uint16_t val, int limG) {
+		tb[0][x] = val;
+		for (int i = 1; i <= limG && (1<<(i-1)) <= x; i++) {
+			uint16_t p = tb[i-1][x-(1<<(i-1))];
+			uint16_t q = tb[i-1][x];
+			tb[i][x] = MAX(p, q);
+		}
+	}
+	// query the maximum value of interval [l..r]
+	inline uint16_t get(int l, int r) {
+		int t = log2int(r-l+1);
+		uint16_t p = tb[t][l+(1<<t)-1];
+		uint16_t q = tb[t][r];
+		return MAX(q, p);
+	}
+	inline uint16_t get(int l, int r, int t) {
+		uint16_t p = tb[t][l+(1<<t)-1];
+		uint16_t q = tb[t][r];
+		return MAX(q, p);
+	}
+};
+
+/**
+ * Variable Gapped Longest Common Subsequence
+ *
+ */
+
 int serial_VGLCS(int nA, char A[], uint16_t GA[],
         int nB, char B[], uint16_t GB[]) {
     A--, B--, GA--, GB--;
@@ -109,9 +160,9 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 
 	const int lognB = log2int(max_gap+1);
 	uint16_t *mem_tlb = (uint16_t *) malloc(sizeof(uint16_t)*(nB+1)*(lognB+1));
-	uint16_t *tb[MAXLOGN] = {};
-	for (int i = 0; i < MAXLOGN; i++)
-		tb[i] = mem_tlb + (i * (nB+1));
+	
+	SparseTable sp_tlb;
+	sp_tlb.init(nB, lognB, mem_tlb);
 
 	const int P = 20;
 	omp_set_num_threads(P);
@@ -123,27 +174,6 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 		logGB[i] = log2int(r-l+1);
 	}
 
-#ifdef _LIMIT_DA
-	char limGB[MAXN] = {};
-	for (int i = nB; i >= 1; i--) {
-		limGB[i] = MAX(logGB[i], limGB[i]);
-		for (int k = 1; k <= limGB[i]; k++) {
-			int p = MAX(i-(1<<(k-1)), 0);
-			limGB[p] = MAX(limGB[p], k-1);
-		}
-		int l = i - MIN(GB[i]+1, i);
-		int t = logGB[i];
-		limGB[l+(1<<t)-1] = MAX(limGB[l+(1<<t)-1], t);
-	}
-#endif
-
-#if defined(_REPORT) and defined(_LIMIT_DA)
-	int reduce = 0;
-	for (int i = 1; i <= nB; i++)
-		reduce += lognB - limGB[i];
-	printf("target reduces %d\n", reduce);
-#endif
-
 	#pragma omp parallel
 	{
 		// init ISMQ
@@ -152,29 +182,17 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 			Q[i].init(nA, mem_base+(i*(nA+1)*3));
 
 		for (int i = 1; i <= nA; i++) {
-			int p_begin = i - MIN(GA[i]+1, i);
 			// query: incremental suffix maximum query
-			#pragma omp for schedule(static, chunk)
-			for (int j = 1; j <= nB; j++)
-				tb[0][j] = Q[j].get(p_begin);
+			{
+				int p_pos = i - MIN(GA[i]+1, i);
+				uint16_t *tb = sp_tlb.tb[0];
+				#pragma omp for schedule(static, chunk)
+				for (int j = 1; j <= nB; j++)
+					tb[j] = Q[j].get(p_pos);
+			}
 				
 			// doubling algorithm
-			for (int k = 1; k <= lognB; k++) {
-				uint16_t *tbu = tb[k];
-				const uint16_t *tbv = tb[k-1];
-				#pragma omp for schedule(static, chunk)
-				for (int j = 1; j <= nB; j++) {
-#ifdef _LIMIT_DA
-					if (j-(1<<(k-1)) >= 0 && k <= limGB[j]) {
-#else					
-					if (j-(1<<(k-1)) >= 0) {
-#endif
-						const uint16_t p = tbv[j-(1<<(k-1))];
-						const uint16_t q = tbv[j];
-						tbu[j] = MAX(q, p);
-					}
-				}
-			}
+			sp_tlb.parallel_build(nB, lognB);
 
 			char Ai = A[i];
 			// dynamic programming
@@ -182,10 +200,7 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 			for (int j = 1; j <= nB; j++) {
 				if (Ai == B[j]) {
 					int l = j - MIN(GB[j]+1, j), r = j-1;
-					int t = logGB[j];
-					const uint16_t p = tb[t][l+(1<<t)-1];
-					const uint16_t q = tb[t][r];
-					uint16_t val = MAX(q, p)+1;
+					uint16_t val = sp_tlb.get(l, r, logGB[j])+1;
 					Q[j].set(i, val);
 					ret = MAX(ret, val);
 				}
@@ -196,5 +211,21 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 	free(mem_tlb);
 	return ret;
 }
+
+/**
+ * Elastic Variable Gapped Longest Common Subsequence
+ *
+ */
+
+int serial_ELVGLCS(int nA, char A[], uint16_t GA[][2],
+					int nB, char B[], uint16_t GB[][2]) {
+	return 0;
+}
+
+int parallel_ELVGLCS(int nA, char A[], uint16_t GA[][2],
+					int nB, char B[], uint16_t GB[][2]) {
+	return 0;
+}
+
 #undef MIN
 #undef MAX
