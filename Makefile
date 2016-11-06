@@ -19,8 +19,8 @@ VGLCS-parallel.o: ./src/VGLCS-parallel.cpp $(HEADERS)
 unit: VGLCS-parallel.o ./tests/unit.c $(HEADERS)
 	$(CXX) $(CFLAGS) ./tests/unit.c VGLCS-parallel.o -o unit
 
-pin: ./src/pin.cpp
-	$(CXX) $(CFLAGS) src/pin.cpp -o pin
+pin: ./tests/pin.cpp
+	$(CXX) $(CFLAGS) src/tests.cpp -o pin
 
 benchmark: VGLCS-parallel.o ./benchmarks/benchmark.c $(HEADERS)
 	$(CXX) $(CFLAGS) ./benchmarks/benchmark.c VGLCS-parallel.o -o benchmark -lrt
