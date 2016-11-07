@@ -26,5 +26,5 @@ benchmark: VGLCS-parallel.o ./benchmarks/benchmark.c $(HEADERS)
 	$(CXX) $(CFLAGS) ./benchmarks/benchmark.c VGLCS-parallel.o -o benchmark -lrt
 
 clean:
-	rm unit benchmark VGLCS-parallel.o pin
+	-rm unit benchmark VGLCS-parallel.o pin
 	

@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 	int MAXG = atoi(argv[2]);
 	fprintf(stderr, "MAXN = %d\n", MAXN);
     srand(time(NULL));
-    int testcase = 10;
+    int testcase = 3;
     while (testcase--) {
     	int n = MAXN, m = MAXN;
     	for (int i = 0; i < n; i++)

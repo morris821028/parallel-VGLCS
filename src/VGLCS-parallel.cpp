@@ -9,6 +9,11 @@
 
 const int MAXN = 10005;
 const int MAXLOGN = 16;
+
+static inline int log2int(int x) {
+	return __builtin_clz((int) 1) - __builtin_clz(x);
+}
+
 struct ISMQ {
 	uint16_t *value;
 	uint16_t *parent, *left;
@@ -32,7 +37,7 @@ struct ISMQ {
 	void init(int n, uint16_t *mem_base) {
 		parent = mem_base;
 		left = mem_base+n+1;
-		value = mem_base+2*n+2;
+		value = mem_base+(n+1)*2;
 		for (int i = 0; i <= n; i++)
 			parent[i] = i;
 		for (int i = 0; i <= n; i++)
@@ -55,14 +60,10 @@ struct ISMQ {
 	}
 };
 
-static inline int log2int(int x) {
-    return __builtin_clz((int)1) - __builtin_clz(x);
-}
-
 struct SparseTable {
 	uint16_t *tb[MAXLOGN];
 	// create tb[0..logN][0..n]
-	void init(int n, int logN, uint16_t *mem_base) {
+	inline void init(int n, int logN, uint16_t *mem_base) {
 		for (int i = 0; i <= logN; i++)
 			tb[i] = mem_base + i*(n+1);
 	}
@@ -82,7 +83,7 @@ struct SparseTable {
 		}
 	}
 	// set tb[0][x] = val, and update its relationship
-	void set(int x, uint16_t val, int limG) {
+	inline void set(int x, uint16_t val, int limG) {
 		tb[0][x] = val;
 		for (int i = 1; i <= limG && (1<<(i-1)) <= x; i++) {
 			uint16_t p = tb[i-1][x-(1<<(i-1))];
@@ -149,46 +150,51 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 		std::swap(GA, GB), std::swap(nA, nB), std::swap(A, B);
 	}
 	assert(nA < MAXN && nB < MAXN);
-	uint16_t *mem_base = (uint16_t *) malloc(sizeof(uint16_t)*(nA+1)*(nB+1)*3);
-	assert(mem_base != NULL);
+
 	ISMQ Q[MAXN];
-
+	char logGB[MAXN];
 	uint16_t ret = 0, max_gap = 0;
-	for (int i = 1; i <= nB; i++)
-		max_gap = MAX(max_gap, GB[i]);
-	max_gap = MIN(max_gap, nB);
 
-	const int lognB = log2int(max_gap+1);
-	uint16_t *mem_tlb = (uint16_t *) malloc(sizeof(uint16_t)*(nB+1)*(lognB+1));
-	
-	SparseTable sp_tlb;
-	sp_tlb.init(nB, lognB, mem_tlb);
+	{
+		for (int i = 1; i <= nB; i++)
+			max_gap = MAX(max_gap, GB[i]);
+
+		max_gap = MIN(max_gap, nB);
+
+		for (int i = 1; i <= nB; i++) {
+			int l = i - MIN(GB[i]+1, i), r = i-1;
+			logGB[i] = log2int(r-l+1);
+		}
+	}
 
 	const int P = 20;
-	omp_set_num_threads(P);
-	const int chunk = MAX((nB+P-1) / P, 16);
+	const int lognB = log2int(max_gap+1);
+	uint16_t *mem_tlbD = (uint16_t *) malloc(sizeof(uint16_t)*(nA+1)*3*(nB+1));
+	uint16_t *mem_tlbR = (uint16_t *) malloc(sizeof(uint16_t)*(nB+1)*(lognB+1));	
+	SparseTable sp_tlb;
 	
-	char logGB[MAXN];
-	for (int i = 1; i <= nB; i++) {
-		int l = i - MIN(GB[i]+1, i), r = i-1;
-		logGB[i] = log2int(r-l+1);
+	{
+		assert(mem_tlbD != NULL);
+		assert(mem_tlbR != NULL);
+		sp_tlb.init(nB, lognB, mem_tlbR);
+		omp_set_num_threads(P);
 	}
 
 	#pragma omp parallel
-	{
+	{	
 		// init ISMQ
-		#pragma omp for schedule(static, chunk)
+		#pragma omp for schedule(static)
 		for (int i = 0; i <= nB; i++)
-			Q[i].init(nA, mem_base+(i*(nA+1)*3));
+			Q[i].init(nA, mem_tlbD+(i*(nA+1)*3));
 
 		for (int i = 1; i <= nA; i++) {
 			// query: incremental suffix maximum query
 			{
-				int p_pos = i - MIN(GA[i]+1, i);
+				int r = i - MIN(GA[i]+1, i);
 				uint16_t *tb = sp_tlb.tb[0];
-				#pragma omp for schedule(static, chunk)
+				#pragma omp for schedule(static)
 				for (int j = 1; j <= nB; j++)
-					tb[j] = Q[j].get(p_pos);
+					tb[j] = Q[j].get(r);
 			}
 				
 			// doubling algorithm
@@ -196,7 +202,7 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 
 			char Ai = A[i];
 			// dynamic programming
-			#pragma omp for schedule(static, chunk) reduction(max: ret)
+			#pragma omp for schedule(static) reduction(max: ret)
 			for (int j = 1; j <= nB; j++) {
 				if (Ai == B[j]) {
 					int l = j - MIN(GB[j]+1, j), r = j-1;
@@ -207,8 +213,8 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 			}
 		}
 	}
-	free(mem_base);
-	free(mem_tlb);
+	free(mem_tlbD);
+	free(mem_tlbR);
 	return ret;
 }
 
@@ -224,7 +230,81 @@ int serial_ELVGLCS(int nA, char A[], uint16_t GA[][2],
 
 int parallel_ELVGLCS(int nA, char A[], uint16_t GA[][2],
 					int nB, char B[], uint16_t GB[][2]) {
-	return 0;
+	A--, B--, GA--, GB--;
+	if (nA > nB) {
+		std::swap(GA, GB), std::swap(nA, nB), std::swap(A, B);
+	}
+	assert(nA < MAXN && nB < MAXN);
+
+	uint16_t ret = 0;
+	uint16_t max_gapA = 0, max_gapB = 0;
+	for (int i = 1; i <= nA; i++)
+		max_gapA = MAX(max_gapA, GB[i][1]);
+	max_gapA = MIN(max_gapA, nA);
+	for (int i = 1; i <= nB; i++)
+		max_gapB = MAX(max_gapB, GB[i][1]);
+	max_gapB = MIN(max_gapB, nB);
+
+	const int lognA = log2int(max_gapA+1);
+	const int lognB = log2int(max_gapB+1);
+	uint16_t *mem_tlbD = (uint16_t *) malloc(sizeof(uint16_t)*(nA+1)*(lognA+1)*(nB+1));
+	uint16_t *mem_tlbR = (uint16_t *) malloc(sizeof(uint16_t)*(nB+1)*(lognB+1));
+	assert(mem_tlbD != NULL && mem_tlbR != NULL);
+	
+	SparseTable Q[MAXN];
+	SparseTable sp_tlb;
+	sp_tlb.init(nB, lognB, mem_tlbR);
+
+	const int P = 20;
+	omp_set_num_threads(P);
+	
+	char logGA[MAXN], logGB[MAXN];
+	for (int i = 1; i <= nA; i++) {
+		int l = i - MIN(GA[i][1]+1, i), r = i - MIN(GA[i][0]+1, i);
+		logGA[i] = log2int(r-l+1);
+	}
+	for (int i = 1; i <= nB; i++) {
+		int l = i - MIN(GB[i][1]+1, i), r = i - MIN(GB[i][0]+1, i);
+		logGB[i] = log2int(r-l+1);
+	}
+
+	#pragma omp parallel
+	{
+		// init Sparse Table for
+		#pragma omp for schedule(static)
+		for (int i = 0; i <= nB; i++)
+			Q[i].init(nA, lognA, mem_tlbD+(i*(nA+1)*(lognA+1)));
+
+		for (int i = 1; i <= nA; i++) {
+			// query: incremental suffix maximum query
+			{
+				int l = i - MIN(GA[i][1]+1, i), r = i - MIN(GA[i][0]+1, i);
+				int t = logGA[i];
+				uint16_t *tb = sp_tlb.tb[0];
+				#pragma omp for schedule(static)
+				for (int j = 1; j <= nB; j++)
+					tb[j] = Q[j].get(l, r, t);
+			}
+				
+			// doubling algorithm
+			sp_tlb.parallel_build(nB, lognB);
+
+			char Ai = A[i];
+			// dynamic programming
+			#pragma omp for schedule(static) reduction(max: ret)
+			for (int j = 1; j <= nB; j++) {
+				if (Ai == B[j]) {
+					int l = j - MIN(GB[j][1]+1, j), r = j - MIN(GB[j][0]+1, j);
+					uint16_t val = sp_tlb.get(l, r, logGB[j])+1;
+					Q[j].set(i, val, lognA);
+					ret = MAX(ret, val);
+				}
+			}
+		}
+	}
+	free(mem_tlbD);
+	free(mem_tlbR);
+	return ret;
 }
 
 #undef MIN
