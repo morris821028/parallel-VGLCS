@@ -8,23 +8,29 @@ CFLAGS=-fPIC -std=c++11 -O2 -fopenmp -march=native -Wall -Wextra -Wshadow
 endif
 CFLAGS+= -Iinclude
 
-HEADERS=./include/VGLCS.h
-OBJECTS=VGLCS-parallel.o
+HEADERS=./include/VGLCS.h ./include/config.h ./include/helper.h
+OBJECTS=VGLCS-parallel.o ELVGLCS-parallel.o
 
-all: unit benchmark pin $(OBJECTS)
+all: VG-unit ELVG-unit benchmark pin $(OBJECTS)
 
 VGLCS-parallel.o: ./src/VGLCS-parallel.cpp $(HEADERS)
 	$(CXX) $(CFLAGS) -c src/VGLCS-parallel.cpp
 
-unit: VGLCS-parallel.o ./tests/unit.c $(HEADERS)
-	$(CXX) $(CFLAGS) ./tests/unit.c VGLCS-parallel.o -o unit
+ELVGLCS-parallel.o: ./src/ELVGLCS-parallel.cpp $(HEADERS)
+	$(CXX) $(CFLAGS) -c src/ELVGLCS-parallel.cpp
+
+VG-unit: VGLCS-parallel.o ./tests/VG-unit.c $(HEADERS)
+	$(CXX) $(CFLAGS) ./tests/VG-unit.c VGLCS-parallel.o -o VG-unit
+
+ELVG-unit: ELVGLCS-parallel.o ./tests/ELVG-unit.c $(HEADERS)
+	$(CXX) $(CFLAGS) ./tests/ELVG-unit.c ELVGLCS-parallel.o -o ELVG-unit
 
 pin: ./tests/pin.cpp
 	$(CXX) $(CFLAGS) ./tests/pin.cpp -o pin
 
-benchmark: VGLCS-parallel.o ./benchmarks/benchmark.c $(HEADERS)
+benchmark: $(OBJECTS) ./benchmarks/benchmark.c $(HEADERS)
 	$(CXX) $(CFLAGS) ./benchmarks/benchmark.c VGLCS-parallel.o -o benchmark -lrt
 
 clean:
-	-rm unit benchmark VGLCS-parallel.o pin
+	-rm VG-unit benchmark pin $(OBJECTS)
 	

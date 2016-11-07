@@ -34,9 +34,9 @@ int trivial_VG(int nA, char A[], uint16_t GA[],
 			} else {
 				dp[i][j] = 0;
 			}
-			// printf("%d ", dp[i][j]);
+//			printf("%d ", dp[i][j]);
 		}
-		// puts("");
+//		puts("");
 	}
 #undef MAXN
 	return ret;
