@@ -14,32 +14,33 @@
  *
  */
 
-int serial_VGLCS(int nA, char A[], uint16_t GA[],
-        int nB, char B[], uint16_t GB[]) {
+int serial_VGLCS(int nA, char A[], int16_t GA[],
+        int nB, char B[], int16_t GB[]) {
     A--, B--, GA--, GB--;
 	assert(nA < MAXN);
 
-	uint16_t *mem_base = (uint16_t *) malloc(sizeof(uint16_t)*(nA+1)*(nB+1)*3);
-	uint16_t *mem_ismq = (uint16_t *) malloc(sizeof(uint16_t)*(nB+1)*3);
+	int16_t *mem_base = (int16_t *) malloc(sizeof(int16_t)*(nA+1)*(nB+1)*3);
+	int16_t *mem_ismq = (int16_t *) malloc(sizeof(int16_t)*(nB+1)*3);
 	assert(mem_base != NULL);
 	assert(mem_ismq != NULL);
     ISMQ Q[MAXN];
     for (int i = 0; i <= nB; i++)
         Q[i].init(nA, mem_base+(i*(nA+1)*3));
 
-    uint16_t ret = 0;
+    int16_t ret = 0;
     for (int i = 1; i <= nA; i++) {
-        int p_begin = i - MIN(GA[i]+1, i);
+        int r = i - MIN(GA[i]+1, i);
         ISMQ RQ;
         RQ.init(nB, mem_ismq);
         for (int j = 1; j <= nB; j++) {
-			uint16_t tmp = 0;
+			int16_t tmp = 0;
             if (A[i] == B[j]) {
                 tmp = RQ.get(j - MIN(GB[j]+1, j))+1;
+            	ret = MAX(ret, tmp);
             }
-            RQ.set(j, Q[j].get(p_begin));
-            Q[j].set(i, tmp);
-            ret = MAX(ret, tmp);
+            RQ.set(j, Q[j].get(r));
+			if (tmp)
+	            Q[j].set(i, tmp);
         }
     }
 	free(mem_base);
@@ -47,8 +48,8 @@ int serial_VGLCS(int nA, char A[], uint16_t GA[],
     return ret;
 }
 
-int parallel_VGLCS(int nA, char A[], uint16_t GA[], 
-					int nB, char B[], uint16_t GB[]) {
+int parallel_VGLCS(int nA, char A[], int16_t GA[], 
+					int nB, char B[], int16_t GB[]) {
 	A--, B--, GA--, GB--;
 	if (nA > nB) {
 		std::swap(GA, GB), std::swap(nA, nB), std::swap(A, B);
@@ -57,7 +58,7 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 
 	ISMQ Q[MAXN];
 	char logGB[MAXN];
-	uint16_t ret = 0, max_gap = 0;
+	int16_t ret = 0, max_gap = 0;
 
 	{
 		for (int i = 1; i <= nB; i++)
@@ -73,8 +74,8 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 
 	const int P = 20;
 	const int lognB = log2int(max_gap+1);
-	uint16_t *mem_tlbD = (uint16_t *) malloc(sizeof(uint16_t)*(nA+1)*3*(nB+1));
-	uint16_t *mem_tlbR = (uint16_t *) calloc((nB+1)*(lognB+1), sizeof(uint16_t));	
+	int16_t *mem_tlbD = (int16_t *) malloc(sizeof(int16_t)*(nA+1)*3*(nB+1));
+	int16_t *mem_tlbR = (int16_t *) calloc((nB+1)*(lognB+1), sizeof(int16_t));	
 	SparseTable sp_tlb;
 	
 	{
@@ -95,7 +96,7 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 			// query: incremental suffix maximum query
 			{
 				int r = i - MIN(GA[i]+1, i);
-				uint16_t *tb = sp_tlb.tb[0];
+				int16_t *tb = sp_tlb.tb[0];
 				#pragma omp for schedule(static)
 				for (int j = 1; j <= nB; j++)
 					tb[j] = Q[j].get(r);
@@ -110,7 +111,7 @@ int parallel_VGLCS(int nA, char A[], uint16_t GA[],
 			for (int j = 1; j <= nB; j++) {
 				if (Ai == B[j]) {
 					int l = j - MIN(GB[j]+1, j), r = j-1;
-					uint16_t val = sp_tlb.get(l, r, logGB[j])+1;
+					int16_t val = sp_tlb.get(l, r, logGB[j])+1;
 					Q[j].set(i, val);
 					ret = MAX(ret, val);
 				}

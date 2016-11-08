@@ -14,21 +14,21 @@
  *
  */
 
-int serial_ELVGLCS(int nA, char A[], uint16_t GA[][2],
-					int nB, char B[], uint16_t GB[][2]) {
+int serial_ELVGLCS(int nA, char A[], int16_t GA[][2],
+					int nB, char B[], int16_t GB[][2]) {
 	return 0;
 }
 
-int parallel_ELVGLCS(int nA, char A[], uint16_t GA[][2],
-					int nB, char B[], uint16_t GB[][2]) {
+int parallel_ELVGLCS(int nA, char A[], int16_t GA[][2],
+					int nB, char B[], int16_t GB[][2]) {
 	A--, B--, GA--, GB--;
 	if (nA > nB) {
 		std::swap(GA, GB), std::swap(nA, nB), std::swap(A, B);
 	}
 	assert(nA < MAXN && nB < MAXN);
 
-	uint16_t ret = 0;
-	uint16_t max_gapA = 0, max_gapB = 0;
+	int16_t ret = 0;
+	int16_t max_gapA = 0, max_gapB = 0;
 	for (int i = 1; i <= nA; i++)
 		max_gapA = MAX(max_gapA, GA[i][1]);
 	max_gapA = MIN(max_gapA, nA);
@@ -38,8 +38,8 @@ int parallel_ELVGLCS(int nA, char A[], uint16_t GA[][2],
 
 	const int lognA = log2int(max_gapA+1);
 	const int lognB = log2int(max_gapB+1);
-	uint16_t *mem_tlbD = (uint16_t *) malloc((nA+1)*(lognA+1)*(nB+1)*sizeof(uint16_t));
-	uint16_t *mem_tlbR = (uint16_t *) malloc((nB+1)*(lognB+1)*sizeof(uint16_t));
+	int16_t *mem_tlbD = (int16_t *) malloc((nA+1)*(lognA+1)*(nB+1)*sizeof(int16_t));
+	int16_t *mem_tlbR = (int16_t *) malloc((nB+1)*(lognB+1)*sizeof(int16_t));
 	assert(mem_tlbD != NULL && mem_tlbR != NULL);
 	
 	SparseTable Q[MAXN];
@@ -71,7 +71,7 @@ int parallel_ELVGLCS(int nA, char A[], uint16_t GA[][2],
 			{
 				int l = i - MIN(GA[i][1]+1, i), r = i - MIN(GA[i][0]+1, i);
 				int t = logGA[i];
-				uint16_t *tb = sp_tlb.tb[0];
+				int16_t *tb = sp_tlb.tb[0];
 				#pragma omp for schedule(static)
 				for (int j = 1; j <= nB; j++) {
 					tb[j] = Q[j].get(l, r, t);
@@ -87,7 +87,7 @@ int parallel_ELVGLCS(int nA, char A[], uint16_t GA[][2],
 			for (int j = 1; j <= nB; j++) {
 				if (Ai == B[j]) {
 					int l = j - MIN(GB[j][1]+1, j), r = j - MIN(GB[j][0]+1, j);
-					uint16_t val = sp_tlb.get(l, r, logGB[j])+1;
+					int16_t val = sp_tlb.get(l, r, logGB[j])+1;
 					Q[j].set(i, val, lognA);
 					ret = MAX(ret, val);
 				} else {

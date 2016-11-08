@@ -66,7 +66,7 @@ void benchmark_large_serial() {
 	assert(fin != NULL && "cannot open file");
 
 	static char A[MAXN], B[MAXN];
-	static uint16_t GA[MAXN], GB[MAXN];
+	static int16_t GA[MAXN], GB[MAXN];
 	int nA, nB;
 	while (fscanf(fin, "%s", A) == 1) {
 		nA = strlen(A);
@@ -88,7 +88,7 @@ void benchmark_large_parallel() {
 	assert(fin != NULL && "cannot open file");
 
 	static char A[MAXN], B[MAXN];
-	static uint16_t GA[MAXN], GB[MAXN];
+	static int16_t GA[MAXN], GB[MAXN];
 	int nA, nB;
 	while (fscanf(fin, "%s", A) == 1) {
 		nA = strlen(A);
