@@ -17,3 +17,7 @@ Given two sequences of a string X and Y, and the gap constraint corresponding di
 * using range tree: O(n m log^2 n)
 * using monotone queue: O(n m |r|)
 * using disjoint set: O(alpha n m) 
+
+### Update ###
+
+Rank 1 Accpeted(52ms, 4MB) on Zerojudge 2016-11-08 19:52
