@@ -1,24 +1,25 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int MAXN = 805;
+const int MAXN = 801;
 
-class ISMQ {
-private:
-	short value[MAXN];
-	short parent[MAXN], left[MAXN];
+struct ISMQ {
+	int16_t value[MAXN];
+	int16_t parent[MAXN], left[MAXN];
 	int findp(int x) {
-		return parent[x] == x ? x : (parent[x] = findp(parent[x]));
-	}
+        return parent[x] == x ? x : (parent[x] = findp(parent[x]));
+    }
 	inline int joint(int l, int r) {
 		l = findp(l), r = findp(r);
 		parent[l] = r, left[r] = left[l];
-		return left[l];
+		return left[r];
 	}
-public:
 	void init(int n) {
 		for (int i = 0; i <= n; i++)
-			parent[i] = i, left[i] = i, value[i] = 0;
+			parent[i] = i;
+		for (int i = 0; i <= n; i++)
+			left[i] = i;
+		memset(value, 0, sizeof(value[0])*(n+1));
 	}
 	int get(int x) {
 		return value[findp(x)];
@@ -31,14 +32,13 @@ public:
 			y = findp(y);
 			if (value[y] > val)
 				return ;
-			if (value[y] <= val)
-				y = joint(y, x);
+			y = joint(y, x);
 			y--;
 		}
 	}
 };
-int run(int nA, char A[], short GA[], 
-		int nB, char B[], short GB[]) {
+int run(int nA, char A[], int16_t GA[], 
+		int nB, char B[], int16_t GB[]) {
 	A--, B--, GA--, GB--;
 	if (nA > nB) {
 		swap(GA, GB), swap(nA, nB), swap(A, B);
@@ -48,28 +48,30 @@ int run(int nA, char A[], short GA[],
 	for (int i = 0; i <= nB; i++)
 		Q[i].init(nA);
 		
-	short ret = 0;
+	int16_t ret = 0;
 	for (int i = 1; i <= nA; i++) {
-		int p_begin = i - min(GA[i]+1, i);
-		short dp[MAXN] = {};
-		ISMQ RQ;
+		int r = i - min(GA[i]+1, i);
+		static ISMQ RQ;
 		RQ.init(nB);
 		for (int j = 1; j <= nB; j++) {
+			int16_t tmp = 0;
 			if (A[i] == B[j]) {
-				dp[j] = RQ.get(j - min(GB[j]+1, j))+1;
-				ret = max(ret, dp[j]);
+				tmp = RQ.get(j - min(GB[j]+1, j))+1;
+				ret = max(ret, tmp);
 			}
-			RQ.set(j, Q[j].get(p_begin));
+			int16_t Qr = Q[j].get(r);
+			if (Qr)
+				RQ.set(j, Qr);
+			if (tmp)
+				Q[j].set(i, tmp);
 		}
-		for (int j = 1; j <= nB; j++)
-			Q[j].set(i, dp[j]);
 	}
 	return ret;
 }
 
 int main() {
 	static char A[MAXN], B[MAXN];
-	static short GA[MAXN], GB[MAXN];
+	static int16_t GA[MAXN], GB[MAXN];
 	int nA, nB, Q;
 	while (scanf("%s %s", A, B) == 2) {
 		nA = strlen(A);
@@ -92,3 +94,4 @@ int main() {
 	}
 	return 0;
 }
+
