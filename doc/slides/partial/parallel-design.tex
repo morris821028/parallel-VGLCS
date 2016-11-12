@@ -25,7 +25,7 @@
 		\setlength\itemsep{1em}
 		\item We want to remove \texttt{All[i][j]} because its data dependency 
 			is hard to parallel.
-		\item The $O(n \log n)$ -- $O(1)$ sparse table is a good alternative plan. However, parallel algorithm will be $O(n^2 \log n / p + n \log n)$ with $p$ processors.
+		\item The $O(n \log n)$ -- $O(1)$ sparse table is a good alternative plan. However, parallel algorithm will be $O((n^2 \log n) / p + n \log n)$ with $p$ processors.
 	\end{itemize}
 \end{frame}
 
@@ -35,7 +35,7 @@
 		\setlength\itemsep{1em}
 		\item Dynamic data relocation improve the data locality
 		\item Design auxiliary structure like fractional cascading
-		\footnote{Churchill Navigation's Programming Challange 2015\url{https://www.zhihu.com/question/27729745}}
+		\footnote{Churchill Navigation's Programming Challange 2015 \url{https://www.zhihu.com/question/27729745}}
 		\item Use \textbf{van Emde Boas} layout whose leaves point to intervals in a packed memory structure.
 		\footnote{MIT: Cache-Oblivious Search Trees Project \url{http://supertech.csail.mit.edu/cacheObliviousBTree.html}}
 	\end{itemize}
@@ -112,5 +112,6 @@
 			\end{itemize}
 		\item Loop fission / fusion: improve data locality, 
 			but maybe increase thread overhead.
+		\item Data preprocessing about the boundary of computation: use a simple dynamic programing to solve it before paralleling serial algorithm
 	\end{itemize}
 \end{frame}
