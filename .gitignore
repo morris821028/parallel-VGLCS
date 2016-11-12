@@ -16,6 +16,7 @@ VGLCS-parallel
 unit
 benchmark
 *.exe
+*unit
 
 ## Object files
 
