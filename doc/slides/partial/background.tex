@@ -5,16 +5,9 @@
     \begin{itemize}
     	\setlength\itemsep{1em}
     	\item VGLCS can be solved in $O(n^2)$ time and $O(n^2)$ space.
-    	\item Wavefront parallelism
+    	\item Wavefront parallelism need to exploit data reuse effectively between adjacent tiles to ensure that locality is also enhanced.
     \end{itemize}
     \begin{figure}
 		\includegraphics[scale=0.20]{figure/fig-wavefront-dp.png}
-	\end{figure}
-\end{frame}
-
-\begin{frame}
-	\frametitle{VGLCS Example}
-	\begin{figure}
-		\includegraphics[scale=0.3]{figure/fig-VGLCS-ex.png}
 	\end{figure}
 \end{frame}
