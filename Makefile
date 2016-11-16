@@ -32,5 +32,5 @@ benchmark: $(OBJECTS) ./benchmarks/benchmark.c $(HEADERS)
 	$(CXX) $(CFLAGS) ./benchmarks/benchmark.c VGLCS-parallel.o -o benchmark -lrt
 
 clean:
-	-rm VG-unit benchmark pin $(OBJECTS)
+	-rm VG-unit ELVG-unit benchmark pin $(OBJECTS)
 	
