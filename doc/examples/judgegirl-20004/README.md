@@ -36,3 +36,8 @@ perf stat --repeat 5 -e cache-misses,cache-references ./rmq >/dev/null
 
        2.171397899 seconds time elapsed                                          ( +-  0.44% )
 ```
+
+|Method                | Time   | Space |
+|----------------------|--------|-------|
+|parallel-rmq          | 4116 ms| 5.6 MB|
+|parallel-cartesian-rmq| 2594 ms| 3.5 MB|
