@@ -3,7 +3,7 @@
 using namespace std;
 
 static inline int log2int(int x) {
-    return __builtin_clz((int) 1) - __builtin_clz(x);
+    return 31 - __builtin_clz(x);
 }
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
