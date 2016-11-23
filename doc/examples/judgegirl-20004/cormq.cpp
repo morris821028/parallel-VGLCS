@@ -3,41 +3,41 @@
 using namespace std;
 
 static inline int log2int(int x) {
-    return __builtin_clz((int) 1) - __builtin_clz(x);
+    return 31 - __builtin_clz(x);
 }
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
-#define LOGS 3
+#define LOGS 4
 #define POWS (1<<LOGS)
-const int MAXN = 30005;
+const int MAXN = 100005;
 const int MAXLOGN = 20;
 struct miniSparseTable {
 	int16_t *oA;
     int16_t *tb[MAXLOGN];
     int16_t *pblock, *sblock;
-    uint32_t *tree;
+    uint64_t *tree;
     int M, Ms, logMs;
-    inline void init(int N, int16_t A[], int8_t *mem) {
+    inline void init(int N, int logN, int8_t *mem) {
 		M = ((N+POWS)>>LOGS)<<LOGS;
 		Ms = M>>LOGS;
-		logMs = log2int(Ms);
+		logMs = MIN(log2int(Ms), logN);
 		for (int i = 0; i <= logMs; i++)
 			tb[i] = (int16_t *) mem, mem += sizeof(int16_t)*(Ms);
 		pblock = (int16_t *) mem, mem += sizeof(int16_t)*M;
 		sblock = (int16_t *) mem, mem += sizeof(int16_t)*M;
-		tree = (uint32_t*) mem, mem += sizeof(uint32_t)*Ms;
+		tree = (uint64_t*) mem, mem += sizeof(uint64_t)*Ms;
     }
     // parallel build
-    static uint32_t signature(int16_t A[]) {    	
+    static uint64_t signature(int16_t A[]) {    	
 	    struct Node {
 			int16_t val;
 			int8_t l, r, p;
 		} D[POWS+1];
     	D[0].val = SHRT_MAX;
 		D[0].l = D[0].r = D[0].p = 0;
-		uint32_t mask = 0;
+		uint64_t mask = 0;
     	for (int i = 1; i <= POWS; i++) {
     		D[i].val = *A, A++;
     		D[i].l = D[i].r = D[i].p = 0;
@@ -47,11 +47,11 @@ struct miniSparseTable {
     		D[D[p].r].p = i;
     		D[i].l = D[p].r, D[i].p = p;
     		D[p].r = i;
-    		mask = mask | (cnt<<((i-1)<<2));
+    		mask = mask | (((uint64_t) cnt)<<((i-1)<<2));
 		}
     	return mask;
 	}
-	static inline int8_t RMQ(uint32_t tree, int8_t l, int8_t r) {
+	static inline int8_t RMQ(uint64_t tree, int8_t l, int8_t r) {
 		int8_t mxIdx = l, x = 0;
 		for (l++; l <= r; l++) {
 			x = x + 1 - ((tree>>(l<<2))&15);
@@ -60,13 +60,14 @@ struct miniSparseTable {
 		}
 		return mxIdx;
 	}
-    inline void parallel_build(int16_t A[]) {
+    inline void parallel_build(int16_t A[], int16_t logN) {
     	oA = A;
-		int tmplogMs = logMs, tmpMs = Ms;	
+		int tmplogMs = MIN(logMs, logN), tmpMs = Ms;	
 		int16_t *tbu = tb[0];
         #pragma omp for schedule(static)
 		for (int i = 0; i < M; i += POWS) {
-			for (int j = 0, mx = 0; j < POWS; j++) {
+			int16_t mx = 0;
+			for (int j = 0; j < POWS; j++) {
 				mx = MAX(mx, A[i+j]);
 				pblock[i+j] = mx;
 			}
@@ -75,7 +76,8 @@ struct miniSparseTable {
 
 		#pragma omp for schedule(static)
 		for (int i = 0; i < M; i += POWS) {
-			for (int j = POWS-1, mx = 0; j >= 0; j--) {
+			int16_t mx = 0;
+			for (int j = POWS-1; j >= 0; j--) {
 				mx = MAX(mx, A[i+j]);
 				sblock[i+j] = mx;
 			}
@@ -124,15 +126,15 @@ struct miniSparseTable {
     // query the maximum value of interval [l..r]
     inline int16_t get(int l, int r, int t) {
     	if (unlikely((l>>LOGS) == (r>>LOGS)))
-    		return oA[((l>>LOGS)<<LOGS)+RMQ(tree[l>>LOGS], l&7, r&7)];
+    		return oA[((l>>LOGS)<<LOGS)+RMQ(tree[l>>LOGS], l&(POWS-1), r&(POWS-1))];
 		int16_t ret = 0;
-		if ((r&7) != 7) {
+		if ((r&(POWS-1)) != (POWS-1)) {
 			ret = MAX(pblock[r], ret);
-			r = r-1-(r&7);
+			r = r-1-(r&(POWS-1));
 		}
-		if (l&7) {
+		if (l&(POWS-1)) {
 			ret = MAX(sblock[l], ret);
-			l = l+8-(l&7);
+			l = l+POWS-(l&(POWS-1));
 		}
 		if (unlikely(l > r))
 			return ret;
@@ -144,70 +146,77 @@ struct miniSparseTable {
 		ret = MAX(q, ret);
         return ret;
     }
-    static int f(int N) {
+    static size_t f(int N, int logN) {
     	const int M = ((N+POWS)>>LOGS)<<LOGS;
     	const int Ms = M>>LOGS;
-    	const int logMs = log2int(Ms);
+    	const int logMs = MIN(log2int(Ms), logN);
     	return sizeof(int16_t)*(logMs+1)*(Ms)
 			+ sizeof(int16_t)*M*2
-			+ sizeof(uint32_t)*Ms;
+			+ sizeof(uint64_t)*Ms;
 	}
 };
 //#undef LOGS
 //#undef POWS
 
-int16_t A[MAXN] = {};
-unsigned int seed = 0;
-unsigned int p_random() {return seed = (seed*9301+49297);}
+uint32_t seed = 0;
+uint32_t p_func(uint32_t x) {return x*9301+49297;}
+uint32_t p_random() {return seed = p_func(seed);}
+
 int main() {
-	freopen("2.in", "r", stdin);
-	int N, M, S;
-	scanf("%d %d %d", &N, &M, &S);
+	int N, M, S, MOD;
+	scanf("%d %d %d %d", &N, &M, &S, &MOD);
+
 	seed = S;
 
+	int16_t A[MAXN] = {};
+	int32_t L[MAXN] = {};
 	for (int i = 1; i <= N; i++)
-		A[i] = p_random()%N;
+		A[i] = p_random()&MOD;
+	for (int i = 1; i <= N; i++)	
+		L[i] = i-(p_random()%min(i, MOD));
 
-	int l[MAXN];
-	for (int i = 1; i <= N; i++)
-		l[i] = p_random()%min(i, 100)+1;
 	int8_t logG[MAXN];
+	int8_t logN = 0;
 	for (int i = 1; i <= N; i++) {
-		int ql = l[i], qr = i;
-		if (ql&7) {
-			ql = ql+(8-(ql&7));
-		}
-		if ((qr&7) != 7) {
-			qr = qr-(qr&7)-1;
-		}
+		int ql = L[i], qr = i;
+		if (ql&(POWS-1))
+			ql = ql+(POWS-(ql&(POWS-1)));
+		if ((qr&(POWS-1)) != (POWS-1))
+			qr = qr-(qr&(POWS-1))-1;
 		ql = ql>>LOGS;
 		qr = qr>>LOGS;
 		logG[i] = log2int(qr-ql+1);
+		logN = MAX(logN, logG[i]);
 	}
+	logN = MIN(logN, log2int(N+1));
 	miniSparseTable sp_tlb;
 	{
-		int8_t *mem = (int8_t*) malloc(miniSparseTable::f(N));
-		sp_tlb.init(N, A, mem);
+		int8_t *mem = (int8_t*) malloc(miniSparseTable::f(N, logN));
+		sp_tlb.init(N, logN, mem);
+		fprintf(stderr, "Compressed %zu\n", miniSparseTable::f(N, logN));
 	}
 	const int P = 20;
 	omp_set_num_threads(P);
 	int16_t hash  = 0;
 	#pragma omp parallel
 	{
-		for (int it = 0; it < 30001; it++) {
+		for (int it = 0; it < M; it++) {
 
-			sp_tlb.parallel_build(A);
+			sp_tlb.parallel_build(A, logN);
 			
 			#pragma omp for reduction(^: hash)
 			for (int i = 1; i <= N; i++) {
-				int L = l[i], R = i;
-				if (L > R)	swap(L, R);
-				int16_t ret = sp_tlb.get(L, R, logG[i]);
+				int l = L[i], r = i;
+				int16_t ret = sp_tlb.get(l, r, logG[i]);
 				hash ^= ret;
 			}
+
+			#pragma omp for 
+			for (int i = 1; i <= N; i++)
+				A[i] = p_func(A[i])&MOD;
 		}
 	}	
-	printf("%hd\n", hash);
+	printf("%X\n", hash);
 	return 0;
 }
 /*

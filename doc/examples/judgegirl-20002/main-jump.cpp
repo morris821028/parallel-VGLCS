@@ -9,39 +9,40 @@ static inline int log2int(int x) {
 struct ISMQ {
 	int16_t *value;
 	int16_t *parent, *left;
+	void init(int n, int16_t *mem_base) {
+		parent = mem_base;
+		value = mem_base+n+1;
+		left = mem_base+(n+1)*2;
+		int16_t *tmp;
+		tmp = parent;
+		for (int i = 0; i <= n; i++)
+			*tmp = i, tmp++;
+		memset(value, 0, sizeof(int16_t)*(n+1));
+		tmp = left;
+		for (int i = 0; i <= n; i++)
+			*tmp = i, tmp++;
+	}
+
 	int findp(int x) {
         return parent[x] == x ? x : (parent[x] = findp(parent[x]));
     }
 	inline int joint(int l, int r) {
 		l = findp(l);
 		r = findp(r);
-		parent[l] = r, left[r] = left[l];
-		return left[r];
+		parent[l] = r;
+		return left[r] = left[l];
 	}
-	void init(int n, int16_t *mem_base) {
-		parent = mem_base;
-		left = mem_base+n+1;
-		value = mem_base+(n+1)*2;
-		int16_t *tmp;
-		tmp = parent;
-		for (int i = 0; i <= n; i++)
-			*tmp = i, tmp++;
-		tmp = left;
-		for (int i = 0; i <= n; i++)
-			*tmp = i, tmp++;
-		memset(value, 0, sizeof(int16_t)*(n+1));
-	}
-	int get(int x) {
+	inline int get(int x) {
 		return value[findp(x)];
 	}
-	void set(int x, int val) {
+	inline void set(int x, int val) {
 		value[x] = val;
 		int y = x-1;
 		while (y >= 0) {
 			y = findp(y);
 			if (value[y] > val)
 				return ;
-			y = joint(y, x);
+			x = y = joint(y, x);
 			y--;
 		}
 	}
@@ -49,7 +50,7 @@ struct ISMQ {
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 const int MAXN = 5005;
-const int MAXLOGN = 15;
+const int MAXLOGN = 13;
 struct SparseTable {
 	int16_t *tb[MAXLOGN];
 	// create tb[0..logN][0..n]
@@ -99,6 +100,7 @@ struct SparseTable {
 int parallel_VGLCS(int nA, char A[], int16_t GA[], 
 					int nB, char B[], int16_t GB[]) {
 	A--, B--, GA--, GB--;
+
 	if (nA > nB) {
 		std::swap(GA, GB), std::swap(nA, nB), std::swap(A, B);
 	}
@@ -120,7 +122,7 @@ int parallel_VGLCS(int nA, char A[], int16_t GA[],
 		}
 	}
 
-	const int P = 20;
+	const int P = 10;
 	const int lognB = log2int(max_gap+1);
 	int16_t *mem_tlbD = (int16_t *) malloc(sizeof(int16_t)*(nA+1)*3*(nB+1));
 	int16_t *mem_tlbR = (int16_t *) calloc((nB+1)*(lognB+1), sizeof(int16_t));	
@@ -132,7 +134,21 @@ int parallel_VGLCS(int nA, char A[], int16_t GA[],
 		sp_tlb.init(nB, lognB, mem_tlbR);
 		omp_set_num_threads(P);
 	}
-
+	
+	static int16_t next_pos[128][MAXN] = {};
+	#pragma omp parallel for
+	for (int i = 'A'; i <= 'Z'; i++) {
+		int16_t *pos = next_pos[i];
+		pos[nB+1] = nB+1;
+		for (int j = nB; j >= 1; j--) {
+			if (B[j] != i) {
+				pos[j] = pos[j+1];
+			} else {
+				pos[j] = j;
+			}
+		}
+	}
+	
 	#pragma omp parallel
 	{	
 		// init ISMQ
@@ -157,7 +173,9 @@ int parallel_VGLCS(int nA, char A[], int16_t GA[],
 			// dynamic programming
 			#pragma omp for schedule(static) reduction(max: ret)
 			for (int j = 1; j <= nB; j++) {
-				if (Ai == B[j]) {
+				if (Ai != B[j]) {
+					j = next_pos[Ai][j]-1;
+				} else {
 					int l = j - MIN(GB[j]+1, j), r = j-1;
 					int16_t val = sp_tlb.get(l, r, logGB[j])+1;
 					Q[j].set(i, val);
@@ -173,7 +191,8 @@ int parallel_VGLCS(int nA, char A[], int16_t GA[],
 
 
 int main() {
-	static const int MAXN = 5005;
+	// $ icpc -std=c++11 -O2 -qopenmp main.cpp -o main
+	// kmp_set_defaults("KMP_AFFINITY=granularity=fine,compact");
 	static char A[MAXN], B[MAXN];
 	static int16_t GA[MAXN], GB[MAXN];
 	int nA, nB, Q;
@@ -182,7 +201,7 @@ int main() {
 		nB = strlen(B);
 		scanf("%d", &Q);
 
-		for (int i = 0; i < Q; i++) {
+		for (int it = 0; it < Q; it++) {
 			int GLCS = 0, gap[128];
 			char s[MAXN];
 			for (int i = 0; i < 128; i++)
@@ -194,7 +213,7 @@ int main() {
 			for (int i = 0; i < nB; i++)
 				GB[i] = gap[B[i]];
 			int ret = parallel_VGLCS(nA, A, GA, nB, B, GB);
-			printf("%d%c", ret, " \n"[i == Q-1]);
+			printf("%d%c", ret, it == Q-1 ? '\n' : ' ');
 		}
 	}
 	return 0;

@@ -3,12 +3,12 @@
 using namespace std;
 
 static inline int log2int(int x) {
-    return __builtin_clz((int) 1) - __builtin_clz(x);
+    return 31 - __builtin_clz(x);
 }
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
-const int MAXN = 30005;
+const int MAXN = 100005;
 const int MAXLOGN = 20;
 struct SparseTable {
     int16_t *tb[MAXLOGN];
@@ -57,54 +57,65 @@ struct SparseTable {
     }
 };
 
-int16_t A[MAXN] = {};
-unsigned int seed = 0;
-unsigned int p_random() {return seed = (seed*9301+49297);}
+uint32_t seed = 0;
+uint32_t p_func(uint32_t x) {return x*9301+49297;}
+uint32_t p_random() {return seed = p_func(seed);}
 
 int main() {
-	freopen("2.in", "r", stdin);
-	int N, M, S;
-	scanf("%d %d %d", &N, &M, &S);
+	int N, M, S, MOD;
+	scanf("%d %d %d %d", &N, &M, &S, &MOD);
+
 	seed = S;
 
+	int16_t A[MAXN] = {};
+	int32_t L[MAXN] = {};
 	for (int i = 1; i <= N; i++)
-		A[i] = p_random()%N;
-	
-	int l[MAXN];
-	int8_t logG[MAXN];
+		A[i] = p_random()&MOD;
 	for (int i = 1; i <= N; i++) {
-		l[i] = p_random()%min(i, 100)+1;
-		logG[i] = log2int(i-l[i]+1);
+		L[i] = i-(p_random()%min(i, MOD));
+		assert(L[i] <= i);
+		assert(L[i] >= 0);
 	}
 
-	const int logN = log2int(N+1);
+	int8_t logG[MAXN];
+	int8_t logN = 0;
+	for (int i = 1; i <= N; i++) {
+		logG[i] = log2int(i-L[i]+1);
+		logN = MAX(logN, logG[i]);
+	}
+	logN = MIN(logN, log2int(N+1));
 	SparseTable sp_tlb;	
 	{
-		int16_t *mem = (int16_t *) malloc(sizeof(int16_t)*(logN+1)*(N+1));		
+		int16_t *mem = (int16_t *) malloc(sizeof(int16_t)*(logN+1)*(N+1));	
+		fprintf(stderr, "Compressed %zu\n", sizeof(int16_t)*(logN+1)*(N+1));
 		sp_tlb.init(N, logN, mem);
-		for (int i = 0; i <= N; i++)
-			sp_tlb.tb[0][i] = A[i];
 	}
 
 	const int P = 20;
 	omp_set_num_threads(P);
-	int16_t hash  = 0;
+	uint16_t hash  = 0;
 	#pragma omp parallel
 	{
-		for (int it = 0; it < 30001; it++) {
+		for (int it = 0; it < M; it++) {
+			#pragma omp for
+			for (int i = 0; i <= N; i++)
+				sp_tlb.tb[0][i] = A[i];
 
 			sp_tlb.parallel_build(N, logN);
 			
 			#pragma omp for reduction(^: hash)
 			for (int i = 1; i <= N; i++) {
-				int L = l[i], R = i;
-				if (L > R)	swap(L, R);
-				int16_t ret = sp_tlb.get(L, R, logG[i]);
+				int l = L[i], r = i;
+				int16_t ret = sp_tlb.get(l, r, logG[i]);
 				hash ^= ret;
 			}
+
+			#pragma omp for 
+			for (int i = 1; i <= N; i++)
+				A[i] = p_func(A[i])&MOD;
 		}
 	}	
-	printf("%d\n", hash);
+	printf("%X\n", hash);
 
 	return 0;
 }
