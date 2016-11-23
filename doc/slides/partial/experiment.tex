@@ -41,7 +41,6 @@
 		%	\label{fig:light_little}
 		%}
 		\caption{Serial Algorithm and Parallel Algorithm}
-		\label{fig:light_weight}
 	\end{figure}
 \end{frame}
 
@@ -58,7 +57,6 @@
 		%	\label{fig:light_little}
 		%}
 		\caption{Parallel Algorithm}
-		\label{fig:light_weight}
 	\end{figure}
 \end{frame}
 
@@ -68,7 +66,25 @@
 	We have $N$ elements of an array and $N$ querys.
 	\begin{itemize}
 		\setlength\itemsep{1em}
-		\item When $N = 30000$ and maximum length of interval $L \le 100$, \texttt{CORQM} can speedup $1.25\times$ 
-		because of less cache-misses.
+		\item \texttt{CORQM} can speedup $1.5\times$ because of less cache-misses.
 	\end{itemize}
+	\begin{figure}[!ht]
+		\begin{center}
+			\begin{tabular}{l c c c c}
+				\firsthline
+					& \multicolumn{4}{c}{$N$} \\
+					\cline{2-5}
+						& \multicolumn{2}{c}{$30000$} & $50000$ & $10000$ \\
+					$L$ & $2^{10}$ & $2^{15}$ & $2^{15}$ & $2^{15}$ \\
+					\hline
+					parallel-\tt{RMQ}   & $903$ & $1516$ & $1874$ & $4116$ \\
+					parallel-\tt{CORMQ} & $995$ & $1475$ & $1689$ & $2594$ \\
+					\hline
+					Speedup & $0.90\times$ & $1.02\times$ & $1.10\times$ & $1.58\times$\\
+				\lasthline
+			\end{tabular}
+			\caption{Total running time (ms) for finding RMQ of different sizes $N$ and maximum interval sizes $L$.}
+			\label{fig:CORMQ}
+		\end{center}
+	\end{figure}
 \end{frame}
