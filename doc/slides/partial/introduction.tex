@@ -42,14 +42,16 @@
 \begin{frame}
     \frametitle{Serial Algorithm Analysis}
     \begin{center}
-        \begin{tabular}{>{\textsc}l >{\tt}l >{\textrm}l >{\textsf}l}
+        \begin{tabular}{>{\textsc}l >{\textsc}l >{\textrm}l >{\textsf}l}
             \hline
             Problem & Time  & Space     & Data Structure \\ \hline
             FIG     & $n^2$                 & $n^2$ & Monotone queue \\ \hline
-            ELAG    & $n^2 + \mathcal{R} \log \log n$   & $\max(\mathcal{R}, n)$ & van Emde Boas\\ \hline
+            ELAG    & $n^2 + \mathcal{R} \log \log n$   & $\max(\mathcal{R}, n)$ 
+                & van Emde Boas \footnote{$\mathcal{R} = |\{\;(i, j) \;|\; X[i] = Y[j]\}|$}\\ \hline
             RLCS    & $n^2$                 & $n^2$ & \\ \hline
             RIFIG   & $n^2$                 & $n^2$ & \\ \hline
-            VG      & $n^2 \; \alpha(n)$    & $n^2$     & Disjoint-set\\ \hline
+            VG      & $n^2 \; \alpha(n)$    & $n^2$ 
+                & Disjoint-set \footnote{$\alpha(2^{2^{2^{2^{16}}}}) = 4$}\\ \hline
         \end{tabular}
     \end{center}
 \end{frame}
@@ -71,5 +73,5 @@
 
 \subsection{Contributions (TODO)}
 \begin{frame}
-    \frametitle{Contributions}
+    \frametitle{Contributions (TODO)}
 \end{frame}
