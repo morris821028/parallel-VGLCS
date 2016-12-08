@@ -1,8 +1,30 @@
 \section{Experiment}
 
-\subsection{Environment Settings}
+\subsection{Environment Settings (TODO)}
 \begin{frame}
     \frametitle{Environment}
+    \begin{itemize}
+    	\item Intel Xeon E5-2620 2.40 GHz
+    		\begin{itemize}
+    		 	\item L1 cache 384 KiB
+    		 	\item L2 cache 1536 KiB
+    		 	\item L3 cache 15 MiB
+    		 \end{itemize}
+    	\item Intel 2013 Xeon Phi Coprocessor 31S1P 1.1 GHz
+    		\begin{itemize}
+    			\item 57 Cores
+    			\item L2 cache 512 KiB per core with 32 KiB L1 cache
+    			\footnote{\url{http://www.cpu-world.com/CPUs/Xeon_Phi/}}
+    			\item Physical memory 8GB
+    		\end{itemize}
+    	\item (No) Intel 2016 Xeon Phi Coprocessor 7290 1.5 GHz
+    		\begin{itemize}
+    			\item \$6254 (about NTD 180,000)
+    			\item 72 Cores
+    			\item L2 cache 1 MiB per core with 32 KiB L1 cache
+    			\item Physical memory 384 GB
+    		\end{itemize}
+    \end{itemize}
 \end{frame}
 
 \subsection{Parallel VGLCS}
@@ -18,8 +40,7 @@
 		%	\input{./data/light_little}
 		%	\label{fig:light_little}
 		%}
-		\caption{Serial Algorithm and Parallel Algorithm}
-		\label{fig:light_weight}
+		\caption{Serial and Parallel Algorithm run on E5-2620}
 	\end{figure}
 \end{frame}
 
@@ -35,8 +56,7 @@
 		%	\input{./data/light_little}
 		%	\label{fig:light_little}
 		%}
-		\caption{Parallel Algorithm}
-		\label{fig:light_weight}
+		\caption{Parallel Algorithm run on E5-2620}
 	\end{figure}
 \end{frame}
 
@@ -46,7 +66,25 @@
 	We have $N$ elements of an array and $N$ querys.
 	\begin{itemize}
 		\setlength\itemsep{1em}
-		\item When $N = 30000$ and maximum length of interval $L \le 100$, \texttt{CORQM} can speedup $1.25\times$ 
-		because of less cache-misses.
+		\item \texttt{CORQM} can speedup $1.5\times$ because of less cache-misses.
 	\end{itemize}
+	\begin{figure}[!ht]
+		\begin{center}
+			\begin{tabular}{l c c c c}
+				\firsthline
+					& \multicolumn{4}{c}{$N$} \\
+					\cline{2-5}
+						& \multicolumn{2}{c}{$30000$} & $50000$ & $100000$ \\
+					$L$ & $2^{10}$ & $2^{15}$ & $2^{15}$ & $2^{15}$ \\
+					\hline
+					parallel-\tt{RMQ}   & $903$ & $1516$ & $1874$ & $4116$ \\
+					parallel-\tt{CORMQ} & $995$ & $1475$ & $1689$ & $2594$ \\
+					\hline
+					Speedup & $0.90\times$ & $1.02\times$ & $1.10\times$ & $1.58\times$\\
+				\lasthline
+			\end{tabular}
+			\caption{Total running time (ms) for finding RMQ of different sizes $N$ and maximum interval sizes $L$.}
+			\label{fig:CORMQ}
+		\end{center}
+	\end{figure}
 \end{frame}

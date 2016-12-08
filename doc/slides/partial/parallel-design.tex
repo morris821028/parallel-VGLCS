@@ -31,7 +31,7 @@
     \end{itemize}
 \end{frame}
 
-\subsection{Hybrid Stages}
+\subsection{Parallel VGLCS}
 \begin{frame}
 	\frametitle{Data Dependency (TODO)}
 	\begin{itemize}
@@ -51,6 +51,7 @@
 		\footnote{Churchill Navigation's Programming Challange 2015 \url{https://www.zhihu.com/question/27729745}}
 		\item Use \textbf{van Emde Boas} layout whose leaves point to intervals in a packed memory structure.
 		\footnote{MIT: Cache-Oblivious Search Trees Project \url{http://supertech.csail.mit.edu/cacheObliviousBTree.html}}
+		\footnote{Gerth Stolting Brodal, Cache Oblivious Search Tree via Binary Trees of Small Height, 1999}
 	\end{itemize}
 \end{frame}
 
@@ -115,6 +116,21 @@
 \subsection{Parallel part-VG LCS Algorithm (TODO)}
 \begin{frame}
 	\frametitle{Parallel part-VG LCS Algorithm}
+	\begin{itemize}
+		\item Maybe we can change the definition of recursion formula to exploit the efficiency of the parallelism, like this paper
+		\footnote{Jiaoyun Yang, An Efficient Parallel Algorithm for Longest Common Subsequence Problem on GPUs, 2010}.
+	\end{itemize}
+\end{frame}
+
+\subsection{Parallel ELVGLCS (TODO)}
+\begin{frame}
+	\frametitle{Parallel ELVGLCS (TODO)}
+	\begin{itemize}
+		\item High memory usage 
+			\begin{itemize}
+				\item Compression
+			\end{itemize}
+	\end{itemize}
 \end{frame}
 
 \subsection{Optimization (TODO)}
