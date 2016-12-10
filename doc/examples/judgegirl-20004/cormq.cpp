@@ -11,6 +11,8 @@ static inline int log2int(int x) {
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 #define LOGS 4
 #define POWS (1<<LOGS)
+#define GET(mark, x) (mark[(x)>>5]>>((x)&31)&1)
+#define SET(mark, x) (mark[(x)>>5] |= 1<<((x)&31))
 const int MAXN = 100005;
 const int MAXLOGN = 20;
 struct miniSparseTable {
@@ -56,7 +58,7 @@ struct miniSparseTable {
 		}
 		return mxIdx;
 	}
-	inline void parallel_build(int16_t A[], int16_t logN) {
+	inline void parallel_build(int16_t A[], int16_t logN, int32_t inblock[]) {
 		oA = A;
 		int tmplogMs = MIN(logMs, logN), tmpMs = Ms;	
 		int16_t *tbu = tb[0];
@@ -77,7 +79,8 @@ struct miniSparseTable {
 				mx = MAX(mx, A[i+j]);
 				sblock[i+j] = mx;
 			}
-			tree[i>>LOGS] = signature(A+i);
+			if (GET(inblock, (i>>LOGS)))
+				tree[i>>LOGS] = signature(A+i);
 		}
 
 		for (int k = 1; k <= tmplogMs; k++) {
@@ -173,8 +176,11 @@ int main() {
 
 	int8_t logG[MAXN];
 	int8_t logN = 0;
+	int32_t inblock[(MAXN>>5)+1] = {};
 	for (int i = 1; i <= N; i++) {
 		int ql = L[i], qr = i;
+		if (unlikely((ql>>LOGS) == (qr>>LOGS)))
+			SET(inblock, (ql>>LOGS));
 		if (ql&(POWS-1))
 			ql = ql+(POWS-(ql&(POWS-1)));
 		if ((qr&(POWS-1)) != (POWS-1))
@@ -198,7 +204,7 @@ int main() {
 	{
 	  for (int it = 0; it < M; it++) {
 
-		  sp_tlb.parallel_build(A, logN);
+		  sp_tlb.parallel_build(A, logN, inblock);
 
 #pragma omp for reduction(^: hash)
 		  for (int i = 1; i <= N; i++) {
