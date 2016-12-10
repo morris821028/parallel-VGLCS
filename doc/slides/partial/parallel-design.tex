@@ -38,7 +38,11 @@
 		\setlength\itemsep{1em}
 		\item We want to remove \texttt{All[i][j]} because its data dependency 
 			is hard to parallel.
-		\item The $O(n \log n)$ -- $O(1)$ sparse table is a good alternative plan. However, parallel algorithm will be $O((n^2 \log n) / p + n \log n)$ with $p$ processors.
+		\item The $O(n \log n)$ -- $O(1)$ sparse table is a good alternative plan. 
+			However, parallel algorithm will be $O((n^2 \log n) / p + n \log n)$ with $p$ processors.
+		\item Cache-oblivious sparse table run $O(n)$ -- $O(1)$ 
+			with extra space $O(n)$ which record catalan number. 
+			Parallel algorithm will run in $O(n^2 / p + n)$.
 	\end{itemize}
 \end{frame}
 
