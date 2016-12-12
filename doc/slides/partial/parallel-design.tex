@@ -64,9 +64,11 @@
 	We can combine disjoint-set, sparse table, and cache-oblivious cartesian tree together.
 	\begin{itemize}
 		\setlength\itemsep{1em}
-		\item Disjoint-set and sparse table: $\mathcal{O}(\frac{1}{p}(\mathcal{R} \; \alpha(n) + n^2 \log n))$.
-		\item All sparse table: $\mathcal{\theta}(\frac{n}{p} n \log n)$.
-		\item Sparse table with cartesian tree: $\mathcal{\theta}(\frac{n}{p} (n/s) \log (n/s))$.
+		\item Disjoint-set: $\mathcal{O}(\frac{1}{p}(\mathcal{R} \; \alpha(n)))$.
+		\item Sparse table with cartesian tree: $\mathcal{\theta}(\frac{n}{p} (n/s) \log (n/s))$.  
+		We pick $s = \frac{\log n}{4}$, and time complexity is $\mathcal{\theta}\left(n/p + \log \left(\frac{n}{\log n}\right)\right)$ -- $\mathcal{\theta}(1)$.
+		\footnote{Johannes Fischer, V.H., A new succinct representation of RMQ-information and improvements in the enhanced suffix array, 2007}
+		\footnote{Masud Hasan, Cache oblivious algorithms for the RMQ and the RMSQ problems, 2010}
 	\end{itemize}
 \end{frame}
 
