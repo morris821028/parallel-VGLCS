@@ -41,3 +41,7 @@ perf stat --repeat 5 -e cache-misses,cache-references ./rmq >/dev/null
 |----------------------|--------|-------|
 |parallel-rmq          | 4116 ms| 5.6 MB|
 |parallel-cartesian-rmq| 2594 ms| 3.5 MB|
+
+### Note ###
+
+如果使用索引方式降低空間用量 (如前綴和後綴最大值)，反而會增加時間。
