@@ -1,14 +1,15 @@
 #include <bits/stdc++.h>
 #include <omp.h>
+#include <sys/time.h>
 using namespace std;
 
 //
 namespace {
-	static const int MAXN = 13;
-	static int C[MAXN][MAXN] = {}, Cn[MAXN];
+	static const int MAXN = 10;
+	static int Cn[MAXN], CnBase[MAXN][MAXN];
 	struct T {
-		char v[MAXN][MAXN];
-	} _mem[1<<20];
+	char v[MAXN][MAXN];
+	} _mem[1<<16];
 	static T *LCA[MAXN];
 	void printTidInfo(int l, int i) {
 		int lsz, rsz, lid, rid;
@@ -46,27 +47,27 @@ namespace {
 				int r = min(l + chunk, Cn[i]);
 				int lsz, rsz, lid, rid;
 //				#pragma omp critical
-//				fprintf(stderr, "[%d][%d] %d %d, %d\n", i, tid, l, r, Cn[i]);
 				if (l < r)
 				{
 					int sum = 0;
-					for (rsz = 0; sum+Cn[rsz]*Cn[i-1-rsz] <= l; rsz++)
-						sum += Cn[rsz]*Cn[i-1-rsz];
-					lsz = i-1-rsz;
+					for (lsz = 0; CnBase[i][lsz] > l; lsz++);
+					sum = CnBase[i][lsz];
+					rsz = i-1-lsz;
 					lid = (l - sum) / Cn[rsz];
 					rid = (l - sum) % Cn[rsz];
 				}
 				// start
+				T *store = LCA[i];
 				for (int j = l; j < r; j++) {
 					for (int p = 0; p < lsz; p++)
 						for (int q = p; q < lsz; q++)
-							LCA[i][j].v[p][q] = LCA[lsz][lid].v[p][q];
+							store[j].v[p][q] = LCA[lsz][lid].v[p][q];
 					for (int p = lsz+1; p < i; p++)
 						for (int q = p; q < i; q++)
-							LCA[i][j].v[p][q] = LCA[rsz][rid].v[p-lsz-1][q-lsz-1]+lsz+1;
+							store[j].v[p][q] = LCA[rsz][rid].v[p-lsz-1][q-lsz-1]+lsz+1;
 					for (int p = 0; p <= lsz; p++)
 						for (int q = lsz; q < i; q++)
-							LCA[i][j].v[p][q] = lsz;
+							store[j].v[p][q] = lsz;
 //					printTidInfo(j, i);
 					rid++;
 					if (rid == Cn[rsz]) {
@@ -77,25 +78,23 @@ namespace {
 				}
 			}
 		}
-		fprintf(stderr, "Run Success\n");
+//		fprintf(stderr, "Run Success\n");
 	}
 	void ballotTlb() {
-		C[0][0] = 1;
-		for (int i = 0; i < MAXN; i++) {
-			for (int j = 0; j < MAXN; j++) {
-				if (i <= j && j)
-					C[i][j] = C[i][j-1] + (i ? C[i-1][j] : 0);
-			}
-			Cn[i] = C[i][i];
+		Cn[0] = 1, Cn[1] = 1;
+		CnBase[1][1] = 1;
+		for (int i = 1; i < MAXN; i++) {
+			int ret = 0;
+			for (int j = 0; j < i; j++)
+				CnBase[i][i-j-1] = ret, ret += Cn[j]*Cn[i-1-j];
+			CnBase[i][i] = Cn[i] = ret;
 		}
 	}
-	int _tid(int lsz, int lid, int rsz, int rid) {
+	int tid(int lsz, int lid, int rsz, int rid) {
 		if (rsz == 0)	return lid;
-		int sz = lsz+rsz;
-		int tid = 0;
-		for (int i = 0; i < rsz; i++)
-			tid += Cn[i]*Cn[sz-i];
-		return tid + rid + lid*Cn[rsz];
+		int base = CnBase[lsz+rsz+1][lsz];
+		int offset = rid + lid*Cn[rsz];
+		return base + offset;
 	}
 	int typeOfCartesian(int A[], int s) {
 		int D[s+1], Dp = 0;
@@ -105,7 +104,7 @@ namespace {
 			int v = *A;
 			int lsz = 0, lid = 0;
 			while (D[Dp] < v) {
-				lid = _tid(I[Dp][0], I[Dp][1], lsz, lid);
+				lid = tid(I[Dp][0], I[Dp][1], lsz, lid);
 				lsz += I[Dp][0]+1;
 				Dp--;
 			}
@@ -115,7 +114,7 @@ namespace {
 		}
 		int lsz = 0, lid = 0;
 		while (Dp) {
-			lid = _tid(I[Dp][0], I[Dp][1], lsz, lid);
+			lid = tid(I[Dp][0], I[Dp][1], lsz, lid);
 			lsz += I[Dp][0]+1;
 			Dp--;
 		}
@@ -157,14 +156,13 @@ void testAll() {
 			}
 		} while (next_permutation(A, A+i));
 	}
+/*
 	for (int i = 0; i < 10000000; i++) {
 		int A[MAXN] = {};
 		int n = MAXN-1;
 		for (int j = 0; j < n; j++)
 			A[j] = rand()%n;
 		if (test(A, n)) {
-//			if ((i+1) % 1000 == 0)
-//			printf("n[%d] Rand Testcase #%3d: PASS\n", n, i+1);
 		} else {
 			for (int k = 0; k < n; k++)
 				printf("%d ", A[k]);
@@ -172,35 +170,129 @@ void testAll() {
 			assert(false && "Failed");
 		}
 	}
+*/
+	fprintf(stderr, "PASS ALL\n\n");
 }
+int nativeQuery(int A[], int n) {
+	int sum = 0;
+	for (int l = 0; l < n; l++) {
+		for (int r = l; r < n; r++) {
+			int mx = A[l];
+			for (int k = l; k <= r; k++)
+				mx = max(mx, A[k]);
+			sum += mx;
+
+		}
+	}
+	return sum;
+}
+int fastQuery(int A[], int n) {
+	int tid = typeOfCartesian(A, n);
+	int sum = 0;
+	for (int l = 0; l < n; l++) {
+		for (int r = l; r < n; r++) {
+			sum += A[LCA[n][tid].v[l][r]];
+		}
+	}
+	return sum;
+}
+void testExp() {
+	// generate all permutations of input
+	fprintf(stderr, "Compute Time\n");
+	for (int i = 1; i < MAXN; i++) {
+		fprintf(stderr, "#Node %d\n", i);
+		{
+			struct timeval t1, t2;
+			double elapsedTime = 0;
+			int avBase = 50;
+			int checksum = 0;
+			for (int it = 0; it < avBase; it++) {
+				int A[MAXN] = {};
+				for (int j = 0; j < i; j++)
+					A[j] = j;
+				int testcase = 0;
+				do {
+					gettimeofday(&t1, NULL);
+					checksum += fastQuery(A, i);
+					gettimeofday(&t2, NULL);
+					elapsedTime += (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
+					elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
+				} while (next_permutation(A, A+i));
+
+			}
+			fprintf(stderr, "Fast Time %lf ms. Checksum %X\n", elapsedTime/avBase/(i*(i+1)/2), checksum);
+		}
+		{
+			struct timeval t1, t2;
+			double elapsedTime = 0;
+			int avBase = 50;
+			int checksum = 0;
+			for (int it = 0; it < avBase; it++) {
+				int A[MAXN] = {};
+				for (int j = 0; j < i; j++)
+					A[j] = j;
+				int testcase = 0;
+				do {
+					gettimeofday(&t1, NULL);
+					checksum += nativeQuery(A, i);
+					gettimeofday(&t2, NULL);
+					elapsedTime += (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
+					elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
+				} while (next_permutation(A, A+i));
+
+			}
+			fprintf(stderr, "Native Time %lf ms. Checksum %X\n", elapsedTime/avBase/(i*(i+1)/2), checksum);
+		}
+
+	}
+	fprintf(stderr, "PASS ALL\n\n");
+}
+
 int main() {
-	ballotTlb();
-	buildLCA();
-	
+	{
+		struct timeval t1, t2;
+		double elapsedTime;
+		gettimeofday(&t1, NULL);
+		ballotTlb();
+		int avBase = 1000;
+		for (int i = 0; i < avBase; i++)
+			buildLCA();
+		gettimeofday(&t2, NULL);
+
+		// compute and print the elapsed time in millisec
+		elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
+		elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
+		fprintf(stderr, "Build Table Time %lf ms.\n", elapsedTime/avBase);
+
+	}
+
 	// testAll
-//	testAll();
-	
-//	char line[128];
-//	while (fgets(line, 100, stdin)) {
-//		stringstream sin(line);
-//		int n = 0, x;
-//		int A[16] = {0};
-//		while (sin >> x)
-//			A[n++] = x;
-//		
-//		int tid = typeOfCartesian(A, n);
-//		printf("tid = %d\n", tid);
-//		printTidInfo(tid, n);
-//		for (int l = 0; l < n; l++) {
-//			for (int r = l; r < n; r++) {
-//				int mx = A[l];
-//				for (int k = l; k <= r; k++)
-//					mx = max(mx, A[k]);
-//				if (mx != A[LCA[n][tid].v[l][r]])
-//				printf("max(A[%d, %d]) = %d\n", l, r, mx);
-//			}
-//		}
-//	}
+	testAll();
+
+	// expr
+	testExp();
+
+	//	char line[128];
+	//	while (fgets(line, 100, stdin)) {
+	//		stringstream sin(line);
+	//		int n = 0, x;
+	//		int A[16] = {0};
+	//		while (sin >> x)
+	//			A[n++] = x;
+	//		
+	//		int tid = typeOfCartesian(A, n);
+	//		printf("tid = %d\n", tid);
+	//		printTidInfo(tid, n);
+	//		for (int l = 0; l < n; l++) {
+	//			for (int r = l; r < n; r++) {
+	//				int mx = A[l];
+	//				for (int k = l; k <= r; k++)
+	//					mx = max(mx, A[k]);
+	//				if (mx != A[LCA[n][tid].v[l][r]])
+	//				printf("max(A[%d, %d]) = %d\n", l, r, mx);
+	//			}
+	//		}
+	//	}
 	return 0;
 }
 
