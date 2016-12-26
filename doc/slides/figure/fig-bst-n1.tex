@@ -1,0 +1,18 @@
+\tikzset{
+  treeInode/.style = {align=center, inner sep=0pt, text centered,
+    font=\sffamily},
+  treeEnode/.style = {align=center, inner sep=0pt, text centered,
+    font=\sffamily},
+  arn_n/.style = {treeInode, circle, black, draw=black, fill=black, 
+	  text width=0.5em},% arbre rouge noir, noeud noir
+  arn_x/.style = {treeEnode, rectangle, draw=black,
+    minimum width=0.5em, minimum height=0.5em}% arbre rouge noir, nil
+}
+\usetikzlibrary{patterns}
+
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 1cm/#1,
+  level distance = 0.5cm}] 
+\node[arn_n]{}
+; 
+\node[below=0.5cm, align=flush center,text width=1cm]{$0$};
+\end{tikzpicture}

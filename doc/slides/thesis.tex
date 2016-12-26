@@ -36,6 +36,7 @@
 
 % Tables
 \usepackage{array} 
+\usepackage{algorithm,algpseudocode}
 
 % Add outline page at begining of each section
 \AtBeginSection[]
@@ -48,12 +49,20 @@
 
 % Insert assembly code
 \usepackage{listings}
+\lstset{language=C,
+numberstyle=\footnotesize,
+basicstyle=\ttfamily\footnotesize,
+numbers=left,
+stepnumber=1,
+frame=shadowbox,
+breaklines=true}
 
 % lslisting settings
 \input{plugins/lslisting/settings.tex}
 
 % Mathematics
 \usepackage{amsmath}
+\usepackage{mathtools}
 
 % Appendix
 \usepackage{appendixnumberbeamer}
