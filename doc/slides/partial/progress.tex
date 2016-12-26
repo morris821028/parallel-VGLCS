@@ -50,3 +50,17 @@
 	\lstinputlisting{code/tid.c}
 	Encoding function is $\mathcal{O}(1)$ by preprocessing all possible sums.
 \end{frame}
+
+\begin{frame}
+	\frametitle{Maintain Inblock Query}
+	These are the following types of operations:
+	\begin{itemize}
+		\item \texttt{Append V} : Append value $V$ to array $A$
+		\item \texttt{Query L R} : Report maximum value in $A[L .. R]$
+	\end{itemize}
+	Challenge:
+	\begin{itemize}
+		\item Adjust tree ID dynamically for $O(1)$ each interval query.
+		\item Each interval query consume $O(1)$ time.
+	\end{itemize}
+\end{frame}
