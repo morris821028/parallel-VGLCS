@@ -5,7 +5,7 @@ using namespace std;
 
 //
 namespace {
-	static const int MAXN = 10;
+	static const int MAXN = 8;
 	static int Cn[MAXN], CnBase[MAXN][MAXN];
 	struct T {
 	char v[MAXN][MAXN];
@@ -120,6 +120,33 @@ namespace {
 		}
 		return lid;
 	}
+	struct State {
+		int i, s, tid;
+		int D[MAXN+1][4], Dp;
+    };
+	int typeOfCartesian(State &state, int v) {
+		int Dp = state.Dp;
+		int lsz = 0, lid = 0;
+		int bsz = state.s-state.i+1, bid = Cn[state.s-state.i+1]-1;
+		while (state.D[Dp][0] < v) {
+			lid = tid(state.D[Dp][1], state.D[Dp][2], lsz, lid);
+			lsz += state.D[Dp][1]+1;
+			bid = tid(state.D[Dp][1], state.D[Dp][2], bsz, bid);
+			bsz += state.D[Dp][1]+1;
+			Dp--;
+		}
+		Dp++;
+		int ins = bid;
+		int _tid = tid(lsz, lid, state.s-state.i, Cn[state.s-state.i]-1);
+		// fprintf(stderr, "ins %d  ->  %d\n", ins, _tid);
+		ins = _tid - ins;
+		state.D[Dp][0] = v, state.D[Dp][1] = lsz, state.D[Dp][2] = lid, state.D[Dp][3] = _tid;
+		state.i++;
+		state.Dp = Dp;
+		state.tid += ins;
+		return state.tid;
+	}
+
 }
 
 int test(int A[], int n) {
@@ -132,6 +159,27 @@ int test(int A[], int n) {
 			if (mx != A[LCA[n][tid].v[l][r]])
 				return 0;
 		}
+	}
+	State t;
+	t.i = 1, t.s = n, t.tid = Cn[n]-1;
+	t.D[0][0] = 0x3f3f3f3f, t.Dp = 0;
+	for (int i = 0; i < n; i++) {
+		typeOfCartesian(t, A[i]);
+		int c_tid = t.tid;
+		for (int p = 0; p <= i; p++) {
+			for (int q = p; q <= i; q++) {
+				int mx = A[p];
+				for (int k = p; k <= q; k++)
+					mx = max(mx, A[k]);
+				assert(mx == A[LCA[n][c_tid].v[p][q]]);
+			}
+		}
+	}
+	if (tid != t.tid) {
+		for (int i = 0; i < n; i++)
+			fprintf(stderr, "%d ", A[i]);
+		fprintf(stderr, "\n");
+		fprintf(stderr, "Expect %d, Coroutine %d\n", tid, t.tid);
 	}
 	return 1;
 }
