@@ -21,3 +21,17 @@
 		\input{./figure/fig-bst-n2}
 		\input{./figure/fig-bst-n3}
 \end{frame}
+
+\begin{frame}
+	\frametitle{Definition}
+	\begin{align*}
+		& \mathit{LCA}(n, \mathit{tid}, p, q) \\
+			&= \left\{\begin{matrix*}[l]
+ 				\mathit{LCA}(\mathit{lsz}, \mathit{lid}, p, q) &&, p \le q < \mathit{lsz}\\ 
+ 				\mathit{LCA}(\mathit{rsz}, \mathit{rid}, p-\mathit{lsz}-1, q-\mathit{lsz}-1)+\mathit{lsz}+1 &&, 
+ 						\mathit{lsz} \le p \le q < n \\ 
+ 				\mathit{lsz} && , 0 \le p \le \mathit{lsz}, p \le q \le i\\ 
+ 				-1 && ,\mathit{otherwise}
+			\end{matrix*}\right.
+	\end{align*}
+\end{frame}
