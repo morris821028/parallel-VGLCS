@@ -23,7 +23,9 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Definition}
+	\frametitle{LCA Definition}
+	From lexicographical order, we can get $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 
+	of tree $\mathit{tid}$ in $\mathcal{O}(n)$
 	\begin{align*}
 		& \mathit{LCA}(n, \mathit{tid}, p, q) \\
 			&= \left\{\begin{matrix*}[l]
@@ -34,4 +36,17 @@
  				-1 && ,\mathit{otherwise}
 			\end{matrix*}\right.
 	\end{align*}
+\end{frame}
+
+\begin{frame}
+	\lstinputlisting{code/lca.c}
+	The parallel algorithm is 
+	\begin{align*}
+		\mathcal{\theta}\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
+	\end{align*}
+\end{frame}
+
+\begin{frame}
+	\lstinputlisting{code/tid.c}
+	Encoding function is $\mathcal{O}(1)$ by preprocessing all possible sums.
 \end{frame}
