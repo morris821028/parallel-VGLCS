@@ -1,6 +1,23 @@
 \section{Progress}
 
-\subsection{Progress}
+\subsection{Prerequisites}
 \begin{frame}
-    \frametitle{TODO}
+    \frametitle{All Pair Least Common Ancestors}
+    \begin{itemize}
+    	\setlength\itemsep{1em}
+    	\item Generating all binary search tree(BST) from $1$ to $n$.
+    	\item Store $\textit{LCA}(p, q)$ with node $p$ and $q$ for each BST $T$.
+		\item The size of table is $\theta(n^2 \frac{1}{n+1} \binom{2n}{n})$.
+		\item We need real-time encoding-decoding. Therefore, 
+			each step consumes $\mathcal{O}(1)$ time, 
+			and total time is $\mathcal{\theta}(n)$.
+    \end{itemize}
+\end{frame}
+
+\subsection{Parallel Generating All BST}
+\begin{frame}
+	\frametitle{Identity for BST}
+		\input{./figure/fig-bst-n1}
+		\input{./figure/fig-bst-n2}
+		\input{./figure/fig-bst-n3}
 \end{frame}
