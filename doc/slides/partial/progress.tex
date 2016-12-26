@@ -6,7 +6,7 @@
     \begin{itemize}
     	\setlength\itemsep{1em}
     	\item Generating all binary search tree(BST) from $1$ to $n$.
-    	\item Store $\textit{LCA}(p, q)$ with node $p$ and $q$ for each BST $T$.
+    	\item Store $\textit{LCA}(p, q)$ for each BST $T$, node $p$ and $q$.
 		\item The size of table is $\theta(n^2 \frac{1}{n+1} \binom{2n}{n})$.
 		\item We need real-time encoding-decoding. Therefore, 
 			each step consumes $\mathcal{O}(1)$ time, 
@@ -68,4 +68,13 @@
 \begin{frame}
 	\frametitle{Offline Encoding BST}
 	\lstinputlisting{code/offline-encode.c}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Definition of Online Encoding BST}
+	\lstinputlisting{code/online-encode-state.c}
+\end{frame}
+\begin{frame}
+	\frametitle{Online Encoding BST}
+	\lstinputlisting{code/online-encode.c}
 \end{frame}

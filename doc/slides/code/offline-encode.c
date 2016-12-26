@@ -10,6 +10,6 @@ int typeOfCartesian(int A[], int s)
     Dp++, D[Dp] = <lsz,lid,v>
   lsz = 0, lid = 0
   while Dp > 0 // pop all
-  	lid = tid(D[Dp].lsz, D[Dp].lid, lsz, lid)
+    lid = tid(D[Dp].lsz, D[Dp].lid, lsz, lid)
     lsz += D[Dp].lsz+1, Dp--
   return lid
