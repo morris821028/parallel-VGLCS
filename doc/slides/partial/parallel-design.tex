@@ -84,7 +84,7 @@
 		\setlength\itemsep{1em}
 		\item We need to pre-process all unique binary search trees with $[1, s]$ nodes,
 			so the time complexity is at least $\theta(\sum_{i = 1}^{s} i^2 C_i) =  \theta(?)$.
-		\item Finally, it runs in $O(?/p + \log \left(\frac{n}{\log n}\right)) = O(?/p + \log n)$ in parallel.
+		\item Finally, it runs in $O(?/p + \log \frac{n}{\log n}) = O(?/p + \log n)$ in parallel.
 	\end{itemize}
 \end{frame}
 
@@ -96,7 +96,7 @@
 		\setlength\itemsep{1em}
 		%\item Disjoint-set: $\mathcal{O}(\frac{1}{p}(\mathcal{R} \; \alpha(n)))$.
 		\item Sparse table with cartesian tree: $\mathcal{\theta}(\frac{n}{p} (n/s) \log (n/s))$.  
-		We pick $s = \frac{\log n}{4}$, and time complexity is $\mathcal{\theta}\left(n/p + \log \left(\frac{n}{\log n}\right)\right)$ -- $\mathcal{O}(s)$.
+		We pick $s = \frac{\log n}{4}$, and time complexity is $\mathcal{\theta}(n/p + \log n)$ -- $\mathcal{O}(s)$.
 		\item Most interval queries can be divided into two block queries
 			and one superblock-query, and each query is $O(1)$. 
 			Otherwise, inblock query is $O(s)$

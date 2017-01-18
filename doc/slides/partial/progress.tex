@@ -7,7 +7,7 @@
     	\setlength\itemsep{1em}
     	\item Generating all binary search tree(BST) from $1$ to $n$.
     	\item Store $\textit{LCA}(p, q)$ for each BST $T$, node $p$ and $q$.
-		\item The size of table is $\theta(n^2 \frac{1}{n+1} \binom{2n}{n})$.
+		\item The size of table is $\theta(\frac{n^2}{n+1} \binom{2n}{n})$.
 		\item We need real-time encoding-decoding. Therefore, 
 			each step consumes $\mathcal{O}(1)$ time, 
 			and total time is $\mathcal{\theta}(n)$.
@@ -32,7 +32,7 @@
  				\mathit{LCA}(\mathit{lsz}, \mathit{lid}, p, q) &&, p \le q < \mathit{lsz}\\ 
  				\mathit{LCA}(\mathit{rsz}, \mathit{rid}, p-\mathit{lsz}-1, q-\mathit{lsz}-1)+\mathit{lsz}+1 &&, 
  						\mathit{lsz} \le p \le q < n \\ 
- 				\mathit{lsz} && , 0 \le p \le \mathit{lsz}, p \le q \le i\\ 
+ 				\mathit{lsz} && , 0 \le p \le \mathit{lsz}, \mathit{lsz} \le q \le i\\ 
  				-1 && ,\mathit{otherwise}
 			\end{matrix*}\right.
 	\end{align*}
