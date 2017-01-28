@@ -49,6 +49,21 @@
 \RequirePackage[UTF8, heading = false, scheme = plain]{ctex} % chinese character
 \RequirePackage{CJK} \setCJKmainfont{STHeiti} % chinese type in MacBook
 \RequirePackage{indentfirst} \setlength{\parindent}{2em}
+\RequirePackage{algorithm}
+\RequirePackage[noend]{algpseudocode}
+
+%===============================================================================
+% Algorithm
+
+% declaration of the new block
+\algblock{ParFor}{EndParFor}
+% customising the new block
+\algnewcommand\algorithmicparfor{\textbf{parallel for}}
+\algnewcommand\algorithmicpardo{\textbf{do}}
+\algnewcommand\algorithmicendparfor{\textbf{end\ parallel for}}
+\algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
+\algrenewtext{EndParFor}{\algorithmicendparfor}
+
 
 %===============================================================================
 % Formatting

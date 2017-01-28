@@ -30,38 +30,97 @@
 
 在眾多的約束條件類型中，我們將在這篇論文針對 \emph{variable gap LCS} (VGLCS) 進行探討。在 VGLCS 中，對各個不同的位置提供約束限制，如目前給定兩個字串 $A = \tt{RCLPCRR}$, $B = \tt{RPPLCPLRC}$，各自的約束限制為 $G_A = [2, 3, 0, 0, 3, 2, 2]$ 和 $G_B = [2, 0, 0, 0, 3, 0, 0, 2, 3]$，其中 $G_A(i)$ 表示當挑選第 $i$ 個位置時，與前一個挑選的位置最多差 $G_A(i)+1$，挑選的方式如圖 ~\ref{fig:VGLCSex}。這個問題已在 Yung-Hsing Peng ~\cite{yunghsing} 的論文針對 VGLCS 提出 $O(nm \alpha(n))$ 的解法。
 
-這一篇論文，我們將在第 \ref{??} 節部分將 Yung-Hsing Peng ~\cite{yunghsing} 提出的算法進行平行化。次著，在第 \ref{??} 節，我們將藉由快取忘卻 (cache-oblivious) 技術，在實作上提供更好的效能。接著，在第 \ref{??} 節，在理論分析上提供易平行且時間複雜度 $O(nm)$ 的設計。最後，我們總結實驗結果與理論實務上的差異。
+這一篇論文，我們將在第 \ref{??} 節部分將 Yung-Hsing Peng ~\cite{yunghsing} 提出的算法進行平行化。次著，在第二節 ~\ref{sec:parallelSerial}，我們將藉由快取忘卻 (cache-oblivious) 技術，在實作上提供更好的效能。接著，在第三節 ~\ref{sec:parallelIntervalQuery} ，在理論分析上提供易平行且時間複雜度 $O(nm)$ 的設計。最後，我們總結實驗結果與理論實務上的差異。
 
-\begin{figure*}[!thb]
+\begin{figure}[!thb]
   \centering
   \includegraphics[height=5cm]{figure/fig-VGLCS-ex.png} % width=\linewidth,
   \caption{簡單的 VGLCS 於兩個序列 $A = \tt{RCLPCRR}$, $B = \tt{RPPLCPLRC}$，各自的約束限制為 $G_A = [2, 3, 0, 0, 3, 2, 2]$ 和 $G_B = [2, 0, 0, 0, 3, 0, 0, 2, 3]$，的其中幾個可挑選的方案}
   \label{fig:VGLCSex}
-\end{figure*}
+\end{figure}
 
-\section{平行化序列算法}
-\label{sec:Ambiguity}
+\section{平行化序列算法} %
+\label{sec:parallelSerial}
 
-在 $O(nm)$ 的序列算法中 (參考圖 ~\ref{VGLCSalgo})，我們發現算法如大多數的變型 LCS 相同，依賴左上角區塊的狀以轉移當前狀態，大量的資料依賴性不易於細粒度平行。使用波前運行平行是一種常見的解決方案，由於這種平行對於運行時的快取不友善 (cache-unfriendly)，所以在 Saeed Maleki~\cite{saeed} 論文中提到如何使用 Rank Convergence 的特殊性質，拓展出更高平行度來解決動態規劃的相關問題。
+在 $O(nm)$ 的序列算法中 (參照算法 ~\ref{alg:serial})，我們發現算法如大多數的變型 LCS 相同，依賴左上角區塊的狀以轉移當前狀態，大量的資料依賴性不易於細粒度平行。使用波前運行平行是一種常見的解決方案，由於這種平行對於運行時的快取不友善 (cache-unfriendly)，所以在 Saeed Maleki~\cite{saeed} 論文中提到如何使用 Rank Convergence 的特殊性質，拓展出更高平行度來解決動態規劃的相關問題。
+
+\begin{algorithm*}[!thb]
+  \caption{Algorithm for Finding VGLCS}
+  \label{alg:serial}
+  \begin{algorithmic}[1]
+    \Require
+      $A, B$: the input string;
+      $G_A, G_B$: the array of variable gapped constraints;
+    \Ensure Find the LCS with variable gapped constraints
+    \State \tt{ISMQ} $Q[n]$
+    \State \tt{int} $V[n][m]$
+    \For{$i = 1$ to $n$}
+      \State \tt{ISMQ} $RQ$
+      \For{$j = 1$ to $m$}
+        \If{$A[i] = B[j]$}
+            \State $V[i][j] = RQ.get(j - \min(GB[j]+1, j))+1$
+            \State $RQ.set(j, Q[j].get(r))$
+            \State $Q[j].set(i, tmp)$
+        \Else
+            \State $V[i][j] = 0$
+            \State $RQ.set(j, Q[j].get(r))$
+        \EndIf
+      \EndFor
+    \EndFor
+    \State Retrieve the VGLCS by tracing $V[n][m]$
+  \end{algorithmic}
+\end{algorithm*}
 
 序列算法的空間複雜度為 $O(nm)$。若使用波前平行，需要同時維護橫向的所有狀態，需要多付出一倍的空間量。若加入 Rank Convergence 的想法拓展出，勢必要記錄轉移的狀態，需要耗費更多的記憶體空間，用以在最後階段合併所用。
 
 這裡我們著手設計算法空間複雜度常數小，並且針對快取友善。從序列算法中，發現在橫向查找中使用 $O(\alpha(n))$ 操作的後綴最大值查找，這部分難以平行化。為了消除資料相依性，我們找到幾種區間詢問的替代方案。如 
 
 \begin{itemize}
-  \item Binary Indexed Tree -- $O(\log n)$
-  \item Range Tree -- $O(\log n)$
-  \item Sparse Table -- $O(n \log n) -- O(1)$
+  \item Binary Indexed Tree -- $O(\log n)$: 對於任意前綴查找極值和更新元素，可以提供每次時間複雜度 $O(\log n)$，其運行常數比 Range Tree 低，但只能支持前綴查找，若要運行區間查找，則必須在數學上符合加法法則。
+  \item Range Tree -- $O(\log n)$: 支持更高維度的正交區塊搜索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有操作。
+  \item Sparse Table -- $O(n \log n)$ -- $O(1)$:
+    建立表格 $T[i][j]$ 表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度 $O(n \log n)$，對於任意區間詢問可以拆分兩個 super-block 的表格檢索，轉換過程和存取時間需要 $O(1)$。
 \end{itemize}
 
-根據 VGLCS 動態規劃時的單調性質，可以使用 Van Emde Boas Tree 作為輔助資料結構在 $O(\log \log n)$ 時間內完成操作。其中 Sparse Table 是我們認為最好的替代方案，其整合後的平行算法如圖 ~\ref{??}，在平行的時間複雜度為 $O(n^2 / p + n \log n)$，其中 $p$ 為處理器個數。
+根據 VGLCS 動態規劃時的單調性質，可以使用 Van Emde Boas Tree 作為輔助資料結構在 $O(\log \log n)$ 時間內完成操作。其中 Sparse Table 是我們認為最好的替代方案，其整合後的平行算法如下 ~\ref{alg:parallel}，其時間複雜度為 $O(n^2 / p + n \log n)$，其中 $p$ 為處理器個數。
 
-\begin{figure*}[!thb]
-  \centering
-  \includegraphics[height=5cm]{figure/fig-VGLCS-algo.png} % width=\linewidth,
-  \caption{Yung-Hsing Peng ~\cite{yunghsing} 提出的原生算法}
-  \label{fig:VGLCSalgo}
-\end{figure*}
+\begin{algorithm*}
+  \caption{Parallel Algorithm for Finding VGLCS}
+  \label{alg:parallel}
+  \begin{algorithmic}[1]
+    \Require
+      $A, B$: the input string;
+      $G_A, G_B$: the array of variable gapped constraints;
+    \Ensure Find the LCS with variable gapped constraints
+    \State \tt{ISMQ} $Q[n]$
+    \State \tt{int} $V[n][m]$
+    \For{$i = 1$ to $n$}
+      \State SparseTable $sp$
+      \ParFor{$j = 1$ to $m$}
+        \State $sp[j] = Q[j].get(r)$
+      \EndParFor
+      \State sp.parallel\_build(m) -- $O(n/p \log n + \log n)$
+      \ParFor{$j = 1$ to $m$}
+        \If{$A[i] = B[j]$}
+            \State $V[i][j] = sp.get(j - \min(GB[j]+1, j), j-1)+1$
+            \State $Q[j].set(i, V[i][j])$
+        \EndIf
+      \EndParFor
+    \EndFor
+    \State Retrieve the VGLCS by tracing $V[n][m]$
+  \end{algorithmic}
+\end{algorithm*}
+
+\section{平行區間查詢} %
+\label{sec:parallelRMQ}
+
+\subsection{背景}
+
+縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間查詢。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程或者每次詢問達到最好效能，對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行，而大多數的情況下，它們依賴笛卡爾樹 (Cartesian tree) 和塔揚離線最小共同祖先算法 (Tarjan's strongly connected components algorithm)，接著，我們將提出在兼顧兩者的算法。
+
+\subsection{快取忘卻笛卡爾樹}
+
+\subsection{動態笛卡爾樹標記與區間詢問}
 
 \section{結論}
 \label{sec:Conclusion}
@@ -69,8 +128,6 @@
 \section*{致謝}
 
 特別感謝某某
-
-\section*{References}
 
 \begin{thebibliography}{4}
 
