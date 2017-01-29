@@ -116,9 +116,17 @@
 
 \subsection{背景}
 
-縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間查詢。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程或者每次詢問達到最好效能，對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行，而大多數的情況下，它們依賴笛卡爾樹 (Cartesian tree) 和塔揚離線最小共同祖先算法 (Tarjan's strongly connected components algorithm)，接著，我們將提出在兼顧兩者的算法。
+縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程或者每次詢問達到最好效能，對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行，而大多數的情況下，它們依賴笛卡爾樹 (Cartesian tree) 和塔揚離線最小共同祖先算法 (Tarjan's strongly connected components algorithm)，再接續的小節中，我們將提出在兼顧兩者的平行算法。
 
 \subsection{快取忘卻笛卡爾樹}
+
+在 Fischer ~\cite{fischer} 的論文中，已經優化 RMQ 和 LCA 問題，根據卡塔蘭數 $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表 (lookup-table)。當我們選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度 $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。每一個區間詢問將會拆成 2 個 super-block 和 2 個 in-block 詢問 (參照圖 ~\ref{??})，共計需要 4 次的記憶體存取。在理論分析上，離線的 RMQ 問題已經可以在 $\theta(n)$ -- $\theta(1)$ 時間內解決任何詢問。
+
+當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取未中 (cache miss)，在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻 (cache oblivious) 形式的查找方案，降低在離線版本中的 in-block 詢問產生的快取未中。
+
+在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能，算法請參考 ~\ref{??}。
+
+然而在我們的應用中，僅能在每一階段使用這個技巧，算法請參考 ~\ref{??}，時間複雜度從 $O(n^2 / p + n \log n)$ 降到 $O(n^2 \alpha(n) / p + n \alpha(n))$，這已經達到近乎序列算法平行度的理想。再接續的章節中，我們將更進一步地將 $o(\alpha(n))$ 降到 $o(1)$。
 
 \subsection{動態笛卡爾樹標記與區間詢問}
 
@@ -139,6 +147,10 @@
 
 \bibitem{saeed} Saeed Maleki, `Efficient Parallelization Using Rank Convergence in Dynamic Programming Algorithm', Microsoft, 2016
 
+\bibitem{demaine} Erik D. Demaine, On Cartesian Trees and Range Minimum Queries, MIT, 2009
+
+\bibitem{fischer} J. Fischer and V. Heun. Theoretical and practical improvements on the RMQ- problem, with applications to LCA and LCE. In Proceedings of the 17th symposium on Combinatorial Pattern Matching (CPM), pages 36–48, 2006.
+
 \end{thebibliography}
 
 \Note{BlueNoteBackground}{%
@@ -151,3 +163,4 @@
 }
 
 \end{document}
+ 
