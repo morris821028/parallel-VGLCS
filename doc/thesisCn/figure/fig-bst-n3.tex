@@ -1,0 +1,88 @@
+\tikzset{
+  treeInode/.style = {align=center, inner sep=0pt, text centered,
+    font=\sffamily},
+  treeEnode/.style = {align=center, inner sep=0pt, text centered,
+    font=\sffamily},
+  arn_n/.style = {treeInode, circle, black, draw=black, fill=black, text=white,
+	  text width=0.2em,font=\small},% arbre rouge noir, noeud noir
+  arn_x/.style = {treeEnode, rectangle, draw=black,
+    minimum width=0.5em, minimum height=0.5em}% arbre rouge noir, nil
+}
+\usetikzlibrary{patterns}
+
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
+  level distance = 0.4cm}] 
+\node[arn_n]{2}
+  child{
+    node[arn_n]{1}
+    child{
+      node[arn_n]{0}
+    }
+    child[missing]{
+    }
+  }
+  child[missing]{
+  }
+; 
+\node[below=1.0cm, align=flush center,text width=0.5cm]{$0$};
+\end{tikzpicture}
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
+  level distance = 0.4cm}] 
+\node[arn_n]{2}
+  child{
+    node[arn_n]{0}
+    child[missing]{
+    }
+    child{
+      node[arn_n]{1}
+    }
+  }
+  child[missing]{
+  }
+; 
+\node[below=1.0cm, align=flush center,text width=0.5cm]{$1$};
+\end{tikzpicture}
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
+  level distance = 0.4cm}] 
+\node[arn_n]{1}
+  child{
+    node[arn_n]{0}
+  }
+  child{
+    node[arn_n]{2}
+  }
+; 
+\node[below=1.0cm, align=flush center,text width=0.5cm]{$2$};
+\end{tikzpicture}
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
+  level distance = 0.4cm}] 
+\node[arn_n]{0}
+  child[missing]{
+  }
+  child{
+    node[arn_n]{2}
+    child{
+      node[arn_n]{1}
+    }
+    child[missing]{
+    }
+  }
+; 
+\node[below=1.0cm, align=flush center,text width=1cm]{$3$};
+\end{tikzpicture}
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
+  level distance = 0.4cm}] 
+\node[arn_n]{0}
+  child[missing]{
+  }
+  child{
+    node[arn_n]{1}
+    child[missing]{
+    }
+    child{
+      node[arn_n]{2}
+    }
+  }
+; 
+\node[below=1.0cm, align=flush center,text width=0.5cm]{$4$};
+\end{tikzpicture}
