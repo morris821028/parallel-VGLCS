@@ -233,9 +233,83 @@ $$\sum_{i=1}^{n} l_i < i$$
   \label{fig:lablingBST}
 \end{figure}
 
+對於 $n$ 個節點的二元搜尋樹，有卡坦蘭數 $C_n$ 個不同的型。對於 $n$ 個節點的樹，其權重從 $0$ 開始至 $n-1$、樹編號為 $\mathit{tid}$，定義 $\mathit{LCA}(n, \mathit{tid}, p, q)$ 為其樹上兩點 $p$ 和 $q$ 的最小共同祖先。從遞迴公式中，額外定義四個變數 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 為左右子樹的大小和其編號，這四個變數在 $O(n)$ 時間內完成。最後，我們得到遞迴公式如式 ~\ref{fig:formulaLCA}。 
+
+\begin{figure*}[!thb]
+\begin{equation*}
+  \begin{split}
+    &\mathit{LCA}(n, \mathit{tid}, p, q) \\
+      &= \left\{\begin{matrix*}[l]
+        \mathit{LCA}(\mathit{lsz}, \mathit{lid}, p, q) &&, p \le q < \mathit{lsz}\\ 
+        \mathit{LCA}(\mathit{rsz}, \mathit{rid}, p-\mathit{lsz}-1, q-\mathit{lsz}-1)+\mathit{lsz}+1 &&, 
+            \mathit{lsz} \le p \le q < n \\ 
+        \mathit{lsz} && , 0 \le p \le \mathit{lsz}, \mathit{lsz} \le q \le i\\ 
+        -1 && ,\mathit{otherwise}
+      \end{matrix*}\right.
+  \end{split}
+\end{equation*}
+\caption{Recursion Formula for labeling BST}
+\label{fig:formulaLCA}
+\end{figure*}
+
+這張表使用 $\theta\left(\frac{n^2}{n+1} \binom{2n}{n}\right)$ 空間，搭配 RMQ 問題，使得大部分的應用讓 $n \le 8$，因此空間消耗上可以允許的。建立這張表的平行算法如 ~\ref{alg:parallelLCA}，其平行複雜度如下：
+
+$$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
+
+\begin{algorithm*}
+  \caption{Parallel Algorithm for building LCA}
+  \label{alg:parallelLCA}
+  \begin{algorithmic}[1]
+    \Require
+      $s$: Maximum size for required the number of BST
+    \For{$n = 1$ to $s$}
+      \ParFor{$\mathit{tid} = 0$ to $C_n - 1$}
+        \ParFor{$p = 0$ to $n-1$}
+          \State compute $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $O(n)$
+          \For{$q = p$ to $n-1$}
+            \State LCA[$n$][$\mathit{tid}$][$p$][$q$] = $\cdots$ ~\ref{fig:formulaLCA}
+          \EndFor
+        \EndParFor
+      \EndParFor
+    \EndFor
+  \end{algorithmic}
+\end{algorithm*}
+
+在這應用下，詢問次數與元素個數相當，故無法像 Masud \cite{masud} 的研究來減少快取未中的問題，只能依賴數據本身的分佈和編碼之間的關聯來減少快取未中的情況。
 
 \subsubsection{常數編碼笛卡爾樹}
 
+在我們的應用中維護後綴最大值，其操作需要以下兩者：
+
+\begin{itemize}
+  \item \texttt{Append V} : 插入元素 $V$ 至陣列 $A$ 的尾端
+  \item \texttt{Query L R} : 詢問 $A[L .. R]$ 中的最大值
+\end{itemize}
+
+已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，其二使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。而 Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個 in-block 塞滿至預設值才可解決。接著，我們將提供動態的編碼方式，使得每一操作皆均攤 $\theta(1)$ 完成。
+
+我們在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，參考算法 ~\ref{alg:FunctionTid}。我們可以透過預處理，事先將所有前綴和保存下來，在算法 ~\ref{alg:FunctionTid} 的迴圈可視為一次內存存取。
+
+\begin{algorithm*}
+  \caption{Get $tid$ from $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $\theta(1)$ time}
+  \label{alg:FunctionTid}
+  \begin{algorithmic}[1]
+    \Require
+      $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$: size and label in left/right subtree
+    \Ensure
+      $\mathit{tid}$: this label
+    \If{$\mathit{rsz} = 0$}
+      \State return $\mathit{lid}$
+    \EndIf
+    \State $n = \mathit{lsz}+\mathit{rsz}+1$
+    \State $\mathit{base} = 0$
+    \For{$i=0$ to $\mathit{lsz}-1$}
+      \State $\mathit{base}$ += $C_i$ * $C_{n-i-1}$
+    \EndFor
+    \State $\mathit{offset}$ = $\mathit{lid}$ * $C_{\mathit{rsz}}$ + $\mathit{rid}$
+    \State return $\mathit{base}$ + $\mathit{offset}$
+  \end{algorithmic}
+\end{algorithm*}
 
 \section{實作細節}
 
