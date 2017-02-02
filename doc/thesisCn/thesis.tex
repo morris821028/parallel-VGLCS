@@ -116,7 +116,7 @@
 
 \subsection{背景}
 
-縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程或者每次詢問達到最好效能，對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行，而大多數的情況下，它們依賴笛卡爾樹 (Cartesian tree) 和塔揚離線最小共同祖先算法 (Tarjan's strongly connected components algorithm)，再接續的小節中，我們將提出在兼顧兩者的平行算法。
+縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程或者每次詢問達到最好效能，對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行，而大多數的情況下，它們依賴笛卡爾樹 (Cartesian tree) 和塔揚離線最小共同祖先算法 (Tarjan's off-line lowest common ancestors algorithm)，再接續的小節中，我們將提出在兼顧兩者的平行算法。
 
 \subsection{快取忘卻笛卡爾樹}
 
@@ -185,7 +185,8 @@ $$\sum_{i=1}^{n} l_i < i$$
 
 在 VGLCS 問題中，主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方面為數個獨立的數據結構，因此很容易平行；相反地，在橫向方面，需要共同協作一個數據結構。綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而橫向可以離線完成區間查找。在上一節中，我們提出在橫向處理的實作，若限制上述的實作方案在單一處理器上，時間複雜度的瓶頸將受限於縱向的更新與查找。最後，我們的成果如表 ~\ref{tab:cmpComplexity} 所示。
 
-\begin{table*}
+\begin{table}
+  \tiny
   \centering
   \begin{tabular}{ccc}
     \toprule
@@ -217,7 +218,7 @@ $$\sum_{i=1}^{n} l_i < i$$
   \end{tabular}
   \caption{我們的研究成果如粗體字所述，均攤部分將在 $s=16$ 的笛卡爾樹上，整理影響的常數很小，不易遇到負載平衡上的問題。}
   \label{tab:cmpComplexity}
-\end{table*}
+\end{table}
 
 \subsubsection{平行建立查找表}
 
@@ -277,7 +278,7 @@ $$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
 
 在這應用下，詢問次數與元素個數相當，故無法像 Masud \cite{masud} 的研究來減少快取未中的問題，只能依賴數據本身的分佈和編碼之間的關聯來減少快取未中的情況。
 
-\subsubsection{常數編碼笛卡爾樹}
+\subsubsection{動態編碼笛卡爾樹}
 
 在我們的應用中維護後綴最大值，其操作需要以下兩者：
 
@@ -290,7 +291,7 @@ $$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
 
 我們在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，參考算法 ~\ref{alg:FunctionTid}。我們可以透過預處理，事先將所有前綴和保存下來，在算法 ~\ref{alg:FunctionTid} 的迴圈可視為一次內存存取。
 
-\begin{algorithm*}
+\begin{algorithm}
   \caption{Get $tid$ from $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $\theta(1)$ time}
   \label{alg:FunctionTid}
   \begin{algorithmic}[1]
@@ -309,14 +310,162 @@ $$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
     \State $\mathit{offset}$ = $\mathit{lid}$ * $C_{\mathit{rsz}}$ + $\mathit{rid}$
     \State return $\mathit{base}$ + $\mathit{offset}$
   \end{algorithmic}
+\end{algorithm}
+
+根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，其實作上與堆疊結構相同。基於 row-major 的順序和遞迴定義 ~\ref{alg:FunctionTid}，修改之前論文對於的離線編碼，其對應方案如下 ~\ref{alg:typeOfCartesianOffline}：
+
+\begin{algorithm*}
+  \caption{Offline Type of Cartesian Tree}
+  \label{alg:typeOfCartesianOffline}
+  \begin{algorithmic}[1]
+    \Require
+      $A[1 \cdots s]$: storage array;
+      $s$: the number of elements;
+    \Ensure
+      $\mathit{tid}$: this label
+    \State $\langle\mathit{lsz},\mathit{lid},\mathit{value}\rangle$ $D$[$s+1$]
+    \State Dp = 0
+    \State $D$[0] = $\langle0,0,\infty\rangle$
+    \For{$i = 1$ to $s$}
+      \State v = $A$[i], lsz = 0, lid = 0
+      \While{$D$[Dp].value < v}
+        \State lid = tid($D$[Dp].lsz, $D$[Dp].lid, lsz, lid)
+        \State lsz += $D$[Dp].lsz + 1
+        \State Dp = Dp - 1
+      \EndWhile
+      \State Dp = Dp + 1
+      \State $D$[Dp] = $\langle\mathit{lsz},\mathit{lid},\mathit{v}\rangle$
+    \EndFor
+    \State lsz = 0, lid = 0
+    \While{Dp > 0} // pop all
+      \State lid = tid($D$[Dp].lsz, $D$[Dp].lid, lsz, lid)
+      \State lsz += $D$[Dp].lsz + 1
+      \State Dp = Dp - 1
+    \EndWhile
+    return lid
+  \end{algorithmic}
+\end{algorithm*}
+
+許多研究致力於如何將編碼過程的運算量最小化，如改變遞迴定義公式，便可用數個暫存器狀態轉移取代內存存取 ... 等，這些方法皆使用離線編碼，其攤銷複雜度會到 $\theta(s)$，故不適用於後綴最大值查找。
+
+為了支持動態編碼，我們提出攤銷 $\theta(1)$ 的算法。首先，我們定義轉移狀態由 5 個變數決定，當前插入第 $i$ 個元素，最終填充 $s$ 個元素，當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
+
+\begin{lstlisting}
+struct State {
+  int i, s, tid, Dp
+  <lsz,lid,value> D[s+1]
+}
+State 
+  init(i = 0, s = n, tid = C[n]-1, 
+          D[0].value = INF, Dp = 0)
+\end{lstlisting}
+
+為了解決詢問操作，我們必須搭配 Fischer \cite{fischer} 的研究，取 $s = \frac{1}{4} \log n$ 使得整體落在 $\theta(n)$，提出的在線編碼算法 ~\ref{alg:typeOfCartesianOnline} 只存取 $s$ 個節點的 LCA 表，而非隨著插入元素的增加，則存取 $[1, s]$ 的 LCA 表，故一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_n - 1$。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (參考圖 ~\ref{??})。最後，我們不改變原本的建立笛卡爾樹算法，又能在過程中擭得樹的編號，忽略建表所需時間，每一次的 in-block 詢問將查找表，得到任一操作攤銷複雜度 $\theta(1)$。
+
+\begin{algorithm*}
+  \caption{Online Type of Cartesian Tree}
+  \label{alg:typeOfCartesianOnline}
+  \begin{algorithmic}[1]
+  \Require
+      $\mathit{state}$: state of Cartesian Tree;
+      $v$: the value which append to array
+  \Ensure
+      $\mathit{tid}$: this label
+  \State Dp = state.Dp, lsz = lid = 0
+  \State bsz = state.s - state.i + 1
+  \State bid = C[bsz] - 1 
+  \While{state.D[Dp].value < v}
+    \State lid = tid(state.D[Dp].lsz, state.D[Dp].lid, lsz, lid)
+    \State bid = tid(state.D[Dp].lsz, state.D[Dp].lid, bsz, bid)
+    \State lsz = lsz + state.D[Dp].lsz+1
+    \State bsz = bsz + state.D[Dp].lsz+1
+    \State Dp = Dp - 1
+  \EndWhile
+  \State Dp = Dp + 1
+  \State state.D[Dp] = <lsz,lid,v>, state.Dp = Dp
+  \State state.tid = state.tid + bid - tid(lsz, lid, state.s-state.i, C[state.s-state.i]-1)
+  \State state.i = state.i + 1
+  \State return state.tid
+  \end{algorithmic}
 \end{algorithm*}
 
 \section{實作細節}
+\label{sec:Implementation}
+
+\subsection{平行并查集操作策略}
+
+運行 VGLCS 時，將耗費 $\theta(n^2)$ 的內存空間。使用遞增後綴最大值 (ISMQ) 時，採用並查集實作將會遭遇到很多不平衡的工作負載，其原因在於合併的策略，常見的有路徑壓縮和啟發式合併兩種策略，這間接影響到不同次數的分枝判斷。實務上須考慮到快取未中，故兩種策略只能擇其一，兩者皆用將引發更多的快取未中而導致效能下滑。
+
+數個執行緒分配到獨立的并查集，操作時偏向延遲標記操作，儘早合併的策略易造成快取未中。由於動態規劃的傾向中，插入值的趨勢有兩種情況，其一為連續不合定義的零元素插入，其二為遞增元素的插入，在這兩者穿插的趨勢中，我們發現延遲操作將會帶來較能改善快取未中問題。
+
+\subsection{平行區間查找策略}
+
+一般運行區間查找時，依賴內建函數 \texttt{\_\_builtin\_clz} 在 $O(1)$ 時間完成，然而在 VGLCS 中，區間查找的對數結果都是可以被預測的，預先將每一組詢問的區段對數結果儲存在陣列中，便可降低運行常數。
+
+由於已知所有詢問區間，建立稀疏表時，可藉由動態規劃在 $O(n \log n)$ 排除掉不可能的計算，降低過程中的計算量。由於 VGLCS 在平行操作需要 $O(n \log n)$，故使用動態規劃不影響我們的最終結果。
+
+由 Fischer \cite{fischer} 提出的策略中，雖 in-block 詢問可藉由笛卡爾樹的編號 $O(1)$ 查找，查找表易引發快取未中。從機率分佈的角度來看，因 $s = \frac{1}{4} \log n$ 過小，區間詢問完全落於 block 的機率低，故額外維護區段前綴和後綴最大值 (prefix/suffix maximum value in block) 取代笛卡爾樹的建立。
 
 \section{實驗結果}
+\label{sec:Experiment}
+
+我們運行在 Intel Xeon E5-2620 2.40 GHz 主機上，其擁有 L1 cache 384 KiB、L2 cache 1536 KiB 和 L3 cache 15 MiB。
+
+\subsection{空間壓縮 VGLCS}
+
+我們運行優化策略中的空間壓縮版本，而非理論分析的 $\theta(1)$ 操作，單次詢問落在 $O(s)$ 中，在實作上由於可以完全壓在暫存器上操作，效能表現較佳。
+
+\begin{figure}[!thb]
+  \centering
+  \input{./figure/fig-parallel-n}
+  \caption{Serial and Parallel Algorithm run on E5-2620}
+  \label{fig:fig-parallel}
+\end{figure}
+
+從圖 ~\ref{fig:fig-parallel-scala} 看出，平行 VGLCS 的縮放性不佳，從 profiler 中得到快取未中的問題需要解決。
+
+\begin{figure}[!thb]
+  \centering
+  \input{./figure/fig-parallel-p}
+  \caption{Scalability for our Parallel Algorithm}
+  \label{fig:fig-parallel-scala}
+\end{figure}
+
+\subsection{理論常數 VGLCS}
+
+尚未完成
+
+\subsection{平行區間查找}
+
+每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，我們運行樸素的 \texttt{CORMQ} (cache-oblivious RMQ) 得到效能改善，搭配可預測的分析降低運算量 (參照 \texttt{CORMQ-opt})，得到更好的改善。在 \texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速。實驗結果如表 ~\ref{tlb:CORMQ}
+
+\begin{table}[!thb]
+  \tiny
+  \centering
+  \begin{tabular}{l c c c c}
+    \firsthline
+      & \multicolumn{4}{c}{$N$} \\
+      \cline{2-5}
+        & \multicolumn{2}{c}{$30000$} & $50000$ & $100000$ \\
+      $L$ & $2^{10}$ & $2^{15}$ & $2^{15}$ & $2^{15}$ \\
+      \hline
+      parallel-\tt{RMQ}     & $903$ & $1516$ & $1874$ & $4116$ \\
+      parallel-\tt{CORMQ}   & $995$ & $1475$ & $1689$ & $2594$ \\
+      parallel-\tt{CORMQ-opt} & $843$ & $1373$ & $1136$ & $1745$ \\
+      \hline
+      Speedup & $1.07\times$ & $1.10\times$ & $1.64\times$ & $2.35\times$\\
+    \lasthline
+  \end{tabular}
+  \caption{Total running time (ms) for finding RMQ of different sizes $N$ and maximum interval sizes $L$.}
+  \label{tlb:CORMQ}
+\end{table}
 
 \section{結論}
 \label{sec:Conclusion}
+
+我們修改 VGLCS 的序列算法，將其平行化於 $\theta(n \log n)$ 時間內，並以稀疏表實作 ISMQ 問題。提出的稀疏表能解決比 VGLCS 更困難的 Variable Interval Gapped LCS，致使 VIGLCS 可在時間複雜度 $\theta(nm)$ 被解決。
+
+在實務上，我們提供以動態規劃減少計算量，以及使用空間壓縮降低快取未中的策略，最終平行 RMQ 獲取 $2.35 \times$ 倍的加速；在理論上，提出 $\theta(n)$ -- $\theta(1)$ 的實作，並且能提供附加操作的編碼策略。
 
 \section*{致謝}
 

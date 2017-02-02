@@ -51,9 +51,12 @@
 \RequirePackage{indentfirst} \setlength{\parindent}{2em}
 \RequirePackage{amsmath} \RequirePackage{mathtools}
 \RequirePackage{algorithm}
+\RequirePackage{listings} \lstset{language=C}
 \RequirePackage[noend]{algpseudocode}
 \RequirePackage{booktabs}
 \RequirePackage{tikz} \usetikzlibrary{calc} \usetikzlibrary{positioning} \usetikzlibrary{shapes,arrows} \usetikzlibrary{plotmarks}
+\RequirePackage{pgfplots}
+\RequirePackage{array} % table
 
 %===============================================================================
 % Algorithm
