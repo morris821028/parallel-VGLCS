@@ -1,5 +1,7 @@
 \documentclass[border=2pt]{standalone}
 \usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{mathtools}
 \usetikzlibrary{arrows.meta,chains,%
                     decorations.pathreplacing}
 \usetikzlibrary{matrix,positioning,arrows.meta,arrows}
@@ -56,19 +58,18 @@ at (0,-2)
 { 
   8 & 8 & 8 & 8 & 9 \\ };
 
-\node[left=5pt of mat1]
-{
-   $ST[0]$ \\
-};
+\node[left=5pt of mat1]{ $ST[0]$ };
 
-\node[left=5pt of mat2]
-{
-   $ST[1]$ \\
-};
+\node[left=5pt of mat2]{ $ST[1]$ };
 
-\node[left=5pt of mat3]
+\node[left=5pt of mat3]{ $ST[2]$ };
+
+\node[right=5pt of mat1]
 {
-   $ST[2]$ \\
+  $ST[i][j] = \left\{\begin{matrix*}[l]
+    \max(B_{j+1}) && , i = 0\\
+    \max(ST[i-1][j], ST[i-1][j-2^{i-1}]) && , \textit{otherwise}
+  \end{matrix*}\right.$
 };
 
 \end{tikzpicture}
