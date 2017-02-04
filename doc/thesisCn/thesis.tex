@@ -26,11 +26,11 @@
 \section{介紹} %Introduction
 \label{sec:Introduction}
 
-最長同子序列 (\emph{longest common subsequence}) (LCS)廣泛地使用在各個應用上。在多核心平台下，大多數的研究專注於如何高效率地在波前平行，而 Jiaoyun Yang ~\cite{jiaoyun} 提出的論文中改變一般的 LCS 遞迴定義以得到更好快取使用率。這裡，我們使用相關的理論來改善在 Iliopoulos ~\cite{iliopoulos} 提及的約束條件下的 LCS，如 \emph{fixed gap LCS } (FGLCS)要求任兩個挑選的距離在相對應的另一個字串中相等，同時距離最大為 $k+1$，可在時間複雜度在 $O(nm)$ 內解決，其中 $n$, $m$ 分別為兩個輸入的字串長度。
+最長共同子序列 (\emph{longest common subsequence}, LCS)廣泛地使用在各個應用上。在多核心平台下，大多數的研究專注於如何高效率地在波前平行 (wavefront parallelism)，而 Jiaoyun Yang ~\cite{jiaoyun} 提出的論文中改變一般的 LCS 遞迴定義以得到更好快取使用率。這裡，我們使用相關的理論來改善在 Iliopoulos ~\cite{iliopoulos} 提及的約束條件下的 LCS，如 \emph{fixed gap LCS } (FGLCS)要求任兩個挑選的距離在相對應的另一個字串中相等，同時距離最大為 $k+1$，可在時間複雜度在 $O(nm)$ 內解決，其中 $n$, $m$ 分別為兩個輸入的字串長度。
 
 在眾多的約束條件類型中，我們將在這篇論文針對 \emph{variable gap LCS} (VGLCS) 進行探討。在 VGLCS 中，對各個不同的位置提供約束限制，如目前給定兩個字串 $A = \tt{RCLPCRR}$, $B = \tt{RPPLCPLRC}$，各自的約束限制為 $G_A = [2, 3, 0, 0, 3, 2, 2]$ 和 $G_B = [2, 0, 0, 0, 3, 0, 0, 2, 3]$，其中 $G_A(i)$ 表示當挑選第 $i$ 個位置時，與前一個挑選的位置最多差 $G_A(i)+1$，挑選的方式如圖 ~\ref{fig:VGLCSex}。這個問題已在 Yung-Hsing Peng ~\cite{yunghsing} 的論文針對 VGLCS 提出 $O(nm \alpha(n))$ 的解法。
 
-這一篇論文，我們將在第 \ref{??} 節部分將 Yung-Hsing Peng ~\cite{yunghsing} 提出的算法進行平行化。次著，在第二節 ~\ref{sec:parallelSerial}，我們將藉由快取忘卻 (cache-oblivious) 技術，在實作上提供更好的效能。接著，在第三節 ~\ref{sec:parallelIntervalQuery} ，在理論分析上提供易平行且時間複雜度 $O(nm)$ 的設計。最後，我們總結實驗結果與理論實務上的差異。
+這一篇論文，我們將在第二 \ref{sec:parallelSerial} 節部分將 Yung-Hsing Peng ~\cite{yunghsing} 提出的算法進行平行化。接著，在第三節 ~\ref{sec:parallelRMQ}，在理論分析上提供易平行且時間複雜度 $O(nm)$ 的設計。次著，在第四節 ~\ref{sec:Implementation}，我們將藉由快取忘卻 (cache-oblivious) 技術，在實作上提供更好的效能。最後，我們總結實驗結果與理論實務上的差異。
 
 \begin{figure}[!thb]
   \centering
@@ -42,7 +42,7 @@
 \section{平行化序列算法} %
 \label{sec:parallelSerial}
 
-在 $O(nm)$ 的序列算法中 (參照算法 ~\ref{alg:serial})，我們發現算法如大多數的變型 LCS 相同，依賴左上角區塊的狀以轉移當前狀態，大量的資料依賴性不易於細粒度平行。使用波前運行平行是一種常見的解決方案，由於這種平行對於運行時的快取不友善 (cache-unfriendly)，所以在 Saeed Maleki~\cite{saeed} 論文中提到如何使用 Rank Convergence 的特殊性質，拓展出更高平行度來解決動態規劃的相關問題。
+在 $O(nm)$ 的序列算法中 (參照算法 ~\ref{alg:serial})，我們發現算法如大多數的變型 LCS 相同，依賴左上角的區塊狀態以轉移當前狀態，大量的資料依賴性不易於細粒度平行。使用波前運行平行是一種常見的解決方案，由於這種平行對於運行時的快取不友善 (cache-unfriendly)，所以在 Saeed Maleki~\cite{saeed} 論文中提到如何使用 Rank Convergence 的特殊性質，拓展出更高平行度來解決動態規劃的相關問題。
 
 \begin{algorithm*}[!thb]
   \caption{Algorithm for Finding VGLCS}
@@ -52,18 +52,21 @@
       $A, B$: the input string;
       $G_A, G_B$: the array of variable gapped constraints;
     \Ensure Find the LCS with variable gapped constraints
-    \State \tt{ISMQ} $Q[n]$
-    \State \tt{int} $V[n][m]$
+    \State ISMQ $Q[n]$
+    \State int $V[n][m]$
     \For{$i = 1$ to $n$}
       \State \tt{ISMQ} $RQ$
+      \State $r = i - \min(GA[i]+1, i)$
       \For{$j = 1$ to $m$}
         \If{$A[i] = B[j]$}
             \State $V[i][j] = RQ.get(j - \min(GB[j]+1, j))+1$
-            \State $RQ.set(j, Q[j].get(r))$
-            \State $Q[j].set(i, tmp)$
+            \State $t = Q[j].get(r)$ // the suffix maximum $A[r, i]$ in column $j$
+            \State $RQ.set(j, t)$ // set the value $t$ to position $j$
+            \State $Q[j].set(i, V[i][j])$
         \Else
             \State $V[i][j] = 0$
-            \State $RQ.set(j, Q[j].get(r))$
+            \State $t = Q[j].get(r)$
+            \State $RQ.set(j, t)$
         \EndIf
       \EndFor
     \EndFor
@@ -73,10 +76,10 @@
 
 序列算法的空間複雜度為 $O(nm)$。若使用波前平行，需要同時維護橫向的所有狀態，需要多付出一倍的空間量。若加入 Rank Convergence 的想法拓展出，勢必要記錄轉移的狀態，需要耗費更多的記憶體空間，用以在最後階段合併所用。
 
-這裡我們著手設計算法空間複雜度常數小，並且針對快取友善。從序列算法中，發現在橫向查找中使用 $O(\alpha(n))$ 操作的後綴最大值查找，這部分難以平行化。為了消除資料相依性，我們找到幾種區間詢問的替代方案。如 
+這裡我們著手設計算法空間複雜度常數小，並且針對快取友善。從序列算法中，發現在橫向查找中使用 $O(\alpha(n))$ 操作的增長後綴最大值查找 (\emph{incremental suffix maximum query}, ISMQ)，這部分難以平行化。為消除資料相依性，我們找到幾種區間詢問的替代方案。如 
 
 \begin{itemize}
-  \item Binary Indexed Tree -- $O(\log n)$: 對於任意前綴查找極值和更新元素，可以提供每次時間複雜度 $O(\log n)$，其運行常數比 Range Tree 低，但只能支持前綴查找，若要運行區間查找，則必須在數學上符合加法法則。
+  \item Binary Indexed Tree -- $O(\log n)$: 對於任意前綴查找極值和更新元素，可以提供每次時間複雜度 $O(\log n)$，其運行常數比 Range Tree 低，只能支持前綴查找。若要運行區間查找，則必須在數學上符合加法原則。
   \item Range Tree -- $O(\log n)$: 支持更高維度的正交區塊搜索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有操作。
   \item Sparse Table -- $O(n \log n)$ -- $O(1)$:
     建立表格 $T[i][j]$ 表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度 $O(n \log n)$，對於任意區間詢問可以拆分兩個 super-block 的表格檢索，轉換過程和存取時間需要 $O(1)$。
@@ -116,11 +119,11 @@
 
 \subsection{背景}
 
-縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程或者每次詢問達到最好效能，對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行，而大多數的情況下，它們依賴笛卡爾樹 (Cartesian tree) 和塔揚離線最小共同祖先算法 (Tarjan's off-line lowest common ancestors algorithm)，再接續的小節中，我們將提出在兼顧兩者的平行算法。
+縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程和每次詢問皆達到最好效能，對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行，因它們仰賴笛卡爾樹 (Cartesian tree) 和塔揚離線最小共同祖先算法 (Tarjan's off-line lowest common ancestors algorithm)，再接續的小節中，我們將提出在兼顧兩者的平行算法。
 
 \subsection{快取忘卻笛卡爾樹}
 
-在 Fischer ~\cite{fischer} 的論文中，已經優化 RMQ 和 LCA 問題，根據卡塔蘭數 $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表 (lookup-table)。當我們選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度 $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。每一個區間詢問將會拆成 2 個 super-block 和 2 個 in-block 詢問 (參照圖 ~\ref{fig:interval-decomposition})，共計需要 4 次的記憶體存取。在理論分析上，離線的 RMQ 問題已經可以在 $\theta(n)$ -- $\theta(1)$ 時間內解決任何詢問。
+在 Fischer ~\cite{fischer} 的論文中，根據卡塔蘭數 $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表 (lookup-table)，其中選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度 $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。每一個區間詢問將會拆成 2 個 super-block 和 2 個 in-block 詢問 (參照圖 ~\ref{fig:interval-decomposition})，共計需要 4 次的記憶體存取。在理論分析上，offline-RMQ 問題可在 $\theta(n)$ -- $\theta(1)$ 時間內解決任一詢問。
 
 當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取未中 (cache miss)，在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻 (cache oblivious) 形式的查找方案，降低在離線版本中的 in-block 詢問產生的快取未中。
 
@@ -132,11 +135,9 @@
   \label{fig:interval-decomposition}
 \end{figure*}
 
-在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案，選擇每 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 
+在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案 $s = 16$，其能解決序列長度為 $n = 2^{64}$ 的區間查找，將 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 $\sum_{i=1}^{n} l_i < i$。
 
-$$\sum_{i=1}^{n} l_i < i$$
-
-因此所有 $l_i < 16$，每個 $l_i$ 使用 4-bit 表示之，最後用 64-bit 表示整個笛卡爾樹。為了現在常見的 64-byte 快取列 (cache line) 和 64-bit 暫存器 (register) 考量，我們選用合適的大小進行測試，不僅壓縮空間使用量，同時也減少快取未中的問題。請參考 ~\ref{alg:cacheObliviousTransfer}。
+因所有 $l_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，總體便可用 64-bit 長整數表示一棵笛卡爾樹的狀態。為了現在常見的 64-byte 快取列 (cache line) 和 64-bit 暫存器 (register) 考量，我們選用合適的大小進行測試，不僅壓縮空間使用量，同時也減少快取未中的問題。壓縮流程如算法 ~\ref{alg:cacheObliviousTransfer}，對應的區間查找算法，根據 Demaine ~\cite{demaine} 進行修改，流程如算法 ~\ref{alg:cacheObliviousQuery}。
 
 \begin{algorithm*}
   \caption{Transfer Cartesian Tree to 64-bits with 8 integers}
@@ -241,7 +242,9 @@ $$\sum_{i=1}^{n} l_i < i$$
   \label{fig:lablingBST}
 \end{figure}
 
-對於 $n$ 個節點的二元搜尋樹，有卡坦蘭數 $C_n$ 個不同的型。對於 $n$ 個節點的樹，其權重從 $0$ 開始至 $n-1$、樹編號為 $\mathit{tid}$，定義 $\mathit{LCA}(n, \mathit{tid}, p, q)$ 為其樹上兩點 $p$ 和 $q$ 的最小共同祖先。從遞迴公式中，額外定義四個變數 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 為左右子樹的大小和其編號，這四個變數在 $O(n)$ 時間內完成。最後，我們得到遞迴公式如式 ~\ref{fig:formulaLCA}。 
+對於 $n$ 個節點的二元搜尋樹，有卡坦蘭數 $C_n$ 個不同的型。對於 $n$ 個節點的樹，其權重從 $0$ 開始至 $n-1$、樹編號為 $\mathit{tid}$。定義 $\mathit{LCA}(n, \mathit{tid}, p, q)$ 為其樹上兩點 $p$ 和 $q$ 的最小共同祖先，如 $\mathit{LCA}(3, 2, 0, 2) = 1$。
+
+從遞迴公式中，額外四個變數 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 分別為左右子樹的大小和其編號，這四個變數在 $O(n)$ 時間內計算。最後，我們得到遞迴公式如式 ~\ref{fig:formulaLCA}。 
 
 \begin{figure*}[!thb]
 \begin{equation*}
@@ -287,7 +290,7 @@ $$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
 
 \subsubsection{動態編碼笛卡爾樹}
 
-在我們的應用中維護後綴最大值，其操作需要以下兩者：
+在我們的應用中維護後綴最大值，拓展其操作成為增長區間最大值查找 (\emph{incremental range maximum query}, IRMQ)，其支援兩項操作：
 
 \begin{itemize}
   \item \texttt{Append V} : 插入元素 $V$ 至陣列 $A$ 的尾端
@@ -296,9 +299,11 @@ $$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
 
 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，其二使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。而 Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個 in-block 塞滿至預設值才可解決。接著，我們將提供動態的編碼方式，使得每一操作皆均攤 $\theta(1)$ 完成。
 
-我們在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，參考算法 ~\ref{alg:FunctionTid}。我們可以透過預處理，事先將所有前綴和保存下來，在算法 ~\ref{alg:FunctionTid} 的迴圈可視為一次內存存取。
+許多研究致力於如何將編碼過程的運算量最小化，如改變遞迴定義公式，便可用數個暫存器狀態轉移取代內存存取 ... 等，這些方法皆使用離線編碼，其攤銷複雜度會到 $\theta(s)$，故不適用於後綴最大值查找。
 
-\begin{algorithm}
+我們在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，如算法 ~\ref{alg:FunctionTid}。透過預處理，事先將所有前綴和保存下來，在算法中的迴圈可視為一次內存存取，使得時間複雜度 $\theta(1)$。
+
+\begin{algorithm*}
   \caption{Get $tid$ from $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $\theta(1)$ time}
   \label{alg:FunctionTid}
   \begin{algorithmic}[1]
@@ -312,14 +317,14 @@ $$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
     \State $n = \mathit{lsz}+\mathit{rsz}+1$
     \State $\mathit{base} = 0$
     \For{$i=0$ to $\mathit{lsz}-1$}
-      \State $\mathit{base}$ += $C_i$ * $C_{n-i-1}$
+      \State $\mathit{base}$ += $C_i \cdot C_{n-i-1}$
     \EndFor
-    \State $\mathit{offset}$ = $\mathit{lid}$ * $C_{\mathit{rsz}}$ + $\mathit{rid}$
+    \State $\mathit{offset}$ = $\mathit{lid} \cdot C_{\mathit{rsz}}$ + $\mathit{rid}$
     \State return $\mathit{base}$ + $\mathit{offset}$
   \end{algorithmic}
-\end{algorithm}
+\end{algorithm*}
 
-根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，其實作上與堆疊結構相同。基於 row-major 的順序和遞迴定義 ~\ref{alg:FunctionTid}，修改之前論文對於的離線編碼，其對應方案如下 ~\ref{alg:typeOfCartesianOffline}：
+根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，實作上與堆疊結構相同。基於 row-major 順序和遞迴定義 ~\ref{alg:FunctionTid}，修改之前論文對於的離線編碼，其對應方案如算法 ~\ref{alg:typeOfCartesianOffline}。
 
 \begin{algorithm*}
   \caption{Offline Type of Cartesian Tree}
@@ -353,19 +358,21 @@ $$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
   \end{algorithmic}
 \end{algorithm*}
 
-許多研究致力於如何將編碼過程的運算量最小化，如改變遞迴定義公式，便可用數個暫存器狀態轉移取代內存存取 ... 等，這些方法皆使用離線編碼，其攤銷複雜度會到 $\theta(s)$，故不適用於後綴最大值查找。
-
 為了支持動態編碼，我們提出攤銷 $\theta(1)$ 的算法。首先，我們定義轉移狀態由 5 個變數決定，當前插入第 $i$ 個元素，最終填充 $s$ 個元素，當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
 
+\begin{figure}
 \begin{lstlisting}
+struct Node {
+  int lsz, lid, val;
+};
 struct State {
-  int i, s, tid, Dp
-  <lsz,lid,value> D[s+1]
-}
-State 
-  init(i = 0, s = n, tid = C[n]-1, 
-          D[0].value = INF, Dp = 0)
+  int i, s, tid, Dp;
+  struct Node D[s+1];
+  State(i=0, s=n, tid=C[n]-1, 
+           D[0].val=INF, Dp=0)
+};
 \end{lstlisting}
+\end{figure}
 
 為了解決詢問操作，我們必須搭配 Fischer \cite{fischer} 的研究，取 $s = \frac{1}{4} \log n$ 使得整體落在 $\theta(n)$，提出的在線編碼算法 ~\ref{alg:typeOfCartesianOnline} 只存取 $s$ 個節點的 LCA 表，而非隨著插入元素的增加，則存取 $[1, s]$ 的 LCA 表，故一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_n - 1$。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (參考圖 ~\ref{fig:cartesianEncoding})。最後，我們不改變原本的建立笛卡爾樹算法，又能在過程中擭得樹的編號，忽略建表所需時間，每一次的 in-block 詢問將查找表，得到任一操作攤銷複雜度 $\theta(1)$。
 
@@ -453,8 +460,8 @@ State
 
 每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，我們運行樸素的 \texttt{CORMQ} (cache-oblivious RMQ) 得到效能改善，搭配可預測的分析降低運算量 (參照 \texttt{CORMQ-opt})，得到更好的改善。在 \texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速。實驗結果如表 ~\ref{tlb:CORMQ}
 
-\begin{table}[!thb]
-  \tiny
+\begin{table*}[!thb]
+  %\tiny
   \centering
   \begin{tabular}{l c c c c}
     \firsthline
@@ -472,7 +479,7 @@ State
   \end{tabular}
   \caption{Total running time (ms) for finding RMQ of different sizes $N$ and maximum interval sizes $L$.}
   \label{tlb:CORMQ}
-\end{table}
+\end{table*}
 
 \section{結論}
 \label{sec:Conclusion}

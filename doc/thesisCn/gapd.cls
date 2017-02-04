@@ -51,7 +51,8 @@
 \RequirePackage{indentfirst} \setlength{\parindent}{2em}
 \RequirePackage{amsmath} \RequirePackage{mathtools}
 \RequirePackage{algorithm}
-\RequirePackage{listings} \lstset{language=C}
+\RequirePackage{listings} \RequirePackage{courier}
+\lstset{basicstyle=\ttfamily,breaklines=true}
 \RequirePackage[noend]{algpseudocode}
 \RequirePackage{booktabs}
 \RequirePackage{tikz} \usetikzlibrary{calc} \usetikzlibrary{positioning} \usetikzlibrary{shapes,arrows} \usetikzlibrary{plotmarks}
