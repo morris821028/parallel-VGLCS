@@ -2,6 +2,7 @@
 \usepackage{tikz}
 \usepackage{amsmath}
 \usepackage{mathtools}
+\usepackage{adjustbox}
 \usetikzlibrary{patterns}
 \usetikzlibrary{calc} \usetikzlibrary{positioning} \usetikzlibrary{shapes,arrows} \usetikzlibrary{plotmarks}
 \usetikzlibrary{positioning,decorations.pathreplacing}
@@ -12,7 +13,7 @@ itria/.style={
 }
 
 \begin{document}
-
+\begin{adjustbox}{width=6cm}
 \begin{tikzpicture}[level/.style={sibling distance=20mm, level distance=10mm}]
 \node [circle,draw](inf){$\infty$}
   child[missing]{}
@@ -20,7 +21,7 @@ itria/.style={
     child[missing]{}
     child[dashed] { node[circle,draw, dashed]{$\phantom{A}$}
       child[missing]{}
-      child[dashed] { node[circle,draw, dashed]{$\phantom{A}$}
+      child[dashed] { node[circle,draw, dashed](mid){$\phantom{A}$}
         child[missing]{}
         child[dashed] { node[circle,draw, dashed]{$\phantom{A}$}
           child[missing]{}
@@ -30,9 +31,20 @@ itria/.style={
       }
     }
   };
-
 \draw[decorate,decoration={brace,amplitude=3mm}](start.45)--node[anchor=south west,above right=5pt and 5pt] {$\sharp\text{node} = s$}(end.60);
+
+\coordinate (A) at ([yshift=-.4cm,xshift=-.4cm] start.north west);
+\coordinate (B) at ([yshift=.4cm,xshift=.4cm] start.north east);
+\coordinate (C) at ([yshift=.4cm,xshift=.4cm] end.south east);
+\coordinate (D) at ([yshift=-.4cm,xshift=-.4cm] end.south west);
+
+\draw[dashed, red] plot[smooth cycle] coordinates {(A) (B) (C) (D)};
+
+\node[below left=10pt and 10pt of D]{$\text{default tid}_0= C_s - 1$};
+
 \end{tikzpicture}
+\end{adjustbox}
+\begin{adjustbox}{width=8cm}
 \begin{tikzpicture}[level/.style={sibling distance=20mm, level distance=10mm}]
 \node [circle,draw](inf){$\infty$}
   child[missing]{}
@@ -40,13 +52,13 @@ itria/.style={
     child { node[]{}
             { node[itria]{$\alpha$} }
     }
-    child[dashed] { node[circle, draw, solid]{$A$}
+    child[dashed] { node[circle, draw, solid](Anode){$A$}
       child[solid] { node[]{}
-            { node[itria]{$\beta$} }
+            { node[itria](BETAnode){$\beta$} }
       }
       child[solid] { node[circle, draw]{$B$}
         child[]{node[]{}
-            { node[itria]{$\gamma$} }
+            { node[itria](GAMMAnode){$\gamma$} }
         }
         child[dashed] { node[circle, draw](start){$\phantom{A}$}
           child[missing]{}
@@ -58,7 +70,21 @@ itria/.style={
   };
 
 \draw[decorate,decoration={brace,amplitude=3mm}](start.45)--node[anchor=south west,above right=5pt and 5pt] {$\sharp\text{node} = s-i$}(end.60);
+
+\coordinate (A) at ([yshift=-.4cm,xshift=-.4cm] Anode.north west);
+\coordinate (B) at ([yshift=.4cm,xshift=.4cm] Anode.north east);
+\coordinate (C) at ([yshift=.4cm,xshift=.4cm] end.south east);
+\coordinate (D) at ([yshift=-.4cm,xshift=-.4cm] end.south west);
+\coordinate (E) at ([yshift=-.4cm,xshift=-.4cm] GAMMAnode.south east);
+\coordinate (F) at ([yshift=-.4cm,xshift=-1.5cm] BETAnode.south east);
+
+\draw[dashed, red] plot[smooth cycle] coordinates {(A) (B) (C) (D) (E) (F)};
+
+\node[below left=10pt and 30pt of D]{$\text{tid}_i$};
+\node[above right=10pt and 10pt of Anode]{$A.\text{tid}$};
 \end{tikzpicture}
+\end{adjustbox}
+\begin{adjustbox}{width=8cm}
 \begin{tikzpicture}[level/.style={sibling distance=20mm, level distance=10mm}]
 \node [circle,draw](inf){$\infty$}
   child[missing]{}
@@ -66,14 +92,14 @@ itria/.style={
     child { node[]{}
             { node[itria]{$\alpha$} }
     }
-    child[dashed] { node[circle, draw, solid]{$x$}
+    child[dashed] { node[circle, draw, solid](Xnode){$x$}
       child[solid] { node[circle, draw, solid]{$A$}
         child[solid] { node[]{}
-              { node[itria]{$\beta$} }
+              { node[itria](BETAnode){$\beta$} }
         }
         child[solid] { node[circle, draw]{$B$}
           child[]{node[]{}
-              { node[itria]{$\gamma$} }
+              { node[itria](GAMMAnode){$\gamma$} }
           }
           child[missing]{}
         }
@@ -87,6 +113,19 @@ itria/.style={
   };
 
 \draw[decorate,decoration={brace,amplitude=3mm}](start.45)--node[anchor=south west,above right=5pt and 5pt] {$\sharp\text{node} = s-(i+1)$}(end.60);
+
+\coordinate (A) at ([yshift=-.4cm,xshift=-.4cm] Xnode.north west);
+\coordinate (B) at ([yshift=.4cm,xshift=.4cm] Xnode.north east);
+\coordinate (C) at ([yshift=.4cm,xshift=.4cm] end.south east);
+\coordinate (D) at ([yshift=-1.0cm,xshift=-.4cm] end.south west);
+\coordinate (E) at ([yshift=-.4cm,xshift=-.4cm] GAMMAnode.south east);
+\coordinate (F) at ([yshift=0cm,xshift=-1.5cm] BETAnode.south east);
+
+\draw[dashed, red] plot[smooth cycle] coordinates {(A) (B) (C) (D) (E) (F)};
+
+\node[below=10pt of E]{$\text{tid}_{i+1} = \text{tid}_i + (x.\text{tid} - A.\text{tid})$};
+\node[above right=10pt and 10pt of Anode]{$x.\text{tid}$};
 \end{tikzpicture}
+\end{adjustbox}
 
 \end{document}
