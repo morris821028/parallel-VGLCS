@@ -34,7 +34,7 @@
 
 \begin{figure}[!thb]
   \centering
-  \includegraphics[width=\linewidth]{graphics/fig-VGLCSex.pdf} % width=\linewidth,
+  \includegraphics[width=\linewidth]{graphics/fig-VGLCSex.pdf}
   \caption{簡單的 VGLCS 於兩個序列 $A = \tt{RCLPCRR}$, $B = \tt{RPPLCPLRC}$，各自的約束限制為 $G_A = [2, 3, 0, 0, 3, 2, 2]$ 和 $G_B = [2, 0, 0, 0, 3, 0, 0, 2, 3]$，的其中幾個可挑選的方案}
   \label{fig:VGLCSex}
 \end{figure}
@@ -124,12 +124,13 @@
 
 當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取未中 (cache miss)，在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻 (cache oblivious) 形式的查找方案，降低在離線版本中的 in-block 詢問產生的快取未中。
 
-\begin{figure}[!thb]
+\begin{figure*}
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-interval-decomposition.pdf}
+  \includegraphics[width=\linewidth]{graphics/fig-sparse-table.pdf}
   \caption{給定一陣列 $A$ 如上圖所述，並且拆成 5 個區塊，每個區塊皆有 4 個元素，若詢問區間 $[2, 18]$ 的最大值，將分成 $B1$ 的內部詢問 (in-block query) $Q_L$、$B5$ 的內部詢問 $Q_R$ 和兩個跨區間詢問 (super-block query) $SQ_L$、$SQ_R$}
   \label{fig:interval-decomposition}
-\end{figure}
+\end{figure*}
 
 在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案，選擇每 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 
 
@@ -192,8 +193,8 @@ $$\sum_{i=1}^{n} l_i < i$$
 
 在 VGLCS 問題中，主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方面為數個獨立的數據結構，因此很容易平行；相反地，在橫向方面，需要共同協作一個數據結構。綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而橫向可以離線完成區間查找。在上一節中，我們提出在橫向處理的實作，若限制上述的實作方案在單一處理器上，時間複雜度的瓶頸將受限於縱向的更新與查找。最後，我們的成果如表 ~\ref{tab:cmpComplexity} 所示。
 
-\begin{table}
-  \tiny
+\begin{table*}
+  %\tiny
   \centering
   \begin{tabular}{ccc}
     \toprule
@@ -225,7 +226,7 @@ $$\sum_{i=1}^{n} l_i < i$$
   \end{tabular}
   \caption{我們的研究成果如粗體字所述，均攤部分將在 $s=16$ 的笛卡爾樹上，整理影響的常數很小，不易遇到負載平衡上的問題。}
   \label{tab:cmpComplexity}
-\end{table}
+\end{table*}
 
 \subsubsection{平行建立查找表}
 
@@ -367,7 +368,7 @@ State
           D[0].value = INF, Dp = 0)
 \end{lstlisting}
 
-為了解決詢問操作，我們必須搭配 Fischer \cite{fischer} 的研究，取 $s = \frac{1}{4} \log n$ 使得整體落在 $\theta(n)$，提出的在線編碼算法 ~\ref{alg:typeOfCartesianOnline} 只存取 $s$ 個節點的 LCA 表，而非隨著插入元素的增加，則存取 $[1, s]$ 的 LCA 表，故一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_n - 1$。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (參考圖 ~\ref{??})。最後，我們不改變原本的建立笛卡爾樹算法，又能在過程中擭得樹的編號，忽略建表所需時間，每一次的 in-block 詢問將查找表，得到任一操作攤銷複雜度 $\theta(1)$。
+為了解決詢問操作，我們必須搭配 Fischer \cite{fischer} 的研究，取 $s = \frac{1}{4} \log n$ 使得整體落在 $\theta(n)$，提出的在線編碼算法 ~\ref{alg:typeOfCartesianOnline} 只存取 $s$ 個節點的 LCA 表，而非隨著插入元素的增加，則存取 $[1, s]$ 的 LCA 表，故一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_n - 1$。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (參考圖 ~\ref{fig:cartesianEncoding})。最後，我們不改變原本的建立笛卡爾樹算法，又能在過程中擭得樹的編號，忽略建表所需時間，每一次的 in-block 詢問將查找表，得到任一操作攤銷複雜度 $\theta(1)$。
 
 \begin{algorithm*}
   \caption{Online Type of Cartesian Tree}
@@ -395,6 +396,13 @@ State
   \State return state.tid
   \end{algorithmic}
 \end{algorithm*}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
+  \caption{每個區塊有 $s$ 個元素，初始情況虛設 $s$ 個點在右鏈，則具有 $s$ 個節點的 BST，其編號 $\text{tid}_0 = C_s - 1$。當插入第 $i$ 個元素時，當前編號為 $\text{tid}_i$，以節點 $A$ 為根的樹編號為 $A.\text{tid}$，若第 $i+1$ 個元素值為 $x$，其將會翻轉到 $A$ 之上，而 $A$ 成為 $x$ 的左子節點，翻轉過程中計算得到 $A.\text{tid}$，而以 $x$ 為根的樹將虛設 $s-(i+1)$ 個節點在其右鏈，最後得到 $x.\text{tid}$。根據字典順序，我們將得到 $\text{tid}_{i+1} = \text{tid}_{i} + (x.\text{tid} - A.\text{tid})$。}
+  \label{fig:cartesianEncoding}
+\end{figure*}
 
 \section{實作細節}
 \label{sec:Implementation}
