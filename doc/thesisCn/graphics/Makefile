@@ -1,4 +1,4 @@
-all: fig-VGLCSex.pdf fig-interval-decomposition.pdf fig-sparse-table.pdf fig-cartesian-encoding.pdf
+all: fig-VGLCSex.pdf fig-interval-decomposition.pdf fig-sparse-table.pdf fig-cartesian-encoding.pdf fig-bst-encoding.pdf
 
 fig-VGLCSex.pdf: fig-VGLCSex.tex
 	xelatex fig-VGLCSex.tex
@@ -11,6 +11,9 @@ fig-sparse-table.pdf: fig-sparse-table.tex
 
 fig-cartesian-encoding.pdf: fig-cartesian-encoding.tex
 	xelatex fig-cartesian-encoding.tex
+
+fig-bst-encoding.pdf: fig-bst-encoding.tex
+	xelatex fig-bst-encoding.tex
 
 clean:
 	rm -f *.aux *.log *.nav *.out *.pdf *.snm *.toc *.vrb
