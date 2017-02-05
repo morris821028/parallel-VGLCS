@@ -56,6 +56,7 @@
 \RequirePackage[noend]{algpseudocode}
 \RequirePackage{booktabs}
 \RequirePackage{tikz} \usetikzlibrary{calc} \usetikzlibrary{positioning} \usetikzlibrary{shapes,arrows} \usetikzlibrary{plotmarks}
+\RequirePackage{subfigure}
 \RequirePackage{pgfplots}
 \RequirePackage{array} % table
 

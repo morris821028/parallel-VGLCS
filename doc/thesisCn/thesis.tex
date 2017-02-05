@@ -436,21 +436,20 @@ struct State {
 
 我們運行優化策略中的空間壓縮版本，而非理論分析的 $\theta(1)$ 操作，單次詢問落在 $O(s)$ 中，在實作上由於可以完全壓在暫存器上操作，效能表現較佳。
 
-\begin{figure}[!thb]
+\begin{figure*}[!thb]
   \centering
-  \input{./figure/fig-parallel-n}
+  \subfigure[Runtime]{
+    \input{./figure/fig-parallel-n}
+    \label{fig:fig-parallel}
+  }
+  \subfigure[Scalability]{
+    \input{./figure/fig-parallel-p}
+    \label{fig:fig-parallel-scala}
+  }
   \caption{Serial and Parallel Algorithm run on E5-2620}
-  \label{fig:fig-parallel}
-\end{figure}
+\end{figure*}
 
 從圖 ~\ref{fig:fig-parallel-scala} 看出，平行 VGLCS 的縮放性不佳，從 profiler 中得到快取未中的問題需要解決。
-
-\begin{figure}[!thb]
-  \centering
-  \input{./figure/fig-parallel-p}
-  \caption{Scalability for our Parallel Algorithm}
-  \label{fig:fig-parallel-scala}
-\end{figure}
 
 \subsection{理論常數 VGLCS}
 
