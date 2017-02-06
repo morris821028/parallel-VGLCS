@@ -455,6 +455,15 @@ struct State {
 
 尚未完成
 
+\subsection{增加後綴區間查找 ISMQ}
+
+\begin{figure*}[!thb]
+  \centering
+  \input{./figure/fig-ISMQ}
+  \caption{ISMQ run on E5-2620}
+  \label{fig:fig-ISMQ}
+\end{figure*}
+
 \subsection{平行區間查找}
 
 每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，我們運行樸素的 \texttt{CORMQ} (cache-oblivious RMQ) 得到效能改善，搭配可預測的分析降低運算量 (參照 \texttt{CORMQ-opt})，得到更好的改善。在 \texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速。實驗結果如表 ~\ref{tlb:CORMQ}
