@@ -1,0 +1,25 @@
+## executable file
+
+ISMQ
+ISMQ-disjoint
+ISMQ-ST
+ISMQ-coST
+ISMQ-BIT
+
+## test data
+
+*.in
+*.out
+
+## other
+
+*.log
+
+## online judge setting
+
+special
+judge
+server.py
+subtasks.py
+*.lst
+*.gen
