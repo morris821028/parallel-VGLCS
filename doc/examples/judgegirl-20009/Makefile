@@ -1,24 +1,30 @@
-TARGET=ISMQ ISMQ-disjoint ISMQ-ST ISMQ-coST ISMQ-BIT
+TARGET=ISMQ ISMQ-disjoint ISMQ-ST ISMQ-coST ISMQ-BIT ISMQ-oneST
 
 CFLAG=-Wall -std=c++11 -O2 -msse -march=native
 CXX=g++
 
 all: $(TARGET)
 
-ISMQ: main.cpp ISMQ.cpp
-	$(CXX) $(CFLAG) main.cpp ISMQ.cpp -o ISMQ
+main.o: main2.cpp
+	$(CXX) $(CFLAG) -c main2.cpp -o main.o
 
-ISMQ-disjoint: main.cpp ISMQ-disjoint.cpp
-	$(CXX) $(CFLAG) main.cpp ISMQ-disjoint.cpp -o ISMQ-disjoint
+ISMQ: main.o ISMQ.cpp
+	$(CXX) $(CFLAG) main.o ISMQ.cpp -o ISMQ
 
-ISMQ-ST: main.cpp ISMQ-ST.cpp
-	$(CXX) $(CFLAG) main.cpp ISMQ-ST.cpp -o ISMQ-ST
+ISMQ-disjoint: main.o ISMQ-disjoint.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-disjoint.cpp -o ISMQ-disjoint
 
-ISMQ-coST: main.cpp ISMQ-coST.cpp
-	$(CXX) $(CFLAG) main.cpp ISMQ-coST.cpp -o ISMQ-coST
+ISMQ-ST: main.o ISMQ-ST.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-ST.cpp -o ISMQ-ST
 
-ISMQ-BIT: main.cpp ISMQ-BIT.cpp
-	$(CXX) $(CFLAG) main.cpp ISMQ-BIT.cpp -o ISMQ-BIT
+ISMQ-coST: main.o ISMQ-coST.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-coST.cpp -o ISMQ-coST
+
+ISMQ-oneST: main.o ISMQ-oneST.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-oneST.cpp -o ISMQ-oneST
+
+ISMQ-BIT: main.o ISMQ-BIT.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-BIT.cpp -o ISMQ-BIT
 
 TIN=7.in
 
