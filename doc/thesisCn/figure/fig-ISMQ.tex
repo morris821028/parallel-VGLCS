@@ -16,10 +16,11 @@
 			mark size=3pt,
 			height=10cm,width=15cm,
 		]
-		\addplot [mark=*] file{figure/data/ismq-disjoint.dat};
+		\addplot [mark=*, mark options={fill=white}] file{figure/data/ismq-disjoint.dat};
 		\addplot [mark=square*, mark options={fill=white}] file{figure/data/ismq-st.dat};
 		\addplot [mark=diamond*, mark options={fill=white}] file{figure/data/ismq-bit.dat};
 		\addplot [mark=triangle*, mark options={fill=white}] file{figure/data/ismq-cost.dat};
-		\legend{Disjoint Set, Sparse Table, Binary Indexed Tree, Compressed Sparse Table}
+		\addplot [mark=triangle*, mark options={fill=black}] file{figure/data/ismq-onest.dat};
+		\legend{Disjoint Set, Sparse Table, Binary Indexed Tree, Compressed Sparse Table, O(1) Sparse Table}
 	\end{axis}
 \end{tikzpicture}
