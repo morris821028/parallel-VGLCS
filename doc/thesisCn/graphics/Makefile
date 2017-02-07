@@ -1,7 +1,9 @@
-all: fig-VGLCSex.pdf fig-interval-decomposition.pdf fig-sparse-table.pdf fig-cartesian-encoding.pdf fig-bst-encoding.pdf
+all: fig-VGLCSex.pdf fig-VGLCSex2.pdf fig-interval-decomposition.pdf fig-sparse-table.pdf fig-cartesian-encoding.pdf fig-bst-encoding.pdf
 
 fig-VGLCSex.pdf: fig-VGLCSex.tex
 	xelatex fig-VGLCSex.tex
+fig-VGLCSex2.pdf: fig-VGLCSex2.tex
+	xelatex fig-VGLCSex2.tex
 
 fig-interval-decomposition.pdf: fig-interval-decomposition.tex
 	xelatex fig-interval-decomposition.tex

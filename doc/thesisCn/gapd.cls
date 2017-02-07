@@ -59,6 +59,7 @@
 \RequirePackage{subfigure}
 \RequirePackage{pgfplots}
 \RequirePackage{array} % table
+\RequirePackage{color, colortbl}
 
 %===============================================================================
 % Algorithm
@@ -110,6 +111,7 @@
 \definecolor{BlueNoteBackground}{rgb}{0.8, 0.9, 1.0}
 \definecolor{TitleShadeColour}{rgb}{0.8, 0.9, 1.0}
 \definecolor{shadecolor}{rgb}{0.8, 0.9, 1.0}
+\definecolor{Gray}{gray}{0.9}
 
 \newmdenv[leftline=false,rightline=false,backgroundcolor=TitleShadeColour]{topbotMDF}
 
