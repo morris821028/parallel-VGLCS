@@ -1,4 +1,4 @@
-\begin{tikzpicture}[scale=0.4,font=\sffamily]
+\begin{tikzpicture}[scale=0.4]
 	\begin{axis}[
 			xlabel={Processor $p$},
 			ylabel={Time (second)},
@@ -12,9 +12,11 @@
 			legend cell align=left,
 			ymajorgrids=true,
 			grid style=dashed,
-			,height=10cm,width=15cm,
+			line width=1pt,
+			mark size=3pt,
+			height=10cm,width=15cm,
 		]
-		\addplot [mark=square*, mark options={fill=white}] file{figure/parallel-p.dat};
+		\addplot [mark=square*, mark options={fill=white}] file{figure/data/parallel-p.dat};
 		\legend{parallel $n=5000$}
 	\end{axis}
 \end{tikzpicture}

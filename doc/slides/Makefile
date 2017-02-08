@@ -5,6 +5,7 @@ LATEX_ENGINE=pdflatex
 .PHONY: thesis clean spellcheck
 
 thesis: thesis.tex
+	cd graphics && make
 	$(LATEX_ENGINE) thesis.tex
 	$(LATEX_ENGINE) thesis.tex
 

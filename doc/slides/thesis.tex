@@ -38,6 +38,18 @@
 \usepackage{array} 
 \usepackage{algorithm,algpseudocode}
 
+%===============================================================================
+% Algorithm
+
+% declaration of the new block
+\algblock{ParFor}{EndParFor}
+% customising the new block
+\algnewcommand\algorithmicparfor{\textbf{parallel for}}
+\algnewcommand\algorithmicpardo{\textbf{do}}
+\algnewcommand\algorithmicendparfor{\textbf{end\ parallel for}}
+\algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
+\algrenewtext{EndParFor}{\algorithmicendparfor}
+
 % Add outline page at begining of each section
 \AtBeginSection[]
 {

@@ -1,4 +1,4 @@
-\begin{tikzpicture}[scale=0.4,font=\sffamily]
+\begin{tikzpicture}[scale=0.4]
 	\begin{axis}[
 			xlabel={Length $n$},
 			ylabel={Time (second)},
@@ -12,10 +12,12 @@
 			legend cell align=left,
 			ymajorgrids=true,
 			grid style=dashed,
-			,height=10cm,width=15cm,
+			line width=1pt,
+			mark size=3pt,
+			height=10cm,width=15cm,
 		]
-		\addplot [mark=*] file{figure/serial-n.dat};
-		\addplot [mark=square*, mark options={fill=white}] file{figure/parallel-n.dat};
+		\addplot [mark=*] file{figure/data/serial-n.dat};
+		\addplot [mark=square*, mark options={fill=white}] file{figure/data/parallel-n.dat};
 		\legend{serial, parallel}
 	\end{axis}
 \end{tikzpicture}

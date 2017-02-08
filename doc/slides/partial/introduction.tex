@@ -58,20 +58,62 @@
 
 \begin{frame}
     \frametitle{VGLCS Example}
-    \begin{figure}
-        \includegraphics[scale=0.3]{figure/fig-VGLCS-ex.png}
+    \begin{figure}[!thb]
+      \centering
+      \subfigure[example 1]{
+        \includegraphics[scale=0.5]{graphics/fig-VGLCSex.pdf}
+      }
+      \subfigure[example 2]{
+        \includegraphics[scale=0.5]{graphics/fig-VGLCSex2.pdf}
+      }
+      \label{fig:VGLCSex}
     \end{figure}
 \end{frame}
 
 \subsection{Serial VGLCS Algorithm}
 \begin{frame}
-    \frametitle{Serial VGLCS Algorithm}
-    \begin{figure}
-        \includegraphics[scale=0.3]{figure/fig-VGLCS-algo.png}
-    \end{figure}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{algorithm}[H]
+        \caption{Algorithm for Finding VGLCS}
+        \label{alg:serial}
+          \begin{algorithmic}[1]
+            \Require
+              $A, B$: the input string;
+              $G_A, G_B$: the array of variable gapped constraints;
+            \Ensure Find the LCS with variable gapped constraints
+            \State ISMQ $Q[n]$
+            \State int $V[n][m]$
+            \For{$i = 1$ to $n$}
+              \State \tt{ISMQ} $RQ$
+              \State $r = i - \min(GA[i]+1, i)$
+              \For{$j = 1$ to $m$}
+                \If{$A[i] = B[j]$}
+                    \State $V[i][j] = RQ.get(j - \min(GB[j]+1, j))+1$
+                    \State $t = Q[j].get(r)$ // the suffix maximum $A[r, i]$ in column $j$
+                    \State $RQ.set(j, t)$ // set the value $t$ to position $j$
+                    \State $Q[j].set(i, V[i][j])$
+                \Else
+                    \State $V[i][j] = 0$
+                    \State $t = Q[j].get(r)$
+                    \State $RQ.set(j, t)$
+                \EndIf
+              \EndFor
+            \EndFor
+            \State Retrieve the VGLCS by tracing $V[n][m]$
+          \end{algorithmic}
+      \end{algorithm}
+    \end{minipage}%
+    }
+  \end{center}
 \end{frame}
 
-\subsection{Contributions (TODO)}
+\subsection{Contributions}
 \begin{frame}
-    \frametitle{Contributions (TODO)}
+    \frametitle{Contributions}
+    \begin{itemize}
+        \item Parallel VGLCS Algorithm in $O(n \log n)$
+        \item Incremental Range Maximum Query in $O(n)$ -- amortized $O(1)$
+    \end{itemize}
 \end{frame}

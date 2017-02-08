@@ -78,7 +78,7 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Parallel VGLCS Algorithm (TODO)}
+	\frametitle{Parallel VGLCS Algorithm}
 	How to parallel our better algorithm?
 	\begin{itemize}
 		\setlength\itemsep{1em}
@@ -89,7 +89,7 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Parallel VGLCS Algorithm (TODO)}
+	\frametitle{Parallel VGLCS Algorithm}
 	Alternative plan for the above algorithm is using hybrid data structure.
 	We can combine disjoint-set, sparse table, and cache-oblivious cartesian tree together.
 	\begin{itemize}
@@ -101,6 +101,283 @@
 			and one superblock-query, and each query is $O(1)$. 
 			Otherwise, inblock query is $O(s)$
 	\end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}[!thb]
+      \centering
+      \subfigure[]{
+        \includegraphics[scale=0.5]{graphics/fig-interval-decomposition.pdf}
+      }
+      \subfigure[]{
+        \includegraphics[scale=0.5]{graphics/fig-sparse-table.pdf}
+      }
+      \caption{Interval Decomposition}
+      \label{fig:interval-decomposition}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{algorithm}[H]  
+      	  \caption{Parallel Algorithm for Finding VGLCS}
+  		  \label{alg:parallel}
+          \begin{algorithmic}[1]
+            \Require
+              $A, B$: the input string;
+              $G_A, G_B$: the array of variable gapped constraints;
+            \Ensure Find the LCS with variable gapped constraints
+            \State \tt{ISMQ} $Q[n]$
+            \State \tt{int} $V[n][m]$
+            \For{$i = 1$ to $n$}
+              \State SparseTable $sp$
+              \ParFor{$j = 1$ to $m$}
+                \State $sp[j] = Q[j].get(r)$
+              \EndParFor
+              \State sp.parallel\_build(m) -- $O(n/p \log n + \log n)$
+              \ParFor{$j = 1$ to $m$}
+                \If{$A[i] = B[j]$}
+                    \State $V[i][j] = sp.get(j - \min(GB[j]+1, j), j-1)+1$
+                    \State $Q[j].set(i, V[i][j])$
+                \EndIf
+              \EndParFor
+            \EndFor
+            \State Retrieve the VGLCS by tracing $V[n][m]$
+          \end{algorithmic}
+      \end{algorithm}
+    \end{minipage}%
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{algorithm}[H]
+      	\caption{Transfer Cartesian Tree to 64-bits with 8 integers}
+  		\label{alg:cacheObliviousTransfer}
+		\begin{algorithmic}[1]
+		    \Require
+		      $A[1 \cdots 16]$: 16 integers store in array
+		    \Ensure 
+		      $\textit{tmask}$: compress Cartesian tree into 64-bits integer
+		      \State $\tt{LOGS} = 4$
+		      \State $\tt{POWS} = 2^{\tt{LOGS}}$
+		      \State int $D[POWS+1]$, $Dp = 0$;
+		      \State uint64\_t $tmask$ = $0$
+		      \State $D[0]$ = SHRT\_MAX
+		      \For{$i = 1$ to $\tt{POWS}$} 
+		        \State $v = A[i]$;
+		        \State $cnt = 0$;
+		        \While{$D[Dp] < v$}
+		          \State $Dp = Dp-1$
+		          \State $cnt = cnt + 1$
+		        \EndWhile
+		        \State $Dp = Dp+1$
+		        \State $D[Dp] = v$
+		        \State $tmask = tmask | ((cnt)<<((i-1)<<2))$
+		      \EndFor
+		      \State return $tmask$
+		  \end{algorithmic}
+      \end{algorithm}
+    \end{minipage}%
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{algorithm}[H]
+        \caption{Range Minimum Query in 64-bits Cartesian Tree}
+		  \label{alg:cacheObliviousQuery}
+		  \begin{algorithmic}[1]
+		    \Require
+		      $\textit{tmask}$: 64-bits Cartesian tree;
+		      $[l, r]$: query interval between $l$ and $r$
+		    \Ensure 
+		      $\textit{minIdx}$: the index of the minimum value in interval
+		    \State int $\textit{minIdx}$ = $l$, $x$ = $0$;
+		    \For{$l = l+1$ to $r$}
+		      \State $x$ = $x+1 - ((tmask>>(l<<2))\&15)$
+		      \If{$x \le 0$}
+		        \State $\textit{minIdx}$ = $l$
+		        \State $x$ = $0$
+		      \EndIf
+		    \EndFor
+		    \State return $\textit{minIdx}$
+		  \end{algorithmic}
+      \end{algorithm}
+    \end{minipage}%
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{equation}
+		  \begin{split}
+		    &\mathit{LCA}(n, \mathit{tid}, p, q) \\
+		      &= \left\{\begin{matrix*}[l]
+		        \mathit{LCA}(\mathit{lsz}, \mathit{lid}, p, q) &&, p \le q < \mathit{lsz}\\ 
+		        \mathit{LCA}(\mathit{rsz}, \mathit{rid}, p-\mathit{lsz}-1, q-\mathit{lsz}-1)+\mathit{lsz}+1 &&, 
+		            \mathit{lsz} \le p \le q < n \\ 
+		        \mathit{lsz} && , 0 \le p \le \mathit{lsz}, \mathit{lsz} \le q \le i\\ 
+		        -1 && ,\mathit{otherwise}
+		      \end{matrix*}\right.
+		  \end{split}
+		\end{equation}
+    \end{minipage}%
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{algorithm}[H]
+  \caption{Get $tid$ from $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $\theta(1)$ time}
+  \label{alg:FunctionTid}
+  \begin{algorithmic}[1]
+    \Require
+      $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$: size and label in left/right subtree
+    \Ensure
+      $\mathit{tid}$: this label
+    \If{$\mathit{rsz} = 0$}
+      \State return $\mathit{lid}$
+    \EndIf
+    \State $n = \mathit{lsz}+\mathit{rsz}+1$
+    \State $\mathit{base} = 0$
+    \For{$i=0$ to $\mathit{lsz}-1$}
+      \State $\mathit{base}$ += $C_i \cdot C_{n-i-1}$
+    \EndFor
+    \State $\mathit{offset}$ = $\mathit{lid} \cdot C_{\mathit{rsz}}$ + $\mathit{rid}$
+    \State return $\mathit{base}$ + $\mathit{offset}$
+  \end{algorithmic}
+      \end{algorithm}
+    \end{minipage}%
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{algorithm}[H]
+  \caption{Parallel Algorithm for building LCA}
+  \label{alg:parallelLCA}
+  \begin{algorithmic}[1]
+    \Require
+      $s$: Maximum size for required the number of BST
+    \For{$n = 1$ to $s$}
+      \ParFor{$\mathit{tid} = 0$ to $C_n - 1$}
+        \ParFor{$p = 0$ to $n-1$}
+          \State compute $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $O(n)$
+          \For{$q = p$ to $n-1$}
+            \State LCA[$n$][$\mathit{tid}$][$p$][$q$] = $\cdots$ ~\ref{fig:formulaLCA}
+          \EndFor
+        \EndParFor
+      \EndParFor
+    \EndFor
+  \end{algorithmic}
+      \end{algorithm}
+    \end{minipage}%
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{algorithm}[H]
+  \caption{Offline Type of Cartesian Tree}
+  \label{alg:typeOfCartesianOffline}
+  \begin{algorithmic}[1]
+    \Require
+      $A[1 \cdots s]$: storage array;
+      $s$: the number of elements;
+    \Ensure
+      $\mathit{tid}$: this label
+    \State $\langle\mathit{lsz},\mathit{lid},\mathit{value}\rangle$ $D$[$s+1$]
+    \State Dp = 0
+    \State $D$[0] = $\langle0,0,\infty\rangle$
+    \For{$i = 1$ to $s$}
+      \State v = $A$[i], lsz = 0, lid = 0
+      \While{$D$[Dp].value < v}
+        \State lid = tid($D$[Dp].lsz, $D$[Dp].lid, lsz, lid)
+        \State lsz += $D$[Dp].lsz + 1
+        \State Dp = Dp - 1
+      \EndWhile
+      \State Dp = Dp + 1
+      \State $D$[Dp] = $\langle\mathit{lsz},\mathit{lid},\mathit{v}\rangle$
+    \EndFor
+    \State lsz = 0, lid = 0
+    \While{Dp > 0} // pop all
+      \State lid = tid($D$[Dp].lsz, $D$[Dp].lid, lsz, lid)
+      \State lsz += $D$[Dp].lsz + 1
+      \State Dp = Dp - 1
+    \EndWhile
+    \State return lid
+  \end{algorithmic}
+      \end{algorithm}
+    \end{minipage}%
+    }
+  \end{center}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+    \scalebox{0.6}{
+    \begin{minipage}{1.5\linewidth}
+      \begin{algorithm}[H]
+  \caption{Online Type of Cartesian Tree}
+  \label{alg:typeOfCartesianOnline}
+  \begin{algorithmic}[1]
+  \Require
+      $\mathit{state}$: state of Cartesian Tree;
+      $v$: the value which append to array
+  \Ensure
+      $\mathit{tid}$: this label
+  \State Dp = state.Dp, lsz = lid = 0
+  \State bsz = state.s - state.i + 1
+  \State bid = C[bsz] - 1 
+  \While{state.D[Dp].value < v}
+    \State lid = tid(state.D[Dp].lsz, state.D[Dp].lid, lsz, lid)
+    \State bid = tid(state.D[Dp].lsz, state.D[Dp].lid, bsz, bid)
+    \State lsz = lsz + state.D[Dp].lsz+1
+    \State bsz = bsz + state.D[Dp].lsz+1
+    \State Dp = Dp - 1
+  \EndWhile
+  \State Dp = Dp + 1
+  \State state.D[Dp] = <lsz,lid,v>, state.Dp = Dp
+  \State state.tid = state.tid + bid - tid(lsz, lid, state.s-state.i, C[state.s-state.i]-1)
+  \State state.i = state.i + 1
+  \State return state.tid
+  \end{algorithmic}
+      \end{algorithm}
+    \end{minipage}%
+    }
+  \end{center}
+\end{frame}
+
+
+\begin{frame}
+    \begin{figure}[!thb]
+      \centering
+      \subfigure[Cartesian Tree Encoding]{
+       	\includegraphics[scale=0.5]{graphics/fig-cartesian-encoding.pdf}
+      }
+      \label{fig:cartesianEncoding}
+    \end{figure}
 \end{frame}
 
 \begin{frame}
