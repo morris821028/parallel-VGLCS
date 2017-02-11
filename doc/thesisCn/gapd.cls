@@ -133,12 +133,14 @@
    \noindent
    %\colorbox{TitleShadeColour}
    {\begin{minipage}{13.65cm}
+      \begin{center}
           \vspace{3mm}
           \noindent
           \setlength{\baselineskip}{20pt}
           \textbf{\Large\ \ \@Title}
           \vspace{1mm}
           \rule{\textwidth}{1pt}
+      \end{center}
       \end{minipage}
    }
    \vspace{5mm}
@@ -187,7 +189,7 @@
 
 \fancyhead[CE]{{\small\textit{Parallel Algorithm}}}
 \fancyhead[RE]{{\small Vol.~\@Volume, No.~\@Number,~\@Year}}
-\fancyhead[CO]{{\small\@ShortTitle}}
+%\fancyhead[CO]{{\small\@ShortTitle}}
 
 \newcommand{\ShortAuthors}[1]{\renewcommand{\@ShortAuthorList}{#1}}
 \newcommand{\@ShortAuthorList}{\@ShortFix{\@ShortAuthors}}
