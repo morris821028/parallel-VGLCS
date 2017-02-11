@@ -1,0 +1,295 @@
+\section{平行區間查詢}
+\label{sec:parallelRMQ}
+
+\subsection{背景}
+
+縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程和每次詢問皆達到最好效能，對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行，因它們仰賴笛卡爾樹 (Cartesian tree) 和塔揚離線最小共同祖先算法 (Tarjan's off-line lowest common ancestors algorithm)，再接續的小節中，我們將提出在兼顧兩者的平行算法。
+
+\subsection{快取忘卻笛卡爾樹}
+
+在 Fischer ~\cite{fischer} 的論文中，根據卡塔蘭數 $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表 (lookup-table)，其中選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度 $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。每一個區間詢問將會拆成 2 個 super-block 和 2 個 in-block 詢問 (參照圖 ~\ref{fig:interval-decomposition})，共計需要 4 次的記憶體存取。在理論分析上，offline-RMQ 問題可在 $\theta(n)$ -- $\theta(1)$ 時間內解決任一詢問。
+
+當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取未中 (cache miss)，在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻 (cache oblivious) 形式的查找方案，降低在離線版本中的 in-block 詢問產生的快取未中。
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-interval-decomposition.pdf}
+  \includegraphics[width=\linewidth]{graphics/fig-sparse-table.pdf}
+  \caption{給定一陣列 $A$ 如上圖所述，並且拆成 5 個區塊，每個區塊皆有 4 個元素，若詢問區間 $[2, 18]$ 的最大值，將分成 $B1$ 的內部詢問 (in-block query) $Q_L$、$B5$ 的內部詢問 $Q_R$ 和兩個跨區間詢問 (super-block query) $SQ_L$、$SQ_R$}
+  \label{fig:interval-decomposition}
+\end{figure*}
+
+在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案 $s = 16$，其能解決序列長度為 $n = 2^{64}$ 的區間查找，將 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 $\sum_{i=1}^{n} l_i < i$。
+
+因所有 $l_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，總體便可用 64-bit 長整數表示一棵笛卡爾樹的狀態。為了現在常見的 64-byte 快取列 (cache line) 和 64-bit 暫存器 (register) 考量，我們選用合適的大小進行測試，不僅壓縮空間使用量，同時也減少快取未中的問題。壓縮流程如算法 ~\ref{alg:cacheObliviousTransfer}，對應的區間查找算法，根據 Demaine ~\cite{demaine} 進行修改，流程如算法 ~\ref{alg:cacheObliviousQuery}。
+
+\begin{algorithm*}
+  \caption{Transfer Cartesian Tree to 64-bits with 8 integers}
+  \label{alg:cacheObliviousTransfer}
+  \begin{algorithmic}[1]
+    \Require
+      $A[1 \cdots 16]$: 16 integers store in array
+    \Ensure 
+      $\textit{tmask}$: compress Cartesian tree into 64-bits integer
+      \State $\tt{LOGS} = 4$
+      \State $\tt{POWS} = 2^{\tt{LOGS}}$
+      \State int $D[POWS+1]$, $Dp = 0$;
+      \State uint64\_t $tmask$ = $0$
+      \State $D[0]$ = SHRT\_MAX
+      \For{$i = 1$ to $\tt{POWS}$} 
+        \State $v = A[i]$;
+        \State $cnt = 0$;
+        \While{$D[Dp] < v$}
+          \State $Dp = Dp-1$
+          \State $cnt = cnt + 1$
+        \EndWhile
+        \State $Dp = Dp+1$
+        \State $D[Dp] = v$
+        \State $tmask = tmask | ((cnt)<<((i-1)<<2))$
+      \EndFor
+      \State return $tmask$
+  \end{algorithmic}
+\end{algorithm*}
+
+\begin{algorithm*}
+  \caption{Range Minimum Query in 64-bits Cartesian Tree}
+  \label{alg:cacheObliviousQuery}
+  \begin{algorithmic}[1]
+    \Require
+      $\textit{tmask}$: 64-bits Cartesian tree;
+      $[l, r]$: query interval between $l$ and $r$
+    \Ensure 
+      $\textit{minIdx}$: the index of the minimum value in interval
+    \State int $\textit{minIdx}$ = $l$, $x$ = $0$;
+    \For{$l = l+1$ to $r$}
+      \State $x$ = $x+1 - ((tmask>>(l<<2))\&15)$
+      \If{$x \le 0$}
+        \State $\textit{minIdx}$ = $l$
+        \State $x$ = $0$
+      \EndIf
+    \EndFor
+    \State return $\textit{minIdx}$
+  \end{algorithmic}
+\end{algorithm*}
+
+然而在我們的應用中，僅能在內層迴圈使用這個技巧，時間複雜度從 $O(n^2 / p + n \log n)$ 降到 $O(n^2 \alpha(n) / p + n \alpha(n))$，這已經達到近乎序列算法平行度的理想。再接續的章節中，我們將更進一步地將 $o(\alpha(n))$ 降到 $o(1)$。
+
+\subsection{動態笛卡爾樹標記與區間詢問}
+
+在 VGLCS 問題中，主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方面為數個獨立的數據結構，因此很容易平行；相反地，在橫向方面，需要共同協作一個數據結構。綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而橫向可以離線完成區間查找。在上一節中，我們提出在橫向處理的實作，若限制上述的實作方案在單一處理器上，時間複雜度的瓶頸將受限於縱向的更新與查找。最後，我們的成果如表 ~\ref{tab:cmpComplexity} 所示。
+
+\begin{table*}
+  %\tiny
+  \centering
+  \begin{tabular}{ccc}
+    \toprule
+     & serial & parallel \\
+    \midrule
+    horizontal & \begin{tabular}{@{}c@{}}
+              $\left \langle n \alpha(n) \right \rangle$ \cite{yunghsing} \\ 
+              amortized $\left \langle n \right \rangle$\end{tabular}
+              & \begin{tabular}{@{}c@{}}
+                $\left \langle n \alpha(n)/p + \alpha(n) \right \rangle$ \cite{yunghsing} \\
+                amortized $\left \langle n /p + o(1) \right \rangle$
+                \end{tabular} \\
+    vertical & \begin{tabular}{@{}c@{}}
+                $\left \langle n \alpha(n) \right \rangle$ \\
+                amortized $\left \langle n \right \rangle$
+                \end{tabular}
+            & \begin{tabular}{@{}c@{}}
+                impossible \\
+                amortized $\left \langle n /p + o(1) \right \rangle$
+              \end{tabular}
+              \\
+    total & \begin{tabular}{@{}c@{}}
+              $\left \langle n^2 \alpha(n) \right \rangle$ \cite{yunghsing} \\ 
+              amortized $\left \langle n^2 \right \rangle$\end{tabular}
+          & \begin{tabular}{@{}c@{}}
+              impossible \\ 
+              amortized $\left \langle n^2 /p + n \log n \right \rangle$\end{tabular} \\
+    \bottomrule
+  \end{tabular}
+  \caption{我們的研究成果如粗體字所述，均攤部分將在 $s=16$ 的笛卡爾樹上，整體影響的常數很小，不易遇到負載平衡上的問題。}
+  \label{tab:cmpComplexity}
+\end{table*}
+
+\subsubsection{平行建立查找表}
+
+為解決縱向平行處理，我們從 Fischer \cite{fischer} 和 Masud \cite{masud} 的研究中，分別得到關於笛卡爾的編碼與快取改善的技術。然而，這些技術都著手於離線操作，意即必須先知道 $n$ 個元素值為何，在 $O(n)$ 時間內編碼一棵樹，接著，再利用前處理的查找表完成極值查找；從這些觀點出發，我們將提出動態的編碼方式。
+
+我們採用字典順序的方式編碼一棵樹，優先增長左子樹，當相同左子樹時，增長右子樹的方式進行編號，其編碼方式可參考圖 ~\ref{fig:lablingBST}。
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-bst-encoding.pdf}
+  \caption{Labeling Binary Search Tree}
+  \label{fig:lablingBST}
+\end{figure}
+
+對於 $n$ 個節點的二元搜尋樹，有卡坦蘭數 $C_n$ 個不同的型。對於 $n$ 個節點的樹，其權重從 $0$ 開始至 $n-1$、樹編號為 $\mathit{tid}$。定義 $\mathit{LCA}(n, \mathit{tid}, p, q)$ 為其樹上兩點 $p$ 和 $q$ 的最小共同祖先，如 $\mathit{LCA}(3, 2, 0, 2) = 1$。
+
+從遞迴公式中，額外四個變數 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 分別為左右子樹的大小和其編號，這四個變數在 $O(n)$ 時間內計算。最後，我們得到遞迴公式如式 ~\ref{fig:formulaLCA}。 
+
+\begin{figure*}[!thb]
+\begin{equation*}
+  \begin{split}
+    &\mathit{LCA}(n, \mathit{tid}, p, q) \\
+      &= \left\{\begin{matrix*}[l]
+        \mathit{LCA}(\mathit{lsz}, \mathit{lid}, p, q) &&, p \le q < \mathit{lsz}\\ 
+        \mathit{LCA}(\mathit{rsz}, \mathit{rid}, p-\mathit{lsz}-1, q-\mathit{lsz}-1)+\mathit{lsz}+1 &&, 
+            \mathit{lsz} \le p \le q < n \\ 
+        \mathit{lsz} && , 0 \le p \le \mathit{lsz}, \mathit{lsz} \le q \le i\\ 
+        -1 && ,\mathit{otherwise}
+      \end{matrix*}\right.
+  \end{split}
+\end{equation*}
+\caption{Recursion Formula for labeling BST}
+\label{fig:formulaLCA}
+\end{figure*}
+
+這張表使用 $\theta\left(\frac{n^2}{n+1} \binom{2n}{n}\right)$ 空間，搭配 RMQ 問題，使得大部分的應用讓 $n \le 8$，因此空間消耗上可以允許的。建立這張表的平行算法如 ~\ref{alg:parallelLCA}，其平行複雜度如下：
+
+$$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
+
+\begin{algorithm*}
+  \caption{Parallel Algorithm for building LCA}
+  \label{alg:parallelLCA}
+  \begin{algorithmic}[1]
+    \Require
+      $s$: Maximum size for required the number of BST
+    \For{$n = 1$ to $s$}
+      \ParFor{$\mathit{tid} = 0$ to $C_n - 1$}
+        \ParFor{$p = 0$ to $n-1$}
+          \State compute $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $O(n)$
+          \For{$q = p$ to $n-1$}
+            \State LCA[$n$][$\mathit{tid}$][$p$][$q$] = $\cdots$ ~\ref{fig:formulaLCA}
+          \EndFor
+        \EndParFor
+      \EndParFor
+    \EndFor
+  \end{algorithmic}
+\end{algorithm*}
+
+在這應用下，詢問次數與元素個數相當，故無法像 Masud \cite{masud} 的研究來減少快取未中的問題，只能依賴數據本身的分佈和編碼之間的關聯來減少快取未中的情況。
+
+\subsubsection{動態編碼笛卡爾樹}
+
+在我們的應用中維護後綴最大值，拓展其操作成為增長區間最大值查找 (\emph{incremental range maximum query}, IRMQ)，其支援兩項操作：
+
+\begin{itemize}
+  \item \texttt{Append V} : 插入元素 $V$ 至陣列 $A$ 的尾端
+  \item \texttt{Query L R} : 詢問 $A[L .. R]$ 中的最大值
+\end{itemize}
+
+已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，其二使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。而 Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個 in-block 塞滿至預設值才可解決。接著，我們將提供動態的編碼方式，使得每一操作皆均攤 $\theta(1)$ 完成。
+
+許多研究致力於如何將編碼過程的運算量最小化，如改變遞迴定義公式，便可用數個暫存器狀態轉移取代內存存取 ... 等，這些方法皆使用離線編碼，其攤銷複雜度會到 $\theta(s)$，故不適用於後綴最大值查找。
+
+我們在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，如算法 ~\ref{alg:FunctionTid}。透過預處理，事先將所有前綴和保存下來，在算法中的迴圈可視為一次內存存取，使得時間複雜度 $\theta(1)$。
+
+\begin{algorithm*}
+  \caption{Get $tid$ from $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $\theta(1)$ time}
+  \label{alg:FunctionTid}
+  \begin{algorithmic}[1]
+    \Require
+      $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$: size and label in left/right subtree
+    \Ensure
+      $\mathit{tid}$: this label
+    \If{$\mathit{rsz} = 0$}
+      \State return $\mathit{lid}$
+    \EndIf
+    \State $n = \mathit{lsz}+\mathit{rsz}+1$
+    \State $\mathit{base} = 0$
+    \For{$i=0$ to $\mathit{lsz}-1$}
+      \State $\mathit{base}$ += $C_i \cdot C_{n-i-1}$
+    \EndFor
+    \State $\mathit{offset}$ = $\mathit{lid} \cdot C_{\mathit{rsz}}$ + $\mathit{rid}$
+    \State return $\mathit{base}$ + $\mathit{offset}$
+  \end{algorithmic}
+\end{algorithm*}
+
+根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，實作上與堆疊結構相同。基於 row-major 順序和遞迴定義 ~\ref{alg:FunctionTid}，修改之前論文對於的離線編碼，其對應方案如算法 ~\ref{alg:typeOfCartesianOffline}。
+
+\begin{algorithm*}
+  \caption{Offline Type of Cartesian Tree}
+  \label{alg:typeOfCartesianOffline}
+  \begin{algorithmic}[1]
+    \Require
+      $A[1 \cdots s]$: storage array;
+      $s$: the number of elements;
+    \Ensure
+      $\mathit{tid}$: this label
+    \State $\langle\mathit{lsz},\mathit{lid},\mathit{value}\rangle$ $D$[$s+1$]
+    \State Dp = 0
+    \State $D$[0] = $\langle0,0,\infty\rangle$
+    \For{$i = 1$ to $s$}
+      \State v = $A$[i], lsz = 0, lid = 0
+      \While{$D$[Dp].value < v}
+        \State lid = tid($D$[Dp].lsz, $D$[Dp].lid, lsz, lid)
+        \State lsz += $D$[Dp].lsz + 1
+        \State Dp = Dp - 1
+      \EndWhile
+      \State Dp = Dp + 1
+      \State $D$[Dp] = $\langle\mathit{lsz},\mathit{lid},\mathit{v}\rangle$
+    \EndFor
+    \State lsz = 0, lid = 0
+    \While{Dp > 0} // pop all
+      \State lid = tid($D$[Dp].lsz, $D$[Dp].lid, lsz, lid)
+      \State lsz += $D$[Dp].lsz + 1
+      \State Dp = Dp - 1
+    \EndWhile
+    return lid
+  \end{algorithmic}
+\end{algorithm*}
+
+為了支持動態編碼，我們提出攤銷 $\theta(1)$ 的算法。首先，我們定義轉移狀態由 5 個變數決定，當前插入第 $i$ 個元素，最終填充 $s$ 個元素，當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
+
+\begin{figure}
+\begin{lstlisting}
+struct Node {
+  int lsz, lid, val;
+};
+struct State {
+  int i, s, tid, Dp;
+  struct Node D[s+1];
+  State(i=0, s=n, tid=C[n]-1, 
+           D[0].val=INF, Dp=0)
+};
+\end{lstlisting}
+\end{figure}
+
+為了解決詢問操作，我們必須搭配 Fischer \cite{fischer} 的研究，取 $s = \frac{1}{4} \log n$ 使得整體落在 $\theta(n)$，提出的在線編碼算法 ~\ref{alg:typeOfCartesianOnline} 只存取 $s$ 個節點的 LCA 表，而非隨著插入元素的增加，則存取 $[1, s]$ 的 LCA 表，故一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_n - 1$。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (參考圖 ~\ref{fig:cartesianEncoding})。最後，我們不改變原本的建立笛卡爾樹算法，又能在過程中擭得樹的編號，忽略建表所需時間，每一次的 in-block 詢問將查找表，得到任一操作攤銷複雜度 $\theta(1)$。
+
+\begin{algorithm*}
+  \caption{Online Type of Cartesian Tree}
+  \label{alg:typeOfCartesianOnline}
+  \begin{algorithmic}[1]
+  \Require
+      $\mathit{state}$: state of Cartesian Tree;
+      $v$: the value which append to array
+  \Ensure
+      $\mathit{tid}$: this label
+  \State Dp = state.Dp, lsz = lid = 0
+  \State bsz = state.s - state.i + 1
+  \State bid = C[bsz] - 1 
+  \While{state.D[Dp].value < v}
+    \State lid = tid(state.D[Dp].lsz, state.D[Dp].lid, lsz, lid)
+    \State bid = tid(state.D[Dp].lsz, state.D[Dp].lid, bsz, bid)
+    \State lsz = lsz + state.D[Dp].lsz+1
+    \State bsz = bsz + state.D[Dp].lsz+1
+    \State Dp = Dp - 1
+  \EndWhile
+  \State Dp = Dp + 1
+  \State state.D[Dp] = <lsz,lid,v>, state.Dp = Dp
+  \State state.tid = state.tid + bid - tid(lsz, lid, state.s-state.i, C[state.s-state.i]-1)
+  \State state.i = state.i + 1
+  \State return state.tid
+  \end{algorithmic}
+\end{algorithm*}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
+  \caption{每個區塊有 $s$ 個元素，初始情況虛設 $s$ 個點在右鏈，則具有 $s$ 個節點的 BST，其編號 $\text{tid}_0 = C_s - 1$。當插入第 $i$ 個元素時，當前編號為 $\text{tid}_i$，以節點 $A$ 為根的樹編號為 $A.\text{tid}$，若第 $i+1$ 個元素值為 $x$，其將會翻轉到 $A$ 之上，而 $A$ 成為 $x$ 的左子節點，翻轉過程中計算得到 $A.\text{tid}$，而以 $x$ 為根的樹將虛設 $s-(i+1)$ 個節點在其右鏈，最後得到 $x.\text{tid}$。根據字典順序，我們將得到 $\text{tid}_{i+1} = \text{tid}_{i} + (x.\text{tid} - A.\text{tid})$。}
+  \label{fig:cartesianEncoding}
+\end{figure*}

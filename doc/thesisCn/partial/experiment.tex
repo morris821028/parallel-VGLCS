@@ -1,0 +1,74 @@
+\section{實驗結果}
+\label{sec:Experiment}
+
+我們運行在 Intel Xeon E5-2620 2.40 GHz 主機上，其擁有 L1 cache 384 KiB、L2 cache 1536 KiB 和 L3 cache 15 MiB。
+
+\subsection{空間壓縮 VGLCS}
+
+我們運行優化策略中的空間壓縮版本，而非理論分析的 $\theta(1)$ 操作，單次詢問落在 $O(s)$ 中，在實作上由於可以完全壓在暫存器上操作，效能表現較佳。
+
+\begin{figure*}[!thb]
+  \centering
+  \subfigure[Runtime]{
+    \input{./figure/fig-parallel-n}
+    \label{fig:fig-parallel}
+  }
+  \subfigure[Scalability]{
+    \input{./figure/fig-parallel-p}
+    \label{fig:fig-parallel-scala}
+  }
+  \caption{Serial and Parallel Algorithm run on E5-2620}
+\end{figure*}
+
+從圖 ~\ref{fig:fig-parallel-scala} 看出，平行 VGLCS 的縮放性不佳，從 profiler 中得到快取未中的問題需要解決。
+
+%\subsection{理論常數 VGLCS}
+
+%尚未完成
+
+\subsection{增加後綴區間查找 ISMQ}
+
+針對插入和詢問次數相同的 ISMQ 問題，運行以下四種數據結構：
+
+\begin{itemize}
+  \item 并查集 (Disjoint Set): 平均運行時間 $o(\alpha(n))$。只使用路徑壓縮技巧。
+  \item 稀疏表 (Sparse Table): 插入 $O(\log n)$、詢問 $O(1)$。實作陣列宣告採用 $\tt{table}[\log N][N]$ 以減少快取未中。
+  \item 樹狀數組 (Binary Indexed Tree): 插入、詢問均為 $O(\log n)$。
+  \item 壓縮稀疏表 (Compressed Sparse Tree): 插入均攤 $O(1)$、詢問操作 $O(s)$，其中 $s$ 為拆分到區塊大小。實作時，維護區塊前綴和後綴最大值降低詢問複雜度至 $O(1)$，當發生 in-block 詢問再運行 $O(s)$ 算法。
+\end{itemize}
+
+當運行 $n > 10^6$ 時，我們提出的壓縮稀疏表的效能已經勝過并查集的版本，其運行結果如圖表 ~\ref{fig:fig-ISMQcmp}。在 $n = 10^7$ 時，加速 $1.25 \times$。然而，我們提供的 amortized $\theta(1)$ 的稀疏表慢於并查集，我們做了深入的機率探討 (參照表 ~\ref{tlb:ISMQcmp})，由於大部分的操作都被區塊後綴和前綴解決，沒有實際運用到內部詢問，約束區間詢問的大小為 $L$，在 $N = 10^7$ 時，最多能加速 $1.26 \times$，其中插入和詢問比例為 1:10，當詢問比重更大時，將有更明顯的加速。
+
+\begin{figure*}[!thb]
+  \centering
+  \input{./figure/fig-ISMQ}
+  \caption{ISMQ runs on E5-2620 with different data structures. We use the random test cases without any limitation, e.g. the length of interval query has a uniform distribution.}
+  \label{fig:fig-ISMQcmp}
+\end{figure*}
+
+\input{tables/tlb-ISMQcmp}
+
+\subsection{平行區間查找}
+
+每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，我們運行樸素的 \texttt{CORMQ} (cache-oblivious RMQ) 得到效能改善，搭配可預測的分析降低運算量 (參照 \texttt{CORMQ-opt})，得到更好的改善。在 \texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速，結果如表 ~\ref{tlb:CORMQ}。
+
+\begin{table*}[!thb]
+  %\tiny
+  \centering
+  \begin{tabular}{l c c c c}
+    \firsthline
+      & \multicolumn{4}{c}{$N$} \\
+      \cline{2-5}
+        & \multicolumn{2}{c}{$30000$} & $50000$ & $100000$ \\
+      $L$ & $2^{10}$ & $2^{15}$ & $2^{15}$ & $2^{15}$ \\
+      \hline
+      parallel-\tt{RMQ}     & $903$ & $1516$ & $1874$ & $4116$ \\
+      parallel-\tt{CORMQ}   & $995$ & $1475$ & $1689$ & $2594$ \\
+      parallel-\tt{CORMQ-opt} & $843$ & $1373$ & $1136$ & $1745$ \\
+      \hline
+      Speedup & $1.07\times$ & $1.10\times$ & $1.64\times$ & $2.35\times$\\
+    \lasthline
+  \end{tabular}
+  \caption{Total running time (ms) for finding RMQ of different sizes $N$ and maximum interval sizes $L$.}
+  \label{tlb:CORMQ}
+\end{table*}

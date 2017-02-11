@@ -1,0 +1,74 @@
+\section{平行化序列算法} %
+\label{sec:parallelSerial}
+
+在 $O(nm)$ 的序列算法中 (參照算法 ~\ref{alg:serial})，我們發現算法如大多數的變型 LCS 相同，依賴左上角的區塊狀態以轉移當前狀態，大量的資料依賴性不易於細粒度平行。使用波前運行平行是一種常見的解決方案，由於這種平行對於運行時的快取不友善 (cache-unfriendly)，所以在 Saeed Maleki~\cite{saeed} 論文中提到如何使用 Rank Convergence 的特殊性質，拓展出更高平行度來解決動態規劃的相關問題。
+
+\begin{algorithm*}[!thb]
+  \caption{Algorithm for Finding VGLCS}
+  \label{alg:serial}
+  \begin{algorithmic}[1]
+    \Require
+      $A, B$: the input string;
+      $G_A, G_B$: the array of variable gapped constraints;
+    \Ensure Find the LCS with variable gapped constraints
+    \State ISMQ $Q[n]$
+    \State int $V[n][m]$
+    \For{$i = 1$ to $n$}
+      \State \tt{ISMQ} $RQ$
+      \State $r = i - \min(GA[i]+1, i)$
+      \For{$j = 1$ to $m$}
+        \If{$A[i] = B[j]$}
+            \State $V[i][j] = RQ.get(j - \min(GB[j]+1, j))+1$
+            \State $t = Q[j].get(r)$ // the suffix maximum $A[r, i]$ in column $j$
+            \State $RQ.set(j, t)$ // set the value $t$ to position $j$
+            \State $Q[j].set(i, V[i][j])$
+        \Else
+            \State $V[i][j] = 0$
+            \State $t = Q[j].get(r)$
+            \State $RQ.set(j, t)$
+        \EndIf
+      \EndFor
+    \EndFor
+    \State Retrieve the VGLCS by tracing $V[n][m]$
+  \end{algorithmic}
+\end{algorithm*}
+
+序列算法的空間複雜度為 $O(nm)$。若使用波前平行，需要同時維護橫向的所有狀態，需要多付出一倍的空間量。若加入 Rank Convergence 的想法拓展出，勢必要記錄轉移的狀態，需要耗費更多的記憶體空間，用以在最後階段合併所用。
+
+這裡我們著手設計算法空間複雜度常數小，並且針對快取友善。從序列算法中，發現在橫向查找中使用 $O(\alpha(n))$ 操作的增長後綴最大值查找 (\emph{incremental suffix maximum query}, ISMQ)，這部分難以平行化。為消除資料相依性，我們找到幾種區間詢問的替代方案。如 
+
+\begin{itemize}
+  \item Binary Indexed Tree -- $O(\log n)$: 對於任意前綴查找極值和更新元素，可以提供每次時間複雜度 $O(\log n)$，其運行常數比 Range Tree 低，只能支持前綴查找。若要運行區間查找，則必須在數學上符合加法原則。
+  \item Range Tree -- $O(\log n)$: 支持更高維度的正交區塊搜索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有操作。
+  \item Sparse Table -- $O(n \log n)$ -- $O(1)$:
+    建立表格 $T[i][j]$ 表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度 $O(n \log n)$，對於任意區間詢問可以拆分兩個 super-block 的表格檢索，轉換過程和存取時間需要 $O(1)$。
+\end{itemize}
+
+根據 VGLCS 動態規劃時的單調性質，可以使用 Van Emde Boas Tree 作為輔助資料結構在 $O(\log \log n)$ 時間內完成操作。其中 Sparse Table 是我們認為最好的替代方案，其整合後的平行算法如下 ~\ref{alg:parallel}，其時間複雜度為 $O(n^2 / p + n \log n)$，其中 $p$ 為處理器個數。
+
+\begin{algorithm*}
+  \caption{Parallel Algorithm for Finding VGLCS}
+  \label{alg:parallel}
+  \begin{algorithmic}[1]
+    \Require
+      $A, B$: the input string;
+      $G_A, G_B$: the array of variable gapped constraints;
+    \Ensure Find the LCS with variable gapped constraints
+    \State \tt{ISMQ} $Q[n]$
+    \State \tt{int} $V[n][m]$
+    \For{$i = 1$ to $n$}
+      \State SparseTable $sp$
+      \ParFor{$j = 1$ to $m$}
+        \State $sp[j] = Q[j].get(r)$
+      \EndParFor
+      \State sp.parallel\_build(m) -- $O(n/p \log n + \log n)$
+      \ParFor{$j = 1$ to $m$}
+        \If{$A[i] = B[j]$}
+            \State $V[i][j] = sp.get(j - \min(GB[j]+1, j), j-1)+1$
+            \State $Q[j].set(i, V[i][j])$
+        \EndIf
+      \EndParFor
+    \EndFor
+    \State Retrieve the VGLCS by tracing $V[n][m]$
+  \end{algorithmic}
+\end{algorithm*}

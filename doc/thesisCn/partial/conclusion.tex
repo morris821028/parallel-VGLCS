@@ -1,0 +1,6 @@
+\section{結論}
+\label{sec:Conclusion}
+
+我們修改 VGLCS 的序列算法，將其平行化於 $\theta(n \log n)$ 時間內，並以稀疏表實作 ISMQ 問題。提出的稀疏表能解決比 VGLCS 更困難的 Variable Interval Gapped LCS，致使 VIGLCS 可在時間複雜度 $\theta(nm)$ 被解決。
+
+在實務上，我們提供以動態規劃減少計算量，以及使用空間壓縮降低快取未中的策略，最終平行 RMQ 獲取 $2.35 \times$ 倍的加速；在增長區間最大值詢問 (IRMQ) 問題中，以字典順序的編碼策略，提出理論 $\theta(n)$ -- amortized $\theta(1)$  的算法。
