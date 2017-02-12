@@ -2,5 +2,4 @@
 
 可變的間隙限制最長同子序列應用於基因、分子生物學中。在之前的研究中，已提出在 $O(nm \alpha(n))$ 時間內的算法，其使用了高效的遞增後綴最大值詢問在 $O(\alpha(n))$ 解決每一詢問。原先的序列算法無法以直觀的方式平行，我們修改了原本算法的資料結構，並且提出平行版本的遞增任意區間最大值詢問，平行的運行時間為 $O(nm / p + n \log n)$。在單一處理器上，理論的時間複雜度可以達到 $O(nm)$ 勝過於先前的研究。
 
-The longest common subsequence problem with variable gapped contraints (VGLCS) is used in genes, molecular biology.  We can find $O(nm \alpha(n))$ solution in previous study, which use the efficient incremental suffix maximum query (ISMQ). ISMQ supports append a value to array and get the suffix maximum value in averge $O(\alpha(n))$ time.  However, we can parallel origin algorithm by wavefront method, but not have better performance.  In this paper, our algorithm and data structure offer efficient operations and better theoretical time complexity.  The VGLCS problem can be solved in $O(nm / p + n \log n)$, which $p$ is the number of processors.
 }

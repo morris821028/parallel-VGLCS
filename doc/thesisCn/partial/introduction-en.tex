@@ -1,0 +1,14 @@
+\section{Introduction} %Introduction
+\label{sec:Introduction}
+
+The \emph{longest common subsequence} (LCS) problem applied many products and fields widely.  In multi-core platform, most studies focus on the wavefront parallelism. Motivated by the definition of recursion in LCS, Jiaoyun Yang introduced a new formula to exploit more cache performance.  Here, we use the similar idea to improve LCS with variable contraints, which refer in Iliopoulos' study.  For example, \emph{fixed gap LCS} (FGLCS) require the distance between two consecutive matches limited at most $k+1$.  It can be solved in $O(nm)$, which $n, \; m$ is the length of input strings.
+
+In many kinds of contraint, this paper foucus on \emph{variable gap LCS} (VGLS). The VGLCS require the distance between two consecutive matched limited at most $G_i$, which $G_i$ is the value of the position $i$ in input array.
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-VGLCSex.pdf}
+  \includegraphics[width=\linewidth]{graphics/fig-VGLCSex2.pdf}
+  \caption{}
+  \label{fig:VGLCSex}
+\end{figure}

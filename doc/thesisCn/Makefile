@@ -8,6 +8,8 @@ thesis: thesis.tex
 	cd graphics && make
 	$(LATEX_ENGINE) thesis.tex
 	$(LATEX_ENGINE) thesis.tex
+	$(LATEX_ENGINE) thesis-en.tex
+	$(LATEX_ENGINE) thesis-en.tex
 
 clean:
 	rm -f *.aux *.log *.nav *.out *.pdf *.snm *.toc *.vrb
