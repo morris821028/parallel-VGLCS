@@ -1,0 +1,29 @@
+\begin{algorithm*}[!thb]
+  \caption{Algorithm for Finding VGLCS}
+  \label{alg:serial-VGLCS}
+  \begin{algorithmic}[1]
+    \Require
+      $A, B$: the input string;
+      $G_A, G_B$: the array of variable gapped constraints;
+    \Ensure Find the LCS with variable gapped constraints
+    \State ISMQ $Q[n]$  \Comment{the ISMQ supports incremental suffix maximum query}
+    \State int $V[n][m]$
+    \For{$i = 1$ to $n$}
+      \State \tt{ISMQ} $RQ$
+      \State $r = i - (GA[i]+1)$
+      \For{$j = 1$ to $m$}
+        \If{$A[i] = B[j]$}
+            \State $V[i][j] = RQ.get(j - (GB[j]+1))+1$
+            \State $t = Q[j].get(r)$ \Comment{Get the suffix maximum $A[r, i]$ in column $j$}
+            \State $RQ.set(j, t)$ \Comment{Set the value $t$ to position $j$}
+            \State $Q[j].set(i, V[i][j])$
+        \Else
+            \State $V[i][j] = 0$
+            \State $t = Q[j].get(r)$
+            \State $RQ.set(j, t)$
+        \EndIf
+      \EndFor
+    \EndFor
+    \State Retrieve the VGLCS by tracing $V[n][m]$
+  \end{algorithmic}
+\end{algorithm*}

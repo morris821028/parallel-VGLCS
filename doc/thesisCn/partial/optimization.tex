@@ -11,25 +11,8 @@
 
 運行區間查找時，一般依賴內建函數在 $O(1)$ 時間完成對數取整，然而，在 VGLCS 這類型的動態規劃中，區間查找的對數結果是可以被預測的，預先將每一組詢問的區段對數結果儲存在陣列中，便可降低指令次數。
 
-由於已知所有詢問區間，建立稀疏表時，可藉由動態規劃在 $O(n \log n)$ 排除掉不可能的計算 (參照算法 ~\ref{alg:reduceBoundary})，降低過程中的計算量。由於 VGLCS 在平行操作需要 $O(n \log n)$，故使用動態規劃不影響我們的最終結果。
+由於已知所有詢問區間，建立稀疏表時，可藉由動態規劃在 $O(n \log n)$ 排除掉不可能的計算 (參照算法 ~\ref{alg:reduce-boundary})，降低過程中的計算量。由於 VGLCS 在平行操作需要 $O(n \log n)$，故使用動態規劃不影響我們的最終結果。
 
-\begin{algorithm*}
-  \caption{Reduce Boundary Dynamic Programming}
-  \label{alg:reduceBoundary}
-  \begin{algorithmic}[1]
-  \Require
-      $G[1 \cdots n]$: the variabled gap contraints;
-  \Ensure
-      $\text{limD}$: boundary for doubling algorithm;
-  \State int8\_t limD[1 ... n]
-  \For{$i = n$ to $1$}
-    \State limD[i] = max(limD[i], floor(log2(min(G[i]+1, i))))
-    \For{$k = 1$ to limD[i]}
-      \State limD[$i-2^{k-1}$] = max(limD[$i-2^{k-1}$], $k-1$);
-    \EndFor
-  \EndFor
-  \State return limD
-  \end{algorithmic}
-\end{algorithm*}
+\input{algorithms/alg-reduce-boundary}
 
 從機率分佈的角度來看，因 $s = \frac{1}{4} \log n$ 過小，區間詢問完全落於 block 的機率低，故額外維護區段前綴和後綴最大值 (prefix/suffix maximum value in block) 取代笛卡爾樹的建立。藉這兩個額外儲存空間，將會增加空間複雜度的常數，卻能有效地降低整體的指令次數。

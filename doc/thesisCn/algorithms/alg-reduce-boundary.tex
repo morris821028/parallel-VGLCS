@@ -1,0 +1,18 @@
+\begin{algorithm*}
+  \caption{Reduce Boundary Dynamic Programming}
+  \label{alg:reduce-boundary}
+  \begin{algorithmic}[1]
+  \Require
+      $G[1 \cdots n]$: the variabled gap contraints;
+  \Ensure
+      $\text{limD}$: boundary for doubling algorithm;
+  \State int8\_t limD[1 ... n]
+  \For{$i = n$ to $1$}
+    \State limD[i] = max(limD[i], floor(log2(min(G[i]+1, i))))
+    \For{$k = 1$ to limD[i]}
+      \State limD[$i-2^{k-1}$] = max(limD[$i-2^{k-1}$], $k-1$);
+    \EndFor
+  \EndFor
+  \State return limD
+  \end{algorithmic}
+\end{algorithm*}

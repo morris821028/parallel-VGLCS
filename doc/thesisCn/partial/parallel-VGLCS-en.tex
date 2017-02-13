@@ -1,0 +1,25 @@
+\section{Parallel Algorithm} %
+\label{sec:parallelSerial}
+
+In the serial algorithm which was designed by Yung-Hsing Peng, we observed that variants of LCS use many status to decide a new status. Its definition makes lots of data dependency, so we cannot parallel row by row intuitively. Even though it's hard to parallel by several modifications, we can parallel the serial algorithm by using wavefront method. Because the usage of cache  memory is hard to use efficiently in it, so Saeed Maleki~\cite{saeed} developed a technique that uses the property of rank convergence to exploit more parallism to solve dynamic programming problems.
+
+\input{algorithms/alg-serial-VGLCS}
+
+In the algrithm ~\ref{alg:serial-VGLCS}, it run in $O(nm \alpha)$ time and $O(nm)$ space. If we use wavefront method to parallel, it must use extra storage space to record all row status compared to origin algorithm. If use the rank convergence technique, it also use extra storage space to reserve the informations of state translation, and spends more time to merge split parts.
+
+In this paper, we tend to design the algorithm which has less space and be more cache-friendly. We define two stages in the serial algorithm, row and column stage. In the row stage, it use $O(\alpha(n))$ to maintain incremental suffix maximum query(ISMQ).
+
+
+
+這裡我們著手設計算法空間複雜度常數小，並且針對快取友善。從序列算法中，發現在橫向查找中使用 $O(\alpha(n))$ 操作的增長後綴最大值查找 (\emph{incremental suffix maximum query}, ISMQ)，這部分難以平行化。為消除資料相依性，我們找到幾種區間詢問的替代方案。如 
+
+\begin{itemize}
+  \item Binary Indexed Tree -- $O(\log n)$: 對於任意前綴查找極值和更新元素，可以提供每次時間複雜度 $O(\log n)$，其運行常數比 Range Tree 低，只能支持前綴查找。若要運行區間查找，則必須在數學上符合加法原則。
+  \item Range Tree -- $O(\log n)$: 支持更高維度的正交區塊搜索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有操作。
+  \item Sparse Table -- $O(n \log n)$ -- $O(1)$:
+    建立表格 $T[i][j]$ 表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度 $O(n \log n)$，對於任意區間詢問可以拆分兩個 super-block 的表格檢索，轉換過程和存取時間需要 $O(1)$。
+\end{itemize}
+
+根據 VGLCS 動態規劃時的單調性質，可以使用 Van Emde Boas Tree 作為輔助資料結構在 $O(\log \log n)$ 時間內完成操作。其中 Sparse Table 是我們認為最好的替代方案，其整合後的平行算法如下 ~\ref{alg:parallel-VGLCS}，其時間複雜度為 $O(n^2 / p + n \log n)$，其中 $p$ 為處理器個數。
+
+\input{algorithms/alg-parallel-VGLCS}

@@ -1,0 +1,20 @@
+\begin{algorithm*}
+  \caption{Range Minimum Query in 64-bits Cartesian Tree}
+  \label{alg:cartesian64bits-query}
+  \begin{algorithmic}[1]
+    \Require
+      $\textit{tmask}$: 64-bits Cartesian tree;
+      $[l, r]$: query interval between $l$ and $r$
+    \Ensure 
+      $\textit{minIdx}$: the index of the minimum value in interval
+    \State int $\textit{minIdx}$ = $l$, $x$ = $0$;
+    \For{$l = l+1$ to $r$}
+      \State $x$ = $x+1 - ((tmask>>(l<<2))\&15)$
+      \If{$x \le 0$}
+        \State $\textit{minIdx}$ = $l$
+        \State $x$ = $0$
+      \EndIf
+    \EndFor
+    \State return $\textit{minIdx}$
+  \end{algorithmic}
+\end{algorithm*}

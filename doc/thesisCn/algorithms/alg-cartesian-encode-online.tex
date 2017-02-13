@@ -1,0 +1,26 @@
+\begin{algorithm*}
+  \caption{Online Type of Cartesian Tree}
+  \label{alg:cartesian-encode-offline}
+  \begin{algorithmic}[1]
+  \Require
+      $\mathit{state}$: state of Cartesian Tree;
+      $v$: the value which append to array
+  \Ensure
+      $\mathit{tid}$: this label
+  \State Dp = state.Dp, lsz = lid = 0
+  \State bsz = state.s - state.i + 1
+  \State bid = C[bsz] - 1 
+  \While{state.D[Dp].value < v}
+    \State lid = tid(state.D[Dp].lsz, state.D[Dp].lid, lsz, lid)
+    \State bid = tid(state.D[Dp].lsz, state.D[Dp].lid, bsz, bid)
+    \State lsz = lsz + state.D[Dp].lsz+1
+    \State bsz = bsz + state.D[Dp].lsz+1
+    \State Dp = Dp - 1
+  \EndWhile
+  \State Dp = Dp + 1
+  \State state.D[Dp] = <lsz,lid,v>, state.Dp = Dp
+  \State state.tid = state.tid + bid - tid(lsz, lid, state.s-state.i, C[state.s-state.i]-1)
+  \State state.i = state.i + 1
+  \State return state.tid
+  \end{algorithmic}
+\end{algorithm*}

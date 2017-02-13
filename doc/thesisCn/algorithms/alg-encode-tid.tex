@@ -1,0 +1,20 @@
+\begin{algorithm}
+  \caption{Get $tid$ from $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $\theta(1)$ time}
+  \label{alg:encode-tid}
+  \begin{algorithmic}[1]
+    \Require
+      $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$: size and label in left/right subtree
+    \Ensure
+      $\mathit{tid}$: this label
+    \If{$\mathit{rsz} = 0$}
+      \State return $\mathit{lid}$
+    \EndIf
+    \State $n = \mathit{lsz}+\mathit{rsz}+1$
+    \State $\mathit{base} = 0$
+    \For{$i=0$ to $\mathit{lsz}-1$}
+      \State $\mathit{base}$ = $\mathit{base} + C_i \cdot C_{n-i-1}$
+    \EndFor
+    \State $\mathit{offset}$ = $\mathit{lid} \cdot C_{\mathit{rsz}}$ + $\mathit{rid}$
+    \State return $\mathit{base}$ + $\mathit{offset}$
+  \end{algorithmic}
+\end{algorithm}

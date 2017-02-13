@@ -1,0 +1,26 @@
+\begin{algorithm*}[!thb]
+  \caption{Parallel Algorithm for Finding VGLCS}
+  \label{alg:parallel-VGLCS}
+  \begin{algorithmic}[1]
+    \Require
+      $A, B$: the input string;
+      $G_A, G_B$: the array of variable gapped constraints;
+    \Ensure Find the LCS with variable gapped constraints
+    \State \tt{ISMQ} $Q[n]$
+    \State \tt{int} $V[n][m]$
+    \For{$i = 1$ to $n$}
+      \State SparseTable $sp$
+      \ParFor{$j = 1$ to $m$}
+        \State $sp[j] = Q[j].get(r)$
+      \EndParFor
+      \State sp.build(m) \Comment{Parallel algorithm run in $O(n/p \log n + \log n)$}
+      \ParFor{$j = 1$ to $m$}
+        \If{$A[i] = B[j]$}
+            \State $V[i][j] = sp.get(j - (GB[j]+1), j-1)+1$
+            \State $Q[j].set(i, V[i][j])$
+        \EndIf
+      \EndParFor
+    \EndFor
+    \State Retrieve the VGLCS by tracing $V[n][m]$
+  \end{algorithmic}
+\end{algorithm*}

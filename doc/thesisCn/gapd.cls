@@ -67,12 +67,12 @@
 % declaration of the new block
 \algblock{ParFor}{EndParFor}
 % customising the new block
-\algnewcommand\algorithmicparfor{\textbf{parallel for}}
+\algnewcommand\algorithmicparfor{\textbf{para for}}
 \algnewcommand\algorithmicpardo{\textbf{do}}
-\algnewcommand\algorithmicendparfor{\textbf{end\ parallel for}}
+\algnewcommand\algorithmicendparfor{}
 \algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
 \algrenewtext{EndParFor}{\algorithmicendparfor}
-
+\algtext*{EndParFor}
 
 %===============================================================================
 % Formatting

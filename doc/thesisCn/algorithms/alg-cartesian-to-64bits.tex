@@ -1,0 +1,27 @@
+\begin{algorithm*}
+  \caption{Transfer Cartesian Tree to 64-bits with 8 integers}
+  \label{alg:cartesian-to-64bits}
+  \begin{algorithmic}[1]
+    \Require
+      $A[1 \cdots 16]$: 16 integers store in array
+    \Ensure 
+      $\textit{tmask}$: compress Cartesian tree into 64-bits integer
+      \State $\tt{LOGS} = 4$
+      \State $\tt{POWS} = 2^{\tt{LOGS}}$
+      \State int $D[POWS+1]$, $Dp = 0$;
+      \State uint64\_t $tmask$ = $0$
+      \State $D[0]$ = SHRT\_MAX
+      \For{$i = 1$ to $\tt{POWS}$} 
+        \State $v = A[i]$;
+        \State $cnt = 0$;
+        \While{$D[Dp] < v$}
+          \State $Dp = Dp-1$
+          \State $cnt = cnt + 1$
+        \EndWhile
+        \State $Dp = Dp+1$
+        \State $D[Dp] = v$
+        \State $tmask = tmask | ((cnt)<<((i-1)<<2))$
+      \EndFor
+      \State return $tmask$
+  \end{algorithmic}
+\end{algorithm*}
