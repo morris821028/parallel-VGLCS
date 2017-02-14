@@ -27,20 +27,20 @@ mymat/.style={
 
 \begin{tikzpicture}[>=latex]
 \matrix[mymat,anchor=west,
-    box={2}{1, 2, 5}]
+    box={2}{1, 2, 4, 7}]
 at (0,0) 
 (mat1)
 {
-2 & 3 & 0 & 0 & 3 & 2 & 2 \\
-R & C & L & P & C & R & R \\
+3 & 1 & 1 & 2 & 0 & 0 & 2 & 1 \\
+G & C & G & C & A & A & T & G \\
 };
 \matrix[mymat,anchor=west,
-    box={1}{1, 5, 9}]
+    box={1}{1, 2, 4, 5}]
 at (0,-2) 
 (mat2)
 {
-R & P & P & L & C & P & L & R & C \\
-2 & 0 & 0 & 0 & 3 & 0 & 0 & 2 & 3 \\
+G & C & C & C & T & A & G & C & G \\
+2 & 0 & 1 & 2 & 0 & 1 & 0 & 0 & 1 \\
 };
 
 \matrix[mymat]
@@ -63,9 +63,11 @@ at (-1, -2)
 \draw[]
   (mat1-2-1.south) -- (mat2-1-1.north);
 \draw[]
-  (mat1-2-2.south) -- (mat2-1-5.north);
+  (mat1-2-2.south) -- (mat2-1-2.north);
 \draw[]
-  (mat1-2-5.south) -- (mat2-1-9.north);
+  (mat1-2-4.south) -- (mat2-1-4.north);
+\draw[]
+  (mat1-2-7.south) -- (mat2-1-5.north);
 \end{scope}
 \end{tikzpicture}
 
