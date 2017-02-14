@@ -13,7 +13,7 @@
 
 在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案 $s = 16$，其能解決序列長度為 $n = 2^{64}$ 的區間查找，將 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 $\sum_{i=1}^{n} l_i < i$。
 
-因所有 $l_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，總體便可用 64-bit 長整數表示一棵笛卡爾樹的狀態。為了現在常見的 64-byte 快取列 (cache line) 和 64-bit 暫存器 (register) 考量，我們選用合適的大小進行測試，不僅壓縮空間使用量，同時也減少快取未中的問題。壓縮流程如算法 ~\ref{alg:cartesian-to-64bits}，對應的區間查找算法，根據 Demaine ~\cite{demaine} 進行修改，流程如算法 ~\ref{alg:cartesian64bits-query}。
+因所有 $l_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，整體便可用 64-bit 長整數表示一棵笛卡爾樹的狀態。為了現在常見的 64-byte 快取列 (cache line) 和 64-bit 暫存器 (register) 考量，我們選用合適的大小進行測試，不僅壓縮空間使用量，同時也減少快取未中的問題。壓縮流程如算法 ~\ref{alg:cartesian-to-64bits}，對應的區間查找算法，根據 Demaine ~\cite{demaine} 進行修改，流程如算法 ~\ref{alg:cartesian64bits-query}。
 
 \input{algorithms/alg-cartesian-to-64bits}
 
@@ -23,7 +23,7 @@
 
 \section{動態區間詢問}
 
-在 VGLCS 問題中，主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方面為數個獨立的數據結構，這部分易於平行；相反地，在橫向方面，需要共同協作一個數據結構。綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而橫向可以離線完成區間查找。在上一節中，我們提出在橫向處理的實作，若限制上述的實作方案在單一處理器上，時間複雜度的瓶頸將受限於縱向的動態更新與查找。
+在 VGLCS 問題中，主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方面為數個獨立的數據結構，這部分易於平行；相反地，在橫向方面，需要共同協作一個數據結構。綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而橫向可以離線完成區間查找。在上一節中，我們提出在橫向處理的實作，若限制上述的實作方案在單一處理器上，時間複雜度的瓶頸在於縱向的動態更新與查找。
 
 在這個章節中，我們提出支持動態插入和區間查找的數據結構，最後的成果如表 ~\ref{tlb:cmp-complexity}。
 
@@ -60,9 +60,11 @@
   \label{fun:LCA}
 \end{figure*}
 
-為記錄所有的二元搜尋樹的 LCA，空間消耗 $\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)$；其平行算法如 ~\ref{alg:parallel-LCA}，時間複雜度如下：
+為記錄所有的二元搜尋樹的 LCA，空間消耗 $\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)$；其平行算法 \ref{alg:parallel-LCA} 的時間複雜度如下：
 
-$$\theta\left(s^3 \; \frac{1}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)$$
+\begin{equation}
+\theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
+\end{equation}
 
 \input{algorithms/alg-parallel-LCA.tex}
 
@@ -92,17 +94,18 @@ ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一�
 
 我們定義轉移狀態由 5 個變數來決定動態笛卡爾樹的編碼，當前插入第 $i$ 個元素，最終填充 $s$ 個元素，當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
 
-\begin{figure}
-  \begin{lstlisting}
-  struct Node {
-    int lsz, lid, val;
-  };
-  struct State {
-    int i, s, tid, Dp;
-    struct Node D[s+1];
-    State(i=0, s=n, tid=C[n]-1, 
-             D[0].val=INF, Dp=0)
-  };
+\begin{figure}[!thb]
+  \begin{lstlisting}[frame=single,caption=State of Cartesian Tree]
+struct Node {
+  int lsz, lid, val;
+};
+struct State {
+  int i, s, tid, Dp;
+  struct Node D[s+1];
+  State(i = 0, s = n, 
+          tid = C[n]-1, Dp = 0,
+           D[0].val = INF)
+};
   \end{lstlisting}
 \end{figure}
 
@@ -110,7 +113,7 @@ ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一�
 
 \input{algorithms/alg-cartesian-encode-online}
 
-\begin{figure*}
+\begin{figure*}[!thb]
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
   \caption{每個區塊有 $s$ 個元素，初始情況虛設 $s$ 個點在右鏈，則具有 $s$ 個節點的 BST，其編號 $\text{tid}_0 = C_s - 1$。當插入第 $i$ 個元素時，當前編號為 $\text{tid}_i$，以節點 $A$ 為根的樹編號為 $A.\text{tid}$，若第 $i+1$ 個元素值為 $x$，其將會翻轉到 $A$ 之上，而 $A$ 成為 $x$ 的左子節點，翻轉過程中計算得到 $A.\text{tid}$，而以 $x$ 為根的樹將虛設 $s-(i+1)$ 個節點在其右鏈，最後得到 $x.\text{tid}$。根據字典順序，我們將得到 $\text{tid}_{i+1} = \text{tid}_{i} + (x.\text{tid} - A.\text{tid})$。}

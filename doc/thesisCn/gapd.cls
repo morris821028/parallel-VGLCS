@@ -49,7 +49,7 @@
 \RequirePackage[UTF8, heading = false, scheme = plain]{ctex} % chinese character
 \RequirePackage{CJK} \setCJKmainfont{STHeiti} % chinese type in MacBook
 \RequirePackage{indentfirst} \setlength{\parindent}{2em}
-\RequirePackage{amsmath} \RequirePackage{mathtools}
+\RequirePackage{amsmath} \RequirePackage{mathtools} \RequirePackage{amssymb}
 \RequirePackage{algorithm}
 \RequirePackage{listings} \RequirePackage{courier}
 \lstset{basicstyle=\ttfamily,breaklines=true}

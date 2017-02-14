@@ -6,21 +6,22 @@
       $A, B$: the input string;
       $G_A, G_B$: the array of variable gapped constraints;
     \Ensure Find the LCS with variable gapped constraints
-    \State ISMQ $Q[n]$  \Comment{the ISMQ supports incremental suffix maximum query}
-    \State int $V[n][m]$
-    \For{$i = 1$ to $n$}
-      \State \tt{ISMQ} $RQ$
-      \State $r = i - (GA[i]+1)$
-      \For{$j = 1$ to $m$}
+    \State Create $m$ number of data structure $Q[m]$ to support ISMQ problem.
+    \State Create an empty table $V[n][m]$.
+    \For{$i \gets 1$ to $n$}
+      \State Create a data structure $RQ$ to support ISMQ problem.
+      \State $r \gets i - (GA[i]+1)$
+      \For{$j \gets 1$ to $m$}
         \If{$A[i] = B[j]$}
-            \State $V[i][j] = RQ.get(j - (GB[j]+1))+1$
-            \State $t = Q[j].get(r)$ \Comment{Get the suffix maximum $A[r, i]$ in column $j$}
-            \State $RQ.set(j, t)$ \Comment{Set the value $t$ to position $j$}
-            \State $Q[j].set(i, V[i][j])$
+            \State $t \gets $ query suffix maximum value from position $j - (GB[j]+1)$ to tail in $RQ$.
+            \State $V[i][j] \gets t + 1$
+            \State $t \gets $ get the suffix maximum value from position $r$ to $i$ in $Q[j]$
+            \State Append value $t$ into $RQ$.
+            \State Append value $V[i][j]$ into $Q[j]$.
         \Else
-            \State $V[i][j] = 0$
-            \State $t = Q[j].get(r)$
-            \State $RQ.set(j, t)$
+            \State $V[i][j] \gets 0$
+            \State $t \gets $ get the suffix maximum value from position $r$ to $i$ in $Q[j]$
+            \State Append value $t$ into $RQ$.
         \EndIf
       \EndFor
     \EndFor

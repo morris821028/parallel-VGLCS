@@ -1,4 +1,4 @@
-\begin{algorithm*}
+\begin{algorithm*}[!thb]
   \caption{Online Type of Cartesian Tree}
   \label{alg:cartesian-encode-offline}
   \begin{algorithmic}[1]
@@ -7,20 +7,23 @@
       $v$: the value which append to array
   \Ensure
       $\mathit{tid}$: this label
-  \State Dp = state.Dp, lsz = lid = 0
-  \State bsz = state.s - state.i + 1
-  \State bid = C[bsz] - 1 
-  \While{state.D[Dp].value < v}
-    \State lid = tid(state.D[Dp].lsz, state.D[Dp].lid, lsz, lid)
-    \State bid = tid(state.D[Dp].lsz, state.D[Dp].lid, bsz, bid)
-    \State lsz = lsz + state.D[Dp].lsz+1
-    \State bsz = bsz + state.D[Dp].lsz+1
-    \State Dp = Dp - 1
+  \State $\textit{Dp} \gets \textit{state}.\textit{Dp}$
+  \State $\textit{lsz} \gets 0$ 
+  \State $\textit{lid} \gets 0$
+  \State $\textit{bsz} \gets \textit{state}.\textit{s} - \textit{state}.\textit{i} + 1$
+  \State $\textit{bid} \gets C[\textit{bsz}] - 1$
+  \While{$\textit{state}.D[\textit{Dp}].\textit{value} < v$}
+    \State $\textit{lid} \gets \textit{tid}(\textit{state}.D[\textit{Dp}].\textit{lsz}, \textit{state}.D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$
+    \State $\textit{bid} \gets \textit{tid}(\textit{state}.D[\textit{Dp}].\textit{lsz}, \textit{state}.D[\textit{Dp}].\textit{lid}, \textit{bsz}, \textit{bid})$
+    \State $\textit{lsz} \gets \textit{lsz} + \textit{state}.D[\textit{Dp}].\textit{lsz}+1$
+    \State $\textit{bsz} \gets \textit{bsz} + \textit{state}.D[\textit{Dp}].\textit{lsz}+1$
+    \State $\textit{Dp} \gets \textit{Dp} - 1$
   \EndWhile
-  \State Dp = Dp + 1
-  \State state.D[Dp] = <lsz,lid,v>, state.Dp = Dp
-  \State state.tid = state.tid + bid - tid(lsz, lid, state.s-state.i, C[state.s-state.i]-1)
-  \State state.i = state.i + 1
-  \State return state.tid
+  \State $\textit{Dp} \gets \textit{Dp} + 1$
+  \State $\textit{state}.D[\textit{Dp}] \gets \left \langle \textit{lsz}, \textit{lid}, \textit{v} \right \rangle$
+  \State $\textit{state}.\textit{Dp} \gets \textit{Dp}$
+  \State $\textit{state}.\textit{tid} \gets \textit{state}.\textit{tid} + \textit{bid} - \textit{tid}(\textit{lsz}, \textit{lid}, \textit{state}.s-\textit{state}.i, C[\textit{state}.s-\textit{state}.i]-1)$
+  \State $\textit{state}.i \gets \textit{state}.i + 1$
+  \State return $\textit{state}.\textit{tid}$
   \end{algorithmic}
 \end{algorithm*}

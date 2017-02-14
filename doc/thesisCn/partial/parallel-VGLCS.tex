@@ -13,10 +13,10 @@
   \item 樹狀數組 (Binary Indexed Tree) -- $O(\log n)$: 對於任意前綴查找極值和更新元素，可以提供每次時間複雜度 $O(\log n)$，其運行常數比 Range Tree 低，只能支持前綴查找。若要運行區間查找，則必須在數學上符合加法原則。
   \item 線段樹 (Segment Tree) -- $O(\log n)$: 支持更高維度的正交區塊搜索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有區間查詢操作。
   \item 稀疏表 (Sparse Table) -- $O(n)$ -- $O(1)$:
-    建立表格 $T[i][j]$ 表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度需 $O(n)$，對於任意區間詢問可以拆分 2 個 super-block 檢索和 2 個 in-block 檢索 (參照圖 ~\ref{fig:interval-decomposition} 的說明)，轉換過程和存取時間皆需要 $O(1)$。
+    建立表格 $ST[j][i]$ 表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度需 $O(n)$，對於任意區間詢問可以拆分 2 個 super-block 檢索和 2 個 in-block 檢索 (參照圖 ~\ref{fig:interval-decomposition} 的說明)，轉換過程和存取時間皆需要 $O(1)$。
 \end{itemize}
 
-\begin{figure*}
+\begin{figure*}[!thb]
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-interval-decomposition.pdf}
   \includegraphics[width=\linewidth]{graphics/fig-sparse-table.pdf}

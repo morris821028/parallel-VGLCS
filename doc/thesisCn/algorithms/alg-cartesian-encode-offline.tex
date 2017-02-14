@@ -8,24 +8,24 @@
     \Ensure
       $\mathit{tid}$: this label
     \State $\langle\mathit{lsz},\mathit{lid},\mathit{value}\rangle$ $D$[$s+1$]
-    \State Dp = 0
-    \State $D$[0] = $\langle0,0,\infty\rangle$
-    \For{$i = 1$ to $s$}
-      \State v = $A$[i], lsz = 0, lid = 0
-      \While{$D$[Dp].value < v}
-        \State lid = tid($D$[Dp].lsz, $D$[Dp].lid, lsz, lid)
-        \State lsz = lsz + $D$[Dp].lsz + 1
-        \State Dp = Dp - 1
+    \State $\textit{Dp} \gets 0$
+    \State $D[0] \gets \langle 0,0,\infty \rangle$
+    \For{$i \gets 1$ to $s$}
+      \State $v \gets A[i], \; \textit{lsz} \gets 0, \; \textit{lid} \gets 0$
+      \While{$D[\textit{Dp}].\textit{value} < v$}
+        \State $\textit{lid} \gets \textit{tid}(D[\textit{Dp}].\textit{lsz}, D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$
+        \State $\textit{lsz} \gets \textit{lsz} + D[\textit{Dp}].\textit{lsz} + 1$
+        \State $\textit{Dp} \gets \textit{Dp} - 1$
       \EndWhile
-      \State Dp = Dp + 1
-      \State $D$[Dp] = $\langle\mathit{lsz},\mathit{lid},\mathit{v}\rangle$
+      \State $\textit{Dp} \gets \textit{Dp} + 1$
+      \State $D[\textit{Dp}] \gets \langle\mathit{lsz},\mathit{lid},\mathit{v}\rangle$
     \EndFor
-    \State lsz = 0, lid = 0
-    \While{Dp > 0} \Comment{pop all elements}
-      \State lid = tid($D$[Dp].lsz, $D$[Dp].lid, lsz, lid)
-      \State lsz = lsz + $D$[Dp].lsz + 1
-      \State Dp = Dp - 1
+    \State $\textit{lsz} \gets 0, \; \textit{lid} \gets 0$
+    \While{$\textit{Dp} > 0$} \Comment{pop all elements}
+      \State $\textit{lid} \gets \textit{tid}(D[\textit{Dp}].\textit{lsz}, D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$
+      \State $\textit{lsz} \gets \textit{lsz} + D[\textit{Dp}].\textit{lsz} + 1$
+      \State $\textit{Dp} \gets \textit{Dp} - 1$
     \EndWhile
-    return lid
+    \State return $\textit{lid}$
   \end{algorithmic}
 \end{algorithm*}

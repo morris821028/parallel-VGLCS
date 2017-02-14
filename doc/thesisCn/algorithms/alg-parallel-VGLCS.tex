@@ -6,18 +6,19 @@
       $A, B$: the input string;
       $G_A, G_B$: the array of variable gapped constraints;
     \Ensure Find the LCS with variable gapped constraints
-    \State \tt{ISMQ} $Q[n]$
-    \State \tt{int} $V[n][m]$
-    \For{$i = 1$ to $n$}
-      \State SparseTable $sp$
-      \ParFor{$j = 1$ to $m$}
-        \State $sp[j] = Q[j].get(r)$
+    \State Create $m$ number of data structure $Q[m]$ to support ISMQ problem.
+    \State Create an empty table $V[n][m]$.
+    \For{$i \gets 1$ to $n$}
+      \State Create a sparse table data structure $\textit{sp}$, and initialize $\textit{sp}$ to zero.
+      \ParFor{$j \gets 1$ to $m$}
+        \State $\textit{sp}[j] \gets$ query suffix maximum value from position $r$ to tail in $Q[j]$.
       \EndParFor
-      \State sp.build(m) \Comment{Parallel algorithm run in $O(n/p \log n + \log n)$}
-      \ParFor{$j = 1$ to $m$}
+      \State Build sparse table $\textit{sp}$ with $m$ elements in parallel $O(n/p \log n + \log n)$ time.
+      \ParFor{$j \gets 1$ to $m$}
         \If{$A[i] = B[j]$}
-            \State $V[i][j] = sp.get(j - (GB[j]+1), j-1)+1$
-            \State $Q[j].set(i, V[i][j])$
+            \State $t \gets $ query suffix maximum value from position $j - (GB[j] + 1)$ to $j-1$ in $\textit{sp}$
+            \State $V[i][j] \gets t + 1$
+            \State Append value $V[i][j]$ into $Q[j]$.
         \EndIf
       \EndParFor
     \EndFor
