@@ -157,7 +157,7 @@
 \bigskip
   \hfill\begin{minipage}{\linewidth-6em}
     \setstretch{0.9}
-        {\it\small\@Abstract}
+        {\it\small\textbf{Abstract.}\@Abstract}
   \end{minipage}\hfill\hbox to 0pt{}
 \bigskip
 }
