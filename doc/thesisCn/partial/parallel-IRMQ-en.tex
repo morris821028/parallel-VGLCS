@@ -1,0 +1,30 @@
+\section{Range Maximum Query}
+\label{sec:parallelRMQ}
+
+\subsection{Background}
+
+Even through we parallel origin serial algorithm successfully, the theoretical time complexity of VGLCS algorithm is limited by the range maximum/minimum query in parallel.  In VGLCS problem, each stage has $n$ elements and $n$ numbers of range query. We should let pre-processing and query time minimize. The most of tree structures cannot show efficient performance in both pre-processing and query time. Some offline algorithm is too hard to parallel. In this section, we provide the solution to get better performance in both pre-processing and query stage.
+
+\subsection{Compressed Cartesian Tree}
+
+In Fischer ~\cite{fischer} paper, the $O(n)$ -- $O(1)$ algorithm is corrponding by Catalan number $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ to build look-up table. When we choose $s = \frac{1}{4} \log n$ as block size, the space complexity is $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$, and time complexity is $o(n)$. Each range query will be split into 4 parts, 2 super-block queries and 2 in-block queries. It need to 4 time memory access. We give a example in the figure ~\ref{fig:interval-decomposition}.  In the offline RMQ problem, it has the theoretical algorithm which run in $O(n)$ -- $O(1)$ time.
+
+When $n$ is large, four time memory access caused serious cache miss.  In order to improve cache miss, Demaine introduced the cache-oblivious algorithm in Cartesian tree ~\cite{demaine}.
+
+In above technology, we parallel RMQ problem by Fischer's idea and get time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm. We also combines compression skill from Demaine's paper. It reduces cache-miss and run in ideal complexity.
+
+We pick the fixed length $s = 16$, which can solve $n = 2^{64}$ one-dimension range maximum query. When we insert $i$-th elements, the number of $i$-th left rotation $l_i$ must satisfy $\sum_{i=1}^{n} l_i < i$. Because all $l_i$ is small than 16, it can present in 4-bit integer.  Due to above property of Cartesian tree, we merger 16 4-bit integers into a 64-bit integer to present a Caartesian tree. The compressed algorithm ~\ref{alg:cartesian-to-64bits} run in $O(s)$.
+
+Finally, the appropriate size can compress the usage of space to reduce cache-miss and also show better performance in modern 64-bit register.  We modify Demaine's range query algorithm as the algorithm ~\ref{alg:cartesian64bits-query}.
+
+\input{algorithms/alg-cartesian-to-64bits}
+
+\input{algorithms/alg-cartesian64bits-query}
+
+In VGLCS problem, above algorithm provide compression skill to reduce cache-miss, but increase the time complexity. The pre-processing spend $O(n)$ time, and single query spend $O(s)$ time in RMQ. Totally, time complexity is $O(n^2 \; s / p + n \max(\log n, s))$.
+
+\section{Incremental Range Maximum Query}
+
+\subsection{Build Look-up Table}
+
+\subsection{Dynamic Cartesian Tree}
