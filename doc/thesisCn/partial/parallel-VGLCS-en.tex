@@ -7,19 +7,15 @@ In the serial algorithm which was designed by Yung-Hsing Peng, we observed that 
 
 In the algrithm ~\ref{alg:serial-VGLCS}, it run in $O(nm \alpha)$ time and $O(nm)$ space. If we use wavefront method to parallel, it must use extra storage space to record all row status compared to origin algorithm. If use the rank convergence technique, it also use extra storage space to reserve the informations of state translation, and spends more time to merge split parts.
 
-In this paper, we tend to design the algorithm which has less space and be more cache-friendly. We define two stages in the serial algorithm, row and column stage. In the row stage, it use $O(\alpha(n))$ to maintain incremental suffix maximum query(ISMQ).
-
-
-
-這裡我們著手設計算法空間複雜度常數小，並且針對快取友善。從序列算法中，發現在橫向查找中使用 $O(\alpha(n))$ 操作的增長後綴最大值查找 (\emph{incremental suffix maximum query}, ISMQ)，這部分難以平行化。為消除資料相依性，我們找到幾種區間詢問的替代方案。如 
+In this paper, we tend to design the algorithm which has less space and be more cache-friendly. We define two stages in the serial algorithm, row and column stage. In the row stage, it use disjoint set to maintain \emph{incremental suffix maximum query} (ISMQ).  However, ISMQ change itself state of data structure when it append a new value each time, so it makes more hard to parallel.  We study some alternative plans as follows:
 
 \begin{itemize}
-  \item Binary Indexed Tree -- $O(\log n)$: 對於任意前綴查找極值和更新元素，可以提供每次時間複雜度 $O(\log n)$，其運行常數比 Range Tree 低，只能支持前綴查找。若要運行區間查找，則必須在數學上符合加法原則。
-  \item Range Tree -- $O(\log n)$: 支持更高維度的正交區塊搜索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有操作。
+  \item Binary Indexed Tree -- $O(\log n)$: It supports prefix sum query and update single value in $O(\log n)$.  In our application, it also supports update maximum value and query suffix maximum value.  It run faster than segment tree.
+  \item Segment Tree -- $O(\log n)$: It supports query maximum value and update values in multi-dimension.  It can use $O(\log n)$ time to solve range maximum query in one-dimension.
   \item Sparse Table -- $O(n \log n)$ -- $O(1)$:
-    建立表格 $T[i][j]$ 表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度 $O(n \log n)$，對於任意區間詢問可以拆分兩個 super-block 的表格檢索，轉換過程和存取時間需要 $O(1)$。
+    We use $ST[j][i]$ to present the maximum value in array $(i-2^j,i]$. It spend $O(n \log n)$ time to build table and require $O(1)$ time to get the range maximum query. In order to support append value to tail, it cannot run $O(n)$ -- $O(1)$ solution which Fischer ~\cite{fischer} introduced.
 \end{itemize}
 
-根據 VGLCS 動態規劃時的單調性質，可以使用 Van Emde Boas Tree 作為輔助資料結構在 $O(\log \log n)$ 時間內完成操作。其中 Sparse Table 是我們認為最好的替代方案，其整合後的平行算法如下 ~\ref{alg:parallel-VGLCS}，其時間複雜度為 $O(n^2 / p + n \log n)$，其中 $p$ 為處理器個數。
+Among of them, we consider that the sparse table is the best alternative plan.  We present the parallel algorithm ~\ref{alg:parallel-VGLCS} for the VGLCS problem, and its time complexity is $O(n^2 \alpha(n) / p + n \log n)$, which $p$ is the number of processors. In the next chapter, we provide a new data structure to instead of disjoint set and reduce $O(n^2 \alpha(n))$ time to $O(n^2)$ time in theoretically.  In the parallel environment, it can run in $O(n^2 /p + n \log n)$ time better than $O(n^2 \alpha(n)/p + n \log n)$.
 
 \input{algorithms/alg-parallel-VGLCS}
