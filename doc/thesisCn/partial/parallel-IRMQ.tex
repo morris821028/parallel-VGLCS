@@ -35,7 +35,7 @@
   \label{tlb:cmp-complexity}
 \end{table*}
 
-\subsubsection{平行建立查找表}
+\subsection{平行建立查找表}
 
 關於在線操作，我們從 Fischer \cite{fischer} 和 Masud \cite{masud} 的研究中，分別得到關於笛卡爾的編碼與快取改善的技術，而這些技術都著手於離線操作，即一開始給訂 $n$ 個元素值，並且在 $O(n)$ 時間內編碼一棵樹；接著，再利用前處理的查找表完成極值查找。
 
@@ -68,9 +68,7 @@
 
 \input{algorithms/alg-parallel-LCA.tex}
 
-\subsubsection{動態編碼笛卡爾樹}
-
-許多研究致力於如何將編碼過程的運算量最小化，如改變遞迴定義公式，便可用數個暫存器狀態轉移取代內存存取 ... 等，這些方法皆使用離線編碼，故不適用於後綴最大值查找。
+\subsection{動態編碼笛卡爾樹}
 
 ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，其二使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。其二，Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個 in-block 塞滿至預設值才可解決。
 
