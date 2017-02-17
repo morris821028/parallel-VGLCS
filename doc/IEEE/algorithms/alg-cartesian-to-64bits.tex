@@ -1,0 +1,27 @@
+\begin{algorithm*}[!thb]
+  \caption{Transfer Cartesian Tree to 64-bits with 8 integers}
+  \label{alg:cartesian-to-64bits}
+  \begin{algorithmic}[1]
+    \Require
+      $A[1 \cdots 16]$: 16 integers store in array
+    \Ensure 
+      $\textit{tmask}$: compress Cartesian tree into 64-bits integer
+      \State $\tt{LOGS} \gets 4$
+      \State $\tt{POWS} \gets 2^{\tt{LOGS}}$
+      \State Create an array $D[\tt{POWS}+1]$ with size $\tt{POWS}+1$.
+      \State $\textit{Dp} \gets 0$;
+      \State Unsigned 64-bit integer $\textit{tmask} \gets 0$
+      \State $D[0] \gets \infty$
+      \For{$i \gets 1$ to $\tt{POWS}$} 
+        \State $v \gets A[i], \; \textit{cnt} \gets 0$;
+        \While{$D[\textit{Dp}] < v$}
+          \State $\textit{Dp} \gets \textit{Dp}-1$
+          \State $\textit{cnt} \gets \textit{cnt} + 1$
+        \EndWhile
+        \State $\textit{Dp} \gets \textit{Dp}+1$
+        \State $D[\textit{Dp}] \gets v$
+        \State $\textit{tmask} \gets \textit{tmask} \mathrel{|} (cnt \ll ((i-1) \ll 2))$
+      \EndFor
+      \State return $tmask$
+  \end{algorithmic}
+\end{algorithm*}

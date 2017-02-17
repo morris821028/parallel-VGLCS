@@ -1,0 +1,74 @@
+\documentclass[border=2pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{matrix,positioning,arrows.meta,arrows}
+
+\tikzset{
+mymat/.style={
+  matrix of nodes,
+  nodes in empty cells,
+  text height=2.5ex,
+  text depth=0.75ex,
+  text width=3.25ex,
+  align=center,
+  column sep=-\pgflinewidth
+  }
+}
+\tikzset{
+  rows/.style 2 args={
+    sub@rows/.style={row ##1 column #2/.style={nodes={rectangle,draw=black}}},
+    sub@rows/.list={#1}
+  },
+  box/.style 2 args={
+    sub@box/.style={rows={#1}{##1}},
+    sub@box/.list={#2}
+  }
+}
+\begin{document}
+
+\begin{tikzpicture}[>=latex]
+\matrix[mymat,anchor=west,
+    box={2}{1, 2, 4, 7}]
+at (0,0) 
+(mat1)
+{
+3 & 1 & 1 & 2 & 0 & 0 & 2 & 1 \\
+G & C & G & C & A & A & T & G \\
+};
+\matrix[mymat,anchor=west,
+    box={1}{1, 2, 4, 5}]
+at (0,-2) 
+(mat2)
+{
+G & C & C & C & T & A & G & C & G \\
+2 & 0 & 1 & 2 & 0 & 1 & 0 & 0 & 1 \\
+};
+
+\matrix[mymat]
+at (-1, 0)
+(mat1Text)
+{
+   $G_A(i)$ \\
+   $A$ \\
+};
+
+\matrix[mymat]
+at (-1, -2)
+(mat2Text)
+{
+   $B$ \\
+   $G_B(j)$ \\
+};
+
+\begin{scope}
+\draw[]
+  (mat1-2-1.south) -- (mat2-1-1.north);
+\draw[]
+  (mat1-2-2.south) -- (mat2-1-2.north);
+\draw[]
+  (mat1-2-4.south) -- (mat2-1-4.north);
+\draw[]
+  (mat1-2-7.south) -- (mat2-1-5.north);
+\end{scope}
+\end{tikzpicture}
+
+\end{document}

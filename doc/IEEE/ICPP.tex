@@ -1,0 +1,79 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{cite}
+\usepackage[hyphens]{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tabularx}
+\usepackage{amsmath}
+%\usepackage{algorithmic}
+%\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\usepackage{graphicx}
+
+%===============================================================================
+% Algorithm
+
+% declaration of the new block
+\algblock{ParFor}{EndParFor}
+% customising the new block
+\algnewcommand\algorithmicparfor{\textbf{para for}}
+\algnewcommand\algorithmicpardo{\textbf{do}}
+\algnewcommand\algorithmicendparfor{}
+\algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
+\algrenewtext{EndParFor}{\algorithmicendparfor}
+\algtext*{EndParFor}
+
+%===============================================================================
+
+\hypersetup{breaklinks=true}
+\urlstyle{same}
+
+\begin{document}
+
+\title{Parallel Variable Gapped Longest Common Sequence 
+and Incremental Range Maximum Query}
+
+\author{
+\IEEEauthorblockN{
+Shiang-Yun Yang\IEEEauthorrefmark{1},
+Ching-Chi Lin\IEEEauthorrefmark{1}\IEEEauthorrefmark{3},
+Pangfeng Liu\IEEEauthorrefmark{1}\IEEEauthorrefmark{2},
+Jan-Jan Wu\IEEEauthorrefmark{3},
+}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{1}
+Department of Computer Science and Information Engineering,
+National Taiwan University \\ 
+\{r04922067, d00922019, pangfeng\}@csie.ntu.edu.tw}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{2}
+The Graduate Institute of Networking and Multimedia, National Taiwan
+University \\ 
+pangfeng@csie.ntu.edu.tw}
+
+\IEEEauthorblockA{\IEEEauthorrefmark{3}
+Institute of Information Science, Academia Sinica \\
+\{deathsimon, wuj\}@iis.sinica.edu.tw}
+}
+
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+
+\maketitle
+
+\input{partial/abstract}
+
+\input{partial/introduction}
+
+\input{partial/parallel-VGLCS}
+
+\input{partial/parallel-IRMQ}
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+% that's all folks
+\end{document}
+
+

@@ -1,0 +1,28 @@
+\begin{tabular}{ccc}
+    \toprule
+     & serial & parallel \\
+    \midrule
+    horizontal & \begin{tabular}{@{}c@{}}
+              $\left \langle n \alpha(n) \right \rangle$ \cite{yunghsing} \\ 
+              amortized $\left \langle n \right \rangle$\end{tabular}
+              & \begin{tabular}{@{}c@{}}
+                $\left \langle n \alpha(n)/p + \alpha(n) \right \rangle$ \cite{yunghsing} \\
+                amortized $\left \langle n /p + o(1) \right \rangle$
+                \end{tabular} \\
+    vertical & \begin{tabular}{@{}c@{}}
+                $\left \langle n \alpha(n) \right \rangle$ \\
+                amortized $\left \langle n \right \rangle$
+                \end{tabular}
+            & \begin{tabular}{@{}c@{}}
+                impossible \\
+                amortized $\left \langle n /p + o(1) \right \rangle$
+              \end{tabular}
+              \\
+    total & \begin{tabular}{@{}c@{}}
+              $\left \langle n^2 \alpha(n) \right \rangle$ \cite{yunghsing} \\ 
+              amortized $\left \langle n^2 \right \rangle$\end{tabular}
+          & \begin{tabular}{@{}c@{}}
+              impossible \\ 
+              amortized $\left \langle n^2 /p + n \log n \right \rangle$\end{tabular} \\
+    \bottomrule
+  \end{tabular}

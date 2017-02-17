@@ -1,0 +1,30 @@
+\tikzset{
+  treeInode/.style = {align=center, inner sep=1pt, text centered,
+    font=\sffamily},
+  arn_n/.style = {treeInode, rectangle, rounded corners=1mm, black, draw=black, fill=black, text=white, font=\sffamily\bfseries, minimum width=1em, minimum height=1em}
+    % arbre rouge noir, noeud noir
+}
+\usetikzlibrary{patterns}
+
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
+  level distance = 0.6cm}]
+\node[arn_n]{1}
+  child{
+    node[arn_n]{0}
+  }
+  child[missing]{
+  }
+; 
+\node[below=1cm, align=flush center,text width=1cm]{$0$};
+\end{tikzpicture}
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
+  level distance = 0.6cm}]
+\node[arn_n]{0}
+	child[missing]{
+	}
+	child{
+		node[arn_n]{1}
+	}
+; 
+\node[below=1cm, align=flush center,text width=1cm]{$1$};
+\end{tikzpicture}
