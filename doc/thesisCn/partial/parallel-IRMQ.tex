@@ -107,7 +107,7 @@ struct State {
   \end{lstlisting}
 \end{figure}
 
-為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。根據字典順序的編碼性質，一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_n - 1$ 。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (如圖 ~\ref{fig:cartesianEncoding})。根據上述的編碼想法，我們得到算法 ~\ref{alg:cartesian-encode-online}。
+為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。根據字典順序的編碼性質，一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_s - 1$ 。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (如圖 ~\ref{fig:cartesianEncoding})。根據上述的編碼想法，我們得到算法 ~\ref{alg:cartesian-encode-online}。
 
 \input{algorithms/alg-cartesian-encode-online}
 

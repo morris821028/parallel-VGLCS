@@ -161,7 +161,7 @@ There are three intuitive solutions for ISMQ.  The first one use
 disjoint set which use $O(\alpha(n))$ for each query.  The seoncd one
 use sparse table which use $O(\log n)$ time to append a new value to
 the tail of array and $O(1)$ time to response a query.  The third one
-is binary indexed tree which used $O(\log n)$ time for each operation.
+is binary indexed tree which used $O(\log n)$ time for each operation. 
 
 In the sparse table, Fischer provide the $\theta(n)$ -- $\theta(1)$
 could not support append operation.  However, the sparse table support
@@ -169,7 +169,7 @@ RMQ problem is more powerful than suffix maximum value problem.  In
 this section, we provide a solution to make sparse table to support
 append operation.  The problem which is more powerful than ISQM
 problem is named incremental range maximum query (IRMQ).  IRMQ support
-two kinds of operation as follows:
+two kinds of operation as follows: 
 
 \begin{itemize}
   \item 
@@ -181,4 +181,81 @@ and $R$.
 
 \end{itemize}
 
-Now, we provide the dynamic encoding method
+Now, we provide the dynamic encoding method so that each operation is
+amortized $\theta(1)$ time.  First, we need to fully recognize the
+formulas encoder and decoder, so that each step in the algorithm is
+$\theta(1)$.
+
+In the previous section, for any identify $\mathit{tid}$ of BST, we
+can get
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in
+$O(n)$ time.  Oppositely, we get $\mathit{tid}$ from
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in
+$\theta(1)$.  The algorithm \ref{alg:encode-tid} show the inverse
+function run in $\theta(1)$.  By the pre-processing, all the prefix
+sum store in the memory, so the for loop can be replaced by one time
+memory access in the algorithm \ref{alg:encode-tid}.
+
+\input{algorithms/alg-encode-tid}
+
+By the recursive formula,  we could implement without storing full
+cartesian tree.  The right chain is compsited of root, right child of
+root, right child of right child of root, ..., and so on.  We maintain
+the right chain of cartesian tree as a stack.  The algorithm \ref{alg
+:cartesian-encode-offline} is shown for offline encoding any cartesian
+tree.
+
+\input{algorithms/alg-cartesian-encode-offline}
+
+In order to support online encoding, we use 5 variable to present the
+state of cartesian tree.  The next step will insert $i$-th elements,
+and final stage fill $s$ number of elements.  The current tree label
+is $\mathit{tid}$ and the right chain of the cartesian tree is
+presented by two variable, stack pointer $\mathit{Dp}$ and the stack
+$\mathit{D}$. The structure of state is as follows:
+
+\begin{figure}[!thb]
+  \begin{lstlisting}[frame=single,caption=State of Cartesian Tree]
+struct Node {
+  int lsz, lid, val;
+};
+struct State {
+  int i, s, tid, Dp;
+  struct Node D[s+1];
+  State(i = 0, s = n, 
+          tid = C[n]-1, Dp = 0,
+           D[0].val = INF)
+};
+  \end{lstlisting}
+\end{figure}
+
+For the online query, we choose $s=\frac{\log n}{4}$ by the Fischer's
+RMQ.  In our encoding method, we initialize the $s$ number of virtual
+node on the right chain, so the default tree label $\mathit{tid}$ is
+$C_s - 1$, which $C_s$ is the $s$-th Catalan number.  Following the
+elements insertion, we assume the sequence of elements which is not
+yet inserted are increasing.
+
+Because of lexicographical order, the right chain of cartesian is
+belong to the lower dimension in the row-majar like.  Simultaneously,
+building a cartesian tree only modify the right chain.  We can use the
+propagation characteristics to get the identify of tree.  Finally, we
+design the difference algorithm \ref{alg:cartesian-encode-online} to
+satisfy above requirement.
+
+\input{algorithms/alg-cartesian-encode-online}
+
+\begin{figure*}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
+
+  \caption{
+Each block has $s$ number of elements.  We will build a cartesian tree with $s$ number of nodes to solve in-block query.  In initialization, it assume $s$ number of nodes on the right chain and the default tree label $\mathit{tid} = C_s - 1$.
+}
+  \label{fig:cartesianEncoding}
+\end{figure*}
+
+
+
+
+
