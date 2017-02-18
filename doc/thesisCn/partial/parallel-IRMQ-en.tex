@@ -114,14 +114,38 @@ search tree for the $n=1,2,3$ number of nodes.
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-bst-encoding.pdf}
   \caption{The label of each binary search tree}
-  \label{fig:lablingBST}
+  \label{fig:labelingBST}
 \end{figure}
 
 For the $s$ nodes binary search tree, we label node from $0$ to $s-1$
-and the identify $\textit{tid}$.  We define $\mathit{LCA}(s,
+and the identify $\mathit{tid}$.  We define $\mathit{LCA}(s,
 \mathit{tid}, p, q)$ as the lowest common ancestor of the node $p$ and
 $q$ on a binary search tree which has $s$ nodes and labeling
 $\mathit{tid}$, such as $\mathit{LCA}(3, 2, 0, 2) = 1$.
+
+We define four variable
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$,
+which $\mathit{lsz}$ is the size of the left subtree, $\mathit{rsz}$
+is the size of the right subtree, $\mathit{lid}$ is the identify of
+the left subtree, and $\mathit{rid}$ is the identify of the right
+subtree. These four variables
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ is
+decided by the identify of binary search tree $\mathit{tid}$ in
+$O(s)$. Finally, the formula \ref{fun:LCA} is shown for the lowest
+common ancestor.
+
+In order to store all binary search trees, the space complexity is 
+
+\begin{equation}
+\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)
+\end{equation}
+
+, and the time complexity of parallel algorithm \ref{alg:parallel-LCA}
+is
+
+\begin{equation}
+\theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
+\end{equation}.
 
 \begin{figure*}[!thb]
   \input{formulas/fun-LCA}
@@ -129,4 +153,30 @@ $\mathit{tid}$, such as $\mathit{LCA}(3, 2, 0, 2) = 1$.
   \label{fun:LCA}
 \end{figure*}
 
+\input{algorithms/alg-parallel-LCA.tex}
+
 \subsection{Dynamic Cartesian Tree}
+
+There are three intuitive solutions for ISMQ. The first one use
+disjoint set which use $O(\alpha(n))$ for each query. The seoncd one
+use sparse table which use $O(\log n)$ time to append a new value to
+the tail of array and $O(1)$ time to response a query. The third one
+is binary indexed tree which used $O(\log n)$ time for each operation.
+
+In the sparse table, Fischer provide the $\theta(n)$ -- $\theta(1)$
+could not support append operation.  However, the sparse table support
+RMQ problem is more powerful than suffix maximum value problem. In
+this section, we provide a solution to make sparse table to support
+append operation. The problem which is more powerful than ISQM problem
+is named incremental range maximum query (IRMQ). IRMQ support two
+kinds of operation as follows:
+
+\begin{itemize}
+  \item 
+  	\texttt{Append V} : Append a new value $V$ to the tail of array.
+
+  \item
+    \texttt{Query L R} : Query the maximum value between position $L$
+and $R$. 
+
+\end{itemize}
