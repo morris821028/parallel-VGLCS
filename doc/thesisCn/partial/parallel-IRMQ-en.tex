@@ -249,12 +249,29 @@ satisfy above requirement.
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
 
-  \caption{
-Each block has $s$ number of elements.  We will build a cartesian tree with $s$ number of nodes to solve in-block query.  In initialization, it assume $s$ number of nodes on the right chain and the default tree label $\mathit{tid} = C_s - 1$.
+  \caption{  
+Each block has $s$ number of elements.  We will build a
+cartesian tree with $s$ number of nodes to solve in-block query.  In
+initialization, it assume $s$ number of nodes on the right chain and
+the default tree label $\mathit{tid} = C_s - 1$.  When inserting
+$i$-th element, the tree label is $\mathit{tid}_i$, and the tree label
+of the subtree $A$ is $A.\mathit{tid}$.  If the value of $(i+1)$-th
+element is $x$, it will rotate onto the node $A$.  After rotation, $A$
+is a left subtree of $A$, and we can compute the identify of subtree
+$A$ during rotation.  Then, $x.\mathit{tid}$ can be computed by the
+$s-(i+1)$ number of virtual nodes on the right chain and
+$A.\mathit{tid}$.  According to the lexicographical order, we get
+$\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
+A.\mathit{tid})$. 
 }
+
   \label{fig:cartesianEncoding}
 \end{figure*}
 
+Finally, we do not increase the time complexity in the building
+cartesian tree algorithm because each operation is $O(1)$.  For the
+in-block query, we get the identify of cartesian tree in $O(1)$, and
+look up table to find the result.
 
 
 
