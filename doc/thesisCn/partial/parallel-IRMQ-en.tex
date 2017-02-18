@@ -90,4 +90,43 @@ encounter serious load imbalance problem.   }
 
 \subsection{Build Look-up Table}
 
+We have two main subjects: cartesian tree encoding and cache
+performance.   Fischer introduced the first encoding method, and the
+Masud presents the new encoding method and processing step to reduce
+the number of instructions. However, most of them are foucs on offline
+algorithm. It means that there are given $n$ elements, and then has
+$m$ queries. During any queries, the $n$ elements will not be modified
+by any operation.
+
+We could not use sorting to improve cache miss because the number of
+elements and queries are similar. However, we can still improve the
+cache miss by design the special encoding method according to value
+distribution.
+
+In our application, we provide the online encoding algorithm. We list
+all binary search tree by lexicographical order, and label them from
+$0$ to Catlan $n$-th number. The lexicographical order for binary
+search tree is defined by the left subtree high priority and then
+right subtree. The figure \ref{fig:labelingBST} shows label of binary
+search tree for the $n=1,2,3$ number of nodes.
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-bst-encoding.pdf}
+  \caption{The label of each binary search tree}
+  \label{fig:lablingBST}
+\end{figure}
+
+For the $s$ nodes binary search tree, we label node from $0$ to $s-1$
+and the identify $\textit{tid}$.  We define $\mathit{LCA}(s,
+\mathit{tid}, p, q)$ as the lowest common ancestor of the node $p$ and
+$q$ on a binary search tree which has $s$ nodes and labeling
+$\mathit{tid}$, such as $\mathit{LCA}(3, 2, 0, 2) = 1$.
+
+\begin{figure*}[!thb]
+  \input{formulas/fun-LCA}
+  \caption{The formula of lowest common ancestor}
+  \label{fun:LCA}
+\end{figure*}
+
 \subsection{Dynamic Cartesian Tree}
