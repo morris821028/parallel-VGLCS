@@ -6,22 +6,22 @@
 Even through we parallel origin serial algorithm successfully, the
 theoretical time complexity of VGLCS algorithm is limited by the range
 maximum/minimum query in parallel.  In VGLCS problem, each stage has
-$n$ elements and $n$ numbers of range query. We should let pre-
-processing and query time minimize. The most of tree structures cannot
-show efficient performance in both pre-processing and query time. Some
-offline algorithm is too hard to parallel. In this section, we provide
-the solution to get better performance in both pre-processing and
-query stage.
+$n$ elements and $n$ numbers of range query.  We should let pre-
+processing and query time minimize.  The most of tree structures
+cannot show efficient performance in both pre-processing and query
+time.  Some offline algorithm is too hard to parallel.  In this
+section, we provide the solution to get better performance in both
+pre-processing and query stage.
 
 \subsection{Compressed Cartesian Tree}
 
 In Fischer ~\cite{fischer} paper, the $O(n)$ -- $O(1)$ algorithm is
 corrponding by Catalan number $\frac{1}{s+1}\binom{2s}{s} =
-O(\frac{4^s}{s^{1.5}})$ to build look-up table. When we choose $s =
+O(\frac{4^s}{s^{1.5}})$ to build look-up table.  When we choose $s =
 \frac{1}{4} \log n$ as block size, the space complexity is $O(s^2
-\frac{4^s}{s^{1.5}}) = o(n)$, and time complexity is $o(n)$. Each
+\frac{4^s}{s^{1.5}}) = o(n)$, and time complexity is $o(n)$.  Each
 range query will be split into 4 parts, 2 super-block queries and 2
-in-block queries. It need to 4 time memory access. We give a example
+in-block queries. It need to 4 time memory access.  We give a example
 in the figure ~\ref{fig:interval-decomposition}.  In the offline RMQ
 problem, it has the theoretical algorithm which run in $O(n)$ --
 $O(1)$ time.
@@ -31,16 +31,16 @@ In order to improve cache miss, Demaine introduced the cache-oblivious
 algorithm in Cartesian tree ~\cite{demaine}.
 
 In above technology, we parallel RMQ problem by Fischer's idea and get
-time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm. We also
+time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm.  We also
 combines compression skill from Demaine's paper. It reduces cache-miss
 and run in ideal complexity.
 
 We pick the fixed length $s = 16$, which can solve $n = 2^{64}$ one-
-dimension range maximum query. When we insert $i$-th elements, the
+dimension range maximum query.  When inserting $i$-th elements, the
 number of $i$-th left rotation $l_i$ must satisfy $\sum_{i=1}^{n} l_i
-< i$. Because all $l_i$ is small than 16, it can present in 4-bit
+< i$.  Because all $l_i$ is small than 16, it can present in 4-bit
 integer.  Due to above property of Cartesian tree, we merger 16 4-bit
-integers into a 64-bit integer to present a Caartesian tree. The
+integers into a 64-bit integer to present a Caartesian tree.  The
 compressed algorithm ~\ref{alg:cartesian-to-64bits} run in $O(s)$.
 
 Finally, the appropriate size can compress the usage of space to
@@ -53,12 +53,132 @@ register.  We modify Demaine's range query algorithm as the algorithm
 \input{algorithms/alg-cartesian64bits-query}
 
 In VGLCS problem, above algorithm provide compression skill to reduce
-cache-miss, but increase the time complexity. The pre-processing spend
-$O(n)$ time, and single query spend $O(s)$ time in RMQ. Totally, time
-complexity is $O(n^2 \; s / p + n \max(\log n, s))$.
+cache-miss, but increase the time complexity.  The pre-processing
+spend $O(n)$ time, and single query spend $O(s)$ time in RMQ.
+Totally, time complexity is $O(n^2 \; s / p + n \max(\log n, s))$.
+
+%%%%%%%%%%%%%%
 
 \section{Incremental Range Maximum Query}
 
+In the VGLCS problem, we divide the algorithm into two stage, row and
+colume stage.  In the row stage, it maintains $m$ number of data
+structure to support ISMQ problem.  After row stage, the colume stage
+use one ISMQ data structure to answer each query.
+
+In parallel environment, the column stage has a linear algorithm which
+use Fischer's sparse table instead of disjoint set, and we also
+parallel its algorithm in theoretical $O(n / p + \log n)$ time, and
+better performance algorithm in $O(n s / p + \log n)$ in section
+~\ref{sec:parallelRMQ}.  Oppositely, the row stage has $m$ number of
+independent data structure and run in amortized $O(n \alpha(n) / p +
+\alpha(n))$ time.  In this section, we provide the new data structure
+to make row stage run in amortized $O(n / p + 1)$ time.  The final
+result is presented on table ~\ref{tlb:cmp-complexity}.
+
+\begin{table*}
+  %\tiny
+  \centering
+  \input{tables/tlb-cmp-complexity.tex}
+
+  \caption{   Our study shows in the bold front. We use the fixed size
+$s=16$ on Cartesian tree. The small amortized constant will not
+encounter serious load imbalance problem.   }
+
+  \label{tlb:cmp-complexity}
+\end{table*}
+
 \subsection{Build Look-up Table}
 
+We have two main subjects: cartesian tree encoding and cache
+performance.  Fischer introduced the first encoding method, and the
+Masud presents the new encoding method and processing step to reduce
+the number of instructions.  However, most of them are foucs on
+offline algorithm.  It means that there are given $n$ elements, and
+then has $m$ queries.  During any queries, the $n$ elements will not
+be modified by any operation.
+
+We could not use sorting to improve cache miss because the number of
+elements and queries are similar.  However, we can still improve the
+cache miss by design the special encoding method according to value
+distribution.
+
+In our application, we provide the online encoding algorithm.  We list
+all binary search tree by lexicographical order, and label them from
+$0$ to Catlan $n$-th number.  The lexicographical order for binary
+search tree is defined by the left subtree high priority and then
+right subtree.  The figure \ref{fig:labelingBST} shows label of binary
+search tree for the $n=1,2,3$ number of nodes.
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-bst-encoding.pdf}
+  \caption{The label of each binary search tree}
+  \label{fig:labelingBST}
+\end{figure}
+
+For the $s$ nodes binary search tree, we label node from $0$ to $s-1$
+and the identify $\mathit{tid}$.  We define $\mathit{LCA}(s,
+\mathit{tid}, p, q)$ as the lowest common ancestor of the node $p$ and
+$q$ on a binary search tree which has $s$ nodes and labeling
+$\mathit{tid}$, such as $\mathit{LCA}(3, 2, 0, 2) = 1$.
+
+We define four variable
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$,
+which $\mathit{lsz}$ is the size of the left subtree, $\mathit{rsz}$
+is the size of the right subtree, $\mathit{lid}$ is the identify of
+the left subtree, and $\mathit{rid}$ is the identify of the right
+subtree.  These four variables
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ is
+decided by the identify of binary search tree $\mathit{tid}$ in
+$O(s)$.  Finally, the formula \ref{fun:LCA} is shown for the lowest
+common ancestor.
+
+In order to store all binary search trees, the space complexity is 
+
+\begin{equation}
+\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)
+\end{equation}
+
+, and the time complexity of parallel algorithm \ref{alg:parallel-LCA}
+is
+
+\begin{equation}
+\theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
+\end{equation}.
+
+\begin{figure*}[!thb]
+  \input{formulas/fun-LCA}
+  \caption{The formula of lowest common ancestor}
+  \label{fun:LCA}
+\end{figure*}
+
+\input{algorithms/alg-parallel-LCA.tex}
+
 \subsection{Dynamic Cartesian Tree}
+
+There are three intuitive solutions for ISMQ.  The first one use
+disjoint set which use $O(\alpha(n))$ for each query.  The seoncd one
+use sparse table which use $O(\log n)$ time to append a new value to
+the tail of array and $O(1)$ time to response a query.  The third one
+is binary indexed tree which used $O(\log n)$ time for each operation.
+
+In the sparse table, Fischer provide the $\theta(n)$ -- $\theta(1)$
+could not support append operation.  However, the sparse table support
+RMQ problem is more powerful than suffix maximum value problem.  In
+this section, we provide a solution to make sparse table to support
+append operation.  The problem which is more powerful than ISQM
+problem is named incremental range maximum query (IRMQ).  IRMQ support
+two kinds of operation as follows:
+
+\begin{itemize}
+  \item 
+  	\texttt{Append V} : Append a new value $V$ to the tail of array.
+
+  \item
+    \texttt{Query L R} : Query the maximum value between position $L$
+and $R$. 
+
+\end{itemize}
+
+Now, we provide the dynamic encoding method

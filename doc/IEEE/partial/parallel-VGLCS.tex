@@ -1,29 +1,80 @@
 \section{Parallel VGLCS Algorithm} %
 \label{sec:parallelSerial}
 
-In the serial algorithm which was designed by Yung-Hsing Peng, we observed that variants of LCS use many status to decide a new status. Its definition makes lots of data dependency, so we cannot parallel row by row intuitively. Even though it's hard to parallel by several modifications, we can parallel the serial algorithm by using wavefront method. Because the usage of cache  memory is hard to use efficiently in it, so Saeed Maleki~\cite{saeed} developed a technique that uses the property of rank convergence to exploit more parallism to solve dynamic programming problems.
+In the serial algorithm which was designed by Yung-Hsing Peng, we
+observed that variants of LCS use many status to decide a new status.
+Its definition makes lots of data dependency, so we cannot parallel
+row by row intuitively.  Even though it's hard to parallel by several
+modifications, we can parallel the serial algorithm by using wavefront
+method.  Because the usage of cache  memory is hard to use efficiently
+in it, so Saeed Maleki~\cite{saeed} developed a technique that uses
+the property of rank convergence to exploit more parallism to solve
+dynamic programming problems.
 
 \input{algorithms/alg-serial-VGLCS}
 
-In the algrithm ~\ref{alg:serial-VGLCS}, it run in $O(nm \alpha)$ time and $O(nm)$ space. If we use wavefront method to parallel, it must use extra storage space to record all row status compared to origin algorithm. If use the rank convergence technique, it also use extra storage space to reserve the informations of state translation, and spends more time to merge split parts.
+In the algrithm ~\ref{alg:serial-VGLCS}, it run in $O(nm \alpha)$ time
+and $O(nm)$ space.  If we use wavefront method to parallel, it must
+use extra storage space to record all row status compared to origin
+algorithm.  If use the rank convergence technique, it also use extra
+storage space to reserve the informations of state translation, and
+spends more time to merge split parts.
 
-In this paper, we tend to design the algorithm which has less space and be more cache-friendly. We define two stages in the serial algorithm, row and column stage. In the row stage, it use disjoint set to maintain \emph{incremental suffix maximum query} (ISMQ).  However, ISMQ change itself state of data structure when it append a new value each time, so it makes more hard to parallel.  We study some alternative plans as follows:
+In this paper, we tend to design the algorithm which has less space
+and be more cache-friendly.  We define two stages in the serial
+algorithm, row and column stage.  In the row stage, it use disjoint
+set to maintain \emph{incremental suffix maximum query} (ISMQ).
+However, ISMQ change itself state of data structure when it append a
+new value each time, so it makes more hard to parallel.  We study some
+alternative plans as follows:
 
 \begin{itemize}
-  \item Binary Indexed Tree -- $O(\log n)$: It supports prefix sum query and update single value in $O(\log n)$.  In our application, it also supports update maximum value and query suffix maximum value.  It run faster than segment tree.
-  \item Segment Tree -- $O(\log n)$: It supports query maximum value and update values in multi-dimension.  It can use $O(\log n)$ time to solve range maximum query in one-dimension.
-  \item Sparse Table -- $O(n \log n)$ -- $O(1)$:
-    We use $ST[j][i]$ to present the maximum value in array $(i-2^j,i]$. It spend $O(n \log n)$ time to build table and require $O(1)$ time to get the range maximum query. In order to support append value to tail, it cannot run $O(n)$ -- $O(1)$ solution which Fischer ~\cite{fischer} introduced.
+  \item 
+
+Binary Indexed Tree -- $O(\log n)$: It supports prefix sum query and
+update single value in $O(\log n)$.  In our application, it also
+supports update maximum value and query suffix maximum value.  It run
+faster than segment tree.
+
+  \item 
+
+Segment Tree -- $O(\log n)$: It supports query maximum value and
+update values in multi-dimension.  It can use $O(\log n)$ time to
+solve range maximum query in one-dimension.
+
+  \item 
+
+Sparse Table -- $O(n \log n)$ -- $O(1)$: We use $ST[j][i]$ to present
+the maximum value in array $(i-2^j,i]$.  It spend $O(n \log n)$ time
+to build table and require $O(1)$ time to get the range maximum query.
+In order to support append value to tail, it cannot run $O(n)$ --
+$O(1)$ solution which Fischer ~\cite{fischer} introduced.
+
 \end{itemize}
 
 \begin{figure*}[!thb]
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-interval-decomposition.pdf}
   \includegraphics[width=\linewidth]{graphics/fig-sparse-table.pdf}
-  \caption{An example for illustrating the sparse table, which has a array $A$. $A$ is splited into 5 blocks, each block has 4 elements. If query range maximum value in $[2, 18]$, it will merge four maximum result $B1$, $Q_L$, $B5$, and $Q_R$.}
+
+  \caption{  
+An example for illustrating the sparse table, which has
+a array $A$. $A$ is splited into 5 blocks, each block has 4 elements.
+If query range maximum value in $[2, 18]$, it will merge four maximum
+result $B1$, $Q_L$, $B5$, and $Q_R$.   
+}
+
   \label{fig:interval-decomposition}
 \end{figure*}
 
-Among of them, we consider that the sparse table is the best alternative plan.  We present the parallel algorithm ~\ref{alg:parallel-VGLCS} for the VGLCS problem, and its time complexity is $O(n^2 \alpha(n) / p + n \log n)$, which $p$ is the number of processors. In the next chapter, we provide a new data structure to instead of disjoint set and reduce $O(n^2 \alpha(n))$ time to $O(n^2)$ time in theoretically.  In the parallel environment, it can run in $O(n^2 /p + n \log n)$ time better than $O(n^2 \alpha(n)/p + n \log n)$.
+Among of them, we consider that the sparse table is the best
+alternative plan.  We present the parallel algorithm ~\ref{alg
+:parallel-VGLCS} for the VGLCS problem, and its time complexity is
+$O(n^2 \alpha(n) / p + n \log n)$, which $p$ is the number of
+processors. In the next chapter, we provide a new data structure to
+instead of disjoint set and reduce $O(n^2 \alpha(n))$ time to $O(n^2)$
+time in theoretically.  In the parallel environment, it can run in
+$O(n^2 /p + n \log n)$ time better than $O(n^2 \alpha(n)/p + n \log
+n)$.
 
 \input{algorithms/alg-parallel-VGLCS}
