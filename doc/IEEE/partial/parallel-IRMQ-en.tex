@@ -76,17 +76,7 @@ independent data structure and run in amortized $O(n \alpha(n) / p +
 to make row stage run in amortized $O(n / p + 1)$ time.  The final
 result is presented on table ~\ref{tlb:cmp-complexity}.
 
-\begin{table*}
-  %\tiny
-  \centering
-  \input{tables/tlb-cmp-complexity.tex}
-
-  \caption{   Our study shows in the bold front. We use the fixed size
-$s=16$ on Cartesian tree. The small amortized constant will not
-encounter serious load imbalance problem.   }
-
-  \label{tlb:cmp-complexity}
-\end{table*}
+\input{./tables/tlb-cmp-complexity.tex}
 
 \subsection{Build Look-up Table}
 
@@ -134,6 +124,8 @@ decided by the identify of binary search tree $\mathit{tid}$ in
 $O(s)$.  Finally, the formula \ref{fun:LCA} is shown for the lowest
 common ancestor.
 
+\input{./formulas/fun-LCA.tex}
+
 In order to store all binary search trees, the space complexity is 
 
 \begin{equation}
@@ -147,12 +139,6 @@ is
 \theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
 \end{equation}.
 
-\begin{figure*}[!thb]
-  \input{formulas/fun-LCA}
-  \caption{The formula of lowest common ancestor}
-  \label{fun:LCA}
-\end{figure*}
-
 \input{algorithms/alg-parallel-LCA.tex}
 
 \subsection{Dynamic Cartesian Tree}
@@ -161,7 +147,7 @@ There are three intuitive solutions for ISMQ.  The first one use
 disjoint set which use $O(\alpha(n))$ for each query.  The seoncd one
 use sparse table which use $O(\log n)$ time to append a new value to
 the tail of array and $O(1)$ time to response a query.  The third one
-is binary indexed tree which used $O(\log n)$ time for each operation.
+is binary indexed tree which used $O(\log n)$ time for each operation. 
 
 In the sparse table, Fischer provide the $\theta(n)$ -- $\theta(1)$
 could not support append operation.  However, the sparse table support
@@ -169,7 +155,7 @@ RMQ problem is more powerful than suffix maximum value problem.  In
 this section, we provide a solution to make sparse table to support
 append operation.  The problem which is more powerful than ISQM
 problem is named incremental range maximum query (IRMQ).  IRMQ support
-two kinds of operation as follows:
+two kinds of operation as follows: 
 
 \begin{itemize}
   \item 
@@ -181,4 +167,98 @@ and $R$.
 
 \end{itemize}
 
-Now, we provide the dynamic encoding method
+Now, we provide the dynamic encoding method so that each operation is
+amortized $\theta(1)$ time.  First, we need to fully recognize the
+formulas encoder and decoder, so that each step in the algorithm is
+$\theta(1)$.
+
+In the previous section, for any identify $\mathit{tid}$ of BST, we
+can get
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in
+$O(n)$ time.  Oppositely, we get $\mathit{tid}$ from
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in
+$\theta(1)$.  The algorithm \ref{alg:encode-tid} show the inverse
+function run in $\theta(1)$.  By the pre-processing, all the prefix
+sum store in the memory, so the for loop can be replaced by one time
+memory access in the algorithm \ref{alg:encode-tid}.
+
+\input{algorithms/alg-encode-tid}
+
+By the recursive formula,  we could implement without storing full
+cartesian tree.  The right chain is compsited of root, right child of
+root, right child of right child of root, ..., and so on.  We maintain
+the right chain of cartesian tree as a stack.  The algorithm \ref{alg
+:cartesian-encode-offline} is shown for offline encoding any cartesian
+tree.
+
+\input{algorithms/alg-cartesian-encode-offline}
+
+In order to support online encoding, we use 5 variable to present the
+state of cartesian tree.  The next step will insert $i$-th elements,
+and final stage fill $s$ number of elements.  The current tree label
+is $\mathit{tid}$ and the right chain of the cartesian tree is
+presented by two variable, stack pointer $\mathit{Dp}$ and the stack
+$\mathit{D}$. The structure of state is as follows:
+
+\begin{minipage}{0.9\linewidth}
+\begin{lstlisting}[frame=single,caption=State of Cartesian Tree]
+struct Node {
+  int lsz, lid, val;
+};
+struct State {
+  int i, s, tid, Dp;
+  struct Node D[s+1];
+  State(i = 0, s = n, 
+          tid = C[n]-1, Dp = 0,
+           D[0].val = INF)
+};
+\end{lstlisting}
+\end{minipage}
+
+For the online query, we choose $s=\frac{\log n}{4}$ by the Fischer's
+RMQ.  In our encoding method, we initialize the $s$ number of virtual
+node on the right chain, so the default tree label $\mathit{tid}$ is
+$C_s - 1$, which $C_s$ is the $s$-th Catalan number.  Following the
+elements insertion, we assume the sequence of elements which is not
+yet inserted are increasing.
+
+Because of lexicographical order, the right chain of cartesian is
+belong to the lower dimension in the row-majar like.  Simultaneously,
+building a cartesian tree only modify the right chain.  We can use the
+propagation characteristics to get the identify of tree.  Finally, we
+design the difference algorithm \ref{alg:cartesian-encode-online} to
+satisfy above requirement.
+
+\input{algorithms/alg-cartesian-encode-online}
+
+\begin{figure*}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
+
+  \caption{  
+Each block has $s$ number of elements.  We will build a
+cartesian tree with $s$ number of nodes to solve in-block query.  In
+initialization, it assume $s$ number of nodes on the right chain and
+the default tree label $\mathit{tid} = C_s - 1$.  When inserting
+$i$-th element, the tree label is $\mathit{tid}_i$, and the tree label
+of the subtree $A$ is $A.\mathit{tid}$.  If the value of $(i+1)$-th
+element is $x$, it will rotate onto the node $A$.  After rotation, $A$
+is a left subtree of $A$, and we can compute the identify of subtree
+$A$ during rotation.  Then, $x.\mathit{tid}$ can be computed by the
+$s-(i+1)$ number of virtual nodes on the right chain and
+$A.\mathit{tid}$.  According to the lexicographical order, we get
+$\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
+A.\mathit{tid})$. 
+}
+
+  \label{fig:cartesianEncoding}
+\end{figure*}
+
+Finally, we do not increase the time complexity in the building
+cartesian tree algorithm because each operation is $O(1)$.  For the
+in-block query, we get the identify of cartesian tree in $O(1)$, and
+look up table to find the result.
+
+
+
+

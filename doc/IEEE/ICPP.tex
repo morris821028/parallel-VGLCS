@@ -3,15 +3,36 @@
 \usepackage[hyphens]{url}
 \usepackage[hidelinks]{hyperref}
 \usepackage{tabularx}
-\usepackage{amsmath}
-%\usepackage{algorithmic}
-%\usepackage[linesnumbered,ruled]{algorithm2e}
+
+
 \usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
+\usepackage{algpseudocode}
 \usepackage{booktabs}
-\usepackage{mathtools} \usepackage{amssymb}
+\usepackage{mathtools,amssymb,lipsum,nccmath}
+\usepackage{cuted}
+\setlength\stripsep{3pt plus 1pt minus 1pt}
 
 \usepackage{graphicx}
+
+\usepackage{listings}
+\lstset{
+  frame=single,
+  language=C,
+  basicstyle=\small,
+}
+\makeatletter
+\def\lst@makecaption{%
+  \def\@captype{table}%
+  \@makecaption
+}
+\makeatother
+
+
+\usepackage{tikz} 
+\usetikzlibrary{calc} \usetikzlibrary{positioning} \usetikzlibrary{shapes,arrows} \usetikzlibrary{plotmarks}
+\usepackage{subfigure}
+\usepackage{pgfplots}
+\usepackage{array} % table
 
 %===============================================================================
 % Algorithm
@@ -25,6 +46,8 @@
 \algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
 \algrenewtext{EndParFor}{\algorithmicendparfor}
 \algtext*{EndParFor}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
 
 %===============================================================================
 
@@ -62,13 +85,17 @@ Institute of Information Science, Academia Sinica \\
 
 \maketitle
 
-\input{partial/abstract}
+\input{./partial/introduction-en.tex}
 
-\input{partial/introduction}
+\input{./partial/parallel-VGLCS-en.tex}
 
-\input{partial/parallel-VGLCS}
+\input{./partial/parallel-IRMQ-en.tex}
 
-\input{partial/parallel-IRMQ}
+\input{./partial/optimization-en.tex}
+
+\input{./partial/experiment-en.tex}
+
+\input{./partial/conclusion-en.tex}
 
 
 \bibliographystyle{IEEEtran}

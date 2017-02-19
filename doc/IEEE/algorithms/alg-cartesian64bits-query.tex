@@ -1,10 +1,10 @@
-\begin{algorithm*}[!thb]
+\begin{algorithm}[!thb]
   \caption{Range Minimum Query in 64-bits Cartesian Tree}
   \label{alg:cartesian64bits-query}
   \begin{algorithmic}[1]
     \Require
       $\textit{tmask}$: 64-bits Cartesian tree;
-      $[l, r]$: query interval between $l$ and $r$
+      $[l, r]$: query range
     \Ensure 
       $\textit{minIdx}$: the index of the minimum value in interval
     \State $\textit{minIdx} \gets l, \; x \gets 0$;
@@ -17,4 +17,4 @@
     \EndFor
     \State return $\textit{minIdx}$
   \end{algorithmic}
-\end{algorithm*}
+\end{algorithm}
