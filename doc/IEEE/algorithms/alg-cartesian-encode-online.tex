@@ -22,7 +22,8 @@
   \State $\textit{Dp} \gets \textit{Dp} + 1$
   \State $\textit{state}.D[\textit{Dp}] \gets \left \langle \textit{lsz}, \textit{lid}, \textit{v} \right \rangle$
   \State $\textit{state}.\textit{Dp} \gets \textit{Dp}$
-  \State $\textit{state}.\textit{tid} \gets \textit{state}.\textit{tid} + \textit{bid} - \textit{tid}(\textit{lsz}, \textit{lid}, \textit{state}.s-\textit{state}.i, C[\textit{state}.s-\textit{state}.i]-1)$
+  \State $x.\textit{tid} \gets \textit{tid}(\textit{lsz}, \textit{lid}, \textit{state}.s-\textit{state}.i, C[\textit{state}.s-\textit{state}.i]-1)$
+  \State $\textit{state}.\textit{tid} \gets \textit{state}.\textit{tid} + \textit{bid} - x.\textit{tid}$
   \State $\textit{state}.i \gets \textit{state}.i + 1$
   \State return $\textit{state}.\textit{tid}$
   \end{algorithmic}

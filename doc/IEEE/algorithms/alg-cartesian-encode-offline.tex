@@ -1,4 +1,4 @@
-\begin{algorithm*}
+\begin{algorithm}
   \caption{Offline Type of Cartesian Tree}
   \label{alg:cartesian-encode-of}
   \begin{algorithmic}[1]
@@ -21,11 +21,11 @@
       \State $D[\textit{Dp}] \gets \langle\mathit{lsz},\mathit{lid},\mathit{v}\rangle$
     \EndFor
     \State $\textit{lsz} \gets 0, \; \textit{lid} \gets 0$
-    \While{$\textit{Dp} > 0$} \Comment{pop all elements}
+    \While{$\textit{Dp} > 0$}
       \State $\textit{lid} \gets \textit{tid}(D[\textit{Dp}].\textit{lsz}, D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$
       \State $\textit{lsz} \gets \textit{lsz} + D[\textit{Dp}].\textit{lsz} + 1$
       \State $\textit{Dp} \gets \textit{Dp} - 1$
     \EndWhile
     \State return $\textit{lid}$
   \end{algorithmic}
-\end{algorithm*}
+\end{algorithm}

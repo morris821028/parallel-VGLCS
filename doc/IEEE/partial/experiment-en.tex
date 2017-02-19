@@ -70,12 +70,12 @@ table run faster than the disjoint set when $n > 10^6$.  When $n >
 10^7$, the compressed sparse table run faster $1.25 \times$ than the
 disjoint set.  
 
-\begin{figure*}[!thb]
+\begin{figure}[!thb]
   \centering
   \input{./figure/fig-ISMQ}
   \caption{ISMQ runs on E5-2620 with different data structures. We use the random test cases without any limitation, e.g. the length of interval query has a uniform distribution.}
   \label{fig:fig-ISMQcmp}
-\end{figure*}
+\end{figure}
 
 However, we observe that our amortized $\theta(1)$ sparse table is more
 slow than  disjoint set.  In the dynamic programming, the trendency of insertion value will inflict the performance of data structure, so we experiment the different probability for each data structure.  The nubmer of query is 10 multiple of the number of insertion.  The result is shown on table \ref{tlb:ISMQcmp}.  When $N=10^7$, our amortized $\theta(1)$ sparse table run faster $1.26 \times$ than the disjoint set.
