@@ -20,3 +20,5 @@ clean:
 	rm -rf  $(BUILD_DIR)
 	rm -rf *.log *.aux *.dvi *~ *.bbl  *.bl *.out
 	rm -rf *.lo* *.toc *.blg 
+	rm -rf *.pdf
+	cd graphics && make clean
