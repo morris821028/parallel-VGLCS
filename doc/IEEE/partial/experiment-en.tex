@@ -1,20 +1,21 @@
 \section{Experiment}
 \label{sec:Experiment}
 
-We run on Intel Xeon E5-2620 2.40 GHz server, which the size of L1
-cache is 384 KiB, the size of L2 is 1536 KiB, and the size of L3 cache
-is 15 MiB and have two processors.  The program is implemented with
-C++ language and OpenMP. The compile flag is \texttt{-O2}.  The CPU
-supports hyper threading technique, and each processors has six cores.
+We run on Intel Xeon E5-2620 2.40 GHz server, which the size of the L1
+cache is 384 KiB, the size of the L2 is 1536 KiB, and the size of the
+L3 cache is 15 MiB and have two processors.  The program is
+implemented with C++ language and OpenMP. The compile flag is
+\texttt{-O2}.  The CPU supports hyper-threading technique, and each
+processor has six cores.
 
 \subsection{VGLCS with Compressed Sparse Table}
 
-In the random test data, we get the better perfromance with compressed
+In the random test data, we get the better performance with compressed
 sparse table compared to theoretical $\theta(1)$ sparse table.  The
 figure \ref{fig:fig-parallel} shows the different runtime in different
 parallelism, and the figure \ref{fig:fig-paralell} shows the
 scalability of our parallel algorithm.  On our server, the parallel
-algorithm can get $8 \times$ faster than serial algorithm.
+algorithm can get $8 \times$ faster than the serial algorithm.
 
 \begin{figure*}[!thb]
   \centering
@@ -35,8 +36,9 @@ algorithm can get $8 \times$ faster than serial algorithm.
 
 \subsection{Incremental Suffix Maximum Query}
 
-In VGLCS problem, the number of insertion equals the number of query.
-We compare the performance between the four data structure as follows:
+In VGLCS problem, the number of insertion equals the number of the
+queries. We compare the performance between the four data structure as
+follows:
 
 \begin{itemize}
   \item 
@@ -47,8 +49,8 @@ path compression.
   \item 
 
 Sparse Table: Insertion in $O(\log n)$ time, and query in $O(1)$ time.
-We allocate $\tt{table}[\log N][N]$ which arranged in row majar to
-reduce cache-miss.
+We allocate $\tt{table}[\log N][N]$ which arranged in row-major to
+reduce cache miss.
 
   \item 
 
@@ -58,10 +60,10 @@ n)$ time.
   \item 
 
 Compressed Sparse Tree: The insertion operation consume amortized
-$O(1)$ time.  The query operation consume $O(s)$ time, which $s$ is
-the size of block.  We can maitain extra the prefix and suffix maximum
-in blcok to reduce the time complexity $O(s)$ to $O(1)$ in most
-queries.
+$O(1)$ time.  The query operation consumes $O(s)$ time, which $s$ is
+the size of the block.  We can maintain extra the prefix and suffix
+maximum in block to reduce the time complexity $O(s)$ to $O(1)$ in
+most queries.
 
 \end{itemize}
 
@@ -77,13 +79,24 @@ disjoint set.
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
-However, we observe that our amortized $\theta(1)$ sparse table is more
-slow than  disjoint set.  In the dynamic programming, the trendency of insertion value will inflict the performance of data structure, so we experiment the different probability for each data structure.  The nubmer of query is 10 multiple of the number of insertion.  The result is shown on table \ref{tlb:ISMQcmp}.  When $N=10^7$, our amortized $\theta(1)$ sparse table run faster $1.26 \times$ than the disjoint set.
+However, we observe that our amortized $\theta(1)$ sparse table is
+more slow than disjoint set.  In the dynamic programming, the tendency
+of insertion value will inflict the performance of data structure, so
+we experiment the different probability for each data structure.  The
+number of the query is 10 multiple of the number of insertion.  The
+result is shown on table \ref{tlb:ISMQcmp}.  When $N=10^7$, our
+amortized $\theta(1)$ sparse table run faster $1.26 \times$ than the
+disjoint set.
 
 \input{./tables/tlb-ISMQcmp.tex}
 
 \subsection{Parallel Range Query}
 
-Each stage will have $n$ number of elements and the $n$ number of query.  In this special cases, we run the \texttt{CORMQ} (compressed RMQ) to improve the performance compared to the origin.  If we can predict all range size before building, we get the \texttt{CORMQ-opt} which run $2.35$ faster than origin RMQ.  The table \ref{tlb:CORMQ} is shown the result of the strategy of parallel range query.
+Each stage will have $n$ number of elements and the $n$ number of the
+query.  In this special cases, we run the \texttt{CORMQ} (compressed
+RMQ) to improve the performance compared to the origin.  If we can
+predict all range size before building, we get the \texttt{CORMQ-opt}
+which run $2.35$ faster than origin RMQ.  The table \ref{tlb:CORMQ} is
+shown the result of the strategy of the parallel range query.
 
 \input{./tables/tlb-CORMQ.tex}

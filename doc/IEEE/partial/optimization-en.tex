@@ -4,31 +4,30 @@
 \subsection{The Strategy of Disjoint Set}
 
 The space complexity of VGLCS problem is $\theta(n^2)$.  The merging
-of disjoint set has two main strateies, path compression and heuristic
-strategy.  The impact of implementation will encounter different level
-of cache miss.  We choose one of them to improve the performance, and
-avoid use both of them to cause more cache miss.
-
+of disjoint set has two main strategies, path compression, and
+heuristic strategy.  The impact of implementation will encounter
+different level of cache miss.  We choose one of them to improve the
+performance and avoid use both of them to cause more cache miss.
 
 In the parallel algorithm, a disjoint set must be processed by a
-thread.  We tend to use lazy propagation because of cache miss.  Due
-to the tendency of the dynamic programming, there two cases in which
-the trend of the inserted value.  The first case is the continuous
-zero value insert because it violate the definition.  The second case
-is the insertion of incementical elements.  Finally, we can use the
-lazy propagation to improve the performance in implementation.
+thread.  We tend to use lazy propagation because of the cache miss.
+Due to the tendency of the dynamic programming, there two cases in
+which the trend of the inserted value.  The first case is the
+continuous zero value insert because it violates the definition.  The
+second case is the insertion of incremental elements.  Finally, we can
+use the lazy propagation to improve the performance in implementation.
 
 \subsection{Parallel Range Query}
 
 We often use the built-in function to get the logarithm in $O(1)$.
-However, we can pre-compute all the result of logarithm in dynamic
+However, we can pre-compute all the result of the logarithm in dynamic
 programming.  Each the logarithm of range for each query stores into
 the array, and it can reduce the number of instructions.
 
 Because we know the information of range query, we can limit the
 computation boundary for building sparse table.  The algorithm
 \ref{alg:reduce-boundary} is a dynamic programming for shrink
-computation boundary which run in $O(n \log n)$.  Finally, the
+computation boundary which runs in $O(n \log n)$.  Finally, the
 parallel VGLCS algorithm run in $O(n \log n)$ time, so the dynamic
 programming do not increase the time complexity.
 
@@ -36,7 +35,7 @@ programming do not increase the time complexity.
 
 Due to small $s = \frac{\log n}{4}$, the in-block query is a very
 small probability event.  We can use prefix and suffix maximum array
-to instead of look-up table.  In our application, we even predict
-whether the cartesian tree is necessary to use for in-block query.  If
-not, we can  reduce time to compute it.  These two arrays brought
+to instead of the look-up table.  In our application, we even predict
+whether the cartesian tree is necessary to use for the in-block query.
+If not, we can reduce time to compute it.  These two arrays brought
 $O(n)$ space, but improve the performance by strength reduction.
