@@ -7,7 +7,7 @@ status. Its definition makes lots of data dependency, so we cannot
 parallel row by row intuitively.  Even though it's hard to parallel by
 several modifications, we can parallel the serial algorithm by using
 wavefront method.  Because the usage of the cache memory is hard to
-use efficiently in it, so Saeed Maleki~\cite{saeed} developed a
+use efficiently in it, so Saeed Maleki~\cite{Maleki2016EfficientPU} developed a
 technique that uses the property of rank convergence to exploit more
 parallelism to solve dynamic programming problems.
 
@@ -48,7 +48,7 @@ Sparse Table -- $O(n \log n)$ -- $O(1)$: We use $ST[j][i]$ to present
 the maximum value in array $(i-2^j,i]$.  It spend $O(n \log n)$ time
 to build table and require $O(1)$ time to get the range maximum query.
 In order to support append value to tail, it cannot run $O(n)$ --
-$O(1)$ solution which Fischer ~\cite{fischer} introduced.
+$O(1)$ solution which Fischer ~\cite{Fischer2006TheoreticalAP} introduced.
 
 \end{itemize}
 

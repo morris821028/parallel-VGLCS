@@ -15,7 +15,7 @@ pre-processing and query stage.
 
 \subsection{Compressed Cartesian Tree}
 
-In Fischer ~\cite{fischer} paper, the $O(n)$ -- $O(1)$ algorithm is
+In Fischer ~\cite{Fischer2006TheoreticalAP} paper, the $O(n)$ -- $O(1)$ algorithm is
 corrponding by Catalan number $\frac{1}{s+1}\binom{2s}{s} =
 O(\frac{4^s}{s^{1.5}})$ to build look-up table.  When we choose $s =
 \frac{1}{4} \log n$ as block size, the space complexity is $O(s^2
@@ -28,7 +28,7 @@ $O(1)$ time.
 
 When $n$ is large, four-time memory access caused the serious cache
 miss. In order to improve cache miss, Demaine introduced the cache-
-oblivious the algorithm in Cartesian tree ~\cite{demaine}.
+oblivious the algorithm in Cartesian tree ~\cite{Demaine2009OnCT}.
 
 In above technology, we parallel RMQ problem by Fischer's idea and get
 time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm.  We also
