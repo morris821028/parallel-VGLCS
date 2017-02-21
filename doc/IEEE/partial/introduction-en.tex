@@ -2,11 +2,11 @@
 \label{sec:Introduction}
 
 The \emph{longest common subsequence} (LCS) problem applied many
-products and fields widely.  In multi-core platform, most studies
+products and fields widely.  In the multi-core platform, most studies
 focus on the wavefront parallelism. Motivated by the definition of
 recursion in LCS, Jiaoyun Yang introduced a new formula to exploit
 more cache performance.  Here, we use the similar idea to improve LCS
-with variable contraints, which refer in Iliopoulos' study.  For
+with variable constraints, which refer in Iliopoulos' study.  For
 example, \emph{fixed gap LCS} (FGLCS) require the distance between two
 consecutive matches limited at most $k+1$.  It can be solved in
 $O(nm)$, which $n, \; m$ is the length of input strings.
@@ -22,12 +22,12 @@ $\tt{G..C..C..A}$ and $\tt{G..C..C..T}$.  In previous study, Yung-
 Hsing Peng \cite{Yang2010AnEP} introduced the $O(nm \alpha(n))$
 solution for the VGLCS problem.
 
-The remainder of the paper is organized as follows. In the section 2,
-we present the parallel algorithm to solve VGLCS problem. In the
-section 3, we present a new algorithm, which parallel easily and time
-complexity $O(nm)$ better than previous study. In the section 4 to 5,
-we provide the optimized implementation and the result of experiments.
-The last section has a brief conclusion in this paper.
+The remainder of the paper is organized as follows. In section 2, we
+present the parallel algorithm to solve VGLCS problem. In section 3,
+we present a new algorithm, which parallels easily and time complexity
+$O(nm)$ better than the previous study. In section 4 to 5, we provide
+the optimized implementation and the result of experiments. The last
+section has a brief conclusion in this paper.
 
 \begin{figure}[!thb]
   \centering
