@@ -4,18 +4,15 @@
 \usepackage{cite}
 \usepackage[hyphens]{url}
 \usepackage[hidelinks]{hyperref}
-\usepackage{tabularx}
 
-
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usepackage{booktabs}
+%=====================================================================
+% Math block
 \usepackage{mathtools,amssymb,lipsum,nccmath}
 \usepackage{cuted}
 \setlength\stripsep{3pt plus 1pt minus 1pt}
 
-\usepackage{graphicx}
-
+%=====================================================================
+% Code block
 \usepackage{listings}
 \lstset{
   frame=single,
@@ -29,16 +26,18 @@
 }
 \makeatother
 
-
-\usepackage{tikz} 
-\usetikzlibrary{calc} \usetikzlibrary{positioning} \usetikzlibrary{shapes,arrows} \usetikzlibrary{plotmarks}
 \usepackage{subfigure}
-\usepackage{pgfplots}
-\usepackage{array} % table
 
-%===============================================================================
+%=====================================================================
+% Table
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+%=====================================================================
 % Algorithm
-
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 % declaration of the new block
 \algblock{ParFor}{EndParFor}
 % customising the new block
@@ -51,7 +50,7 @@
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 
-%===============================================================================
+%=====================================================================
 
 \hypersetup{breaklinks=true}
 \urlstyle{same}
