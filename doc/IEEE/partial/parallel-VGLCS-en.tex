@@ -13,7 +13,7 @@ parallelism to solve dynamic programming problems.
 
 \input{algorithms/alg-serial-VGLCS}
 
-In the algorithm ~\ref{alg:serial-VGLCS}, it run in $O(nm \alpha)$
+In the algorithm ~\ref{alg:serial-VGLCS}, it run in $O(nm)$
 time and $O(nm)$ space.  If we use wavefront method to parallel, it
 must use extra storage space to record all row status compared to
 origin algorithm.  If use the rank convergence technique, it also uses
@@ -75,11 +75,9 @@ maximum results $B1$, $Q_L$, $B5$, and $Q_R$.
 Among of them, we consider that the sparse table is the best
 alternative plan.  We present the parallel algorithm ~\ref{alg
 :parallel-VGLCS} for the VGLCS problem and its time complexity is
-$O(n^2 \alpha(n) / p + n \log n)$, which $p$ is the number of
-processors. In the next chapter, we provide a new data structure to
-instead of disjoint set and reduce $O(n^2 \alpha(n))$ time to $O(n^2)$
-time in theoretically.  In the parallel environment, it can run in
-$O(n^2 /p + n \log n)$ time better than $O(n^2 \alpha(n)/p + n \log
-n)$.
+$O(n^2 / p + n \log n)$, which $p$ is the number of processors. In the
+next chapter, we provide a new data structure to instead of disjoint
+set. In the next section, we reduce unstable algorithm to more stable
+in amortized $O(n^2)$ theoretically.
 
 \input{algorithms/alg-parallel-VGLCS}

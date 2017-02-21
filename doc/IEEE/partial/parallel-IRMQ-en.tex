@@ -72,10 +72,10 @@ use Fischer's sparse table instead of disjoint set, and we also
 parallel its algorithm in theoretical $O(n / p + \log n)$ time, and
 better performance algorithm in $O(n s / p + \log n)$ in section
 ~\ref{sec:parallelRMQ}.  Oppositely, the row stage has $m$ number of
-independent data structure and run in amortized $O(n \alpha(n) / p +
-\alpha(n))$ time.  In this section, we provide the new data structure
-to make row stage run in amortized $O(n / p + 1)$ time.  The final
-result is presented on table ~\ref{tlb:cmp-complexity}.
+independent data structure and run in amortized $O(n / p + 1)$ time.
+In this section, we provide the new data structure to make row stage
+run in more stable amortized $O(n / p + 1)$ time.   The final result
+is presented on table ~\ref{tlb:cmp-complexity}.
 
 \input{./tables/tlb-cmp-complexity.tex}
 
