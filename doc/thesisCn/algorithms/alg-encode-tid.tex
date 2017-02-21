@@ -1,4 +1,4 @@
-\begin{algorithm*}[!thb]
+\begin{algorithm}[!thb]
   \caption{Get $tid$ from $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in $\theta(1)$ time}
   \label{alg:encode-tid}
   \begin{algorithmic}[1]
@@ -17,4 +17,4 @@
     \State $\mathit{offset} \gets \mathit{lid} \cdot C_{\mathit{rsz}}$ + $\mathit{rid}$
     \State return $\mathit{base}$ + $\mathit{offset}$
   \end{algorithmic}
-\end{algorithm*}
+\end{algorithm}

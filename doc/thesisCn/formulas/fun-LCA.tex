@@ -1,12 +1,15 @@
-\begin{equation*}
-  \begin{split}
-    &\mathit{LCA}(n, \mathit{tid}, p, q) \\
-      &= \left\{\begin{matrix*}[l]
-        \mathit{LCA}(\mathit{lsz}, \mathit{lid}, p, q) &&, p \le q < \mathit{lsz}\\ 
-        \mathit{LCA}(\mathit{rsz}, \mathit{rid}, p-\mathit{lsz}-1, q-\mathit{lsz}-1)+\mathit{lsz}+1 &&, 
-            \mathit{lsz} \le p \le q < n \\ 
-        \mathit{lsz} && , 0 \le p \le \mathit{lsz}, \mathit{lsz} \le q \le i\\ 
-        -1 && ,\mathit{otherwise}
-      \end{matrix*}\right.
-  \end{split}
-\end{equation*}
+\begin{figure*}[!thb]
+  \normalsize
+  \begin{equation}
+    \mathit{LCA}(n, \mathit{tid}, p, q) = \begin{cases}
+          \mathit{LCA}(\mathit{lsz}, \mathit{lid}, p, q) 
+              &, p \le q < \mathit{lsz}\\ 
+          \mathit{LCA}(\mathit{rsz}, \mathit{rid}, p-\mathit{lsz}-1, q-\mathit{lsz}-1)+\mathit{lsz}+1 
+              &, \mathit{lsz} \le p \le q < n \\ 
+          \mathit{lsz}
+              &, 0 \le p \le \mathit{lsz}, \mathit{lsz} \le q \le i\\ 
+          -1 
+              &,\mathit{otherwise}
+        \end{cases}
+  \end{equation}
+\end{figure*}

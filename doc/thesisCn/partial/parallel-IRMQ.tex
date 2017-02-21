@@ -27,13 +27,7 @@
 
 在這個章節中，我們提出支持動態插入和區間查找的數據結構，最後的成果如表 ~\ref{tlb:cmp-complexity}。
 
-\begin{table*}
-  %\tiny
-  \centering
-  \input{tables/tlb-cmp-complexity.tex}
-  \caption{我們的研究成果如粗體字所述，均攤部分將在 $s=16$ 的笛卡爾樹上，整體影響的常數很小，不易遇到負載平衡上的問題。}
-  \label{tlb:cmp-complexity}
-\end{table*}
+\input{tables/tlb-cmp-complexity.tex}
 
 \subsection{平行建立查找表}
 
@@ -54,11 +48,7 @@
 
 定義四個變數 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 分別為左右子樹的大小和其編號，這四個變數根據指定的 $\mathit{tid}$ 可在 $O(n)$ 時間內得到。最後，推導得遞迴公式 ~\ref{fun:LCA}。 
 
-\begin{figure*}[!thb]
-  \input{formulas/fun-LCA}
-  \caption{建立所有二元搜尋樹的最小共同祖先}
-  \label{fun:LCA}
-\end{figure*}
+\input{formulas/fun-LCA}
 
 為記錄所有的二元搜尋樹的 LCA，空間消耗 $\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)$；其平行算法 \ref{alg:parallel-LCA} 的時間複雜度如下：
 

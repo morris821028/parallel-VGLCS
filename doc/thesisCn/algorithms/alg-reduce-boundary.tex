@@ -1,4 +1,4 @@
-\begin{algorithm*}[!thb]
+\begin{algorithm}[!thb]
   \caption{Reduce Boundary Dynamic Programming}
   \label{alg:reduce-boundary}
   \begin{algorithmic}[1]
@@ -6,7 +6,7 @@
       $G[1 \cdots n]$: the variabled gap contraints;
   \Ensure
       $\textit{limD}$: boundary for doubling algorithm;
-  \State Create an array $\textit{limD}[n]$, and initialize with all zero elements.
+  \State Create an array $\textit{limD}[n]$ with all zero elements.
   \For{$i \gets n$ to $1$}
     \State $\textit{limD}[i] \gets \max(\textit{limD}[i], \lfloor \log_2(\min(G[i]+1, \; i)) \rfloor)$
     \For{$k \gets 1$ to $\textit{limD}[i]$}
@@ -15,4 +15,4 @@
   \EndFor
   \State return \textit{limD}
   \end{algorithmic}
-\end{algorithm*}
+\end{algorithm}
