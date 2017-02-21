@@ -3,7 +3,10 @@ all: fig-VGLCSex.pdf \
 	fig-interval-decomposition.pdf \
 	fig-sparse-table.pdf \
 	fig-cartesian-encoding.pdf \
-	fig-bst-encoding.pdf
+	fig-bst-encoding.pdf \
+	fig-parallel-n.pdf \
+	fig-parallel-p.pdf \
+	fig-ISMQ.pdf \
 
 %.pdf: %.tex
 	pdflatex $^
