@@ -3,11 +3,11 @@
 
 \subsection{Background}
 
-Even through we parallel origin serial algorithm successfully, the
+Even though we parallel origin serial algorithm successfully, the
 theoretical time complexity of VGLCS algorithm is limited by the range
 maximum/minimum query in parallel.  In VGLCS problem, each stage has
-$n$ elements and $n$ numbers of range query.  We should let pre-
-processing and query time minimize.  The most of tree structures
+$n$ elements and $n$ numbers of the range query.  We should let pre-
+processing and query time minimize.  The most of the tree structures
 cannot show efficient performance in both pre-processing and query
 time.  Some offline algorithm is too hard to parallel.  In this
 section, we provide the solution to get better performance in both
@@ -26,13 +26,13 @@ in the figure ~\ref{fig:interval-decomposition}.  In the offline RMQ
 problem, it has the theoretical algorithm which run in $O(n)$ --
 $O(1)$ time.
 
-When $n$ is large, four time memory access caused serious cache miss.
-In order to improve cache miss, Demaine introduced the cache-oblivious
-algorithm in Cartesian tree ~\cite{demaine}.
+When $n$ is large, four-time memory access caused the serious cache
+miss. In order to improve cache miss, Demaine introduced the cache-
+oblivious the algorithm in Cartesian tree ~\cite{demaine}.
 
 In above technology, we parallel RMQ problem by Fischer's idea and get
 time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm.  We also
-combines compression skill from Demaine's paper. It reduces cache-miss
+combine compression skill from Demaine's paper. It reduces cache-miss
 and run in ideal complexity.
 
 We pick the fixed length $s = 16$, which can solve $n = 2^{64}$ one-
@@ -44,7 +44,7 @@ integers into a 64-bit integer to present a Caartesian tree.  The
 compressed algorithm ~\ref{alg:cartesian-to-64bits} run in $O(s)$.
 
 Finally, the appropriate size can compress the usage of space to
-reduce cache-miss and also show better performance in modern 64-bit
+reduce cache miss and also show better performance in modern 64-bit
 register.  We modify Demaine's range query algorithm as the algorithm
 ~\ref{alg:cartesian64bits-query}.
 
@@ -53,18 +53,19 @@ register.  We modify Demaine's range query algorithm as the algorithm
 \input{algorithms/alg-cartesian64bits-query}
 
 In VGLCS problem, above algorithm provide compression skill to reduce
-cache-miss, but increase the time complexity.  The pre-processing
-spend $O(n)$ time, and single query spend $O(s)$ time in RMQ.
+cache miss, but increase the time complexity.  The pre-processing
+spend $O(n)$ time, and single query spends $O(s)$ time in RMQ.
 Totally, time complexity is $O(n^2 \; s / p + n \max(\log n, s))$.
+
 
 %%%%%%%%%%%%%%
 
 \section{Incremental Range Maximum Query}
 
 In the VGLCS problem, we divide the algorithm into two stage, row and
-colume stage.  In the row stage, it maintains $m$ number of data
-structure to support ISMQ problem.  After row stage, the colume stage
-use one ISMQ data structure to answer each query.
+column stage.  In the row stage, it maintains $m$ number of the data
+structure to support ISMQ problem.  After row stage, the column stage
+uses one ISMQ data structure to answer each query.
 
 In parallel environment, the column stage has a linear algorithm which
 use Fischer's sparse table instead of disjoint set, and we also
@@ -81,10 +82,10 @@ result is presented on table ~\ref{tlb:cmp-complexity}.
 \subsection{Build Look-up Table}
 
 We have two main subjects: cartesian tree encoding and cache
-performance.  Fischer introduced the first encoding method, and the
+performance.  Fischer introduced the first encoding method and the
 Masud presents the new encoding method and processing step to reduce
-the number of instructions.  However, most of them are foucs on
-offline algorithm.  It means that there are given $n$ elements, and
+the number of instructions.  However, most of them focus on the
+offline algorithm.  It means that there are given $n$ elements and
 then has $m$ queries.  During any queries, the $n$ elements will not
 be modified by any operation.
 
@@ -94,8 +95,8 @@ cache miss by design the special encoding method according to value
 distribution.
 
 In our application, we provide the online encoding algorithm.  We list
-all binary search tree by lexicographical order, and label them from
-$0$ to Catlan $n$-th number.  The lexicographical order for binary
+all binary search tree by lexicographical order and label them from
+$0$ to Catalan $n$-th number.  The lexicographical order for binary
 search tree is defined by the left subtree high priority and then
 right subtree.  The figure \ref{fig:labelingBST} shows label of binary
 search tree for the $n=1,2,3$ number of nodes.
@@ -143,19 +144,20 @@ is
 
 \subsection{Dynamic Cartesian Tree}
 
-There are three intuitive solutions for ISMQ.  The first one use
-disjoint set which use $O(\alpha(n))$ for each query.  The seoncd one
-use sparse table which use $O(\log n)$ time to append a new value to
+There are three intuitive solutions for ISMQ.  The first one uses
+disjoint set which uses $O(\alpha(n))$ for each query.  The second one
+uses sparse table which uses $O(\log n)$ time to append a new value to
 the tail of array and $O(1)$ time to response a query.  The third one
-is binary indexed tree which used $O(\log n)$ time for each operation. 
+is the binary indexed tree which used $O(\log n)$ time for each
+operation.
 
 In the sparse table, Fischer provide the $\theta(n)$ -- $\theta(1)$
-could not support append operation.  However, the sparse table support
-RMQ problem is more powerful than suffix maximum value problem.  In
-this section, we provide a solution to make sparse table to support
-append operation.  The problem which is more powerful than ISQM
-problem is named incremental range maximum query (IRMQ).  IRMQ support
-two kinds of operation as follows: 
+could not support the append operation.  However, the sparse table
+support RMQ problem is more powerful than suffix maximum value
+problem.  In this section, we provide a solution to make the sparse
+table to support the append operation.  The problem which is more
+powerful than ISQM problem is named incremental range maximum query
+(IRMQ).  IRMQ support two kinds of operation as follows:
 
 \begin{itemize}
   \item 
@@ -185,20 +187,21 @@ memory access in the algorithm \ref{alg:encode-tid}.
 \input{algorithms/alg-encode-tid}
 
 By the recursive formula,  we could implement without storing full
-cartesian tree.  The right chain is compsited of root, right child of
-root, right child of right child of root, ..., and so on.  We maintain
-the right chain of cartesian tree as a stack.  The algorithm \ref{alg
-:cartesian-encode-offline} is shown for offline encoding any cartesian
-tree.
+cartesian tree.  The right chain is consisted of the root, the right
+child of the root, the right child of the right child of the root,
+..., and so on.  We maintain the right chain of a cartesian tree as a
+stack.  The algorithm \ref{alg :cartesian-encode-offline} is shown for
+offline encoding any cartesian tree.
+
 
 \input{algorithms/alg-cartesian-encode-offline}
 
 In order to support online encoding, we use 5 variable to present the
-state of cartesian tree.  The next step will insert $i$-th elements,
-and final stage fill $s$ number of elements.  The current tree label
-is $\mathit{tid}$ and the right chain of the cartesian tree is
-presented by two variable, stack pointer $\mathit{Dp}$ and the stack
-$\mathit{D}$. The structure of state is as follows:
+state of the cartesian tree.  The next step will insert $i$-th
+elements and final stage fill $s$ number of elements.  The current
+tree label is $\mathit{tid}$ and the right chain of the cartesian tree
+is presented by two variable, stack pointer $\mathit{Dp}$ and the
+stack $\mathit{D}$. The structure of state is as follows:
 
 \begin{minipage}{0.9\linewidth}
 \begin{lstlisting}[frame=single,caption=State of Cartesian Tree]
@@ -223,11 +226,11 @@ elements insertion, we assume the sequence of elements which is not
 yet inserted are increasing.
 
 Because of lexicographical order, the right chain of cartesian is
-belong to the lower dimension in the row-majar like.  Simultaneously,
-building a cartesian tree only modify the right chain.  We can use the
-propagation characteristics to get the identify of tree.  Finally, we
-design the difference algorithm \ref{alg:cartesian-encode-online} to
-satisfy above requirement.
+belonged to the lower dimension in the row-major like.
+Simultaneously, building a cartesian tree only modify the right chain.
+We can use the propagation characteristics to get the identity of the
+tree.  Finally, we design the difference algorithm \ref{alg:cartesian-
+encode-online} to satisfy above requirement.
 
 \input{algorithms/alg-cartesian-encode-online}
 
@@ -254,10 +257,10 @@ A.\mathit{tid})$.
   \label{fig:cartesianEncoding}
 \end{figure*}
 
-Finally, we do not increase the time complexity in the building
+Finally, we do not increase the time complexity of the building
 cartesian tree algorithm because each operation is $O(1)$.  For the
-in-block query, we get the identify of cartesian tree in $O(1)$, and
-look up table to find the result.
+in-block query, we get the identity of the cartesian tree in $O(1)$,
+and look up table to find the result.
 
 
 
