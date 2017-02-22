@@ -13,27 +13,50 @@ time.  Some offline algorithm is too hard to parallel.  In this
 section, we provide the solution to get better performance in both
 pre-processing and query stage.
 
+\iffalse
+縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。
+在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。
+這樣的條件下，大部分樹狀結構難以在前處理過程和每次詢問皆達到最好效能。
+對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行。
+再接續的小節中，我們將提出在兼顧建表、插入和查找的數據結構與算法。
+\fi
+
 \subsection{Compressed Cartesian Tree}
 
 In Fischer ~\cite{Fischer2006TheoreticalAP} paper, the $O(n)$ --
-$O(1)$ algorithm is corrponding by Catalan number
-$\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ to build look-up
-table.  When we choose $s = \frac{1}{4} \log n$ as block size, the
-space complexity is $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$, and time
-complexity is $o(n)$.  Each range query will be split into 4 parts, 2
-super-block queries and 2 in-block queries. It need to 4 time memory
-access.  We give a example in the figure ~\ref{fig:interval-
-decomposition}.  In the offline RMQ problem, it has the theoretical
-algorithm which run in $O(n)$ -- $O(1)$ time.
+$O(1)$ algorithm is corrponding by $C_s$, where $C_s$ is the $s$-th
+Catalan number  and $C_s = \frac{1}{s+1}\binom{2s}{s} =
+O(\frac{4^s}{s^{1.5}})$ to build look-up table.  When we c hoose $s =
+\frac{1}{4} \log n$ as block size, the space complexity is $O(s^2
+\frac{4^s}{s^{1.5}}) = O(n)$, and time complexity is $O(n)$.  Each
+range query will be split into 4 parts, 2 super-block queries and 2
+in-block queries.  It need to 4 time memory access.  We give a example
+in the figure ~\ref{fig:interval-decomposition}.  In the offline RMQ
+problem, it has the theoretical algorithm which run in $O(n)$ --
+$O(1)$ time.  When $n$ is large, four-time memory access caused the
+serious cache miss. In order to improve cache miss, Demaine introduced
+the cache- oblivious the algorithm in Cartesian tree
+~\cite{Demaine2009OnCT}.
 
-When $n$ is large, four-time memory access caused the serious cache
-miss. In order to improve cache miss, Demaine introduced the cache-
-oblivious the algorithm in Cartesian tree ~\cite{Demaine2009OnCT}.
+\iffalse
+在 Fischer \cite{fischer} 的論文中，
+根據卡塔蘭數 $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表 (lookup-table)，
+其中選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度 $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。
+每一個區間詢問將會拆成 2 個 super-block 和 2 個 in-block 詢問，共計需要 4 次的記憶體存取。
+在理論分析上，離線 RMQ 問題可在 $\theta(n)$ -- $\theta(1)$ 時間內解決任一詢問。
+當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取未中 (cache miss)，
+在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻 (cache oblivious) 形式的查找方案，
+降低在離線版本中的 in-block 詢問產生的快取未中。
+\fi
 
 In above technology, we parallel RMQ problem by Fischer's idea and get
 time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm.  We also
 combine compression skill from Demaine's paper. It reduces cache-miss
 and run in ideal complexity.
+
+\iffalse
+在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案 $s = 16$，其能解決序列長度為 $n = 2^{64}$ 的區間查找，將 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 $\sum_{i=1}^{n} l_i < i$。
+\fi
 
 We pick the fixed length $s = 16$, which can solve $n = 2^{64}$ one-
 dimension range maximum query.  When inserting $i$-th elements, the
@@ -49,6 +72,15 @@ reduce cache miss and also show better performance in modern 64-bit
 register.  We modify Demaine's range query algorithm as the algorithm
 ~\ref{alg:cartesian64bits-query}.
 
+\iffalse
+因所有 $l_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，
+整體便可用 64-bit 長整數表示一棵笛卡爾樹的狀態。
+為了現在常見的 64-byte 快取列 (cache line) 和 64-bit 暫存器 (register) 考量，
+我們選用合適的大小進行測試，不僅壓縮空間使用量，同時也減少快取未中的問題。
+最後，我們得到壓縮算法 \ref{alg:cartesian-to-64bits}，其相對應的區間查找算法，
+根據 Demaine \cite{demaine} 進行修改，得到壓縮下的詢問算法 \ref{alg:cartesian64bits-query}。
+\fi
+
 \input{algorithms/alg-cartesian-to-64bits}
 
 \input{algorithms/alg-cartesian64bits-query}
@@ -57,6 +89,13 @@ In VGLCS problem, above algorithm provide compression skill to reduce
 cache miss, but increase the time complexity.  The pre-processing
 spend $O(n)$ time, and single query spends $O(s)$ time in RMQ.
 Totally, time complexity is $O(n^2 \; s / p + n \max(\log n, s))$.
+
+\iffalse
+回到 VGLCS 的應用中，上述算法使用壓縮方式降低快取未中。
+我們可以使用上述的算法取代原先的并查集，建表的時間複雜度為 $O(n)$，
+單一查詢的時間複雜度為 $O(s)$。
+整體的時間複雜度為 $O(n^2 \; s / p + n \max(\log n, s))$。
+\fi
 
 
 %%%%%%%%%%%%%%
