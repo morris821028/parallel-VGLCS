@@ -1,4 +1,4 @@
-\section{Range Maximum Query}
+\section{Parallel Range Maximum Query}
 \label{sec:parallelRMQ}
 
 \subsection{Background}
@@ -37,11 +37,12 @@ and run in ideal complexity.
 
 We pick the fixed length $s = 16$, which can solve $n = 2^{64}$ one-
 dimension range maximum query.  When inserting $i$-th elements, the
-number of $i$-th left rotation $l_i$ must satisfy $\sum_{i=1}^{n} l_i
-< i$.  Because all $l_i$ is small than 16, it can present in 4-bit
-integer.  Due to above property of Cartesian tree, we merger 16 4-bit
-integers into a 64-bit integer to present a Caartesian tree.  The
-compressed algorithm ~\ref{alg:cartesian-to-64bits} run in $O(s)$.
+number of $i$-th insertion satisfy $\sum_{i=1}^{n} l_i < i$ where $0
+\le l_i < s$ is the number of nodes remove from the rightmost path of
+Cartesian tree.  Because all $l_i$ is small than 16, it can present in
+4-bit integer.  Due to above property of Cartesian tree, we merger 16
+4-bit integers into a 64-bit integer to present a Caartesian tree.
+The compressed algorithm ~\ref{alg:cartesian-to-64bits} run in $O(s)$.
 
 Finally, the appropriate size can compress the usage of space to
 reduce cache miss and also show better performance in modern 64-bit
@@ -187,11 +188,11 @@ memory access in the algorithm \ref{alg:encode-tid}.
 \input{algorithms/alg-encode-tid}
 
 By the recursive formula,  we could implement without storing full
-cartesian tree.  The right chain is consisted of the root, the right
-child of the root, the right child of the right child of the root,
-..., and so on.  We maintain the right chain of a cartesian tree as a
-stack.  The algorithm \ref{alg :cartesian-encode-offline} is shown for
-offline encoding any cartesian tree.
+cartesian tree.  The rightmost path is consisted of the root, the
+right child of the root, the right child of the right child of the
+root, ..., and so on.  We maintain the rightmost path of a Cartesian
+tree as a stack.  The algorithm \ref{alg :cartesian-encode-offline} is
+shown for offline encoding any cartesian tree.
 
 
 \input{algorithms/alg-cartesian-encode-offline}
@@ -199,8 +200,8 @@ offline encoding any cartesian tree.
 In order to support online encoding, we use 5 variable to present the
 state of the cartesian tree.  The next step will insert $i$-th
 elements and final stage fill $s$ number of elements.  The current
-tree label is $\mathit{tid}$ and the right chain of the cartesian tree
-is presented by two variable, stack pointer $\mathit{Dp}$ and the
+tree label is $\mathit{tid}$ and the rightmost path of the Cartesian
+tree is presented by two variable, stack pointer $\mathit{Dp}$ and the
 stack $\mathit{D}$. The structure of state is as follows:
 
 \begin{minipage}{0.9\linewidth}
@@ -220,17 +221,17 @@ struct State {
 
 For the online query, we choose $s=\frac{\log n}{4}$ by the Fischer's
 RMQ.  In our encoding method, we initialize the $s$ number of virtual
-node on the right chain, so the default tree label $\mathit{tid}$ is
-$C_s - 1$, which $C_s$ is the $s$-th Catalan number.  Following the
+node on the rightmost path, so the default tree label $\mathit{tid}$
+is $C_s - 1$, which $C_s$ is the $s$-th Catalan number.  Following the
 elements insertion, we assume the sequence of elements which is not
 yet inserted are increasing.
 
-Because of lexicographical order, the right chain of cartesian is
-belonged to the lower dimension in the row-major like.
-Simultaneously, building a cartesian tree only modify the right chain.
-We can use the propagation characteristics to get the identity of the
-tree.  Finally, we design the difference algorithm \ref{alg:cartesian-
-encode-online} to satisfy above requirement.
+Because of lexicographical order, the rightmost path of Cartesian tree
+is belonged to the lower dimension in the row-major like.
+Simultaneously, building a cartesian tree only modify the rightmost
+path. We can use the propagation characteristics to get the identity
+of the tree.  Finally, we design the difference algorithm
+\ref{alg:cartesian- encode-online} to satisfy above requirement.
 
 \input{algorithms/alg-cartesian-encode-online}
 
@@ -238,20 +239,19 @@ encode-online} to satisfy above requirement.
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
 
-  \caption{  
-Each block has $s$ number of elements.  We will build a
-cartesian tree with $s$ number of nodes to solve in-block query.  In
-initialization, it assume $s$ number of nodes on the right chain and
-the default tree label $\mathit{tid} = C_s - 1$.  When inserting
-$i$-th element, the tree label is $\mathit{tid}_i$, and the tree label
-of the subtree $A$ is $A.\mathit{tid}$.  If the value of $(i+1)$-th
-element is $x$, it will rotate onto the node $A$.  After rotation, $A$
-is a left subtree of $A$, and we can compute the identify of subtree
-$A$ during rotation.  Then, $x.\mathit{tid}$ can be computed by the
-$s-(i+1)$ number of virtual nodes on the right chain and
-$A.\mathit{tid}$.  According to the lexicographical order, we get
-$\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
-A.\mathit{tid})$. 
+  \caption{
+Each block has $s$ number of elements.  We will build a cartesian tree
+with $s$ number of nodes to solve in-block query.  In initialization,
+it assume $s$ number of nodes on the rightmost path and the default
+tree label $\mathit{tid} = C_s - 1$.  When inserting $i$-th element,
+the tree label is $\mathit{tid}_i$, and the tree label of the subtree
+$A$ is $A.\mathit{tid}$.  If the value of $(i+1)$-th element is $x$,
+it will rotate onto the node $A$.  After rotation, $A$ is a left
+subtree of $A$, and we can compute the identify of subtree $A$ during
+rotation.  Then, $x.\mathit{tid}$ can be computed by the $s-(i+1)$
+number of virtual nodes on the rightmost path and $A.\mathit{tid}$.
+According to the lexicographical order, we get $\mathit{tid}_{i+1} =
+\mathit{tid}_i + (x.\mathit{tid} - A.\mathit{tid})$.
 }
 
   \label{fig:cartesianEncoding}
