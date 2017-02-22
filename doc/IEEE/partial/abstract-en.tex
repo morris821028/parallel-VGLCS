@@ -1,14 +1,18 @@
 \begin{abstract}
+
 The longest common subsequence problem with variable gapped
-constraints (VGLCS) is used in genes, molecular biology.  We can find
-$O(nm)$ solution in the previous study, which use the efficient
-incremental suffix maximum query (ISMQ). ISMQ supports append a value
-to array and get the suffix maximum value in amortized $O(1)$
-time.  However, we can parallel origin algorithm by wavefront method,
-but not have better performance.  In this paper, our algorithm and
-data structure offer efficient operations and better theoretical time
+constraints (VGLCS) is used in genes and molecular biology.  We can
+find $O(nm)$ solution in the previous study, which use the efficient
+incremental suffix maximum query (ISMQ).  ISMQ supports append a value
+to array and get the suffix maximum value in amortized $O(1)$ time.
+However, we can parallel origin algorithm by wavefront method, but not
+have better performance.  In this paper, our algorithm and data
+structure offer efficient operations and better theoretical time
 complexity.  The VGLCS problem can be solved in $O(nm / p + n \log
-n)$, which $p$ is the number of processors.
+n)$, which $p$ is the number of processors.  Simultaneously, we offer
+that the incremental range minimum/maximum query problem is also be
+solved in $O(n)$ -- $O(1)$ with sparse table.
+
 \end{abstract}
 
 \begin{IEEEkeywords}
