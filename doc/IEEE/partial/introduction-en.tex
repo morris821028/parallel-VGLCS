@@ -6,13 +6,14 @@ products and fields widely.  In the multi-core platform, most studies
 focus on the wavefront parallelism. Motivated by the definition of
 recursion in LCS, Jiaoyun Yang introduced a new formula to exploit
 more cache performance.  Here, we use the similar idea to improve LCS
-with variable constraints, which refer in Iliopoulos' study. 
+with variable constraints, which refer in the study of Iliopoulos and
+Rahman\cite{Rahman2006AlgorithmsFC}.
 
 \iffalse
-最長共同子序列 (\emph{longest common subsequence}, LCS)廣泛地使用在各個應用上。
+最長共同子序列 (\emph{longest common subsequence}, LCS) 廣泛地使用在各個應用上。
 在多核心平台下，大多數的研究專注於如何高效率地在波前平行 (wavefront parallelism)，
 而 Jiaoyun Yang ~\cite{jiaoyun} 提出的論文中改變一般的 LCS 遞迴定義以得到更好快取使用率。
-在這篇論文中，針對在 Iliopoulos ~\cite{iliopoulos} 提及的約束條件下的 LCS 問題使用相關的想法來改善效能。
+在這篇論文中，針對在 Iliopoulos 和 Rahman ~\cite{iliopoulos} 提及的約束條件下的 LCS 問題使用相關的想法來改善效能。
 \fi
 
 There are many kinds of contraint.  For example, \emph{fixed gap LCS}
@@ -36,7 +37,7 @@ VGLCS problem.
 在 VGLCS 中，對各個不同的位置提供約束限制，如目前給定兩個字串 $A = \tt{GCGCAATG}$, 
 $B = \tt{GCCCTAGCG}$，各自的約束限制為 $G_A = [3, 1, 1, 2, 0, 0, 2, 1]$ 
 和 $G_B = [2, 0, 3, 2, 0, 1, 2, 0, 1]$，其中 $G_A(i)$ 表示當挑選第 $i$ 個位置時，與前一個挑選的位置最多差 $G_A(i)+1$，同理 $G_B(i)$；
-我們可以得到兩組 VGLCS 的解 $\tt{GCCA}$ 和 $\tt{GCCT}$，挑選的方式如圖 ~\ref{fig:VGLCSex}。
+我們可以得到兩組 VGLCS 的解 $\tt{G..C..C..A}$ 和 $\tt{G..C..C..T}$，挑選的方式如圖 ~\ref{fig:VGLCSex}。
 在 Yung-Hsing Peng ~\cite{yunghsing} 的論文已對 VGLCS 提出易於實作的 $O(nm \alpha(n))$ 和理論 $O(nm)$ 的解法。
 \fi
 
