@@ -4,10 +4,10 @@
 \subsection{The Strategy of Disjoint Set}
 
 The space complexity of VGLCS problem is $\theta(n^2)$.  The merging
-of disjoint set has two main strategies, path compression, and
-heuristic strategy.  The impact of implementation will encounter
-different level of cache miss.  We choose one of them to improve the
-performance and avoid use both of them to cause more cache miss.
+of disjoint set has two main strategies, path compression, and rank
+strategy.  The impact of implementation will encounter different level
+of cache miss.  We choose one of them to improve the performance and
+avoid use both of them to cause more cache miss.
 
 In the parallel algorithm, a disjoint set must be processed by a
 thread.  We tend to use lazy propagation because of the cache miss.
