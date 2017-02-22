@@ -15,16 +15,16 @@ pre-processing and query stage.
 
 \subsection{Compressed Cartesian Tree}
 
-In Fischer ~\cite{Fischer2006TheoreticalAP} paper, the $O(n)$ -- $O(1)$ algorithm is
-corrponding by Catalan number $\frac{1}{s+1}\binom{2s}{s} =
-O(\frac{4^s}{s^{1.5}})$ to build look-up table.  When we choose $s =
-\frac{1}{4} \log n$ as block size, the space complexity is $O(s^2
-\frac{4^s}{s^{1.5}}) = o(n)$, and time complexity is $o(n)$.  Each
-range query will be split into 4 parts, 2 super-block queries and 2
-in-block queries. It need to 4 time memory access.  We give a example
-in the figure ~\ref{fig:interval-decomposition}.  In the offline RMQ
-problem, it has the theoretical algorithm which run in $O(n)$ --
-$O(1)$ time.
+In Fischer ~\cite{Fischer2006TheoreticalAP} paper, the $O(n)$ --
+$O(1)$ algorithm is corrponding by Catalan number
+$\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ to build look-up
+table.  When we choose $s = \frac{1}{4} \log n$ as block size, the
+space complexity is $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$, and time
+complexity is $o(n)$.  Each range query will be split into 4 parts, 2
+super-block queries and 2 in-block queries. It need to 4 time memory
+access.  We give a example in the figure ~\ref{fig:interval-
+decomposition}.  In the offline RMQ problem, it has the theoretical
+algorithm which run in $O(n)$ -- $O(1)$ time.
 
 When $n$ is large, four-time memory access caused the serious cache
 miss. In order to improve cache miss, Demaine introduced the cache-

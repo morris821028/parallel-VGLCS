@@ -1,6 +1,6 @@
 TARGETS=ICPP
 BUILD_ENGINE=pdflatex
-SPELL_CHECK_TARGETS = ICPP.tex section/*
+SPELL_CHECK_TARGETS = ICPP.tex
 
 all: $(TARGETS)
 
@@ -17,7 +17,6 @@ spell:
 	done
 
 clean:
-	rm -rf  $(BUILD_DIR)
 	rm -rf *.log *.aux *.dvi *~ *.bbl  *.bl *.out
 	rm -rf *.lo* *.toc *.blg 
 	rm -rf *.pdf

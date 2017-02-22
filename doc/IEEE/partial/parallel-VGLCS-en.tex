@@ -62,11 +62,12 @@ $O(1)$ solution which Fischer ~\cite{Fischer2006TheoreticalAP} introduced.
     \includegraphics[width=0.45\linewidth]{graphics/fig-sparse-table.pdf}
     \label{fig:fig-sparse-table}
   }
-  \caption{   
-An example for illustrating the sparse table, which has
-an array $A$. $A$ is split into 5 blocks, each block has 4 elements.
-If the query range maximum value in $[2, 18]$, it will merge four
-maximum results $B1$, $Q_L$, $B5$, and $Q_R$.  
+  \caption{
+An example for illustrating the sparse table, which has an array $A$.
+$A$ is split into five blocks, each block has four elements. A range
+minimum/maximum query can be decomposed into at most four different
+sub-queries.  If the query range maximum value in $[2, 18]$, it will
+merge four maximum results $B1$, $Q_L$, $B5$, and $Q_R$.
 }
 
   \label{fig:interval-decomposition}
