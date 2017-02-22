@@ -3,39 +3,69 @@
 
 \subsection{背景}
 
-縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。這樣的條件下，大部分樹狀結構難以在前處理過程和每次詢問皆達到最好效能。對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行。再接續的小節中，我們將提出在兼顧建表、插入和查找的數據結構與算法。
+縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。
+在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。
+這樣的條件下，大部分樹狀結構難以在前處理過程和每次詢問皆達到最好效能。
+對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行。
+再接續的小節中，我們將提出在兼顧建表、插入和查找的數據結構與算法。
 
 \subsection{壓縮笛卡爾樹}
 
-在 Fischer ~\cite{fischer} 的論文中，根據卡塔蘭數 $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表 (lookup-table)，其中選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度 $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。每一個區間詢問將會拆成 2 個 super-block 和 2 個 in-block 詢問 (參照圖 ~\ref{fig:interval-decomposition})，共計需要 4 次的記憶體存取。在理論分析上，離線 RMQ 問題可在 $\theta(n)$ -- $\theta(1)$ 時間內解決任一詢問。
+在 Fischer \cite{fischer} 的論文中，
+根據卡塔蘭數 $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表 (lookup-table)，
+其中選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度 $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。
+每一個區間詢問將會拆成 2 個 super-block 和 2 個 in-block 詢問，共計需要 4 次的記憶體存取。
+在理論分析上，離線 RMQ 問題可在 $\theta(n)$ -- $\theta(1)$ 時間內解決任一詢問。
 
-當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取未中 (cache miss)，在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻 (cache oblivious) 形式的查找方案，降低在離線版本中的 in-block 詢問產生的快取未中。
+當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取未中 (cache miss)，
+在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻 (cache oblivious) 形式的查找方案，
+降低在離線版本中的 in-block 詢問產生的快取未中。
 
 在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案 $s = 16$，其能解決序列長度為 $n = 2^{64}$ 的區間查找，將 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 $\sum_{i=1}^{n} l_i < i$。
 
-因所有 $l_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，整體便可用 64-bit 長整數表示一棵笛卡爾樹的狀態。為了現在常見的 64-byte 快取列 (cache line) 和 64-bit 暫存器 (register) 考量，我們選用合適的大小進行測試，不僅壓縮空間使用量，同時也減少快取未中的問題。壓縮流程如算法 ~\ref{alg:cartesian-to-64bits}，對應的區間查找算法，根據 Demaine ~\cite{demaine} 進行修改，流程如算法 ~\ref{alg:cartesian64bits-query}。
+因所有 $l_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，
+整體便可用 64-bit 長整數表示一棵笛卡爾樹的狀態。
+為了現在常見的 64-byte 快取列 (cache line) 和 64-bit 暫存器 (register) 考量，
+我們選用合適的大小進行測試，不僅壓縮空間使用量，同時也減少快取未中的問題。
+最後，我們得到壓縮算法 \ref{alg:cartesian-to-64bits}，其相對應的區間查找算法，
+根據 Demaine \cite{demaine} 進行修改，得到壓縮下的詢問算法 \ref{alg:cartesian64bits-query}。
 
 \input{algorithms/alg-cartesian-to-64bits}
 
 \input{algorithms/alg-cartesian64bits-query}
 
-在 VGLCS 的應用中，上述算法使用壓縮方式降低快取未中。我們可以使用上述的算法取代原先的并查集，建表的時間複雜度為 $O(n)$，單一查詢的時間複雜度為 $O(s)$。整體的時間複雜度為 $O(n^2 \; s / p + n \max(\log n, s))$。
+回到 VGLCS 的應用中，上述算法使用壓縮方式降低快取未中。
+我們可以使用上述的算法取代原先的并查集，建表的時間複雜度為 $O(n)$，
+單一查詢的時間複雜度為 $O(s)$。
+整體的時間複雜度為 $O(n^2 \; s / p + n \max(\log n, s))$。
 
 \section{動態區間詢問}
 
-在 VGLCS 問題中，主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方面為數個獨立的數據結構，這部分易於平行；相反地，在橫向方面，需要共同協作一個數據結構。綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而橫向可以離線完成區間查找。在上一節中，我們提出在橫向處理的實作，若限制上述的實作方案在單一處理器上，時間複雜度的瓶頸在於縱向的動態更新與查找。
+VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，
+兩者合併構成區域極值查找。在縱向方面為數個獨立的數據結構，這部分易於平行；
+相反地，在橫向方面，需要共同協作一個數據結構。
+綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而橫向可以離線完成區間查找。
+在上一節中，我們提出在橫向處理的實作，若限制上述的實作方案在單一處理器上，
+時間複雜度的瓶頸在於縱向的動態更新與查找。
 
-在這個章節中，我們提出支持動態插入和區間查找的數據結構，最後的成果如表 ~\ref{tlb:cmp-complexity}。
+在這個章節中，我們提出支持動態插入和區間查找的數據結構，最後的成果如表 \ref{tlb:cmp-complexity}。
 
 \input{tables/tlb-cmp-complexity.tex}
 
 \subsection{平行建立查找表}
 
-關於在線操作，我們從 Fischer \cite{fischer} 和 Masud \cite{masud} 的研究中，分別得到關於笛卡爾的編碼與快取改善的技術，而這些技術都著手於離線操作，即一開始給訂 $n$ 個元素值，並且在 $O(n)$ 時間內編碼一棵樹；接著，再利用前處理的查找表完成極值查找。
+關於在線操作，我們從 Fischer \cite{fischer} 和 Masud \cite{masud} 的研究中，
+分別得到關於笛卡爾的編碼與快取改善的技術，而這些技術都著手於離線操作，
+即一開始給訂 $n$ 個元素值，並且在 $O(n)$ 時間內編碼一棵樹；
+接著，再利用前處理的查找表完成極值查找。
 
-關於快取效能，因詢問次數與元素個數相當，故無法像 Masud \cite{masud} 的研究藉由排序編碼以減少快取未中的問題，只能依賴數據本身的分佈和編碼之間的關聯來減少快取未中的情況。
+關於快取效能，因詢問次數與元素個數相當，
+故無法像 Masud \cite{masud} 的研究藉由排序編碼以減少快取未中的問題，
+只能依賴數據本身的分佈和編碼之間的關聯來減少快取未中的情況。
 
-從上述幾點觀點出發，我們提出動態的編碼方式。算法採用字典順序的方式編碼一棵樹，優先增長左子樹，當相同左子樹時，增長右子樹的方式進行編號，其編碼方式可參考圖 ~\ref{fig:lablingBST}。
+從上述幾點觀點出發，我們提出動態的編碼方式。
+算法採用字典順序的方式編碼一棵樹，優先增長左子樹，
+當相同左子樹時，增長右子樹的方式進行編號，其編碼方式如圖 \ref{fig:lablingBST}。
 
 \begin{figure}[!thb]
   \centering
@@ -44,13 +74,18 @@
   \label{fig:lablingBST}
 \end{figure}
 
-對於 $s$ 個節點的二元搜尋樹，其權重從 $0$ 開始至 $s-1$、樹編號為 $\mathit{tid}$。定義 $\mathit{LCA}(s, \mathit{tid}, p, q)$ 為其樹上兩點 $p$ 和 $q$ 的最小共同祖先，如 $\mathit{LCA}(3, 2, 0, 2) = 1$。
+對於 $s$ 個節點的二元搜尋樹，其權重從 $0$ 開始至 $s-1$、樹編號為 $\mathit{tid}$。
+定義 $\mathit{LCA}(s, \mathit{tid}, p, q)$ 為其樹上兩點 $p$ 和 $q$ 的最小共同祖先，
+如 $\mathit{LCA}(3, 2, 0, 2) = 1$。
 
-定義四個變數 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 分別為左右子樹的大小和其編號，這四個變數根據指定的 $\mathit{tid}$ 可在 $O(n)$ 時間內得到。最後，推導得遞迴公式 ~\ref{fun:LCA}。 
+定義四個變數 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 分別為左右子樹的大小和其編號，
+這四個變數根據指定的 $\mathit{tid}$ 可在 $O(n)$ 時間內得到。
+最後，推導得遞迴公式 ~\ref{fun:LCA}。 
 
 \input{formulas/fun-LCA}
 
-為記錄所有的二元搜尋樹的 LCA，空間消耗 $\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)$；其平行算法 \ref{alg:parallel-LCA} 的時間複雜度如下：
+為記錄所有的二元搜尋樹的 LCA，空間消耗 $\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)$；
+其平行算法 \ref{alg:parallel-LCA} 的時間複雜度如下：
 
 \begin{equation}
 \theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
@@ -60,9 +95,14 @@
 
 \subsection{動態編碼笛卡爾樹}
 
-ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，其二使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。其二，Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個 in-block 塞滿至預設值才可解決。
+ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，
+其二使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。
+其二，Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，
+其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個 in-block 塞滿至預設值才可解決。
 
-在我們的應用中維護後綴最大值，拓展其操作成為增長區間最大值查找 (\emph{incremental range maximum query}, IRMQ)，其支援兩項操作：
+在我們的應用中維護後綴最大值，
+拓展其操作成為增長區間最大值查找 (\emph{incremental range maximum query}, IRMQ)，
+其支援兩項操作：
 
 \begin{itemize}
   \item \texttt{Append V} : 插入元素 $V$ 至陣列 $A$ 的尾端
@@ -72,15 +112,20 @@ ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一�
 
 接下來的幾段中，我們提供動態的編碼方式使得每一操作皆均攤 $\theta(1)$ 完成。首先，我們需要充分認知編碼相互轉換的公式，藉以在算法中完成每一步皆為 $\theta(1)$ 的要求。
 
-在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，如算法 ~\ref{alg:encode-tid}。透過預處理，事先將所有前綴和保存下來，在算法中的迴圈可視為一次內存存取，使得時間複雜度 $\theta(1)$。
+在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；
+相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，如算法 ~\ref{alg:encode-tid}。
+透過預處理，事先將所有前綴和保存下來，在算法中的迴圈可視為一次內存存取，使得時間複雜度 $\theta(1)$。
 
 \input{algorithms/alg-encode-tid}
 
-根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，實作上與堆疊結構相同。基於 row-major 順序和遞迴定義 ~\ref{fun:LCA}，修改之前論文對於的離線編碼，其對應方案如算法 ~\ref{alg:cartesian-encode-offline}。
+根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，實作上與堆疊結構相同。
+基於 row-major 順序和遞迴定義 ~\ref{fun:LCA}，修改之前論文對於的離線編碼，
+其對應方案如算法 \ref{alg:cartesian-encode-offline}。
 
 \input{algorithms/alg-cartesian-encode-offline}
 
-我們定義轉移狀態由 5 個變數來決定動態笛卡爾樹的編碼，當前插入第 $i$ 個元素，最終填充 $s$ 個元素，當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
+我們定義轉移狀態由 5 個變數來決定動態笛卡爾樹的編碼，當前插入第 $i$ 個元素，最終填充 $s$ 個元素，
+當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
 
 \begin{figure}[!thb]
   \begin{lstlisting}[frame=single,caption=State of Cartesian Tree]
@@ -97,7 +142,10 @@ struct State {
   \end{lstlisting}
 \end{figure}
 
-為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。根據字典順序的編碼性質，一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_s - 1$ 。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (如圖 ~\ref{fig:cartesianEncoding})。根據上述的編碼想法，我們得到算法 ~\ref{alg:cartesian-encode-online}。
+為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。
+根據字典順序的編碼性質，一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_s - 1$ 。
+隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (如圖 ~\ref{fig:cartesianEncoding})。
+根據上述的編碼想法，我們得到算法 ~\ref{alg:cartesian-encode-online}。
 
 \input{algorithms/alg-cartesian-encode-online}
 
@@ -108,4 +156,5 @@ struct State {
   \label{fig:cartesianEncoding}
 \end{figure*}
 
-最後，我們不改變原本的建立笛卡爾樹算法，便能在過程中擭得樹的編號，每一次的 in-block 詢問只需要一次記憶體存取，得到任一操作攤銷複雜度 $\theta(1)$。
+最後，我們不改變原本的建立笛卡爾樹算法，便能在過程中擭得樹的編號，
+每一次的 in-block 詢問只需要一次記憶體存取，得到任一操作攤銷複雜度 $\theta(1)$。

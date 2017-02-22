@@ -1,11 +1,23 @@
 \section{介紹} %Introduction
 \label{sec:Introduction}
 
-最長共同子序列 (\emph{longest common subsequence}, LCS)廣泛地使用在各個應用上。在多核心平台下，大多數的研究專注於如何高效率地在波前平行 (wavefront parallelism)，而 Jiaoyun Yang ~\cite{jiaoyun} 提出的論文中改變一般的 LCS 遞迴定義以得到更好快取使用率。這裡，我們使用相關的理論來改善在 Iliopoulos ~\cite{iliopoulos} 提及的約束條件下的 LCS，如 \emph{fixed gap LCS } (FGLCS)要求任兩個挑選的距離在相對應的另一個字串中相等，同時距離最大為 $k+1$，可在時間複雜度在 $O(nm)$ 內解決，其中 $n$, $m$ 分別為兩個輸入的字串長度。
+最長共同子序列 (\emph{longest common subsequence}, LCS)廣泛地使用在各個應用上。
+在多核心平台下，大多數的研究專注於如何高效率地在波前平行 (wavefront parallelism)，
+而 Jiaoyun Yang ~\cite{jiaoyun} 提出的論文中改變一般的 LCS 遞迴定義以得到更好快取使用率。
+在這篇論文中，針對在 Iliopoulos ~\cite{iliopoulos} 提及的約束條件下的 LCS 問題使用相關的想法來改善效能。
 
-在眾多的約束條件類型中，我們將在這篇論文針對 \emph{variable gap LCS} (VGLCS) 進行探討。在 VGLCS 中，對各個不同的位置提供約束限制，如目前給定兩個字串 $A = \tt{GCGCAATG}$, $B = \tt{GCCCTAGCG}$，各自的約束限制為 $G_A = [3, 1, 1, 2, 0, 0, 2, 1]$ 和 $G_B = [2, 0, 3, 2, 0, 1, 2, 0, 1]$，其中 $G_A(i)$ 表示當挑選第 $i$ 個位置時，與前一個挑選的位置最多差 $G_A(i)+1$，同理 $G_B(i)$；我們可以得到兩組 VGLCS 的解 $\tt{GCCA}$ 和 $\tt{GCCT}$，挑選的方式如圖 ~\ref{fig:VGLCSex}。在 Yung-Hsing Peng ~\cite{yunghsing} 的論文已對 VGLCS 提出 $O(nm \alpha(n))$ 的解法。
+在約束條件下的 LCS 中，如 \emph{fixed gap LCS } (FGLCS)要求任兩個挑選的距離在相對應的另一個字串中相等，
+同時距離最大為 $k+1$，可在時間複雜度在 $O(nm)$ 內解決，其中 $n$, $m$ 分別為兩個輸入的字串長度。
+我們將在這篇論文針對 \emph{variable gap LCS} (VGLCS) 進行探討。
+在 VGLCS 中，對各個不同的位置提供約束限制，如目前給定兩個字串 $A = \tt{GCGCAATG}$, 
+$B = \tt{GCCCTAGCG}$，各自的約束限制為 $G_A = [3, 1, 1, 2, 0, 0, 2, 1]$ 
+和 $G_B = [2, 0, 3, 2, 0, 1, 2, 0, 1]$，其中 $G_A(i)$ 表示當挑選第 $i$ 個位置時，與前一個挑選的位置最多差 $G_A(i)+1$，同理 $G_B(i)$；
+我們可以得到兩組 VGLCS 的解 $\tt{GCCA}$ 和 $\tt{GCCT}$，挑選的方式如圖 ~\ref{fig:VGLCSex}。
+在 Yung-Hsing Peng ~\cite{yunghsing} 的論文已對 VGLCS 提出易於實作的 $O(nm \alpha(n))$ 和理論 $O(nm)$ 的解法。
 
-這一篇論文，我們將在第二 \ref{sec:parallelSerial} 節部分將 Yung-Hsing Peng ~\cite{yunghsing} 提出的算法進行平行化。在第三節 ~\ref{sec:parallelRMQ}，在理論分析上提供易平行且時間複雜度 $O(nm)$ 的設計。在第四節 ~\ref{sec:Implementation}，我們將藉由快取忘卻 (cache-oblivious) 技術，在實作上提供更好的效能。最後，我們總結實驗結果與理論實務上的差異。
+這一篇論文，我們將在第二 \ref{sec:parallelSerial} 節部分將 Yung-Hsing Peng ~\cite{yunghsing} 提出的算法進行平行化。
+在第三節 ~\ref{sec:parallelRMQ}，在理論分析上提供易平行且時間複雜度 $O(nm)$ 的設計。
+在第四節 ~\ref{sec:Implementation}，我們將藉由快取忘卻 (cache-oblivious) 技術，在實作上提供更好的效能。最後，我們總結實驗結果與理論實務上的差異。
 
 \begin{figure}[!thb]
   \centering
