@@ -24,6 +24,6 @@
   \label{fig:interval-decomposition}
 \end{figure*}
 
-稀疏表是我們認為最好的替代方案，其整合後為 VGLCS 平行算法 ~\ref{alg:parallel-VGLCS}，算法的時間複雜度為 $O(n^2 \alpha(n) / p + n \log n)$，其中 $p$ 為處理器個數。在後續的章節，我們將提出新的數據結構取代并查集操作，使得序列算法的時間複雜度從 $O(n^2 \alpha(n))$ 降至 $O(n^2)$，且能在平行算法達到理想複雜度 $O(n^2 / p + n \log n)$。
+稀疏表是我們認為最好的替代方案，其整合後為 VGLCS 平行算法 ~\ref{alg:parallel-VGLCS}，算法的時間複雜度為 $O(n^2 \log n / p + n \log n)$，其中 $p$ 為處理器個數。在後續的章節，我們將提出新的數據結構取代并查集操作，且能在平行算法達到理想複雜度 $O(n^2 / p + n \log n)$。
 
 \input{algorithms/alg-parallel-VGLCS}

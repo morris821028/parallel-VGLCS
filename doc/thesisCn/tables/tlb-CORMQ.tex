@@ -1,0 +1,20 @@
+\begin{table}[!thb]
+  %\tiny
+  \caption{Total running time (ms) for finding RMQ of different sizes $N$ and maximum interval sizes $L$.}
+  \label{tlb:CORMQ}
+  \centering
+  \begin{tabular}{l c c c c}
+    \firsthline
+      & \multicolumn{4}{c}{$N$} \\
+      \cline{2-5}
+        & \multicolumn{2}{c}{$30000$} & $50000$ & $100000$ \\
+      $L$ & $2^{10}$ & $2^{15}$ & $2^{15}$ & $2^{15}$ \\
+      \hline
+      parallel-\tt{RMQ}     & $903$ & $1516$ & $1874$ & $4116$ \\
+      parallel-\tt{CORMQ}   & $995$ & $1475$ & $1689$ & $2594$ \\
+      parallel-\tt{CORMQ-opt} & $843$ & $1373$ & $1136$ & $1745$ \\
+      \hline
+      Speedup & $1.07\times$ & $1.10\times$ & $1.64\times$ & $2.35\times$\\
+    \lasthline
+  \end{tabular}
+\end{table}
