@@ -56,24 +56,25 @@ study some alternative plans as follows:
 \begin{itemize}
   \item 
 
-Binary Indexed Tree -- $O(\log n)$: It supports prefix sum query and
-update a single value in $O(\log n)$.  In our application, it also
-supports updated maximum value and query suffix maximum value.  It runs
-faster than segment tree.
+Binary Indexed Tree\cite{Fenwick1994AND} -- $O(\log n)$: It supports
+prefix sum query and update a single value in $O(\log n)$.  In our
+application, it also supports updated maximum value and query suffix
+maximum value.  It runs faster than segment tree.
 
   \item 
 
-Segment Tree -- $O(\log n)$: It supports query maximum value and
-update values in multi-dimension.  It can use $O(\log n)$ time to
-solve range maximum query in one-dimension.
+Segment Tree\cite{ComputationalGeometry} -- $O(\log n)$: It supports
+query maximum value and update values in multi-dimension.  It can use
+$O(\log n)$ time to solve range maximum query in one-dimension.
 
   \item 
 
-Sparse Table -- $O(n \log n)$ -- $O(1)$: We use $ST[j][i]$ to present
-the maximum value in array $(i-2^j,i]$.  It spend $O(n \log n)$ time
-to build table and require $O(1)$ time to get the range maximum query.
-In order to support append value to tail, it cannot run $O(n)$ --
-$O(1)$ solution which Fischer ~\cite{Fischer2006TheoreticalAP} introduced.
+Sparse Table\cite{Berkman1993RecursiveSP} -- $O(n \log n)$ -- $O(1)$:
+We use $ST[j][i]$ to present the maximum value in array $(i-2^j,i]$.
+It spend $O(n \log n)$ time to build table and require $O(1)$ time to
+get the range maximum query. In order to support append value to tail,
+it cannot run $O(n)$ -- $O(1)$ solution which Fischer
+~\cite{Fischer2006TheoreticalAP} introduced.
 
 \end{itemize}
 
