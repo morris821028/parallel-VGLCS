@@ -11,7 +11,7 @@ avoid use both of them to cause more cache miss.
 
 In the parallel algorithm, a disjoint set must be processed by a
 thread.  We tend to use lazy propagation because of the cache miss.
-Due to the tendency of the dynamic programming, there two cases in
+Due to the tendency of the dynamic programming, there are two cases in
 which the trend of the inserted value.  The first case is the
 continuous zero value insert because it violates the definition.  The
 second case is the insertion of incremental elements.  Finally, we can
