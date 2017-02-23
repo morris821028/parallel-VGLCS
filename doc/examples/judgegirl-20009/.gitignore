@@ -2,9 +2,12 @@
 
 ISMQ
 ISMQ-disjoint
+ISMQ-disjoint-AOS
 ISMQ-ST
 ISMQ-coST
+ISMQ-oneST
 ISMQ-BIT
+
 
 ## test data
 
