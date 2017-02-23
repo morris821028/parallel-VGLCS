@@ -1,12 +1,18 @@
 \section{Experiment}
 \label{sec:Experiment}
 
-We run on Intel Xeon E5-2620 2.40 GHz server, which the size of the L1
-cache is 384 KiB, the size of the L2 is 1536 KiB, and the size of the
-L3 cache is 15 MiB and have two processors.  The program is
-implemented with C++ language and OpenMP. The compile flag is
-\texttt{-O2}.  The CPU supports hyper-threading technique, and each
-processor has six cores.
+For the experiments we used a Server with Intel Xeon E5-2620 2.4 Ghz
+processor and 384 KiB of level 1 cache, 1536 KiB of level 2 cache, 15
+MiB of shared level 3 cache, and running Ubuntu 14.04.  The Intel CPU
+supports hyper-threading technique, and each processor has six cores.
+All algorithms were implemented in C++ and OpenMP compiled with GCC
+using the \texttt{-O2} and \texttt{-fopenmp} flag.
+
+\iffalse
+我們運行在 Intel Xeon E5-2620 2.40 GHz 主機上，其擁有 L1 cache 384 KiB、L2 cache 1536 KiB 和 L3 cache 15 MiB，
+Intel CPU 同時也支持 hyper-threading 技術，每個處理器有 6 個實體核心。
+所有的演算法使用 C++ 和 OpenMP 實作，使用優化參數為 \texttt{-O2} 和 \textt{-fopenmp}。
+\fi
 
 \subsection{VGLCS with Compressed Sparse Table}
 
