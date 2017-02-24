@@ -1,12 +1,12 @@
 \section{Experiment}
 \label{sec:Experiment}
 
-For the experiments we used a Server with Intel Xeon E5-2620 2.4 Ghz
+For the experiments we used a server with Intel Xeon E5-2620 2.4 Ghz
 processor and 384 KiB of level 1 cache, 1536 KiB of level 2 cache, 15
 MiB of shared level 3 cache, and running Ubuntu 14.04.  The Intel CPU
 supports hyper-threading technique, and each processor has six cores.
 All algorithms were implemented in C++ and OpenMP compiled with GCC
-using the \texttt{-O2} and \texttt{-fopenmp} flag.
+using the {\tt -O2} and {\tt -fopenmp} flag.
 
 \iffalse
 我們運行在 Intel Xeon E5-2620 2.40 GHz 主機上，其擁有 L1 cache 384 KiB、L2 cache 1536 KiB 和 L3 cache 15 MiB，
@@ -94,7 +94,7 @@ most queries.
 
 The figure \ref{fig:fig-ISMQcmp} shows that our compressed sparse
 table run faster than the disjoint set when $n > 10^6$.  When $n >
-10^7$, the compressed sparse table run faster $1.25 \times$ than the
+10^7$, the compressed sparse table run $1.25 \times$ faster than the
 disjoint set.  
 
 
@@ -102,7 +102,11 @@ disjoint set.
 \begin{figure}[!thb]
   \centering
   \includegraphics[width=0.9\linewidth]{graphics/fig-ISMQ.pdf}
-  \caption{ISMQ runs on E5-2620 with different data structures. We use the random test cases without any limitation, e.g. the length of interval query has a uniform distribution.}
+  \caption{
+  ISMQ runs on E5-2620 with different data structures. We use the
+random test cases without any limitation, e.g. the length of interval
+query has a uniform distribution.   
+  }
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
@@ -111,8 +115,8 @@ more slow than disjoint set.  In the dynamic programming, the tendency
 of insertion value will inflict the performance of data structure, so
 we experiment the different probability for each data structure.  The
 number of the query is 10 multiple of the number of insertion.  The
-result is shown on table \ref{tlb:ISMQcmp}.  When $N=10^7$, our
-amortized $\theta(1)$ sparse table run faster $1.26 \times$ than the
+result is shown on table~\ref{tlb:ISMQcmp}.  When $N=10^7$, our
+amortized $\theta(1)$ sparse table run $1.26 \times$ faster than the
 disjoint set.
 
 \iffalse
@@ -129,15 +133,15 @@ disjoint set.
 \subsection{Parallel Range Query}
 
 Each stage will have $n$ number of elements and the $n$ number of the
-query.  In this special cases, we run the \texttt{CORMQ} (compressed
+query.  In this special cases, we run the {\tt CORMQ} (compressed
 RMQ) to improve the performance compared to the origin.  If we can
-predict all range size before building, we get the \texttt{CORMQ-opt}
+predict all range size before building, we get the {\tt CORMQ-opt}
 which run $2.35$ faster than origin RMQ.  The table \ref{tlb:CORMQ} is
 shown the result of the strategy of the parallel range query.
 
 \iffalse
 每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，
-我們運行樸素的 \texttt{CORMQ} (cache-oblivious RMQ) 得到效能改善，
+我們運行樸素的 \texttt{CORMQ} (compressed RMQ) 得到效能改善，
 搭配可預測的分析降低運算量 (參照 \texttt{CORMQ-opt})，得到更好的改善。
 在 \texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速，結果如表 ~\ref{tlb:CORMQ}。
 \fi

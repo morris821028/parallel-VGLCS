@@ -57,9 +57,9 @@ implement and run efficiently in parallel environment.
 
 % then we???
 
-The parallelization of LCS on most multi-core platforms focuses on {\em
-wavefront} parallelism.  The wavefront parallelism is motivated by the
-recursive solution of LCS.  For example, Jiaoyun
+The parallelization of LCS on most multi-core platforms focuses on
+{\em wavefront} parallelism.  The wavefront parallelism is motivated
+by the recursive solution of LCS.  For example, Jiaoyun
 Yang~\cite{Yang2010AnEP} introduced a new formula to exploit more
 cache performance.  Our algorithm use more powerful sparse table
 instead of the disjoint set in the Peng's serial algorithm and get
@@ -89,8 +89,8 @@ VGLCS problem.  In Section \ref{sec:parallelRMQ} and
 parallelized with a time complexity $O(nm)$, which is better than
 previous works.  In Section \ref{sec:Implementation} and
 \ref{sec:Experiment}, we describe our optimized implementation and the
-result of our experiments. Section xx conclude this paper with lessons
-learned and posiible future works.
+result of our experiments. Section \ref{sec:Conclusion} conclude this
+paper with lessons learned and posiible future works.
 
 \iffalse 這一篇論文，我們將在第二 \ref{sec:parallelVGLCS} 節部分將
 Yung-Hsing Peng ~\cite{yunghsing} 提出的算法進行平行化。在第三節
