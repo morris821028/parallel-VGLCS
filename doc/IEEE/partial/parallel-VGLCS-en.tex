@@ -3,7 +3,7 @@
 
 In the serial algorithm which was designed by Yung-Hsing Peng, we
 observed that variants of LCS use many statuses to decide a new
-status. Its definition makes lots of data dependency, so we cannot
+status.  Its definition makes lots of data dependency, so we cannot
 parallel row by row intuitively.  Even though it's hard to parallel by
 several modifications, we can parallel the serial algorithm by using
 wavefront method.  Because the usage of the cache memory is hard to
@@ -22,12 +22,13 @@ exploit more parallelism to solve dynamic programming problems.
 
 \input{algorithms/alg-serial-VGLCS}
 
-In the algorithm ~\ref{alg:serial-VGLCS}, it run in $O(nm)$
-time and $O(nm)$ space.  If we use wavefront method to parallel, it
-must use extra storage space to record all row status compared to
-origin algorithm.  If use the rank convergence technique, it also uses
-extra storage space to reserve the information of state translation
-and spends more time to merge split parts.
+In the serial VGLCS algorithm \ref{alg:serial-VGLCS}, it run in
+$O(nm)$ time and $O(nm)$ space.  If we parallel VGLCS algorithm with
+wavefront method intuitively, it must use extra storage space to
+record all row status compared to origin algorithm.  If we use the
+rank convergence technique, it also uses extra storage space to
+reserve the information of state translation and spends more time to
+merge split parts.
 
 \iffalse
 序列算法的空間複雜度為 $O(nm)$。若使用波前平行，需要同時維護橫向的所有狀態，
@@ -40,8 +41,8 @@ and be more cache-friendly.  We define two stages in the serial
 algorithm, row and column stage.  In the row stage, it uses disjoint
 set to maintain \emph{incremental suffix maximum query} (ISMQ).
 However, ISMQ change itself state of the data structure when it
-appends a new value each time, so it makes harder to parallel.  We
-study some alternative plans as follows:
+appends a new value each time, so it makes hard to parallel.  We study
+some alternative plans as follows:
 
 \iffalse
 這裡我們傾向空間複雜度常數小且針對快取友善設計算法。

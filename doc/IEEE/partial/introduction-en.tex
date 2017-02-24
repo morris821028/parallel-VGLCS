@@ -24,7 +24,7 @@ at most $k+1$.  It can be solved in $O(nm)$, which $n, \; m$ is the
 length of input strings. This paper foucus on \emph{variable gap LCS}
 (VGLS).  The VGLCS require the distance between two consecutive
 matched limited at most $G_i$, which $G_i$ is the value of the
-position $i$ in input array. For example, two protein sequences $A =
+position $i$ in input array.  For example, two protein sequences $A =
 \tt{GCGCAATG}$ and $B = \tt{GCCCTAGCG}$, and two gap functions $G_A =
 [3, 1, 1, 2, 0, 0, 2, 1]$ and $G_B = [2, 0, 3, 2, 0, 1, 2, 0, 1]$.
 Figure ~\ref{fig:VGLCSex} presents an example to show that tow motifs
@@ -43,8 +43,8 @@ $B = \tt{GCCCTAGCG}$，各自的約束限制為 $G_A = [3, 1, 1, 2, 0, 0, 2, 1]$
 在 Yung-Hsing Peng ~\cite{yunghsing} 的論文已對 VGLCS 提出易於實作的 $O(nm \alpha(n))$ 和理論 $O(nm)$ 的解法。
 \fi
 
-The remainder of the paper is organized as follows. In section 2, we
-present the parallel algorithm to solve VGLCS problem. In section 3,
+The remainder of the paper is organized as follows.  In section 2, we
+present the parallel algorithm to solve VGLCS problem.  In section 3,
 we present a new algorithm, which parallels easily and time complexity
 $O(nm)$ better than the previous study. In section 4 to 5, we provide
 the optimized implementation and the result of experiments. The last
