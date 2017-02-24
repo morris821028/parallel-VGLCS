@@ -5,7 +5,7 @@
 % say something about sequence alignment
 
 The {\em longest common subsequence} (LCS)~\cite{Hirschberg1975ALS} is
-a famous problem in string processing.  For example, the \texttt{diff}
+a famous problem in string processing.  For example, the {\tt diff}
 utility show the difference between texts by LCS, and the revison
 control systems such as SVN/Git use LCS to reconciling multiple
 changes.  In bioinformatics, the best-known application of the LCS
@@ -30,7 +30,7 @@ the LCS is at most $k + 1$ characters away.  Fixed gap LCS can be
 solved in $O(nm)$, where $n$ and $m$ are the lengths of the two input
 strings~\cite{citation}.  On the other hand, a {\em variable   gap
 LCS} (VGLCS) requires that each charachter has a {\em gap} value and
-two consecutive character in LCS must be with distance of the gap of
+two consecutive characters in LCS must be with distance of the gap of
 the latter character plus 1.  One can think of the FGLCS as a special
 case of VGLCS in which the gap values of all characters are $k$.
 
@@ -49,15 +49,15 @@ illustration.  Now the LCS $GCCT$ is a VGLCS because every character
 in the LCS can find its predecessor in the LCS with distance at most
 its gap value plus 1.
 
-This paper foucues on finding efficient parallel algorithm to solve
+This paper focuses on finding efficient parallel algorithm to solve
 VGLS.  Peng~\cite{Peng2011TheLC} gives a $O(nm \alpha(n))$ algorithm
 that is easy to implement and a asymptotically better $O(nm)$
-algorithm.  Then, we propose our $O(nm)$ algorithm which has easy-to-
-implementation and run efficiently in parallel environment.
+algorithm.  Then, we propose our $O(nm)$ algorithm which is easy to
+implement and run efficiently in parallel environment.
 
 % then we???
 
-The parallelization of LCS on most multi-core platforms focus on {\em
+The parallelization of LCS on most multi-core platforms focuses on {\em
 wavefront} parallelism.  The wavefront parallelism is motivated by the
 recursive solution of LCS.  For example, Jiaoyun
 Yang~\cite{Yang2010AnEP} introduced a new formula to exploit more
