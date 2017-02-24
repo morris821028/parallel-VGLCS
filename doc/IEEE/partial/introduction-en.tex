@@ -2,12 +2,16 @@
 \label{sec:Introduction}
 
 % This is a topic sentence by itself.
-the {\em longest common subsequence} (LCS)~\cite{Hirschberg1975ALS} is
-a famous problem in string processing.
-
 % say something about sequence alignment
-The best-known application of the LCS problem is the sequence
-alignment~\cite{mount2001bioinformatics, Ann2010EfficientAF}.
+
+The {\em longest common subsequence} (LCS)~\cite{Hirschberg1975ALS} is
+a famous problem in string processing.  For example, the \texttt{diff}
+utility show the difference between texts by LCS, and the revison
+control systems such as SVN/Git use LCS to reconciling multiple
+changes.  In bioinformatics, the best-known application of the LCS
+problem is the sequence alignment~\cite{mount2001bioinformatics,
+Ann2010EfficientAF}, which identify the region of similarity between
+the sequences of DNA, RND, or protein.
 
 
 \iffalse 最長共同子序列 (\emph{longest common subsequence}, LCS) 廣泛
@@ -18,16 +22,17 @@ alignment~\cite{mount2001bioinformatics, Ann2010EfficientAF}.
 使用相關的想法來改善效能。\fi
 
 % give citation
-There are may contrainted version of LCS.  For example, a {\em fixed
-  gap LCS} (FGLCS) requires that the distance between consecutive
-characers in the LCS is at most $k + 1$ characters away.  Fixed gap
-LCS can be solved in $O(nm)$, where $n$ and $m$ are the lengths of the
-two input strings~\cite{citation}.  On the other hand, a {\em variable
-  gap LCS} (VGLCS) requires that each charachter has a {\em gap} value
-and two consecutive character in LCS must be with distance of the gap
-of the latter character plus 1.  One cam think of the FGLCS as a
-special case of VGLCS in which the gap values of all characters are
-$k$.
+
+Iliopoulos and Rahman~\cite{Rahman2006AlgorithmsFC} introduced many
+contrainted versions of LCS.  For example, a {\em fixed gap LCS}
+(FGLCS) requires that the distance between consecutive characers in
+the LCS is at most $k + 1$ characters away.  Fixed gap LCS can be
+solved in $O(nm)$, where $n$ and $m$ are the lengths of the two input
+strings~\cite{citation}.  On the other hand, a {\em variable   gap
+LCS} (VGLCS) requires that each charachter has a {\em gap} value and
+two consecutive character in LCS must be with distance of the gap of
+the latter character plus 1.  One can think of the FGLCS as a special
+case of VGLCS in which the gap values of all characters are $k$.
 
 \begin{figure}[!thb]
   \centering
@@ -45,15 +50,22 @@ in the LCS can find its predecessor in the LCS with distance at most
 its gap value plus 1.
 
 This paper foucues on finding efficient parallel algorithm to solve
-VGLS.  Peng~\cite{yunghsing,Yang2010AnEP} gives a $O(nm \alpha(n))$
-algorithm that is easy to implement and a asymtocailly better $O(nm)$
-algorihtm.  % then we???
+VGLS.  Peng~\cite{Peng2011TheLC} gives a $O(nm \alpha(n))$ algorithm
+that is easy to implement and a asymptotically better $O(nm)$
+algorithm.  Then, we propose our $O(nm)$ algorithm which has easy-to-
+implementation and run efficiently in parallel environment.
+
+% then we???
 
 The parallelization of LCS on most multi-core platforms focus on {\em
-  wavefront} parallelism.  The wavefront parallelism is motivated by
-the recursive solution of LCS.  For example Jiaoyun
+wavefront} parallelism.  The wavefront parallelism is motivated by the
+recursive solution of LCS.  For example, Jiaoyun
 Yang~\cite{Yang2010AnEP} introduced a new formula to exploit more
-cache performance. % Then we will ???
+cache performance.  Our algorithm use more powerful sparse table
+instead of the disjoint set in the Peng's serial algorithm and get
+better cache performance.
+
+% Then we will ???
 
 \iffalse 在約束條件下的 LCS 中，如 \emph{fixed gap LCS } (FGLCS)要求任
 兩個挑選的距離在相對應的另一個字串中相等，同時距離最大為 $k+1$，可在時
@@ -70,15 +82,17 @@ VGLCS 提出易於實作的 $O(nm \alpha(n))$ 和理論 $O(nm)$ 的解法。\fi
 
 % Use reference in all section numbering
 
-The remainder of the paper is organized as follows.  In Section 2, we
-present the parallel algorithm to solve VGLCS problem.  In Section 3,
-we present a new algorithm that be easily parallelized with a time
-complexity $O(nm)$, whcih is better than previous works.  In Section 4
-and 5, we describe our optimized implementation and the result of our
-experiments.  Section xx conclude this paper with lessons learned and
-posiible future works.
+The remainder of the paper is organized as follows.  In Section
+\ref{sec:parallelVGLCS}, we present the parallel algorithm to solve
+VGLCS problem.  In Section \ref{sec:parallelRMQ} and
+\ref{sec:parallelIRMQ}, we present a new algorithm that be easily
+parallelized with a time complexity $O(nm)$, which is better than
+previous works.  In Section \ref{sec:Implementation} and
+\ref{sec:Experiment}, we describe our optimized implementation and the
+result of our experiments. Section xx conclude this paper with lessons
+learned and posiible future works.
 
-\iffalse 這一篇論文，我們將在第二 \ref{sec:parallelSerial} 節部分將
+\iffalse 這一篇論文，我們將在第二 \ref{sec:parallelVGLCS} 節部分將
 Yung-Hsing Peng ~\cite{yunghsing} 提出的算法進行平行化。在第三節
 ~\ref{sec:parallelRMQ}，在理論分析上提供易平行且時間複雜度 $O(nm)$ 的
 設計。在第四節 ~\ref{sec:Implementation}，我們將藉由快取忘卻
