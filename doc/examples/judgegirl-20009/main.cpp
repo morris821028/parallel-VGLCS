@@ -9,6 +9,7 @@ static uint32_t p_random() {return seed = p_func(seed);}
 
 // #define _DEBUG
 int main() {
+	freopen("8.in", "r", stdin);
 	int N, M, S, MOD;
 	assert(scanf("%d %d %d %d", &N, &M, &S, &MOD) == 4);
 	
@@ -20,10 +21,18 @@ int main() {
 #endif
 	for (int it = 0; it < M; it++) {
 		init_ISMQ(N);
+		uint32_t prevV = 0;
 		for (int i = 0; i < N; i++) {
 			// step 1: append value to array $A$
 			{
-				uint32_t V = p_random()%MOD;
+				int p = p_random()%10;
+				uint32_t V;
+				if (p == 0)	
+					V = 0;
+				else if (p == 1)
+					prevV = V = prevV - p_random()%MOD;
+				else
+					prevV = V = prevV + p_random()%MOD;
 				append_ISMQ(V);
 #ifdef _DEBUG
 				D[i] = V;

@@ -1,12 +1,16 @@
-TARGET=ISMQ ISMQ-disjoint ISMQ-disjoint-AOS ISMQ-disjoint-RemSP \
+TARGET= ISMQ-brute \
+		ISMQ ISMQ-disjoint ISMQ-disjoint-AOS ISMQ-disjoint-RemSP \
 		ISMQ-ST ISMQ-coST ISMQ-coST-SOA ISMQ-oneST \
 		ISMQ-BIT \
 		main.o
 
-CFLAG=-Wall -std=c++11 -O2 -msse -march=native
+CFLAG=-Wall -std=c++11 -O2
 CXX=g++
 
 all: $(TARGET)
+
+ISMQ-brute: main.o ISMQ-brute.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-brute.cpp -o ISMQ-brute
 
 main.o: main.cpp
 	$(CXX) $(CFLAG) -c main.cpp -o main.o

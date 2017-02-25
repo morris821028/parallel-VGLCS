@@ -18,5 +18,7 @@ for f in *.in
 do
 	tmp=${f%%.in}
 	echo "testcase - $tmp"
-	time -p ./ISMQ-disjoint <$tmp.in >$tmp.out
+	time -p ./ISMQ-disjoint <$tmp.in >${tmp}sp.out
+	#time -p ./ISMQ-brute <$tmp.in >tmp.out
+	#diff -w $tmp.out tmp.out
 done

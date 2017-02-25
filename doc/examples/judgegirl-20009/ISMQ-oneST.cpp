@@ -15,7 +15,7 @@ static int8_t mem[512<<20];
 static int Cn[POWS+1] = {1, 1, 2, 5, 14, 42, 132, 429, 1430};
 static int CnBase[POWS+1][POWS+1];
 struct T {
-	int8_t v[POWS+1][POWS+1];
+	int8_t v[POWS][POWS];
 } _mem[2100];
 static T *LCA[MAXN];
 static bool hasBuildLCA = false;
@@ -63,22 +63,23 @@ static void buildLCA() {
 }
 static inline int tid(int lsz, int lid, int rsz, int rid) {
 	if (rsz == 0)	return lid;
-	int base = CnBase[lsz+rsz+1][lsz];
-	int offset = rid + lid*Cn[rsz];
-	return base + offset;
+	return CnBase[lsz+rsz+1][lsz] + lid*Cn[rsz] + rid;
 }
 struct State {
-	int i, s, tid;
-	int D[POWS+1][4], Dp;
-	State() {
-		i = 1, s = POWS, tid = Cn[POWS]-1;
-		D[0][0] = INT_MAX, Dp = 0;
+	int i, s, tid, Dp;
+	uint32_t D[POWS+1][4];
+	State() {init();}
+	inline void init() {
+		i = 1, s = POWS, tid = Cn[POWS]-1, Dp = 0;
+		D[0][0] = UINT_MAX;
 	}
 };
-static void typeOfCartesian(State &state, int v) {
+static void typeOfCartesian(State &state, uint32_t v) {
 	int Dp = state.Dp;
-	int lsz = 0, lid = 0;
-	int bsz = state.s-state.i+1, bid = Cn[state.s-state.i+1]-1;
+	int lsz = 0;
+	int lid = 0;
+	int bsz = state.s-state.i+1;
+	int bid = Cn[bsz]-1;
 	while (state.D[Dp][0] < v) {
 		lid = tid(state.D[Dp][1], state.D[Dp][2], lsz, lid);
 		lsz += state.D[Dp][1]+1;
@@ -132,10 +133,10 @@ void append_ISMQ(uint32_t V) {
 	static uint32_t Dmx = 0, B[POWS+1];
 	// begin coroutine
 	++Mindex;
-	Dmx = max(Dmx, V), B[t.i] = V;
+	Dmx = max(Dmx, V), B[t.i] = V, oA[Mindex] = V, pblock[Mindex] = Dmx;
 	typeOfCartesian(t, V);
 	// end
-	oA[Mindex] = V, pblock[Mindex] = Dmx, tree[Mindex>>LOGS] = t.tid;
+	tree[Mindex>>LOGS] = t.tid;
 
 	if ((Mindex&(POWS-1)) == (POWS-1)) {
 		uint32_t Bmx = 0;
@@ -145,13 +146,13 @@ void append_ISMQ(uint32_t V) {
 		}
 		int pos = Mindex>>LOGS;
 		tb[0][pos] = Bmx;
-		//		fprintf(stderr, "update %d %d %d\n", 0, pos, Bmx);
-		for (int i = 1; i <= logMs && pos-(1<<(i-1)) >= 0; i++) {
-			uint32_t p = tb[i-1][pos-(1<<(i-1))];
+		for (int i = 1, before = pos-1; before >= 0 && i <= logMs; i++) {
+			uint32_t p = tb[i-1][before];
 			uint32_t q = tb[i-1][pos];
 			tb[i][pos] = max(p, q);
+			before -= 1<<(i-1);
 		}
-		t = State(), Dmx = 0;
+		t.init(), Dmx = 0;
 	}
 }
 uint32_t query_ISMQ(uint32_t l) {

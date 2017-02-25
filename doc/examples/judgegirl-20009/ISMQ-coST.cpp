@@ -35,8 +35,8 @@ inline void init(int N, int logN, int8_t *mem) {
 	logMs = min(log2int(Ms), logN);
 	for (int i = 0; i <= logMs; i++)
 		tb[i] = (uint32_t *) mem, mem += sizeof(uint32_t)*(Ms);
-	pblock = (uint32_t *) mem, mem += sizeof(uint32_t)*M;
 	sblock = (uint32_t *) mem, mem += sizeof(uint32_t)*M;
+	pblock = (uint32_t *) mem, mem += sizeof(uint32_t)*M;
 	tree = (TYPE_TREE*) mem, mem += sizeof(TYPE_TREE)*Ms;
 }
 static inline int8_t RMQ(TYPE_TREE tree, int8_t l, int8_t r) {
@@ -56,7 +56,7 @@ void init_ISMQ(int N) {
 }
 
 void append_ISMQ(uint32_t V) {
-	static uint32_t D[POWS+1] = {INT_MAX}, Dmx = 0, B[POWS+1];
+	static uint32_t D[POWS+1] = {UINT_MAX}, Dmx = 0, B[POWS+1];
 	static int i = 1, Dp = 0;
 	static TYPE_TREE mask = 0;
 	// begin coroutine
@@ -73,20 +73,22 @@ void append_ISMQ(uint32_t V) {
 	tree[Mindex>>LOGS] = mask;	
 
 	if ((Mindex&(POWS-1)) == (POWS-1)) {
+
 		uint32_t Bmx = 0;
-		for (int it = i-1, j = 0; it >= 1; it--, j++) {
-			Bmx = max(Bmx, B[it]);
-			sblock[Mindex-j] = Bmx;
-		}
+
+        for (int it = i-1, j = 0; it >= 1; it--, j++) {
+            Bmx = max(Bmx, B[it]);
+            sblock[Mindex-j] = Bmx;
+        }
+
 		int pos = Mindex>>LOGS;
-		tb[0][pos] = Bmx;
+		tb[0][pos] = Dmx;
 		for (int i = 1, before = pos-1; before >= 0 && i <= logMs; i++) {
 			uint32_t p = tb[i-1][before];
 			uint32_t q = tb[i-1][pos];
-			tb[i][pos] = max(p, q);
+			tb[i][pos] = max(q, p);
 			before -= 1<<(i-1);
 		}
-
 		mask = 0, i = 1, Dp = 0, Dmx = 0;
 	}
 }
@@ -99,9 +101,12 @@ uint32_t query_ISMQ(uint32_t l) {
 		ret = pblock[r];
 		r = r-1-(r&(POWS-1));
 	}
+	int tmp = -1;
 	if (l&(POWS-1)) {
-		ret = max(sblock[l], ret);
+		tmp = l;
 		l = l+POWS-(l&(POWS-1));
+		if (l > r)
+		ret = max(ret, sblock[tmp]);
 	}
 	if (unlikely(l > r))
 		return ret;
@@ -112,6 +117,10 @@ uint32_t query_ISMQ(uint32_t l) {
 	uint32_t q = tb[t][r];
 	ret = max(p, ret);
 	ret = max(q, ret);
+	if (tmp >= 0 && tb[0][tmp>>LOGS] <= ret)
+		return ret;
+	if (tmp >= 0)
+		ret = max(ret, sblock[tmp]);
 	return ret;
 }
 
