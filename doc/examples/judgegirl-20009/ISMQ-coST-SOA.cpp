@@ -21,7 +21,7 @@ static int8_t mem[512<<20];
 #define unlikely(x) __builtin_expect(!!(x), 0)
 
 static uint32_t oA[MAXN];
-static uint32_t *tb[MAXLOGN];
+static uint32_t *tb[MAXN];
 static uint32_t *pblock, *sblock;
 static TYPE_TREE *tree;
 static int M, Ms, logMs;
@@ -33,15 +33,15 @@ inline void init(int N, int logN, int8_t *mem) {
 	M = ((N+POWS)>>LOGS)<<LOGS;
 	Ms = M>>LOGS;
 	logMs = min(log2int(Ms), logN);
-	for (int i = 0; i <= logMs; i++)
-		tb[i] = (uint32_t *) mem, mem += sizeof(uint32_t)*(Ms);
+	for (int i = 0; i <= Ms; i++)
+		tb[i] = (uint32_t *) mem, mem += sizeof(uint32_t)*(logMs);
 	pblock = (uint32_t *) mem, mem += sizeof(uint32_t)*M;
 	sblock = (uint32_t *) mem, mem += sizeof(uint32_t)*M;
 	tree = (TYPE_TREE*) mem, mem += sizeof(TYPE_TREE)*Ms;
 }
 static inline int8_t RMQ(TYPE_TREE tree, int8_t l, int8_t r) {
 	int8_t mxIdx = l, x = 0;
-	for (++l; l <= r; ++l) {
+	for (l++; l <= r; l++) {
 		x = x+1 - ((tree>>(l<<2))&15);
 		if (x <= 0) {
 			mxIdx = l, x = 0;
@@ -61,16 +61,17 @@ void append_ISMQ(uint32_t V) {
 	static TYPE_TREE mask = 0;
 	// begin coroutine
 	++Mindex;
-	Dmx = max(Dmx, V), oA[Mindex] = V, pblock[Mindex] = Dmx;
+	Dmx = max(Dmx, V);
 	B[i] = V;
-	int cnt = 0;
-	while (D[Dp] < V)
+	uint32_t v = V;
+	int8_t cnt = 0;
+	while (D[Dp] < v)
 		Dp--, cnt++;
-	D[++Dp] = V;
+	D[++Dp] = v;
 	mask = mask | (((TYPE_TREE) cnt)<<((i-1)<<2));
 	i++;
 	// end
-	tree[Mindex>>LOGS] = mask;	
+	oA[Mindex] = V, pblock[Mindex] = Dmx, tree[Mindex>>LOGS] = mask;	
 
 	if ((Mindex&(POWS-1)) == (POWS-1)) {
 		uint32_t Bmx = 0;
@@ -79,24 +80,24 @@ void append_ISMQ(uint32_t V) {
 			sblock[Mindex-j] = Bmx;
 		}
 		int pos = Mindex>>LOGS;
-		tb[0][pos] = Bmx;
-		for (int i = 1, before = pos-1; before >= 0 && i <= logMs; i++) {
-			uint32_t p = tb[i-1][before];
-			uint32_t q = tb[i-1][pos];
-			tb[i][pos] = max(p, q);
-			before -= 1<<(i-1);
+		tb[pos][0] = Bmx;
+		//		fprintf(stderr, "update %d %d %d\n", 0, pos, Bmx);
+		for (int i = 1; i <= logMs && pos-(1<<(i-1)) >= 0; i++) {
+			uint32_t p = tb[pos-(1<<(i-1))][i-1];
+			uint32_t q = tb[pos][i-1];
+			tb[pos][i] = max(p, q);
 		}
 
-		mask = 0, i = 1, Dp = 0, Dmx = 0;
+		mask = 0, i = 1, D[0] = INT_MAX, Dp = 0, Dmx = 0;
 	}
 }
 uint32_t query_ISMQ(uint32_t l) {
 	uint32_t r = Mindex;
-	if ((l>>LOGS) == (r>>LOGS))
+	if (unlikely((l>>LOGS) == (r>>LOGS)))
 		return oA[((l>>LOGS)<<LOGS)+RMQ(tree[l>>LOGS], l&(POWS-1), r&(POWS-1))];
 	uint32_t ret = 0;
 	if ((r&(POWS-1)) != (POWS-1)) {
-		ret = pblock[r];
+		ret = max(pblock[r], ret);
 		r = r-1-(r&(POWS-1));
 	}
 	if (l&(POWS-1)) {
@@ -106,10 +107,11 @@ uint32_t query_ISMQ(uint32_t l) {
 	if (unlikely(l > r))
 		return ret;
 
-	l = l>>LOGS, r = r>>LOGS;
+	l = l>>LOGS;
+	r = r>>LOGS;
 	int t = log2int(r-l+1);
-	uint32_t p = tb[t][l+(1<<t)-1];
-	uint32_t q = tb[t][r];
+	uint32_t p = tb[l+(1<<t)-1][t];
+	uint32_t q = tb[r][t];
 	ret = max(p, ret);
 	ret = max(q, ret);
 	return ret;

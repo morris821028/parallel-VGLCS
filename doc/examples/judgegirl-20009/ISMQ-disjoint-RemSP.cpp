@@ -11,10 +11,25 @@ static int findp(int x) {
 	return parent[x] == x ? x : (parent[x] = findp(parent[x]));
 }
 static inline int joint(int l, int r) {
-	l = findp(l);
-	r = findp(r);
-	parent[l] = r, left[r] = left[l];
-	return left[r];
+	int x = l, y = r;
+	while (parent[x] != parent[y]) {
+		if (parent[x] < parent[y]) {
+			if (x == parent[x]) {
+				parent[x] = parent[y];
+				break;
+			}
+			parent[x] = parent[y];
+		} else {
+			if (y == parent[y]) {
+				parent[y] = parent[x];
+				break;
+			}
+			parent[y] = parent[x];
+		}
+	}
+	x = findp(x);
+	left[x] = left[l];
+	return left[x];
 }
 
 void init_ISMQ(int N) {
