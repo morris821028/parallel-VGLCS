@@ -1,12 +1,12 @@
 \section{Experiment}
 \label{sec:Experiment}
 
-For the experiments we used a Server with Intel Xeon E5-2620 2.4 Ghz
+For the experiments we used a server with Intel Xeon E5-2620 2.4 Ghz
 processor and 384 KiB of level 1 cache, 1536 KiB of level 2 cache, 15
 MiB of shared level 3 cache, and running Ubuntu 14.04.  The Intel CPU
 supports hyper-threading technique, and each processor has six cores.
 All algorithms were implemented in C++ and OpenMP compiled with GCC
-using the \texttt{-O2} and \texttt{-fopenmp} flag.
+using the {\tt -O2} and {\tt -fopenmp} flag.
 
 \iffalse
 我們運行在 Intel Xeon E5-2620 2.40 GHz 主機上，其擁有 L1 cache 384 KiB、L2 cache 1536 KiB 和 L3 cache 15 MiB，
@@ -22,6 +22,11 @@ figure \ref{fig:fig-parallel} shows the different runtime in different
 parallelism, and the figure \ref{fig:fig-paralell} shows the
 scalability of our parallel algorithm.  On our server, the parallel
 algorithm can get $8 \times$ faster than the serial algorithm.
+
+\iffalse
+我們運行優化策略中的空間壓縮版本，而非理論分析的 $\theta(1)$ 操作，
+單次詢問落在 $O(s)$ 中，在實作上由於可以完全壓在暫存器上操作，效能表現較佳。
+\fi
 
 \begin{figure}[!thb]
   \centering
@@ -45,6 +50,10 @@ algorithm can get $8 \times$ faster than the serial algorithm.
 In VGLCS problem, the number of insertion equals the number of the
 queries. We compare the performance between the four data structure as
 follows:
+
+\iffalse
+針對插入和詢問次數相同的 ISMQ 問題，運行以下四種數據結構：
+\fi
 
 \begin{itemize}
   \item 
@@ -73,15 +82,31 @@ most queries.
 
 \end{itemize}
 
+\iffalse
+\begin{itemize}
+  \item 并查集 (Disjoint Set): 平均運行時間 $o(\alpha(n))$。只使用路徑壓縮技巧。
+  \item 稀疏表 (Sparse Table): 插入 $O(\log n)$、詢問 $O(1)$。實作陣列宣告採用 $\tt{table}[\log N][N]$ 以減少快取未中。
+  \item 樹狀數組 (Binary Indexed Tree): 插入、詢問均為 $O(\log n)$。
+  \item 壓縮稀疏表 (Compressed Sparse Tree): 插入均攤 $O(1)$、詢問操作 $O(s)$，
+  其中 $s$ 為拆分到區塊大小。實作時，維護區塊前綴和後綴最大值降低詢問複雜度至 $O(1)$，當發生 in-block 詢問再運行 $O(s)$ 算法。
+\end{itemize}
+\fi
+
 The figure \ref{fig:fig-ISMQcmp} shows that our compressed sparse
 table run faster than the disjoint set when $n > 10^6$.  When $n >
-10^7$, the compressed sparse table run faster $1.25 \times$ than the
+10^7$, the compressed sparse table run $1.25 \times$ faster than the
 disjoint set.  
+
+
 
 \begin{figure}[!thb]
   \centering
   \includegraphics[width=0.9\linewidth]{graphics/fig-ISMQ.pdf}
-  \caption{ISMQ runs on E5-2620 with different data structures. We use the random test cases without any limitation, e.g. the length of interval query has a uniform distribution.}
+  \caption{
+  ISMQ runs on E5-2620 with different data structures. We use the
+random test cases without any limitation, e.g. the length of interval
+query has a uniform distribution.   
+  }
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
@@ -90,19 +115,35 @@ more slow than disjoint set.  In the dynamic programming, the tendency
 of insertion value will inflict the performance of data structure, so
 we experiment the different probability for each data structure.  The
 number of the query is 10 multiple of the number of insertion.  The
-result is shown on table \ref{tlb:ISMQcmp}.  When $N=10^7$, our
-amortized $\theta(1)$ sparse table run faster $1.26 \times$ than the
+result is shown on table~\ref{tlb:ISMQcmp}.  When $N=10^7$, our
+amortized $\theta(1)$ sparse table run $1.26 \times$ faster than the
 disjoint set.
+
+\iffalse
+當運行 $n > 10^6$ 時，我們提出的壓縮稀疏表的效能已經勝過并查集的版本，
+其運行結果如圖表 ~\ref{fig:fig-ISMQcmp}。在 $n = 10^7$ 時，加速 $1.25 \times$。
+然而，我們提供的 amortized $\theta(1)$ 的稀疏表慢於并查集，
+我們做了深入的機率探討 (參照表 ~\ref{tlb:ISMQcmp})，由於大部分的操作都被區塊後綴和前綴解決，
+沒有實際運用到內部詢問，約束區間詢問的大小為 $L$，在 $N = 10^7$ 時，最多能加速 $1.26 \times$，
+其中插入和詢問比例為 1:10，當詢問比重更大時，將有更明顯的加速。
+\fi
 
 \input{./tables/tlb-ISMQcmp.tex}
 
 \subsection{Parallel Range Query}
 
 Each stage will have $n$ number of elements and the $n$ number of the
-query.  In this special cases, we run the \texttt{CORMQ} (compressed
+query.  In this special cases, we run the {\tt CORMQ} (compressed
 RMQ) to improve the performance compared to the origin.  If we can
-predict all range size before building, we get the \texttt{CORMQ-opt}
+predict all range size before building, we get the {\tt CORMQ-opt}
 which run $2.35$ faster than origin RMQ.  The table \ref{tlb:CORMQ} is
 shown the result of the strategy of the parallel range query.
+
+\iffalse
+每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，
+我們運行樸素的 \texttt{CORMQ} (compressed RMQ) 得到效能改善，
+搭配可預測的分析降低運算量 (參照 \texttt{CORMQ-opt})，得到更好的改善。
+在 \texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速，結果如表 ~\ref{tlb:CORMQ}。
+\fi
 
 \input{./tables/tlb-CORMQ.tex}
