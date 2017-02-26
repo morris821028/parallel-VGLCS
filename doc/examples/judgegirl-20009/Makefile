@@ -1,9 +1,16 @@
-TARGET=ISMQ ISMQ-disjoint ISMQ-ST ISMQ-coST ISMQ-BIT ISMQ-oneST ISMQ-disjoint-AOS main.o
+TARGET= ISMQ-brute \
+		ISMQ ISMQ-disjoint ISMQ-disjoint-AOS ISMQ-disjoint-RemSP \
+		ISMQ-ST ISMQ-coST ISMQ-coST-SOA ISMQ-oneST \
+		ISMQ-BIT \
+		main.o
 
-CFLAG=-Wall -std=c++11 -O2 -msse -march=native
+CFLAG=-Wall -std=c++11 -O2
 CXX=g++
 
 all: $(TARGET)
+
+ISMQ-brute: main.o ISMQ-brute.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-brute.cpp -o ISMQ-brute
 
 main.o: main.cpp
 	$(CXX) $(CFLAG) -c main.cpp -o main.o
@@ -17,12 +24,19 @@ ISMQ-disjoint: main.o ISMQ-disjoint.cpp
 ISMQ-disjoint-AOS: main.o ISMQ-disjoint-AOS.cpp
 	$(CXX) $(CFLAG) main.o ISMQ-disjoint-AOS.cpp -o ISMQ-disjoint-AOS
 
+ISMQ-disjoint-RemSP: main.o ISMQ-disjoint-RemSP.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-disjoint-RemSP.cpp -o ISMQ-disjoint-RemSP
+
 
 ISMQ-ST: main.o ISMQ-ST.cpp
 	$(CXX) $(CFLAG) main.o ISMQ-ST.cpp -o ISMQ-ST
 
-ISMQ-coST: main.o ISMQ-coST.cpp
+ISMQ-coST: main.o ISMQ-coST.cpp ISMQ-coST-tmp.cpp
 	$(CXX) $(CFLAG) main.o ISMQ-coST.cpp -o ISMQ-coST
+	$(CXX) $(CFLAG) main.o ISMQ-coST-tmp.cpp -o ISMQ-coST-tmp
+
+ISMQ-coST-SOA: main.o ISMQ-coST-SOA.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-coST-SOA.cpp -o ISMQ-coST-SOA
 
 ISMQ-oneST: main.o ISMQ-oneST.cpp
 	$(CXX) $(CFLAG) main.o ISMQ-oneST.cpp -o ISMQ-oneST
@@ -34,11 +48,11 @@ TIN=7.in
 
 test:
 	time -p ./ISMQ-disjoint <$(TIN) >/dev/null
-	time -p ./ISMQ-disjoint-AOS <$(TIN) >/dev/null
-	time -p ./ISMQ-ST <$(TIN) >/dev/null
+	#time -p ./ISMQ-disjoint-AOS <$(TIN) >/dev/null
+	#time -p ./ISMQ-ST <$(TIN) >/dev/null
 	time -p ./ISMQ-coST <$(TIN) >/dev/null
 	time -p ./ISMQ-oneST <$(TIN) >/dev/null
-	time -p ./ISMQ-BIT <$(TIN) >/dev/null
+	#time -p ./ISMQ-BIT <$(TIN) >/dev/null
 
 clean:
 	rm $(TARGET)

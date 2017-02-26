@@ -3,10 +3,14 @@
 ISMQ
 ISMQ-disjoint
 ISMQ-disjoint-AOS
+ISMQ-disjoint-RemSP
 ISMQ-ST
 ISMQ-coST
+ISMQ-coST-tmp
+ISMQ-coST-SOA
 ISMQ-oneST
 ISMQ-BIT
+ISMQ-brute
 
 
 ## test data
