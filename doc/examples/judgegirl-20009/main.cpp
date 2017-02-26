@@ -9,7 +9,6 @@ static uint32_t p_random() {return seed = p_func(seed);}
 
 // #define _DEBUG
 int main() {
-	freopen("8.in", "r", stdin);
 	int N, M, S, MOD;
 	assert(scanf("%d %d %d %d", &N, &M, &S, &MOD) == 4);
 	

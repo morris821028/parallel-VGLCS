@@ -12,8 +12,8 @@ all: $(TARGET)
 ISMQ-brute: main.o ISMQ-brute.cpp
 	$(CXX) $(CFLAG) main.o ISMQ-brute.cpp -o ISMQ-brute
 
-main.o: main.cpp
-	$(CXX) $(CFLAG) -c main.cpp -o main.o
+main.o: main-prob.cpp
+	$(CXX) $(CFLAG) -c main-prob.cpp -o main.o
 
 ISMQ: main.o ISMQ.cpp
 	$(CXX) $(CFLAG) main.o ISMQ.cpp -o ISMQ

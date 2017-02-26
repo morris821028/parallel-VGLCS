@@ -164,9 +164,13 @@ uint32_t query_ISMQ(uint32_t l) {
 		ret = max(pblock[r], ret);
 		r = r-1-(r&(POWS-1));
 	}
+	int tmp = -1;
 	if (l&(POWS-1)) {
-		ret = max(sblock[l], ret);
+		// ret = max(sblock[l], ret);
+		tmp = l;
 		l = l+POWS-(l&(POWS-1));
+		if (l > r)
+		ret = max(ret, sblock[tmp]);
 	}
 	if (unlikely(l > r))
 		return ret;
@@ -178,6 +182,10 @@ uint32_t query_ISMQ(uint32_t l) {
 	uint32_t q = tb[t][r];
 	ret = max(p, ret);
 	ret = max(q, ret);
+	if (tmp >= 0 && tb[0][tmp>>LOGS] <= ret)
+		return ret;
+	if (tmp >= 0)
+		ret = max(ret, sblock[tmp]);
 	return ret;
 }
 

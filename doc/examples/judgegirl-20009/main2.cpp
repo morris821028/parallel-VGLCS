@@ -45,7 +45,7 @@ int main() {
 #endif
 				}
 				// step 2: query suffix maximum in $A[L, i]$
-				for (int k = 0; k < 10; k++)
+				for (int k = 0; k < 1; k++)
 				{
 					int L = min(max(i-(int) (p_random()%limL), 0), i);
 					uint32_t ans = query_ISMQ(L);

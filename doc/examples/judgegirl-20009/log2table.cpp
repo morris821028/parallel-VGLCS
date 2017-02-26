@@ -18,7 +18,8 @@ int main(int argc, char* argv[]) {
 	}
 	for (int p = 0; p <= 100; p += 20) {
 		printf("$%d\\%$ ", p);
-		double speedup = 0;
+		double speedup1 = 0;
+		double speedup2 = 0;
 		for (int L = 4; L <= 16; L <<= 1) {
 			for (int q = 0; q <= 100; q += 25) {
 				printf("&");
@@ -38,29 +39,51 @@ int main(int argc, char* argv[]) {
 					if (i != 2)
 						printf("\\\\");
 				}
-				speedup = max(speedup, R[0][p][q][L] / R[2][p][q][L]);
+				speedup1 = max(speedup1, R[0][p][q][L] / R[1][p][q][L]);
+				speedup2 = max(speedup2, R[0][p][q][L] / R[2][p][q][L]);
 //				printf("%.2f\\\\%.2f\\\\%.2f", R[0][p][q][L], R[1][p][q][L], R[2][p][q][L]);
 				printf(" \\end{tabular}");
 			}
 		}
-		if (speedup < 1)
-			printf("& %.2f", speedup);
+		printf("& \\begin{tabular}{@{}r@{}}");
+		printf("%.2f", 1.f);
+		if (speedup1 < 1)
+			printf("\\\\ %.2f", speedup1);
 		else
-			printf("& \\textbf{%.2f}", speedup);
+			printf("\\\\ \\textbf{%.2f}", speedup1);
+		if (speedup2 < 1)
+			printf("\\\\ %.2f", speedup2);
+		else
+			printf("\\\\ \\textbf{%.2f}", speedup2);
+		printf(" \\end{tabular}");
 		puts("\\\\ \\hline");
 	}
 	printf("Speedup ");
 	for (int L = 4; L <= 16; L <<= 1) {
 		for (int q = 0; q <= 100; q += 25) {
-			double speedup = 0;
+			double speedup1 = 0;
+			double speedup2 = 0;
 			for (int p = 0; p <= 100; p += 20) {
-				speedup = max(speedup, R[0][p][q][L] / R[2][p][q][L]);
+				speedup1 = max(speedup1, R[0][p][q][L] / R[1][p][q][L]);
+				speedup2 = max(speedup2, R[0][p][q][L] / R[2][p][q][L]);
 			}
+			printf("& \\begin{tabular}{@{}r@{}}");
+			printf("%.2f", 1.f);
+			if (speedup1 < 1)
+				printf("\\\\ %.2f", speedup1);
+			else
+				printf("\\\\ \\textbf{%.2f}", speedup1);
+			if (speedup2 < 1)
+				printf("\\\\ %.2f", speedup2);
+			else
+				printf("\\\\ \\textbf{%.2f}", speedup2);
+			printf(" \\end{tabular}");
+/*
 			if (speedup < 1)
 				printf("& %.2f", speedup);
 			else
 				printf("& \\textbf{%.2f}", speedup);
-
+*/
 		}
 	}
 	printf("\\\\");
