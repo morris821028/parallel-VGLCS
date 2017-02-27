@@ -4,7 +4,7 @@ TARGET= ISMQ-brute \
 		ISMQ-BIT \
 		main.o
 
-CFLAG=-Wall -std=c++11 -O2
+CFLAG=-Wall -std=c++11 -O2 -g3
 CXX=g++
 
 all: $(TARGET)
@@ -12,8 +12,8 @@ all: $(TARGET)
 ISMQ-brute: main.o ISMQ-brute.cpp
 	$(CXX) $(CFLAG) main.o ISMQ-brute.cpp -o ISMQ-brute
 
-main.o: main-prob.cpp
-	$(CXX) $(CFLAG) -c main-prob.cpp -o main.o
+main.o: main-special-dec.cpp
+	$(CXX) $(CFLAG) -c main-special-dec.cpp -o main.o
 
 ISMQ: main.o ISMQ.cpp
 	$(CXX) $(CFLAG) main.o ISMQ.cpp -o ISMQ
