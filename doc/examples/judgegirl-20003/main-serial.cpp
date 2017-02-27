@@ -5,37 +5,42 @@ const int MAXN = 10005;
 
 struct ISMQ {
 	int16_t value[MAXN];
-	int16_t parent[MAXN], left[MAXN];
+	int16_t parent[MAXN];
+	int16_t weight[MAXN];
+	int16_t leader[MAXN];
+	int16_t lIdx;
 	int findp(int x) {
         return parent[x] == x ? x : (parent[x] = findp(parent[x]));
     }
-	inline int joint(int l, int r) {
-		l = findp(l), r = findp(r);
-		parent[l] = r, left[r] = left[l];
-		return left[r];
-	}
 	void init(int n) {
 		for (int i = 0; i <= n; i++)
 			parent[i] = i;
 		for (int i = 0; i <= n; i++)
-			left[i] = i;
+			weight[i] = 1;
 		memset(value, 0, sizeof(value[0])*(n+1));
+
+        lIdx = 0;
+        value[0] = 0, parent[0] = 0, weight[0] = 1;
+        leader[lIdx] = 0;
 	}
 	int get(int x) {
-		return value[findp(x)];
-	}
-	void set(int x, int val) {
-		value[x] = val;
-		
-		int y = x-1;
-		while (y >= 0) {
-			y = findp(y);
-			if (value[y] > val)
-				return ;
-			y = joint(y, x);
-			y--;
-		}
-	}
+        return value[findp(x)];
+    }
+    void append(int x, int16_t val) {
+        value[x] = val, parent[x] = x;
+        int u = x, weightR = 1;
+        for (int16_t *v = leader + lIdx; lIdx >= 0 && value[*v] <= val; v--, lIdx--) {
+            if (weightR <= weight[lIdx])
+                u = (parent[u] = *v);
+            else
+                parent[*v] = u;
+            weightR = weight[lIdx] + weightR;
+        }
+        ++lIdx;
+        value[u] = val;
+        leader[lIdx] = u;
+        weight[lIdx] = weightR;
+    }
 };
 int run(int nA, char A[], int16_t GA[], 
 		int nB, char B[], int16_t GB[]) {
@@ -60,10 +65,8 @@ int run(int nA, char A[], int16_t GA[],
 				ret = max(ret, tmp);
 			}
 			int16_t Qr = Q[j].get(r);
-			if (Qr)
-				RQ.set(j, Qr);
-			if (tmp)
-				Q[j].set(i, tmp);
+			RQ.append(j, Qr);
+			Q[j].append(i, tmp);
 		}
 	}
 	return ret;
