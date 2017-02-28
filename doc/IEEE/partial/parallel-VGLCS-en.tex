@@ -10,14 +10,26 @@ manner.
 
 The {\em wavefront method} address this parallelization difficulty by
 keeping the computation as wavefront.  However, the wavefront
-computation is not cache-friendly, i.e., the wavefront algorithm
-cannot effectively keep the required data in cache effectively.  To
-address this cache issue Maleki~\cite{Maleki2016EfficientPU} developed
-a technique that uses the property of {\em rank convergence} to
-exploit more parallelism in the dynamic programming.  %need to say
-                                                      %something abuut
-                                                      %rank
-                                                      %convergence
+computation is not cache-friendly, i.e., the wavefront algorithm cannot
+effectively keep the required data in cache effectively.  To address
+this cache issue Maleki~\cite{Maleki2016EfficientPU} developed a
+technique that uses the property of {\em rank convergence} to exploit
+more parallelism in the dynamic programming.  
+
+The linear-tropical dynamic programming
+problem~\cite{Maleki2016EfficientPU} which has the property of {\em rank
+convergence} can be divided into the sub-problems , such as a sequence
+of stages, which a solution of the sub-problems depends on only the
+solutions of the previous sub-problem.  About rank convergence in VGLCS
+problem, the sub-problems has developed efficient algorithm by Peng.
+However, the parallel forward phase is difficult to integrate the partial
+correct and incorrect solution in parallelization algorithm which using
+rank convergence.
+
+%need to say
+%something abuut
+%rank
+%convergence
 
 \iffalse
 在 $O(nm \alpha(n))$ 的序列算法 \ref{alg:serial-VGLCS} 中，
@@ -30,12 +42,16 @@ exploit more parallelism in the dynamic programming.  %need to say
 
 \input{algorithms/alg-serial-VGLCS}
 
-% XXX -> last nem
+% XXX -> last name
+% XXX = Peng
 
-Efficient parallelization of VGLCS is difficult in both memory and
-time.  XXX proposed a serial algorithm for the VGLCS
-problem~\ref{alg:serial-VGLCS}, which runs in $O(nm)$ time and $O(nm)$
-space.  If we parallel this algorithm with wavefront method
+Efficient parallelization of VGLCS is difficult in both memory and time.
+Peng proposed a serial algorithm for the VGLCS problem~\ref{alg:serial-
+VGLCS}, which runs in $O(nm)$ time and $O(nm)$ space.  Simultaneously,
+Peng transfer the VGLCS problem into {\em incremental suffix maximium
+query} problem
+
+If we parallel this algorithm with wavefront method
 intuitively, it will require extra space to record all row status,
 which is not required in the origin algorithm.  On the other hand, if
 we use the rank convergence technique, it also uses extra space to
@@ -48,15 +64,22 @@ both memory and time.
 展出，勢必要記錄轉移的狀態，需要耗費更多的記憶體空間，用以在最後階段合
 併所用。\fi
 
-We propose a parallel VGLCS algorithm that is space-efficient and
-cache-friendly.  The sequential version has two stages -- row and
-column stage.  In the row stage, the algorithm uses a {\em disjoint
-  set} to efficiently answer {\em incremental suffix maximum query}
-(ISMQ).  However, a ISMQ will change the state of the data structure
-when it appends a new value, so it is difficult to parallelize.  
+Peng found the VGLCS with {\em incremental suffix maximium query} (ISMQ)
+and handling ISMQ by union and find.  The disjoint-set data structure
+for solving the union-find problem can be found in
+Gabow's~\cite{Gabow1983ALA} and Tarjan's~\cite{Tarjan1975EfficiencyOA}
+article, and its amortized time is only $O(\alpha(n))$.  In the parallel
+environment, the unstable operation make load imbalance to run
+efficiently.  In this paper, we propose a parallel VGLCS algorithm that
+is space-efficient and cache-friendly.  The sequential version has two
+stages -- row and column stage.  In the row stage, the algorithm uses a
+{\em disjoint set} to efficiently answer {\em incremental suffix
+maximum query} (ISMQ).  However, a ISMQ will change the state of the
+data structure when it appends a new value, so it is difficult to
+parallelize.
 
 % query ususally does not change anything. Are you sure it is qurey?
-
+% Morris: Yes, disjoint set use path compression during query.
 % ISMQ is out of the blue.  You need to give an exmaple and  motivation 
 
 \iffalse 這裡我們傾向空間複雜度常數小且針對快取友善設計算法。平行算法主
@@ -121,17 +144,19 @@ parallel.
   \label{fig:interval-decomposition}
 \end{figure*}
 
-We present our parallel algorithm for the VGLCS problem.  The
-algorithm use {\em sparse table} and and its time complexity is $O(n^2
-/ p + n \log n)$, where $p$ is the number of processors.  In
-Chapter~\ref{XXX}, we present a new data structure 
-% what data structure
-instead of disjoint set.  In Section~\ref{XXX}, we reduce 
-% reduce?? stable?? 
-unstable algorithm to more stable in amortized $O(n^2)$ theoretically.
+We present our parallel algorithm for the VGLCS problem.  The algorithm
+use {\em sparse table} and and its time complexity is $O(n^2 / p + n
+\log n)$, where $p$ is the number of processors.  In
+Chapter~\ref{sec:parallelIRMQ}, we present a new data structure --
+variant sparse table instead of disjoint set.  Also, we use them to
+develop more stable algorithm in amortized $O(n^2)$ theoretically.
 
-The pseudo code of our algorithm is in Algorithm~\ref{alg
-  :parallel-VGLCS}
+% what data structure
+% Morris: our compressed sparse table and O(1) sparse table to support ISMQ
+% reduce?? stable??
+% Morris: The sparse table is more stable version compared to disjoint set version.
+
+The pseudo code of our algorithm is in Algorithm~\ref{alg:parallel-VGLCS}
 
 \iffalse 稀疏表是我們認為最好的替代方案，其整合後為 VGLCS 平行算法
 \ref{alg:parallel-VGLCS}，算法的時間複雜度為 $O(n^2 / p + n \log n)$，
