@@ -1,0 +1,43 @@
+\section{Related Work}
+\label{sec:RelatedWork}
+
+The {\em wavefront method} address this parallelization difficulty by
+keeping the computation as wavefront.  However, the wavefront
+computation is not cache-friendly, i.e., the wavefront algorithm cannot
+effectively keep the required data in cache.  To address this cache
+issue, Maleki et al.~\cite{Maleki2016EfficientPU} developed a technique
+to exploit more parallelism in the dynamic programming, and we can use
+this technique for the issue in our situation.
+
+% still not clear about what you mean by rank convergence
+
+\iffalse
+
+先有 linear-tropical dynamic programming (LTDP) 的性質，
+LTDP 可以拆成好幾個序列子問題，每個子問題依賴前一個子問題的最佳解，
+我們可以將 LTDP 假想成好幾個子矩陣 (子問題) 的連乘 (合併)，
+平行方法：
+(1) 子問題分開解決，並保留最佳解 
+(2) 傳遞前一個子問題的最佳解 
+(3) 修正錯誤的區塊，並更新最佳解
+
+當 rank = 1 時，
+子問題 u 的最佳解到子問題 v 的最佳解只會經過一個節點 (轉換)。
+
+因此，原先的問題相當於 rank = n，最佳解會經過 n 個點。
+
+The linear-tropical dynamic programming
+problem~\cite{Maleki2016EfficientPU} which has the property of {\em
+  rank convergence} can be divided into the sub-problems, such as a
+sequence of stages, which a solution of the sub-problems depends on
+only the solutions of the previous sub-problem.  About rank
+convergence in VGLCS problem, the sub-problems has developed efficient
+algorithm by Peng.  However, the parallel forward phase is difficult
+to integrate the partial correct and incorrect solution in
+parallelization algorithm which using rank convergence.
+\fi
+
+%need to say
+%something abuut
+%rank
+%convergence
