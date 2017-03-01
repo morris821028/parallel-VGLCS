@@ -2,29 +2,30 @@
 \label{sec:parallelVGLCS}
 
 The serial VGLCS algorithm by Peng~\ref{alg:serial-VGLCS} and other
-variants of LCS are difficult to parallelize.  These algorithms
-maintain several states to determine a new state during dynamic
-programming.  This construction requires heavy data dependency, and
-make it difficult to parallelize the computation in a naive row-by-row
-manner.
+variants of LCS are difficult to parallelize.  These algorithms use
+several states to determine a new state during dynamic programming.
+This construction requires {\em heavy data dependency}, and makes it
+difficult to parallelize the computation in a naive row-by-row manner.
 
 The {\em wavefront method} address this parallelization difficulty by
 keeping the computation as wavefront.  However, the wavefront
-computation is not cache-friendly, i.e., the wavefront algorithm cannot
-effectively keep the required data in cache effectively.  To address
-this cache issue Maleki~\cite{Maleki2016EfficientPU} developed a
+computation is not cache-friendly, i.e., the wavefront algorithm
+cannot effectively keep the required data in cache.  To address this
+cache cache issue Maleki~\cite{Maleki2016EfficientPU} developed a
 technique that uses the property of {\em rank convergence} to exploit
-more parallelism in the dynamic programming.  
+more parallelism in the dynamic programming.
+
+% still not clear about what you mean by rank convergence
 
 The linear-tropical dynamic programming
-problem~\cite{Maleki2016EfficientPU} which has the property of {\em rank
-convergence} can be divided into the sub-problems , such as a sequence
-of stages, which a solution of the sub-problems depends on only the
-solutions of the previous sub-problem.  About rank convergence in VGLCS
-problem, the sub-problems has developed efficient algorithm by Peng.
-However, the parallel forward phase is difficult to integrate the partial
-correct and incorrect solution in parallelization algorithm which using
-rank convergence.
+problem~\cite{Maleki2016EfficientPU} which has the property of {\em
+  rank convergence} can be divided into the sub-problems, such as a
+sequence of stages, which a solution of the sub-problems depends on
+only the solutions of the previous sub-problem.  About rank
+convergence in VGLCS problem, the sub-problems has developed efficient
+algorithm by Peng.  However, the parallel forward phase is difficult
+to integrate the partial correct and incorrect solution in
+parallelization algorithm which using rank convergence.
 
 %need to say
 %something abuut
