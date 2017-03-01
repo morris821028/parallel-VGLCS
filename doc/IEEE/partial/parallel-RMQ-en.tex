@@ -3,40 +3,31 @@
 
 \subsection{Background}
 
-Even though we parallel origin serial algorithm successfully, the
-theoretical time complexity of VGLCS algorithm is limited by the range
-maximum/minimum query in parallel.  In VGLCS problem, each stage has
-$n$ elements and $n$ numbers of the range query.  We should let pre-
-processing and query time minimize.  The most of the tree structures
-cannot show efficient performance in both pre-processing and query
-time.  Some offline algorithm is too hard to parallel.  In this
-section, we provide the solution to get better performance in both
-pre-processing and query stage.
+The theoretical time complexity of VGLCS algorithm is limited by the
+range maximum/minimum query in parallel.  The parallel range maximum
+query run $O(n \log n / p + \log n)$ -- $O(1)$ by sparse table.  Other
+tree-like data structures is too hard to parallel efficiently in both
+pre-processing and query stage.  
 
-\iffalse
-縱使我們已能很好地平行化原本的序列算法，在理論複雜度上受限於平行下的區間極值查詢 (Range Minimum/Maximum Query, RMQ)。
-在這個應用中，每一階段有 $n$ 個元素和 $n$ 個區間詢問。
-這樣的條件下，大部分樹狀結構難以在前處理過程和每次詢問皆達到最好效能。
-對於 $O(n)$ -- $O(1)$ 操作的離線區間詢問無法提供平行。
-再接續的小節中，我們將提出在兼顧建表、插入和查找的數據結構與算法。
-\fi
+In the offline RMQ problem, we known the best complexity $O(n)$ --
+$O(1)$.  Fischer~\cite{Fischer2006TheoreticalAP} introduced $O(n)$ --
+$O(1)$ algorithm, which is corrponding by $C_s$, where $C_s$ is the
+$s$-th Catalan number and $C_s = \frac{1}{s+1}\binom{2s}{s} =
+O(\frac{4^s}{s^{1.5}})$ to build look-up table.  When we choose $s =
+\frac{1}{4} \log n$ as block size, the space complexity is $O(s^2
+\frac{4^s}{s^{1.5}}) = O(n)$, and time complexity is $O(n)$.  Each range
+query will be split into 4 parts, 2 super-block queries and 2 in-block
+queries.  It need to 4 time memory access.  We give an example in the
+figure \ref{fig:interval- decomposition}.  The in-block queries can look
+up table by encoding the relationship of the block elements into a
+number by a Cartesian tree.
+
+When $n$ is large, four-time memory access caused the serious cache
+miss.  In order to improve cache miss, Demaine introduced the cache-
+oblivious the algorithm \cite{Demaine2009OnCT} in Cartesian tree
+\cite{Vuillemin1980AUL}.  We proposed the intermediate algorithm in this section to improve the cache miss in parallel environment.
 
 \subsection{Compressed Cartesian Tree}
-
-In Fischer ~\cite{Fischer2006TheoreticalAP} paper, the $O(n)$ --
-$O(1)$ algorithm is corrponding by $C_s$, where $C_s$ is the $s$-th
-Catalan number  and $C_s = \frac{1}{s+1}\binom{2s}{s} =
-O(\frac{4^s}{s^{1.5}})$ to build look-up table.  When we c hoose $s =
-\frac{1}{4} \log n$ as block size, the space complexity is $O(s^2
-\frac{4^s}{s^{1.5}}) = O(n)$, and time complexity is $O(n)$.  Each
-range query will be split into 4 parts, 2 super-block queries and 2
-in-block queries.  It need to 4 time memory access.  We give a example
-in the figure ~\ref{fig:interval-decomposition}.  In the offline RMQ
-problem, it has the theoretical algorithm which run in $O(n)$ --
-$O(1)$ time.  When $n$ is large, four-time memory access caused the
-serious cache miss. In order to improve cache miss, Demaine introduced
-the cache-oblivious the algorithm \cite{Demaine2009OnCT} in Cartesian
-tree \cite{Vuillemin1980AUL}.
 
 \iffalse
 在 Fischer \cite{fischer} 的論文中，
@@ -50,27 +41,30 @@ tree \cite{Vuillemin1980AUL}.
 \fi
 
 In above technology, we parallel RMQ problem by Fischer's idea and get
-time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm.  We also
-combine compression skill from Demaine's paper. It reduces cache-miss
-and run in ideal complexity.
+time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm, which combine
+compression skill from Demaine's paper. It reduces cache-miss and run in
+ideal complexity.
 
 \iffalse
 在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案 $s = 16$，其能解決序列長度為 $n = 2^{64}$ 的區間查找，將 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 $\sum_{i=1}^{n} l_i < i$。
 \fi
 
-We pick the fixed length $s = 16$, which can solve $n = 2^{64}$ one-
-dimension range maximum query.  When inserting $i$-th elements, the
-number of $i$-th insertion satisfy $\sum_{i=1}^{n} l_i < i$ where $0
-\le l_i < s$ is the number of nodes remove from the rightmost path of
-Cartesian tree.  Because all $l_i$ is small than 16, it can present in
-4-bit integer.  Due to above property of Cartesian tree, we merger 16
-4-bit integers into a 64-bit integer to present a Caartesian tree.
-The compressed algorithm ~\ref{alg:cartesian-to-64bits} run in $O(s)$.
+The compressed sparse table is composed of Fischer's sparse table and
+Cartesian tree, and we replace look-up operation to small brute
+operation.  We pick the fixed length $s = 16$, which can solve $n =
+2^{64}$ one-dimension range maximum query.  When inserting $i$-th
+elements, the number of $i$-th insertion satisfy $\sum_{i=1}^{n} l_i <
+i$ where $0 \le l_i < s$ is the number of nodes remove from the
+rightmost path of Cartesian tree.  Because all $l_i$ is small than 16,
+it can present in 4-bit integer.  Due to above property of Cartesian
+tree, we merge 16 4-bit integers into a 64-bit integer to present a
+Caartesian tree. The compressed algorithm \ref{alg:cartesian-to-64bits}
+run in $O(s)$.
 
 Finally, the appropriate size can compress the usage of space to
 reduce cache miss and also show better performance in modern 64-bit
 register.  We modify Demaine's range query algorithm as the algorithm
-~\ref{alg:cartesian64bits-query}.
+\ref{alg:cartesian64bits-query}.
 
 \iffalse
 因所有 $l_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，
