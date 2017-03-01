@@ -7,7 +7,7 @@ static uint32_t seed = 0;
 static uint32_t p_func(uint32_t x) {return x*9301+49297;}
 static uint32_t p_random() {return seed = p_func(seed);}
  
-// #define _DEBUG
+//#define _DEBUG
 int main() {
     int N, M, S, MOD;
     assert(scanf("%d %d %d %d", &N, &M, &S, &MOD) == 4);

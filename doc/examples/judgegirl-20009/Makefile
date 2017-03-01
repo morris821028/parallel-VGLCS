@@ -1,5 +1,6 @@
 TARGET= ISMQ-brute \
-		ISMQ ISMQ-disjoint ISMQ-disjoint-AOS ISMQ-disjoint-RemSP \
+		ISMQ \
+		ISMQ-disjoint ISMQ-disjoint-AOS ISMQ-disjoint-RemSP ISMQ-disjoint-lazy-merge \
 		ISMQ-ST ISMQ-coST ISMQ-coST-SOA ISMQ-oneST \
 		ISMQ-BIT \
 		main.o
@@ -26,6 +27,10 @@ ISMQ-disjoint-AOS: main.o ISMQ-disjoint-AOS.cpp
 
 ISMQ-disjoint-RemSP: main.o ISMQ-disjoint-RemSP.cpp
 	$(CXX) $(CFLAG) main.o ISMQ-disjoint-RemSP.cpp -o ISMQ-disjoint-RemSP
+
+ISMQ-disjoint-lazy-merge: main.o ISMQ-disjoint-lazy-merge.cpp
+	$(CXX) $(CFLAG) main.o ISMQ-disjoint-lazy-merge.cpp -o ISMQ-disjoint-lazy-merge
+
 
 
 ISMQ-ST: main.o ISMQ-ST.cpp

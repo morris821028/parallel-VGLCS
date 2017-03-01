@@ -4,6 +4,7 @@ ISMQ
 ISMQ-disjoint
 ISMQ-disjoint-AOS
 ISMQ-disjoint-RemSP
+ISMQ-disjoint-lazy-merge
 ISMQ-ST
 ISMQ-coST
 ISMQ-coST-tmp
@@ -21,6 +22,7 @@ ISMQ-brute
 ## other
 
 *.log
+*.tex
 
 ## online judge setting
 
