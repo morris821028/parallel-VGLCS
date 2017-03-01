@@ -1,15 +1,35 @@
 \section{Parallel VGLCS Algorithm} %
-\label{sec:parallelSerial}
+\label{sec:parallelVGLCS}
 
-In the serial algorithm which was designed by Yung-Hsing Peng, we
-observed that variants of LCS use many statuses to decide a new
-status.  Its definition makes lots of data dependency, so we cannot
-parallel row by row intuitively.  Even though it's hard to parallel by
-several modifications, we can parallel the serial algorithm by using
-wavefront method.  Because the usage of the cache memory is hard to
-use efficiently in it, so Saeed Maleki~\cite{Maleki2016EfficientPU}
-developed a technique that uses the property of rank convergence to
-exploit more parallelism to solve dynamic programming problems.
+The serial VGLCS algorithm by Peng~\ref{alg:serial-VGLCS} and other
+variants of LCS are difficult to parallelize.  These algorithms
+maintain several states to determine a new state during dynamic
+programming.  This construction requires heavy data dependency, and
+make it difficult to parallelize the computation in a naive row-by-row
+manner.
+
+The {\em wavefront method} address this parallelization difficulty by
+keeping the computation as wavefront.  However, the wavefront
+computation is not cache-friendly, i.e., the wavefront algorithm cannot
+effectively keep the required data in cache effectively.  To address
+this cache issue Maleki~\cite{Maleki2016EfficientPU} developed a
+technique that uses the property of {\em rank convergence} to exploit
+more parallelism in the dynamic programming.  
+
+The linear-tropical dynamic programming
+problem~\cite{Maleki2016EfficientPU} which has the property of {\em rank
+convergence} can be divided into the sub-problems , such as a sequence
+of stages, which a solution of the sub-problems depends on only the
+solutions of the previous sub-problem.  About rank convergence in VGLCS
+problem, the sub-problems has developed efficient algorithm by Peng.
+However, the parallel forward phase is difficult to integrate the partial
+correct and incorrect solution in parallelization algorithm which using
+rank convergence.
+
+%need to say
+%something abuut
+%rank
+%convergence
 
 \iffalse
 在 $O(nm \alpha(n))$ 的序列算法 \ref{alg:serial-VGLCS} 中，
@@ -22,108 +42,125 @@ exploit more parallelism to solve dynamic programming problems.
 
 \input{algorithms/alg-serial-VGLCS}
 
-In the serial VGLCS algorithm \ref{alg:serial-VGLCS}, it run in
-$O(nm)$ time and $O(nm)$ space.  If we parallel VGLCS algorithm with
-wavefront method intuitively, it must use extra storage space to
-record all row status compared to origin algorithm.  If we use the
-rank convergence technique, it also uses extra storage space to
-reserve the information of state translation and spends more time to
-merge split parts.
+% XXX -> last name
+% XXX = Peng
 
-\iffalse
-序列算法的空間複雜度為 $O(nm)$。若使用波前平行，需要同時維護橫向的所有狀態，
-需要多付出一倍的空間量。若加入 Rank Convergence 的想法拓展出，
-勢必要記錄轉移的狀態，需要耗費更多的記憶體空間，用以在最後階段合併所用。
-\fi
+Efficient parallelization of VGLCS is difficult in both memory and time.
+Peng proposed a serial algorithm for the VGLCS problem~\ref{alg:serial-
+VGLCS}, which runs in $O(nm)$ time and $O(nm)$ space.  Simultaneously,
+Peng transfer the VGLCS problem into {\em incremental suffix maximium
+query} problem
 
-In this paper, we tend to design the algorithm which has less space
-and be more cache-friendly.  We define two stages in the serial
-algorithm, row and column stage.  In the row stage, it uses disjoint
-set to maintain \emph{incremental suffix maximum query} (ISMQ).
-However, ISMQ change itself state of the data structure when it
-appends a new value each time, so it makes hard to parallel.  We study
-some alternative plans as follows:
+If we parallel this algorithm with wavefront method
+intuitively, it will require extra space to record all row status,
+which is not required in the origin algorithm.  On the other hand, if
+we use the rank convergence technique, it also uses extra space to
+reserve the information of state translation, and spends more time to
+merge split parts.  It is crucial that our parallelization conserves
+both memory and time.
 
-\iffalse
-這裡我們傾向空間複雜度常數小且針對快取友善設計算法。
-平行算法主要分成兩個階段－縱向和橫向階段，縱向階段為數個列的後綴極值查找，
-橫向階段在行上運行 $n$ 個元素和 $n$ 組詢問。
-在橫向階段，我們需要解決增長後綴最大值查找 (\emph{incremental suffix maximum query}, ISMQ)
-易於實作的并查集支持單一操作 $O(\alpha(n))$。
-然而，在過程中每插入一個元素便改動數據結構以支持下一個後綴詢問，
-這部分使得查詢難以平行化。為消除資料相依性，我們找到幾種區間詢問的替代方案。如：
-\fi
+\iffalse 序列算法的空間複雜度為 $O(nm)$。若使用波前平行，需要同時維護橫
+向的所有狀態，需要多付出一倍的空間量。若加入 Rank Convergence 的想法拓
+展出，勢必要記錄轉移的狀態，需要耗費更多的記憶體空間，用以在最後階段合
+併所用。\fi
+
+Peng found the VGLCS with {\em incremental suffix maximium query} (ISMQ)
+and handling ISMQ by union and find.  The disjoint-set data structure
+for solving the union-find problem can be found in
+Gabow's~\cite{Gabow1983ALA} and Tarjan's~\cite{Tarjan1975EfficiencyOA}
+article, and its amortized time is only $O(\alpha(n))$.  In the parallel
+environment, the unstable operation make load imbalance to run
+efficiently.  In this paper, we propose a parallel VGLCS algorithm that
+is space-efficient and cache-friendly.  The sequential version has two
+stages -- row and column stage.  In the row stage, the algorithm uses a
+{\em disjoint set} to efficiently answer {\em incremental suffix
+maximum query} (ISMQ).  However, a ISMQ will change the state of the
+data structure when it appends a new value, so it is difficult to
+parallelize.
+
+% query ususally does not change anything. Are you sure it is qurey?
+% Morris: Yes, disjoint set use path compression during query.
+% ISMQ is out of the blue.  You need to give an exmaple and  motivation 
+
+\iffalse 這裡我們傾向空間複雜度常數小且針對快取友善設計算法。平行算法主
+要分成兩個階段－縱向和橫向階段，縱向階段為數個列的後綴極值查找，橫向階
+段在行上運行 $n$ 個元素和 $n$ 組詢問。在橫向階段，我們需要解決增長後綴
+最大值查找 (\emph{incremental suffix maximum query}, ISMQ)易於實作的并
+查集支持單一操作 $O(\alpha(n))$。然而，在過程中每插入一個元素便改動數據
+結構以支持下一個後綴詢問，這部分使得查詢難以平行化。為消除資料相依性，
+我們找到幾種區間詢問的替代方案。如：\fi
+
+We consider several data structures to support ISMQ efficiently in
+parallel.
 
 \begin{itemize}
-  \item 
-
-Binary Indexed Tree\cite{Fenwick1994AND} -- $O(\log n)$: It supports
-prefix sum query and update a single value in $O(\log n)$.  In our
-application, it also supports updated maximum value and query suffix
-maximum value.  It runs faster than segment tree.
-
-  \item 
-
-Segment Tree\cite{berg2000computational} -- $O(\log n)$: It supports
-query maximum value and update values in multi-dimension.  It can use
-$O(\log n)$ time to solve range maximum query in one-dimension.
-
-  \item 
-
-Sparse Table\cite{Berkman1993RecursiveSP} -- $O(n \log n)$ -- $O(1)$:
-We use $ST[j][i]$ to present the maximum value in array $(i-2^j,i]$.
-It spend $O(n \log n)$ time to build table and require $O(1)$ time to
-get the range maximum query. In order to support append value to tail,
-it cannot run $O(n)$ -- $O(1)$ solution which Fischer
-~\cite{Fischer2006TheoreticalAP} introduced.
-
+  \item Binary Indexed Tree\cite{Fenwick1994AND} -- $O(\log n)$: It
+    supports prefix sum query and update a single value in $O(\log
+    n)$.  In our application, it also supports updated maximum value
+    and query suffix maximum value.  It runs faster than segment tree.
+  \item Segment Tree\cite{berg2000computational} -- $O(\log n)$: It
+    supports query maximum value and update values in multi-dimension.
+    It can use $O(\log n)$ time to solve range maximum query in
+    one-dimension.
+  \item Sparse Table\cite{Berkman1993RecursiveSP} -- $O(n \log n)$ --
+    $O(1)$: We use $ST[j][i]$ to present the maximum value in array
+    $(i-2^j,i]$.  It spend $O(n \log n)$ time to build table and
+    require $O(1)$ time to get the range maximum query. In order to
+    support append value to tail, it cannot run $O(n)$ -- $O(1)$
+    solution which Fischer ~\cite{Fischer2006TheoreticalAP}
+    introduced.
 \end{itemize}
 
 \iffalse
 \begin{itemize}
-  \item 樹狀數組 (Binary Indexed Tree) -- $O(\log n)$: 對於任意前綴查找極值和更新元素，單一操作的時間複雜度為 $O(\log n)$，其運行常數比線段樹低。
-  \item 線段樹 (Segment Tree) -- $O(\log n)$: 支持更高維度的正交區塊搜索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有區間查詢操作。
-  \item 稀疏表 (Sparse Table) -- $O(n)$ -- $O(1)$:
-    建立表格 $ST[j][i]$ 表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度需 $O(n)$
-    ，對於任意區間詢問可以拆分 2 個 super-block 檢索和 2 個 in-block 檢索，
-    如圖 \ref{fig:interval-decomposition} 的說明，轉換過程和存取時間皆需要 $O(1)$。
+\item 樹狀數組 (Binary Indexed Tree) -- $O(\log n)$: 對於任意前綴查找極
+  值和更新元素，單一操作的時間複雜度為 $O(\log n)$，其運行常數比線段樹
+  低。
+  \item 線段樹 (Segment Tree) -- $O(\log n)$: 支持更高維度的正交區塊搜
+    索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有區間查詢操
+    作。
+  \item 稀疏表 (Sparse Table) -- $O(n)$ -- $O(1)$:建立表格 $ST[j][i]$
+    表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度需 $O(n)$，對於任意
+      區間詢問可以拆分 2 個 super-block 檢索和 2 個 in-block 檢索，如圖
+      \ref{fig:interval-decomposition} 的說明，轉換過程和存取時間皆需要
+      $O(1)$。
 \end{itemize}
 \fi
 
 \begin{figure*}[!thb]
-  \centering
-  \subfigure[Array]{
+  \centering \subfigure[Array]{
     \includegraphics[width=0.45\linewidth]{graphics/fig-interval-decomposition.pdf}
     \label{fig:fig-interval-decomposition}
-  }
-  \subfigure[Sparse Table]{
+  } \subfigure[Sparse Table]{
     \includegraphics[width=0.45\linewidth]{graphics/fig-sparse-table.pdf}
     \label{fig:fig-sparse-table}
   }
-  \caption{
-An example for illustrating the sparse table, which has an array $A$.
-$A$ is split into five blocks, each block has four elements. A range
-minimum/maximum query can be decomposed into at most four different
-sub-queries.  If the query range maximum value in $[2, 18]$, it will
-merge four maximum results $B1$, $Q_L$, $B5$, and $Q_R$.
-}
-
+  \caption{An example for illustrating the sparse table, which has an
+    array $A$.  $A$ is split into five blocks, each block has four
+    elements. A range minimum/maximum query can be decomposed into at
+    most four different sub-queries.  If the query range maximum value
+    in $[2, 18]$, it will merge four maximum results $B1$, $Q_L$,
+    $B5$, and $Q_R$.}
   \label{fig:interval-decomposition}
 \end{figure*}
 
-Among of them, we consider that the sparse table is the best
-alternative plan.  We present the parallel algorithm ~\ref{alg
-:parallel-VGLCS} for the VGLCS problem and its time complexity is
-$O(n^2 / p + n \log n)$, which $p$ is the number of processors. In the
-next chapter, we provide a new data structure to instead of disjoint
-set. In the next section, we reduce unstable algorithm to more stable
-in amortized $O(n^2)$ theoretically.
+We present our parallel algorithm for the VGLCS problem.  The algorithm
+use {\em sparse table} and and its time complexity is $O(n^2 / p + n
+\log n)$, where $p$ is the number of processors.  In
+Chapter~\ref{sec:parallelIRMQ}, we present a new data structure --
+variant sparse table instead of disjoint set.  Also, we use them to
+develop more stable algorithm in amortized $O(n^2)$ theoretically.
 
-\iffalse
-稀疏表是我們認為最好的替代方案，其整合後為 VGLCS 平行算法 \ref{alg:parallel-VGLCS}，
-算法的時間複雜度為 $O(n^2 / p + n \log n)$，其中 $p$ 為處理器個數。
-在後續的章節，我們將提出新的數據結構取代并查集操作，
-且能在平行算法達到理想複雜度 $O(n^2 / p + n \log n)$。
-\fi
+% what data structure
+% Morris: our compressed sparse table and O(1) sparse table to support ISMQ
+% reduce?? stable??
+% Morris: The sparse table is more stable version compared to disjoint set version.
+
+The pseudo code of our algorithm is in Algorithm~\ref{alg:parallel-VGLCS}
+
+\iffalse 稀疏表是我們認為最好的替代方案，其整合後為 VGLCS 平行算法
+\ref{alg:parallel-VGLCS}，算法的時間複雜度為 $O(n^2 / p + n \log n)$，
+其中 $p$ 為處理器個數。在後續的章節，我們將提出新的數據結構取代并查集操
+作，且能在平行算法達到理想複雜度 $O(n^2 / p + n \log n)$。\fi
 
 \input{algorithms/alg-parallel-VGLCS}
