@@ -1,20 +1,15 @@
 \section{Incremental Range Maximum Query}
 \label{sec:parallelIRMQ}
 
-In the VGLCS problem, we divide our algorithm into two stage, row and
-column stage.  In the row stage, it maintains $m$ number of the data
-structure to support ISMQ problem.  After row stage, the column stage
-uses one ISMQ data structure to answer each query.
-
 In parallel environment, the column stage has a linear algorithm which
-use Fischer's sparse table instead of disjoint set, and we also
-parallel its algorithm in theoretical $O(n / p + \log n)$ time, and
-better performance algorithm in $O(n s / p + \log n)$ in section
-~\ref{sec:parallelRMQ}.  Oppositely, the row stage has $m$ number of
-independent data structure and run in amortized $O(n / p + 1)$ time.
-In this section, we provide the new data structure to make row stage
-run in more stable amortized $O(n / p + 1)$ time.   The final result
-is presented on table ~\ref{tlb:cmp-complexity}.
+use Fischer's sparse table instead of disjoint set, and we also parallel
+its algorithm in theoretical $O(n / p + \log n)$ time, and better
+performance $O(n s / p + \log n)$ algorithm is proposed in
+section~\ref{sec:parallelRMQ}.  Oppositely, the row stage has $m$ number
+of independent data structure and run in amortized $O(n / p + 1)$ time.
+In this section, we provide the new data structure to make row stage run
+in more stable amortized $O(n / p + 1)$ time.   The final result is
+presented on table ~\ref{tlb:cmp-complexity}.
 
 \iffalse
 VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，
@@ -34,23 +29,23 @@ VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區�
 
 We have two main subjects: Cartesian tree encoding and cache
 performance.  Fischer introduced the first encoding method and the
-Masud \cite{Hasan2010CacheOA} presents the new encoding method and
-processing step to reduce the number of instructions.  However, most
-of them focus on the offline algorithm.  It means that there are given
-$n$ elements and then has $m$ queries.  During any queries, the $n$
-elements will not be modified by any operation.
+Masud~\cite{Hasan2010CacheOA} presents the new encoding method to reduce
+the number of instructions and sorting step to reduce the cache miss.
+However, most of them focus on the offline algorithm.  It means that
+there are given $n$ elements and then has $m$ queries. During any
+queries, the $n$ elements will not be modified by any operation.  The
+pre-processing of their algorithm is at least $O(n)$ time and hard to
+parallel.  In VGLCS problem, we could not use sorting to improve cache
+miss because the number of elements and queries are similar.  We
+proposed the parallel algorithm for building look-up table by our encode
+method.
 
-We could not use sorting to improve cache miss because the number of
-elements and queries are similar.  However, we can still improve the
-cache miss by the special encoding method according to value
-distribution.
-
-In our application, we provide the online encoding algorithm.  We list
-all binary search trees by lexicographical order and label them from
-$0$ to $n$-th Catalan number.  The lexicographical order for binary
-search tree is defined by the left subtree high priority and then
-right subtree.  The figure \ref{fig:labelingBST} shows label of binary
-search tree for the $n=1,2,3$ number of nodes.
+In our encoding method,  we list all binary search trees by
+lexicographical order and label them from $0$ to $n$-th Catalan number.
+The lexicographical order for binary search tree is defined by the left
+subtree high priority and then right subtree.  The figure
+\ref{fig:labelingBST} shows label of binary search tree for the
+$n=1,2,3$ number of nodes.
 
 \iffalse
 關於在線操作，我們從 Fischer \cite{fischer} 和 Masud \cite{masud} 的研究中，
@@ -129,12 +124,16 @@ is
 
 \subsection{Dynamic Cartesian Tree}
 
-There are three intuitive solutions for ISMQ.  The first one uses
-disjoint set which uses $O(\alpha(n))$ for each query.  The second one
-uses sparse table which uses $O(\log n)$ time to append a new value to
-the tail of array and $O(1)$ time to response a query.  The third one
-is the binary indexed tree which used $O(\log n)$ time for each
-operation.
+Recall that in the VGLCS problem, there are three intuitive solutions
+for ISMQ.  The first one uses naive disjoint set which uses amortized
+$O(\alpha(n))$ for each query, or advance variant disjoint set --
+incremental tree set union~\cite{Gabow1983ALA} uses amortized $O(1)$ for
+each query.  The second one uses sparse table which uses $O(\log n)$
+time to append a new value to the tail of array and $O(1)$ time to
+response a query.  The third one is the binary indexed tree which used
+$O(\log n)$ time for each operation.  In parallel environment, the
+amortized algorithm will be incurred the inefficient synchronize, so the
+last two data structure is more suitable than the first one.
 
 In the sparse table, Fischer provide the $\theta(n)$ -- $\theta(1)$
 could not support the append operation.  However, the sparse table
