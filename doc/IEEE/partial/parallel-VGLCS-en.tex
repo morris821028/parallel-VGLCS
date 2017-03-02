@@ -1,11 +1,19 @@
 \section{Parallel VGLCS Algorithm} %
 \label{sec:parallelVGLCS}
 
-The serial VGLCS algorithm~\ref{alg:serial-VGLCS} by Peng and other
-variants of LCS are difficult to parallelize.  These algorithms use
-several states to determine a new state during dynamic programming.
-This construction requires {\em heavy data dependency}, and makes it
-difficult to parallelize the computation in a naive row-by-row manner.
+The serial VGLCS algorithm~\ref{alg:serial-VGLCS} by
+Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
+parallelize.  These algorithms use several states to determine a new
+state during dynamic programming.  This construction requires {\em
+  heavy data dependency}, and makes it difficult to parallelize the
+computation in a naive row-by-row manner.  If we parallel Peng's
+algorithm with wavefront method intuitively, it will require extra
+space to record all row status, which is not required in the origin
+algorithm.  On the other hand, if we use the
+Maleki's~\cite{Maleki2016EfficientPU} technique, it also uses extra
+space to maintain state translation, and spends more time to merge
+split parts.  Therefore, it is crucial that our parallelization
+conserves both memory and time.
 
 \iffalse
 在 $O(nm \alpha(n))$ 的序列算法 \ref{alg:serial-VGLCS} 中，
@@ -18,27 +26,14 @@ difficult to parallelize the computation in a naive row-by-row manner.
 
 \input{algorithms/alg-serial-VGLCS}
 
-% XXX -> last name
-% XXX = Peng
-
-If we parallel this algorithm with wavefront method intuitively, it will
-require extra space to record all row status, which is not required in
-the origin algorithm.  On the other hand, if we use the
-Maleki's~\cite{Maleki2016EfficientPU} technique, it also uses extra
-space to reserve the information of state translation, and spends more
-time to merge split parts.  It is crucial that our parallelization
-conserves both memory and time.
-
-Efficient parallelization of VGLCS is difficult in both memory and time.
-In order to run VGLCS algorithm efficiently, we address the {\em
-incremental suffix maximium query} (ISMQ) problem which Peng proposed to
-solve VGLCS problem.  There are three operations available in ISMQ
-problem: (1) $\mathit{make}()$ creates an empty array $A$, (2)
-$\mathit{append}(V)$ appends value $V$ to an array $A$, and (3)
-$\mathit{query}(x)$ find the maximum value from position $x$ to the tail
-of an array $A$.  
-
-
+In order to find VGLCS efficiently, we need to address the {\em
+  incremental suffix maximium query} (ISMQ) problem, which was
+proposed by Peng~\cite{Peng2011TheLC}.  A data structure that supports
+incremental suffix maximium queries should support the following three
+operstions.  First, a {\tt make} operation creates an empty array $A$.
+Second, an {\tt append(V)} operation appends a value $V$ to array $A$.
+Finally an ISMQ {\tt query(x)} finds the {\em maximum} value among the
+$x$-th value to the end of an array $A$.
 
 \iffalse
 Peng 在解決 VGLCS 問題時，提出 Incremental Suffix Maximum Query 
@@ -50,14 +45,17 @@ Peng 在解決 VGLCS 問題時，提出 Incremental Suffix Maximum Query
 展出，勢必要記錄轉移的狀態，需要耗費更多的記憶體空間，用以在最後階段合
 併所用。\fi
 
-Peng found the VGLCS with {\em incremental suffix maximium query}
-and handling ISMQ by union and find.  The disjoint-set data structure
-for solving the union-find problem can be found in
-Gabow's~\cite{Gabow1983ALA} and Tarjan's~\cite{Tarjan1975EfficiencyOA}
-article, and its amortized time is only $O(\alpha(n))$.  In the parallel
-environment, the unstable operation make load imbalance to run
-efficiently.  In this paper, we propose a parallel VGLCS algorithm that
-is space-efficient and cache-friendly.  
+Peng uses a {\em disjoint-set} data structure to answer incremental
+suffix maximium queries, and finds the VGLCS with answers from ISMQ.
+
+The disjoint-set data structure by Gabow~\cite{Gabow1983ALA} and
+Tarjan~\cite{Tarjan1975EfficiencyOA} solves the {\em union-and-find
+  problem}.  The amortized time per union/find operation is
+$O(\alpha(n))$.
+
+In the parallel environment, the unstable operation
+make load imbalance to run efficiently.  In this paper, we propose a
+parallel VGLCS algorithm that is space-efficient and cache-friendly.
 
 The sequential version has two stages -- row and column stage.  In the
 row stage, the algorithm uses a {\em disjoint set} to efficiently answer
@@ -77,8 +75,8 @@ it is difficult to parallelize.
 結構以支持下一個後綴詢問，這部分使得查詢難以平行化。為消除資料相依性，
 我們找到幾種區間詢問的替代方案。如：\fi
 
-We consider several data structures to support ISMQ efficiently in
-parallel.
+We consider several data structures other than disjoint sets to
+support ISMQ efficiently in parallel.
 
 \begin{itemize}
   \item Binary Indexed Tree\cite{Fenwick1994AND} -- $O(\log n)$: It
