@@ -3,27 +3,30 @@
 
 \subsection{The Strategy of Disjoint Set}
 
-The space complexity of VGLCS problem is $\theta(n^2)$.  The merging
-of disjoint set has two main strategies, path compression, and rank
-strategy \cite{Patwary2010ExperimentsOU}.  The impact of
-implementation will encounter different level of cache miss.  We
-choose one of them to improve the performance and avoid use both of
-them to cause more cache miss.
+The merging of disjoint set has two main strategies, path compression,
+and rank strategy.  Patwary, Blair, and
+Manne~\cite{Patwary2010ExperimentsOU} make the experiements for the
+disjoint-set data structure, which impact of implementation will
+encounter different level of cache miss. The {\textrm RemSP} strategy
+tends to fewer cache misses and fewer parent jumps.  Therefore, we consider above situations to implement our application carefully.
 
 \iffalse
 運行 VGLCS 時，將耗費 $\theta(n^2)$ 的內存空間。使用遞增後綴最大值 (ISMQ) 時，
 採用並查集實作將會遭遇到很多不平衡的工作負載，其原因在於合併的策略，
 常見的有路徑壓縮和啟發式合併兩種策略，這間接影響到不同次數的分枝判斷。
-實務上須考慮到快取未中，故兩種策略只能擇其一，兩者皆用將引發更多的快取未中而導致效能下滑。
+實務上須考慮到快取未中
 \fi
 
-In the parallel algorithm, a disjoint set must be processed by a
-thread.  We tend to use lazy propagation because of the cache miss.
-Due to the tendency of the dynamic programming, there are two cases in
-which the trend of the inserted value.  The first case is the
-continuous zero value insert because it violates the definition.  The
-second case is the insertion of incremental elements.  Finally, we can
-use the lazy propagation to improve the performance in implementation.
+In the serial algorithm, we tend to use lazy propagation because of the
+cache miss.  Due to the tendency of the dynamic programming, there are
+two cases in which the trend of the inserted value.  The first case is
+the continuous zero value insert because it violates the definition.
+The second case is the insertion of incremental elements.  Finally, we
+can use the lazy propagation to improve the performance in
+implementation.
+
+For the multi-core platform, the efficiency of thread synchronization is
+the important part of the performance, so we tends to make the worst case as more smaller as possible.  Therefore, we always merge the groups as possible.
 
 \iffalse
 每個執行緒負責數個完整的并查集，操作時應偏向延遲標記操作，
