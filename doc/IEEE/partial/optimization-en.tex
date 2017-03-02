@@ -37,22 +37,16 @@ the important part of the performance, so we tends to make the worst case as mor
 
 \subsection{Parallel Range Query}
 
-We often use the built-in function to get the logarithm in $O(1)$.
-However, we can pre-compute all the result of the logarithm in dynamic
-programming.  Each the logarithm of range for each query stores into
-the array, and it can reduce the number of instructions.
+We can reduce the amount of computation for our dynamic programming
+problem by remove duplicate computation and imposing a boundary
+limitation.  For example, the logarithm function is often used in the query of a sparse table, and we can pre-compute all the result of the requirements.  In the VGLCS problem, the information of range query is known for using.  Therefore, the reduce-boundary algorithm
+~\ref{alg:recude-boundary} runs $O(n \log n)$ time, which $n$ is the length of the input sequence.  It would not increase the time complexity because the VGLCS problem is solved in $O(n^2 / p + n \log n)$, which $p$ is the number of the processors.
+
 
 \iffalse
 運行區間查找時，一般依賴內建函數在 $O(1)$ 時間完成對數取整，
 然而，在 VGLCS 這類型的動態規劃中，區間查找的對數結果是可以被預測的，預先將每一組詢問的區段對數結果儲存在陣列中，便可降低指令次數。
 \fi
-
-Because we know the information of range query, we can limit the
-computation boundary for building sparse table.  The algorithm
-\ref{alg:reduce-boundary} is a dynamic programming for shrink
-computation boundary which runs in $O(n \log n)$.  Finally, the
-parallel VGLCS algorithm run in $O(n \log n)$ time, so the dynamic
-programming do not increase the time complexity.
 
 \iffalse
 由於已知所有詢問區間，建立稀疏表時，可藉由動態規劃在 $O(n \log n)$ 排除掉不可能的計算 (參照算法 ~\ref{alg:reduce-boundary})，
