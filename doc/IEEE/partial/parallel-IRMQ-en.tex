@@ -8,7 +8,7 @@ performance $O(n s / p + \log n)$ algorithm is proposed in
 section~\ref{sec:parallelRMQ}.  Oppositely, the row stage has $m$ number
 of independent data structure and run in amortized $O(n / p + 1)$ time.
 In this section, we provide the new data structure to make row stage run
-in more stable amortized $O(n / p + 1)$ time.   The final result is
+in more stable amortized $O(n / p + 1)$ time.  The final result is
 presented on table ~\ref{tlb:cmp-complexity}.
 
 \iffalse
@@ -131,8 +131,9 @@ incremental tree set union~\cite{Gabow1983ALA} uses amortized $O(1)$ for
 each query.  The second one uses sparse table which uses $O(\log n)$
 time to append a new value to the tail of array and $O(1)$ time to
 response a query.  The third one is the binary indexed tree which used
-$O(\log n)$ time for each operation.  In parallel environment, the
-amortized algorithm will be incurred the inefficient synchronize, so the
+$O(\log n)$ time for each operation.   Even if the amortized complexity
+of the algorithm is $O(\alpha(n))$ or $O(1)$, the algorithm incurs
+inefficient synchronizations in the parallel environment. Therefore, the
 last two data structure is more suitable than the first one.
 
 In the sparse table, Fischer provide the $\theta(n)$ -- $\theta(1)$
