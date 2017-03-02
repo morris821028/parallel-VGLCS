@@ -9,11 +9,11 @@
 				xlabel={Processor $p$},
 				ylabel={Time (second)},
 				xmin=1, xmax=16,
-				ymin=0, ymax=1.2,
+				ymin=0, ymax=6.5,
 				scaled ticks = false,
 				tick label style={/pgf/number format/fixed},
-				xtick={1, 2, 4, 8, 16},
-				ytick={0, 0.2, 0.4, 0.6, 0.8, 1, 1.2},
+				xtick={1, 2, 4, 8, 16, 20},
+				ytick={0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5},
 				legend pos=north east,
 				legend cell align=left,
 				ymajorgrids=true,
@@ -22,8 +22,8 @@
 				mark size=3pt,
 				height=10cm,width=15cm,
 			]
-			\addplot [mark=square*, mark options={fill=white}] file{./data/parallel-p.dat};
-			\legend{parallel $n=5000$}
+			\addplot [mark=square*, mark options={fill=white}] file{./data/VGLCS-scalability.dat};
+			\legend{parallel $n=10000$ with coST data structure}
 		\end{axis}
 	\end{tikzpicture}
 \end{document}

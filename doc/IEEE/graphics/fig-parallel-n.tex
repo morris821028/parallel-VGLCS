@@ -9,11 +9,11 @@
 				xlabel={Length $n$},
 				ylabel={Time (second)},
 				xmin=0, xmax=10000,
-				ymin=0, ymax=4.5,
+				ymin=0, ymax=6.5,
 				scaled ticks = false,
 				tick label style={/pgf/number format/fixed},
 				xtick={0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000},
-				ytick={0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5},
+				ytick={0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5},
 				legend pos=north east,
 				legend cell align=left,
 				ymajorgrids=true,
@@ -22,9 +22,11 @@
 				mark size=3pt,
 				height=10cm,width=15cm,
 			]
-			\addplot [mark=*] file{./data/serial-n.dat};
-			\addplot [mark=square*, mark options={fill=white}] file{./data/parallel-n.dat};
-			\legend{serial, parallel}
+			\addplot [mark=*] file{./data/VGLCS-serial.dat};
+			\addplot [mark=square*, mark options={fill=white}] file{./data/VGLCS-ST-disjoint.dat};
+			\addplot [mark=diamond*, mark options={fill=white}] file{./data/VGLCS-coST-disjoint.dat};
+			\addplot [mark=triangle*, mark options={fill=white}] file{./data/VGLCS-coST.dat};
+			\legend{serial-disjoint-set, parallel-ST-disjoint-set, parallel-coST-disjoint-set, parallel-coST}
 		\end{axis}
 	\end{tikzpicture}
 \end{document}
