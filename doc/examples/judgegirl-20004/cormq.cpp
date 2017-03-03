@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <omp.h>
+#include "encrypt.h"
 using namespace std;
 
 static inline int log2int(int x) {
@@ -49,7 +50,6 @@ struct miniSparseTable {
 	}
 	static inline int8_t RMQ(uint64_t tree, int8_t l, int8_t r) {
 		int8_t mxIdx = l, x = 0;
-		assert(l <= r);
 		for (l++; l <= r; l++) {
 			x = x+1 - ((tree>>(l<<2))&15);
 			if (x <= 0) {
@@ -65,9 +65,10 @@ struct miniSparseTable {
 #pragma omp for schedule(static)
 		for (int i = 0; i < M; i += POWS) {
 			int16_t mx = 0;
+			int16_t *block = pblock+i;
 			for (int j = 0; j < POWS; j++) {
 				mx = MAX(mx, A[i+j]);
-				pblock[i+j] = mx;
+				block[j] = mx;
 			}
 			tbu[i>>LOGS] = mx;
 		}
@@ -75,9 +76,10 @@ struct miniSparseTable {
 #pragma omp for schedule(static)
 		for (int i = 0; i < M; i += POWS) {
 			int16_t mx = 0;
+			int16_t *block = sblock+i;
 			for (int j = POWS-1; j >= 0; j--) {
 				mx = MAX(mx, A[i+j]);
-				sblock[i+j] = mx;
+				block[j] = mx;
 			}
 			if (GET(inblock, (i>>LOGS)))
 				tree[i>>LOGS] = signature(A+i);
@@ -87,12 +89,10 @@ struct miniSparseTable {
 			int16_t *tbu = tb[k];
 			const int16_t *tbv = tb[k-1];
 #pragma omp for schedule(static)
-			for (int i = 0; i < tmpMs; i++) {
-				if (i-(1<<(k-1)) >= 0) {
-					int16_t p = tbv[i-(1<<(k-1))];
-					int16_t q = tbv[i];
-					tbu[i] = MAX(q, p);
-				}
+			for (int i = (1<<(k-1)); i < tmpMs; i++) {
+				int16_t p = tbv[i-(1<<(k-1))];
+				int16_t q = tbv[i];
+				tbu[i] = MAX(q, p);
 			}
 		}
 	}
@@ -124,7 +124,7 @@ struct miniSparseTable {
 	}
 	// query the maximum value of interval [l..r]
 	inline int16_t get(int l, int r, int t) {
-		if (unlikely((l>>LOGS) == (r>>LOGS)))
+		if ((l>>LOGS) == (r>>LOGS))
 			return oA[((l>>LOGS)<<LOGS)+RMQ(tree[l>>LOGS], l&(POWS-1), r&(POWS-1))];
 		int16_t ret = 0;
 		if ((r&(POWS-1)) != (POWS-1)) {
@@ -157,22 +157,18 @@ struct miniSparseTable {
 //#undef LOGS
 //#undef POWS
 
-uint32_t seed = 0;
-uint32_t p_func(uint32_t x) {return x*9301+49297;}
-uint32_t p_random() {return seed = p_func(seed);}
-
 int main() {
 	int N, M, S, MOD;
 	assert(scanf("%d %d %d %d", &N, &M, &S, &MOD) == 4);
 
-	seed = S;
+	p_srand(S);
 
 	int16_t A[MAXN] = {};
 	int32_t L[MAXN] = {};
 	for (int i = 1; i <= N; i++)
-		A[i] = p_random()&MOD;
+		A[i] = p_rand()&MOD;
 	for (int i = 1; i <= N; i++)	
-		L[i] = i-(p_random()%min(i, MOD));
+		L[i] = i-(p_rand()%min(i, MOD));
 
 	int8_t logG[MAXN];
 	int8_t logN = 0;
@@ -193,31 +189,31 @@ int main() {
 	logN = MIN(logN, log2int(N+1));
 	miniSparseTable sp_tlb;
 	{
-	  int8_t *mem = (int8_t*) malloc(miniSparseTable::f(N, logN));
-	  sp_tlb.init(N, logN, mem);
-	  fprintf(stderr, "Compressed %zu\n", miniSparseTable::f(N, logN));
-  }
+		int8_t *mem = (int8_t*) malloc(miniSparseTable::f(N, logN));
+		sp_tlb.init(N, logN, mem);
+		fprintf(stderr, "Compressed %zu\n", miniSparseTable::f(N, logN));
+	}
 	const int P = 20;
 	omp_set_num_threads(P);
 	int16_t hash  = 0;
 #pragma omp parallel
 	{
-	  for (int it = 0; it < M; it++) {
+		for (int it = 0; it < M; it++) {
 
-		  sp_tlb.parallel_build(A, logN, inblock);
+			sp_tlb.parallel_build(A, logN, inblock);
 
 #pragma omp for reduction(^: hash)
-		  for (int i = 1; i <= N; i++) {
-			  int l = L[i], r = i;
-			  int16_t ret = sp_tlb.get(l, r, logG[i]);
-			  hash ^= ret;
-		  }
+			for (int i = 1; i <= N; i++) {
+				int l = L[i], r = i;
+				int16_t ret = sp_tlb.get(l, r, logG[i]);
+				hash ^= ret;
+			}
 
 #pragma omp for 
-		  for (int i = 1; i <= N; i++)
-			  A[i] = p_func(A[i])&MOD;
-	  }
-  }	
+			for (int i = 1; i <= N; i++)
+				A[i] = p_func(A[i])&MOD;
+		}
+	}	
 	printf("%X\n", hash);
 	return 0;
 }
@@ -234,3 +230,4 @@ int main() {
    2 9 
 
  */
+
