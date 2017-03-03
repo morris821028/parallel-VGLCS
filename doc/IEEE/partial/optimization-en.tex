@@ -8,7 +8,8 @@ and rank strategy.  Patwary, Blair, and
 Manne~\cite{Patwary2010ExperimentsOU} make the experiements for the
 disjoint-set data structure, which impact of implementation will
 encounter different level of cache miss. The {\textrm RemSP} strategy
-tends to fewer cache misses and fewer parent jumps.  Therefore, we consider above situations to implement our application carefully.
+tends to fewer cache misses and fewer parent jumps.  Therefore, we
+consider above situations to implement our application carefully.
 
 \iffalse
 運行 VGLCS 時，將耗費 $\theta(n^2)$ 的內存空間。使用遞增後綴最大值 (ISMQ) 時，
@@ -26,7 +27,9 @@ can use the lazy propagation to improve the performance in
 implementation.
 
 For the multi-core platform, the efficiency of thread synchronization is
-the important part of the performance, so we tends to make the worst case as more smaller as possible.  Therefore, we always merge the groups as possible.
+the important part of the performance, so we tends to make the worst
+case as more smaller as possible.  Therefore, we always merge the groups
+as possible.
 
 \iffalse
 每個執行緒負責數個完整的并查集，操作時應偏向延遲標記操作，

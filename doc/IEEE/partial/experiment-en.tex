@@ -18,10 +18,10 @@ Intel CPU 同時也支持 hyper-threading 技術，每個處理器有 6 個實�
 
 In the random test data, we get the better performance with compressed
 sparse table compared to theoretical $\theta(1)$ sparse table.  The
-figure \ref{fig:fig-parallel} shows the different runtime in different
-parallelism, and the figure \ref{fig:fig-paralell} shows the
-scalability of our parallel algorithm.  On our server, the parallel
-algorithm can get $8 \times$ faster than the serial algorithm.
+figure~\ref{fig:fig-parallel} shows the different runtime in different
+parallelism, and the figure~\ref{fig:fig-parallel-scala} shows the scalability
+of our parallel algorithm.  On our server, the parallel algorithm can
+get $8 \times$ faster than the serial algorithm.
 
 \iffalse
 我們運行優化策略中的空間壓縮版本，而非理論分析的 $\theta(1)$ 操作，
@@ -58,27 +58,34 @@ follows:
 \begin{itemize}
   \item 
 
-Disjoint Set: Average run time $o(\alpha(n))$.  It is implemented by
-path compression.
+Disjoint set: Average run time $o(\alpha(n))$ which is implemented by
+path compression and rank.
 
   \item 
 
-Sparse Table: Insertion in $O(\log n)$ time, and query in $O(1)$ time.
+Sparse table: Insertion in $O(\log n)$ time, and query in $O(1)$ time.
 We allocate $\tt{table}[\log N][N]$ which arranged in row-major to
 reduce cache miss.
 
   \item 
 
-Binary Indexed Tree: Both insert and query operation consume $O(\log
+Binary indexed tree: Both insert and query operation consume $O(\log
 n)$ time.
 
   \item 
 
-Compressed Sparse Tree: The insertion operation consume amortized
-$O(1)$ time.  The query operation consumes $O(s)$ time, which $s$ is
-the size of the block.  We can maintain extra the prefix and suffix
-maximum in block to reduce the time complexity $O(s)$ to $O(1)$ in
-most queries.
+Compressed sparse table: The insert operation consume amortized
+$O(1)$ time.  The query operation consumes $O(s)$ time, which $s$ is the
+size of the block.  Here, the program implement by the fixed size $s =
+16$.  We can maintain extra the prefix and suffix maximum in block to
+reduce the time complexity $O(s)$ to $O(1)$ in most queries.
+
+  \item
+
+Amortized $O(1)$ sparse table:  The insert operation consume amortized
+$O(1)$ time.  The query operation consume $O(1)$ time.  In the
+implementation, we choose the fixed size $s = 8$.  The other
+optimization is same as compressed sparse table.
 
 \end{itemize}
 
@@ -92,11 +99,10 @@ most queries.
 \end{itemize}
 \fi
 
-The figure \ref{fig:fig-ISMQcmp} shows that our compressed sparse
-table run faster than the disjoint set when $n > 10^6$.  When $n >
-10^7$, the compressed sparse table run $1.25 \times$ faster than the
-disjoint set.  
-
+The figure~\ref{fig:fig-ISMQcmp} shows that our compressed sparse table
+run faster than the disjoint set when $n$ is greater than  $10^6$.  When
+$n$ is greater than $10^7$, the compressed sparse table run $1.8 \times$
+faster than the disjoint set in random test data.
 
 
 \begin{figure}[!thb]
@@ -110,14 +116,14 @@ query has a uniform distribution.
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
-However, we observe that our amortized $\theta(1)$ sparse table is
-more slow than disjoint set.  In the dynamic programming, the tendency
-of insertion value will inflict the performance of data structure, so
-we experiment the different probability for each data structure.  The
+However, we observe that our amortized $O(1)$ sparse table is more slow
+than compressed sparse table.  In the dynamic programming, the tendency
+of insertion value will inflict the performance of data structure, so we
+experiment the different probability for each data structure.  The
 number of the query is 10 multiple of the number of insertion.  The
 result is shown on table~\ref{tlb:ISMQcmp}.  When $N=10^7$, our
-amortized $\theta(1)$ sparse table run $1.26 \times$ faster than the
-disjoint set.
+amortized $O(1)$ sparse table run $1.56 \times$ faster than the
+compressed sparse table.
 
 \iffalse
 當運行 $n > 10^6$ 時，我們提出的壓縮稀疏表的效能已經勝過并查集的版本，
@@ -133,11 +139,11 @@ disjoint set.
 \subsection{Parallel Range Query}
 
 Each stage will have $n$ number of elements and the $n$ number of the
-query.  In this special cases, we run the {\tt CORMQ} (compressed
-RMQ) to improve the performance compared to the origin.  If we can
-predict all range size before building, we get the {\tt CORMQ-opt}
-which run $2.35$ faster than origin RMQ.  The table \ref{tlb:CORMQ} is
-shown the result of the strategy of the parallel range query.
+query.  In this special cases, we run the {\tt CORMQ} (compressed RMQ)
+to improve the performance compared to the origin.  If we can predict
+all range size before building, we get the {\tt CORMQ-opt} which run
+$2.35$ faster than origin RMQ.  The table~\ref{tlb:CORMQ} is shown the
+result of the strategy of the parallel range query.
 
 \iffalse
 每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，
