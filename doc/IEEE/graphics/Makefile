@@ -1,6 +1,8 @@
 all: fig-VGLCSex.pdf \
 	fig-VGLCSex2.pdf \
+	fig-interval-decomposition-origin.pdf \
 	fig-interval-decomposition.pdf \
+	fig-sparse-table-origin.pdf \
 	fig-sparse-table.pdf \
 	fig-cartesian-encoding.pdf \
 	fig-bst-encoding.pdf \
