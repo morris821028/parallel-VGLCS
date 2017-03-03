@@ -10,15 +10,15 @@ $\theta(nm)$ time to solve variable range gapped LCS problem which is
 hard than variable gapped LCS problem.
 
 In practice, we presented easy-to-implements data structure for
-const-time IRMQ-retrieval and provide the extra dynamic programming to
+constant-time IRMQ-retrieval and provide the extra dynamic programming to
 reduce the computing boundary, compressed the space to reduce cache
 miss, and the auxiliary prefix/suffix array to avoid building
-cartesian trees. Finally, the CORMQ-opt run $2.35 \times$ faster than
+Cartesian trees. Finally, the CORMQ-opt run $2.35 \times$ faster than
 the origin the algorithm in the parallel environment.
 
-In the incremental range maximum/minimum query, we provide the
-theoretical $\theta(n)$ - amortized $O(1)$ algorithm by
-lexicographical order encoding.
+In the incremental range maximum query, we provide the theoretical
+$\theta(n)$ - amortized $O(1)$ algorithm by lexicographical order
+encoding.
 
 \iffalse
 我們修改 VGLCS 的序列算法，將其平行化於 $\theta(n \log n)$ 時間內，

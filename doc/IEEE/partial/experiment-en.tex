@@ -102,16 +102,16 @@ optimization is same as compressed sparse table.
 The figure~\ref{fig:fig-ISMQcmp} shows that our compressed sparse table
 run faster than the disjoint set when $n$ is greater than  $10^6$.  When
 $n$ is greater than $10^7$, the compressed sparse table run $1.8 \times$
-faster than the disjoint set in random test data.
-
+faster than the disjoint set in random test data.  We use the
+random test cases without any limitation, e.g. the length of range
+query has a uniform distribution.
 
 \begin{figure}[!thb]
   \centering
-  \includegraphics[width=0.9\linewidth]{graphics/fig-ISMQ.pdf}
+  \includegraphics[width=\linewidth]{graphics/fig-ISMQ.pdf}
   \caption{
-  ISMQ runs on E5-2620 with different data structures. We use the
-random test cases without any limitation, e.g. the length of interval
-query has a uniform distribution.   
+  The performance of the ISMQ problem with different data structures on 
+  E5-2620 server.
   }
   \label{fig:fig-ISMQcmp}
 \end{figure}
@@ -120,10 +120,14 @@ However, we observe that our amortized $O(1)$ sparse table is more slow
 than compressed sparse table.  In the dynamic programming, the tendency
 of insertion value will inflict the performance of data structure, so we
 experiment the different probability for each data structure.  The
-number of the query is 10 multiple of the number of insertion.  The
-result is shown on table~\ref{tlb:ISMQcmp}.  When $N=10^7$, our
-amortized $O(1)$ sparse table run $1.56 \times$ faster than the
-compressed sparse table.
+number of the query is ten multiple of the number of insertion.  The
+result is shown on table~\ref{tlb:ISMQcmp}.  The table~\ref{tlb:ISMQcmp}
+show the performance of the ISMQ with sizes $N = 10^7$, different
+maximum interval sizes $L$, the probability $p$ of incremental elements
+and the probability $q$ of zero elements. There are two strategies for
+each $(p, q, L)$, implemented by compressed sparse table and amortized
+$O(1)$ sparse table.  The amortized $O(1)$ sparse table run $1.5 \times$
+faster than the compressed table in above situation.
 
 \iffalse
 當運行 $n > 10^6$ 時，我們提出的壓縮稀疏表的效能已經勝過并查集的版本，
