@@ -42,8 +42,14 @@ as possible.
 
 We can reduce the amount of computation for our dynamic programming
 problem by remove duplicate computation and imposing a boundary
-limitation.  For example, the logarithm function is often used in the query of a sparse table, and we can pre-compute all the result of the requirements.  In the VGLCS problem, the information of range query is known for using.  Therefore, the reduce-boundary algorithm
-~\ref{alg:recude-boundary} runs $O(n \log n)$ time, which $n$ is the length of the input sequence.  It would not increase the time complexity because the VGLCS problem is solved in $O(n^2 / p + n \log n)$, which $p$ is the number of the processors.
+limitation.  For example, the logarithm function is often used in the
+query of a sparse table, and we can pre-compute all the result of the
+requirements.  In the VGLCS problem, the information of range query is
+known for using.  Therefore, the reduce-boundary 
+algorithm~\ref{alg:recude-boundary} runs $O(n \log n)$ time, which $n$ 
+is the length of the input sequence.  It would not increase the time 
+complexity because the VGLCS problem is solved in 
+$O(n^2 / p + n \log n)$, which $p$ is the number of the processors.
 
 
 \iffalse
@@ -60,7 +66,7 @@ limitation.  For example, the logarithm function is often used in the query of a
 
 Due to small $s = \frac{\log n}{4}$, the in-block query is a very
 small probability event.  We can use prefix and suffix maximum array
-to instead of the look-up table.  In our application, we even predict
+to instead of the lookup table.  In our application, we even predict
 whether the cartesian tree is necessary to use for the in-block query.
 If not, we can reduce time to compute it.  These two arrays brought
 $O(n)$ space, but improve the performance by strength reduction.

@@ -1,15 +1,16 @@
 \section{Incremental Range Maximum Query}
 \label{sec:parallelIRMQ}
 
-In parallel environment, the column stage has a linear algorithm which
-use Fischer's sparse table instead of disjoint set, and we also parallel
-its algorithm in theoretical $O(n / p + \log n)$ time, and better
-performance $O(n s / p + \log n)$ algorithm is proposed in
-section~\ref{sec:parallelRMQ}.  Oppositely, the row stage has $m$ number
-of independent data structure and run in amortized $O(n / p + 1)$ time.
-In this section, we provide the new data structure to make row stage run
-in more stable amortized $O(n / p + 1)$ time.  The final result is
-presented on table ~\ref{tlb:cmp-complexity}.
+In parallel environment, the first stage of Peng's VGLCS algorithm has a
+linear algorithm which use Fischer's sparse table instead of disjoint
+set, and we also parallel its algorithm in theoretical $O(n / p + \log
+n)$ time, and better performance $O(n s / p + \log n)$ algorithm is
+proposed in section~\ref{sec:parallelRMQ}.  Oppositely, the second stage
+of Peng's VGLCS algorithm has $m$ number of independent data structure
+and run in amortized $O(n / p + 1)$ time.  In this section, we provide
+the new data structure to make row stage run in more stable amortized
+$O(n / p + 1)$ time.  The final result is presented on table~\ref{tlb
+:cmp-complexity}.
 
 \iffalse
 VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，
@@ -25,7 +26,7 @@ VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區�
 
 \input{./tables/tlb-cmp-complexity.tex}
 
-\subsection{Build Look-up Table}
+\subsection{Build Lookup Table}
 
 We have two main subjects: Cartesian tree encoding and cache
 performance.  Fischer introduced the first encoding method and the
@@ -37,7 +38,7 @@ queries, the $n$ elements will not be modified by any operation.  The
 pre-processing of their algorithm is at least $O(n)$ time and hard to
 parallel.  In VGLCS problem, we could not use sorting to improve cache
 miss because the number of elements and queries are similar.  We
-proposed the parallel algorithm for building look-up table by our encode
+proposed the parallel algorithm for building lookup table by our encode
 method.
 
 In our encoding method,  we list all binary search trees by
@@ -241,10 +242,10 @@ yet inserted are increasing.
 
 Because of lexicographical order, the rightmost path of Cartesian tree
 is belonged to the lower dimension in the row-major like.
-Simultaneously, building a cartesian tree only modify the rightmost
-path. We can use the propagation characteristics to get the identity
-of the tree.  Finally, we design the difference algorithm
-\ref{alg:cartesian-encode-online} to satisfy above requirement.
+Simultaneously, building a Cartesian tree only modify the rightmost
+path. We can use the propagation characteristics to get the identity of
+the tree.  Finally, we propose the difference 
+algorithm~\ref{alg:cartesian-encode-online} to satisfy above requirement.
 
 \iffalse
 為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。
@@ -253,33 +254,35 @@ of the tree.  Finally, we design the difference algorithm
 根據上述的編碼想法，我們得到算法 ~\ref{alg:cartesian-encode-online}。
 \fi
 
+We give an example of difference algorithm in the
+figure~\ref{fig:cartesianEncoding}.   Each block has $s$ number of
+elements.  We will build a Cartesian tree with $s$ number of nodes to
+solve in-block query.  In initialization, it assume $s$ number of nodes
+on the rightmost path and the default tree label $\mathit{tid} = C_s -
+1$.  When inserting $i$-th element, the tree label is $\mathit{tid}_i$,
+and the tree label of the subtree $A$ is $A.\mathit{tid}$.  If the value
+of $(i+1)$-th element is $x$, it will rotate onto the node $A$.  After
+rotation, $A$ is a left subtree of $A$, and we can compute the identify
+of subtree $A$ during rotation.  Then, $x.\mathit{tid}$ can be computed
+by the $s-(i+1)$ number of virtual nodes on the rightmost path and
+$A.\mathit{tid}$. According to the lexicographical order, we get
+$\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
+A.\mathit{tid})$.
+
 \input{algorithms/alg-cartesian-encode-online}
 
 \begin{figure*}[!thb]
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
 
-  \caption{
-Each block has $s$ number of elements.  We will build a cartesian tree
-with $s$ number of nodes to solve in-block query.  In initialization,
-it assume $s$ number of nodes on the rightmost path and the default
-tree label $\mathit{tid} = C_s - 1$.  When inserting $i$-th element,
-the tree label is $\mathit{tid}_i$, and the tree label of the subtree
-$A$ is $A.\mathit{tid}$.  If the value of $(i+1)$-th element is $x$,
-it will rotate onto the node $A$.  After rotation, $A$ is a left
-subtree of $A$, and we can compute the identify of subtree $A$ during
-rotation.  Then, $x.\mathit{tid}$ can be computed by the $s-(i+1)$
-number of virtual nodes on the rightmost path and $A.\mathit{tid}$.
-According to the lexicographical order, we get $\mathit{tid}_{i+1} =
-\mathit{tid}_i + (x.\mathit{tid} - A.\mathit{tid})$.
-}
+  \caption{An example for difference algorithm to encode Cartesian tree.}
 
   \label{fig:cartesianEncoding}
 \end{figure*}
 
 Finally, we do not increase the time complexity of the building
-cartesian tree algorithm because each operation is $O(1)$.  For the
-in-block query, we get the identity of the cartesian tree in $O(1)$,
+Cartesian tree algorithm because each operation is $O(1)$.  For the
+in-block query, we get the identity of the Cartesian tree in $O(1)$,
 and look up table to find the result.
 
 \iffalse
