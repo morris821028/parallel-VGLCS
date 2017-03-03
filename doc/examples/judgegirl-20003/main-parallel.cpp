@@ -19,7 +19,7 @@ struct ISMQ {
 		parent = mem_base;
 		value = mem_base+(n+1)*1;
 		weight = mem_base+(n+1)*2;
-
+/*
 		int16_t *tmp;
         tmp = parent;
         for (int i = 0; i <= n; i++)
@@ -28,7 +28,7 @@ struct ISMQ {
         for (int i = 0; i <= n; i++)
             *tmp = 1, tmp++;
         memset(value, 0, sizeof(int16_t)*(n+1));
-
+*/
 		leader = mem_base+(n+1)*3;
 		lIdx = 0;
 		value[0] = 0, parent[0] = 0, weight[0] = 1;
@@ -39,7 +39,7 @@ struct ISMQ {
 		return value[findp(x)];
 	}
 	void append(int x, int16_t val) {
-		value[x] = val, parent[x] = x;
+		parent[x] = x;
 		int u = x, weightR = 1;
 		for (int16_t *v = leader + lIdx; lIdx >= 0 && value[*v] <= val; v--, lIdx--) {
 			if (weightR <= weight[lIdx])

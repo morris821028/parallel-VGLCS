@@ -28,6 +28,52 @@ static inline int log2int(int x) {
 #define GET(mark, x) (mark[(x)>>5]>>((x)&31)&1)
 #define SET(mark, x) (mark[(x)>>5] |= 1<<((x)&31))
 
+struct ISMQ {
+    int16_t *value;
+    int16_t *parent;
+    int16_t *weight;
+    int16_t *leader;
+    int16_t lIdx;
+	static size_t size(int n) {
+		return (n+1)*4*sizeof(int16_t);
+	}
+    int findp(int x) {
+        return parent[x] == x ? x : (parent[x] = findp(parent[x]));
+    }
+    void init(int n, int8_t *mem_base) {
+        parent = (int16_t*) mem_base;
+		mem_base += sizeof(int16_t)*(n+1);
+        value = (int16_t*) mem_base;
+		mem_base += sizeof(int16_t)*(n+1);
+        weight = (int16_t*) mem_base;
+		mem_base += sizeof(int16_t)*(n+1);
+        leader = (int16_t*) mem_base;
+		mem_base += sizeof(int16_t)*(n+1);
+        lIdx = 0;
+        value[0] = 0, parent[0] = 0, weight[0] = 1;
+        leader[lIdx] = 0;
+ 
+    }
+    int get(int x) {
+        return value[findp(x)];
+    }
+    void append(int x, int16_t val) {
+        parent[x] = x;
+        int u = x, weightR = 1;
+        for (int16_t *v = leader + lIdx; lIdx >= 0 && value[*v] <= val; v--, lIdx--) {
+            if (weightR <= weight[lIdx])
+                u = (parent[u] = *v);
+            else
+                parent[*v] = u;
+            weightR = weight[lIdx] + weightR;
+        }
+        ++lIdx;
+        value[u] = val;
+        leader[lIdx] = u;
+        weight[lIdx] = weightR;
+    }
+};
+
 struct COST {
 	int16_t *oA;
 	int16_t *tb[MAXLOGN];
@@ -225,29 +271,15 @@ int parallel_VGLCS(int nA, char A[], int16_t GA[],
 	}
 	assert(nA < MAXN && nB < MAXN);
 
-	COST Q[MAXN];
+	ISMQ Q[MAXN];
 	COST sp_tlb;
 	static int16_t spA[MAXN];
-	char logGB[MAXN], logGA[MAXN];
+	char logGB[MAXN];
 	int16_t ret = 0;
 
-	int16_t logQA = 0, logQB = 0;
-	int32_t inblockA[(MAXN>>5)+5] = {};
+	int16_t logQB = 0;
 	int32_t inblockB[(MAXN>>5)+5] = {};
 
-	for (int i = 1; i <= nA; i++) {
-		int ql = i - MIN(GA[i]+1, i), qr = i-1;
-		if ((ql>>LOGS) == (qr>>LOGS))
-			SET(inblockA, (ql>>LOGS));
-		if (ql&(POWS-1))
-			ql = ql+(POWS-(ql&(POWS-1)));
-		if ((qr&(POWS-1)) != (POWS-1))
-			qr = qr-(qr&(POWS-1))-1;
-		ql = ql>>LOGS;
-		qr = qr>>LOGS;
-		logGA[i] = log2int(qr-ql+1);
-		logQA = MAX(logQA, logGA[i]);
-	}
 	for (int i = 1; i <= nB; i++) {
 		int ql = i - MIN(GB[i]+1, i), qr = i-1;
 		if ((ql>>LOGS) == (qr>>LOGS))
@@ -263,11 +295,10 @@ int parallel_VGLCS(int nA, char A[], int16_t GA[],
 	}
 
 	const int P = 20;
-	const int lognA = MIN(log2int(nA+1), logQA);
 	const int lognB = MIN(log2int(nB+1), logQB);
 	// const int lognA = log2int(nA+1);
 	// const int lognB = log2int(nB+1);
-	const size_t usageMemA = COST::size(nA+1, lognA, false); 
+	const size_t usageMemA = ISMQ::size(nA+1); 
 	const size_t usageMemB = COST::size(nB+1, lognB, true); 
 	static int8_t *mem_tlbD = NULL, lastUsageMemA = 0;
 	if (lastUsageMemA < usageMemA*(nB+2)) {
@@ -293,36 +324,33 @@ int parallel_VGLCS(int nA, char A[], int16_t GA[],
 		// init ISMQ
 #pragma omp for schedule(static)
 		for (int i = 0; i <= nB; i++) {
-			Q[i].init(nA+1, lognA, mem_tlbD + (i*usageMemA), NULL);
-			Q[i].append(0, GET(inblockA, (0>>LOGS)));
+			Q[i].init(nA+1, mem_tlbD + (i*usageMemA));
+//			Q[i].append(0, GET(inblockA, (0>>LOGS)));
 		}
 
 		for (int i = 1; i <= nA; i++) {
 			// query: incremental suffix maximum query
 			{
 				int r = i - MIN(GA[i]+1, i);
-				int16_t *tb = sp_tlb.tb[0];
-				char logG = logGA[i];
 #pragma omp for schedule(static)
 				for (int j = 1; j <= nB; j++)
-					spA[j] = Q[j].get(r, i-1, logG);
+					spA[j] = Q[j].get(r);
 			}
 
 			// doubling algorithm
 			sp_tlb.parallel_build(spA, lognB, inblockB);
 
 			char Ai = A[i];
-			int32_t build_tree = GET(inblockA, (i>>LOGS));
 			// dynamic programming
 #pragma omp for schedule(static) reduction(max: ret)
 			for (int j = 1; j <= nB; j++) {
 				if (Ai == B[j]) {
 					int l = j - MIN(GB[j]+1, j), r = j-1;
 					int16_t val = sp_tlb.get(l, r, logGB[j])+1;
-					Q[j].append(val, build_tree);
+					Q[j].append(i, val);
 					ret = MAX(ret, val);
 				} else {
-					Q[j].append(0, build_tree);
+					Q[j].append(i, 0);
 				}
 			}
 

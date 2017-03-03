@@ -13,12 +13,6 @@ struct ISMQ {
         return parent[x] == x ? x : (parent[x] = findp(parent[x]));
     }
 	void init(int n) {
-		for (int i = 0; i <= n; i++)
-			parent[i] = i;
-		for (int i = 0; i <= n; i++)
-			weight[i] = 1;
-		memset(value, 0, sizeof(value[0])*(n+1));
-
         lIdx = 0;
         value[0] = 0, parent[0] = 0, weight[0] = 1;
         leader[lIdx] = 0;
@@ -27,7 +21,7 @@ struct ISMQ {
         return value[findp(x)];
     }
     void append(int x, int16_t val) {
-        value[x] = val, parent[x] = x;
+        parent[x] = x;
         int u = x, weightR = 1;
         for (int16_t *v = leader + lIdx; lIdx >= 0 && value[*v] <= val; v--, lIdx--) {
             if (weightR <= weight[lIdx])

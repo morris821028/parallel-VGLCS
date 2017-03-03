@@ -3,5 +3,6 @@
 demo
 cormq
 rmq
+rmq-serial
 
 *.gen
