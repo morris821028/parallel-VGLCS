@@ -70,21 +70,21 @@ parallel.
 We give an example of the sparse table.  The input is in array $A$. We
 split array $A$ into five blocks so that each block has four elements.
 The we build a sparse tabel $ST$ on $A$ as desceibed earlier.  Now a
-ranged maximum query on $A$ can be answered by at most  different sub-
-queries.  If the query range maximum value in $[2, 18]$, it will merge
-four maximum results $B1$, $Q_L$, $B5$, and $Q_R$.
+ranged maximum query on $A$ can be answered by at most two different
+sub-queries.  If the query range maximum value in $[2, 13]$, it will
+merge four maximum results $Q_L$, and $Q_R$.
     
-\begin{figure*}[!thb]
+\begin{figure}[!thb]
   \centering \subfigure[Array]{
-    \includegraphics[width=0.45\linewidth]{graphics/fig-interval-decomposition.pdf}
+    \includegraphics[width=\linewidth]{graphics/fig-interval-decomposition-origin.pdf}
     \label{fig:fig-interval-decomposition}
   } \subfigure[Sparse Table]{
-    \includegraphics[width=0.45\linewidth]{graphics/fig-sparse-table.pdf}
+    \includegraphics[width=\linewidth]{graphics/fig-sparse-table-origin.pdf}
     \label{fig:fig-sparse-table}
   }
   \caption{A sparse tabel example}
   \label{fig:interval-decomposition}
-\end{figure*}
+\end{figure}
 
 We present our parallel algorithm for the VGLCS problem.  The algorithm
 use {\em sparse table} and its time complexity is $O(n^2 / p + n \log
@@ -97,8 +97,8 @@ develop more stable algorithm in amortized $O(n^2)$ theoretically.
 %% $O(1)$ solution which Fischer~\cite{Fischer2006TheoreticalAP}
 %% introduced.
 
-The pseudo code of our algorithm is in Algorithm~\ref{alg:parallel-
-VGLCS}
+The pseudo code of our algorithm is in 
+Algorithm~\ref{alg:parallel-VGLCS}
 
 \iffalse 稀疏表是我們認為最好的替代方案，其整合後為 VGLCS 平行算法
 \ref{alg:parallel-VGLCS}，算法的時間複雜度為 $O(n^2 / p + n \log n)$，
