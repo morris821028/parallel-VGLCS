@@ -3,42 +3,52 @@
 
 \subsection{Background}
 
-The theoretical time complexity of VGLCS algorithm is limited by the
-range maximum/minimum query in parallel.  The parallel range maximum
-query run $O(n \log n / p + \log n)$ -- $O(1)$ by sparse table.  Other
-tree-like data structures is too hard to parallel efficiently in both
-pre-processing and query stage.  
+The efficiency of a parallel VGLCS algorithm is limited by the the
+efficiency of its range maximum/minimum query.
 
-In the offline RMQ problem, we known the best complexity $O(n)$ --
-$O(1)$.  Fischer~\cite{Fischer2006TheoreticalAP} introduced $O(n)$ --
-$O(1)$ algorithm, which is corrponding by $C_s$, where $C_s$ is the
-$s$-th Catalan number and $C_s = \frac{1}{s+1}\binom{2s}{s} =
-O(\frac{4^s}{s^{1.5}})$ to build look-up table.  When we choose $s =
-\frac{1}{4} \log n$ as block size, the space complexity is $O(s^2
-\frac{4^s}{s^{1.5}}) = O(n)$, and time complexity is $O(n)$.  Each range
-query will be split into 4 parts, 2 super-block queries and 2 in-block
-queries.  It need to 4 time memory access.  We give an example in the
-figure \ref{fig:interval- decomposition}.  The in-block queries can look
-up table by encoding the relationship of the block elements into a
-number by a Cartesian tree.
+The parallel range maximum query run $O(n \log n / p + \log n)$ --
+$O(1)$ by sparse table. % why two?
+
+It is difficult to parallelize both pre-processing and query on other
+tree-like data structures efficiently
+
+
+In the off-line RMQ problem, we known the best complexity $O(n)$ --
+$O(1)$. % why two?
+
+Fischer~\cite{Fischer2006TheoreticalAP} introduced $O(n)$ -- $O(1)$
+algorithm.  Let $C_s$ be the $s$-th Catalan number and $C_s =
+\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$.  Fischer's
+algorithm builds a look-up table in $O()$. % I assuem a function of C_s
+
+When we choose $s = \frac{1}{4} \log n$ as block size, the space
+complexity is $O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$, and time complexity
+is $O(n)$.
+
+Each range query will be split into 4 parts, 2 super-block queries and
+2 in-block queries.  It need to 4 time memory access.  We give an
+example in the figure \ref{fig:interval- decomposition}.  The in-block
+queries can look up table by encoding the relationship of the block
+elements into a number by a Cartesian tree.
 
 When $n$ is large, four-time memory access caused the serious cache
 miss.  In order to improve cache miss, Demaine introduced the cache-
-oblivious the algorithm \cite{Demaine2009OnCT} in Cartesian tree
-\cite{Vuillemin1980AUL}.  We proposed the intermediate algorithm in this section to improve the cache miss in parallel environment.
+oblivious the algorithm \cite{Demaine2009OnCT} in Cartesian
+tree~\cite{Vuillemin1980AUL}.  We proposed the intermediate algorithm
+in this section to improve the cache miss in parallel environment.
 
 \subsection{Compressed Cartesian Tree}
 
-\iffalse
-在 Fischer \cite{fischer} 的論文中，
-根據卡塔蘭數 $\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表 (lookup-table)，
-其中選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度 $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。
-每一個區間詢問將會拆成 2 個 super-block 和 2 個 in-block 詢問，共計需要 4 次的記憶體存取。
-在理論分析上，離線 RMQ 問題可在 $\theta(n)$ -- $\theta(1)$ 時間內解決任一詢問。
-當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取未中 (cache miss)，
-在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻 (cache oblivious) 形式的查找方案，
-降低在離線版本中的 in-block 詢問產生的快取未中。
-\fi
+\iffalse 在 Fischer \cite{fischer} 的論文中，根據卡塔蘭數
+$\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$ 建立查找表
+(lookup-table)，其中選擇 $s = \frac{1}{4} \log n$ 時，空間複雜度
+$O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。每一個區間詢
+問將會拆成 2 個 super-block 和 2 個 in-block 詢問，共計需要 4 次的記憶
+體存取。在理論分析上，離線 RMQ 問題可在 $\theta(n)$ -- $\theta(1)$ 時
+間內解決任一詢問。當 $n$ 越大時，這 4 次的記憶體存取會遭遇到嚴重的快取
+未中 (cache miss)，在 Demaine ~\cite{demaine} 的論文中，發展出快取忘卻
+(cache oblivious) 形式的查找方案，降低在離線版本中的 in-block 詢問產生
+的快取未中。\fi
 
 In above technology, we parallel RMQ problem by Fischer's idea and get
 time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm, which combine

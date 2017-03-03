@@ -1,6 +1,8 @@
 \section{Parallel VGLCS Algorithm} %
 \label{sec:parallelVGLCS}
 
+\input{algorithms/alg-serial-VGLCS}
+
 The serial VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
 parallelize.  These algorithms use several states to determine a new
@@ -15,8 +17,6 @@ space to maintain state translation, and spends more time to merge
 split parts.  Therefore, it is crucial that our parallelization
 conserves both memory and time.
 
-\input{algorithms/alg-serial-VGLCS}
-
 In order to find VGLCS efficiently, we need to address the {\em
   incremental suffix maximum query} (ISMQ) problem, which was
 proposed by Peng~\cite{Peng2011TheLC}.  A data structure that supports
@@ -26,7 +26,7 @@ Second, an {\tt append(V)} operation appends a value $V$ to array $A$.
 Finally an ISMQ {\tt query(x)} finds the {\em maximum} value among the
 $x$-th value to the end of an array $A$.
 
-The sequential version of Peng's algoroithm has two stages.  In the
+The sequential version of Peng's algorithm has two stages.  In the
 first stage, the algorithm uses a {\em disjoint set} to efficiently
 answer ISMQ to compute the answer on every column, which form an array
 $S$.  In the second stage, the algorithm again uses ISMQ on array $S$
@@ -57,23 +57,16 @@ parallel.
 
 \begin{itemize}
   \item Segment tree~\cite{berg2000computational} supports ranged
-    maximum query and update in multi-dimensions.  The time complemtiy
+    maximum query and update in multi-dimensions.  The time complexity
     of both update and query is $O(\log n)$ in one-dimension.
   \item Sparse table~\cite{Berkman1993RecursiveSP} requires a $O(n
     \log n)$ preprocessing, and can support ranged maximum query in
     $O(1)$ time in one dimensional data.  A sparse table is a two
-    dimentional array.  The element of a sparse table in the $j$-th
-    row and $i$-th column is the maximum among the $i$-th elelemnts
+    dimensional array.  The element of a sparse table in the $j$-th
+    row and $i$-th column is the maximum among the $i$-th elements
     and its $2^j - 1$ predecessors in the input array.
 \end{itemize}
 
-We give an example of the sparse table.  The input is in array $A$. We
-split array $A$ into five blocks so that each block has four elements.
-The we build a sparse tabel $ST$ on $A$ as desceibed earlier.  Now a
-ranged maximum query on $A$ can be answered by at most two different
-sub-queries.  If the query range maximum value in $[2, 13]$, it will
-merge four maximum results $Q_L$, and $Q_R$.
-    
 \begin{figure}[!thb]
   \centering \subfigure[Array]{
     \includegraphics[width=\linewidth]{graphics/fig-interval-decomposition-origin.pdf}
@@ -82,27 +75,32 @@ merge four maximum results $Q_L$, and $Q_R$.
     \includegraphics[width=\linewidth]{graphics/fig-sparse-table-origin.pdf}
     \label{fig:fig-sparse-table}
   }
-  \caption{A sparse tabel example}
+  \caption{A sparse table example}
   \label{fig:interval-decomposition}
 \end{figure}
 
-We present our parallel algorithm for the VGLCS problem.  The algorithm
-use {\em sparse table} and its time complexity is $O(n^2 / p + n \log
-n)$, where $p$ is the number of processors.  In
-Chapter~\ref{sec:parallelIRMQ}, we present a new data structure --
-variant sparse table instead of disjoint set.  Also, we use them to
-develop more stable algorithm in amortized $O(n^2)$ theoretically.
+We give an example of the sparse table.  The input is in array $A$. We
+split array $A$ into five blocks so that each block has four elements.
+The we build a sparse table $ST$ on $A$ as described earlier.  Now a
+ranged maximum query on $A$ can be answered by at most two queries
+into the sparse table.  For example, if the query is of the range from
+2 to 13, then the answer is the maximum of the two answers -- one from
+2 to 9, and one from 6 to 13.
 
-%% In order to support append value to tail, it cannot run $O(n)$ --
-%% $O(1)$ solution which Fischer~\cite{Fischer2006TheoreticalAP}
-%% introduced.
+We now present a simple version of our parallel VGLCS algorithm.  The
+algorithm uses a sparse table and its time complexity is $O(n^2 \log n
+/ p + n \log n)$, where $p$ is the number of processors.  In
+Section~\ref{sec:parallelIRMQ}, we present a more complicated version
+that uses a variant of the sparse table, and runs in $O(n^2 / p + n
+\log n)$.
 
-The pseudo code of our algorithm is in 
+% say something about how to parallelize the Peng's algorithm with
+% sparse table.
+
+% say something about the advantage of using sparse table, instead of
+% disjoint set
+
+The pseudo code of our simple version parallel algorithm is in
 Algorithm~\ref{alg:parallel-VGLCS}
-
-\iffalse 稀疏表是我們認為最好的替代方案，其整合後為 VGLCS 平行算法
-\ref{alg:parallel-VGLCS}，算法的時間複雜度為 $O(n^2 / p + n \log n)$，
-其中 $p$ 為處理器個數。在後續的章節，我們將提出新的數據結構取代并查集操
-作，且能在平行算法達到理想複雜度 $O(n^2 / p + n \log n)$。\fi
 
 \input{algorithms/alg-parallel-VGLCS}
