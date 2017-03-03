@@ -15,15 +15,6 @@ space to maintain state translation, and spends more time to merge
 split parts.  Therefore, it is crucial that our parallelization
 conserves both memory and time.
 
-\iffalse
-在 $O(nm \alpha(n))$ 的序列算法 \ref{alg:serial-VGLCS} 中，
-我們發現算法如大多數的變型 LCS 相同，依賴數個狀態以轉移當前狀態，
-大量的資料依賴性不易於細粒度平行。使用波前運行平行是一種常見的解決方案，
-由於這種平行對於運行時的快取不友善 (cache-unfriendly)，
-在 Saeed Maleki ~\cite{saeed} 論文中提到如何使用 Rank Convergence 的特殊性質，
-拓展出更高平行度來解決動態規劃的相關問題。
-\fi
-
 \input{algorithms/alg-serial-VGLCS}
 
 In order to find VGLCS efficiently, we need to address the {\em
@@ -35,83 +26,57 @@ Second, an {\tt append(V)} operation appends a value $V$ to array $A$.
 Finally an ISMQ {\tt query(x)} finds the {\em maximum} value among the
 $x$-th value to the end of an array $A$.
 
-\iffalse
-Peng 在解決 VGLCS 問題時，提出 Incremental Suffix Maximum Query 
-的問題用於算法中，ISMQ 有兩種操作，
-\fi
-
-\iffalse 序列算法的空間複雜度為 $O(nm)$。若使用波前平行，需要同時維護橫
-向的所有狀態，需要多付出一倍的空間量。若加入 Rank Convergence 的想法拓
-展出，勢必要記錄轉移的狀態，需要耗費更多的記憶體空間，用以在最後階段合
-併所用。\fi
+The sequential version of Peng's algoroithm has two stages.  In the
+first stage, the algorithm uses a {\em disjoint set} to efficiently
+answer {\em incremental suffix maximum queries} (ISMQ) to compute the
+anser on every columnm, which form an array $S$.  In the second stage,
+the algorithm again uses ISMQ on array $S$ ontained from the first
+stage to get the final answers.
 
 Peng uses a {\em disjoint-set} data structure to answer incremental
-suffix maximium queries, and finds the VGLCS with answers from ISMQ.
-
+suffix maximium queries, and finds a VGLCS with answers from ISMQ.
 The disjoint-set data structure by Gabow~\cite{Gabow1983ALA} and
 Tarjan~\cite{Tarjan1975EfficiencyOA} solves the {\em union-and-find
   problem}.  The amortized time per union/find operation is
 $O(\alpha(n))$.
 
-In the parallel environment, the unstable operation
-make load imbalance to run efficiently.  In this paper, we propose a
-parallel VGLCS algorithm that is space-efficient and cache-friendly.
+However, a disjoint set implementation of Peng's algorithm is
+difficult to parallelize for two reasons.  First, the query in the
+second stage will change the the data structure becasue the lookup
+operation will compress the path to the root, so it is difficult to
+maintain a consistent view of the data structure when multiple
+processing units are compressing the path simtaneously.  Second, in
+the first stage when multiple processing units are compressing
+different paths, the load among them could very different, and incurs
+load imbalance.  Third, in the first stage there will be a large
+number of threads that work on differnt part of the disjoint-set
+forestm, therefoer it will be difficult to synchronize them
+efficiently.
 
-The sequential version has two stages -- row and column stage.  In the
-row stage, the algorithm uses a {\em disjoint set} to efficiently answer
-{\em incremental suffix maximum query} (ISMQ).  However, a ISMQ will
-change the state of the data structure when it appends a new value, so
-it is difficult to parallelize.
-
-% query ususally does not change anything. Are you sure it is qurey?
-% Morris: Yes, disjoint set use path compression during query.
-% ISMQ is out of the blue.  You need to give an exmaple and  motivation 
-
-\iffalse 這裡我們傾向空間複雜度常數小且針對快取友善設計算法。平行算法主
-要分成兩個階段－縱向和橫向階段，縱向階段為數個列的後綴極值查找，橫向階
-段在行上運行 $n$ 個元素和 $n$ 組詢問。在橫向階段，我們需要解決增長後綴
-最大值查找 (\emph{incremental suffix maximum query}, ISMQ)易於實作的并
-查集支持單一操作 $O(\alpha(n))$。然而，在過程中每插入一個元素便改動數據
-結構以支持下一個後綴詢問，這部分使得查詢難以平行化。為消除資料相依性，
-我們找到幾種區間詢問的替代方案。如：\fi
-
-We consider several data structures other than disjoint sets to
-support ISMQ efficiently in parallel.
+Since the disjoint set cannot support ISMQ effectly in prallel, we
+consider the following data structures to support ISMQ efficiently in
+parallel.
 
 \begin{itemize}
-  \item Binary Indexed Tree\cite{Fenwick1994AND} -- $O(\log n)$: It
-    supports prefix sum query and update a single value in $O(\log
-    n)$.  In our application, it also supports updated maximum value
-    and query suffix maximum value.  It runs faster than segment tree.
-  \item Segment Tree\cite{berg2000computational} -- $O(\log n)$: It
-    supports query maximum value and update values in multi-dimension.
-    It can use $O(\log n)$ time to solve range maximum query in
-    one-dimension.
-  \item Sparse Table\cite{Berkman1993RecursiveSP} -- $O(n \log n)$ --
-    $O(1)$: We use $ST[j][i]$ to present the maximum value in array
-    $(i-2^j,i]$.  It spend $O(n \log n)$ time to build table and
-    require $O(1)$ time to get the range maximum query. In order to
-    support append value to tail, it cannot run $O(n)$ -- $O(1)$
-    solution which Fischer ~\cite{Fischer2006TheoreticalAP}
-    introduced.
+  \item Segment tree~\cite{berg2000computational} supports ranged
+    maximum query and update in multi-dimensions.  The time complemtiy
+    of both update and query is $O(\log n)$ in one-dimension.
+  \item Sparse table~\cite{Berkman1993RecursiveSP} requires a $O(n
+    \log n)$ preprocessing, and can support ranged maximum query in
+    $O(1)$ time in one dimensional data.  A sparse table is a two
+    dimentional array.  The element of a sparse table in the $j$-th
+    row and $i$-th column is the maximum among the $i$-th elelemnts
+    and its $2^j - 1$ predecessors in the input array.
 \end{itemize}
 
-\iffalse
-\begin{itemize}
-\item 樹狀數組 (Binary Indexed Tree) -- $O(\log n)$: 對於任意前綴查找極
-  值和更新元素，單一操作的時間複雜度為 $O(\log n)$，其運行常數比線段樹
-  低。
-  \item 線段樹 (Segment Tree) -- $O(\log n)$: 支持更高維度的正交區塊搜
-    索，而我們用在區間極值查找需要 $O(\log n)$ 的時間完成所有區間查詢操
-    作。
-  \item 稀疏表 (Sparse Table) -- $O(n)$ -- $O(1)$:建立表格 $ST[j][i]$
-    表示區間 $(i-2^j,i]$ 之間的極值。建表時間複雜度需 $O(n)$，對於任意
-      區間詢問可以拆分 2 個 super-block 檢索和 2 個 in-block 檢索，如圖
-      \ref{fig:interval-decomposition} 的說明，轉換過程和存取時間皆需要
-      $O(1)$。
-\end{itemize}
-\fi
-
+We give an example of the sparse table.  The input is in array $A$.
+We split array $A$ into five blocks so that each block has four
+elements.  The we build a sparse tabel $ST$ on $A$ as desceibed
+earlier.  Now a ranged maximum query on $A$ can be answered by at most
+ different sub-queries.  If the query range maximum value in $[2,
+  18]$, it will merge four maximum results $B1$, $Q_L$, $B5$, and
+$Q_R$.
+    
 \begin{figure*}[!thb]
   \centering \subfigure[Array]{
     \includegraphics[width=0.45\linewidth]{graphics/fig-interval-decomposition.pdf}
@@ -120,26 +85,21 @@ support ISMQ efficiently in parallel.
     \includegraphics[width=0.45\linewidth]{graphics/fig-sparse-table.pdf}
     \label{fig:fig-sparse-table}
   }
-  \caption{An example for illustrating the sparse table, which has an
-    array $A$.  $A$ is split into five blocks, each block has four
-    elements. A range minimum/maximum query can be decomposed into at
-    most four different sub-queries.  If the query range maximum value
-    in $[2, 18]$, it will merge four maximum results $B1$, $Q_L$,
-    $B5$, and $Q_R$.}
+  \caption{A sparse tabel example}
   \label{fig:interval-decomposition}
 \end{figure*}
 
-We present our parallel algorithm for the VGLCS problem.  The algorithm
-use {\em sparse table} and and its time complexity is $O(n^2 / p + n
-\log n)$, where $p$ is the number of processors.  In
+We present our parallel algorithm for the VGLCS problem.  The
+algorithm use {\em sparse table} and and its time complexity is $O(n^2
+/ p + n \log n)$, where $p$ is the number of processors.  In
 Chapter~\ref{sec:parallelIRMQ}, we present a new data structure --
 variant sparse table instead of disjoint set.  Also, we use them to
 develop more stable algorithm in amortized $O(n^2)$ theoretically.
 
-% what data structure
-% Morris: our compressed sparse table and O(1) sparse table to support ISMQ
-% reduce?? stable??
-% Morris: The sparse table is more stable version compared to disjoint set version.
+
+%% In order to support append value to tail, it cannot run $O(n)$ --
+%% $O(1)$ solution which Fischer~\cite{Fischer2006TheoreticalAP}
+%% introduced.
 
 The pseudo code of our algorithm is in Algorithm~\ref{alg:parallel-VGLCS}
 
