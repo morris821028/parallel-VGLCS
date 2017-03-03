@@ -50,6 +50,14 @@
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 
+\makeatletter
+\newcommand{\multiline}[1]{%
+  \begin{tabularx}{\dimexpr\linewidth-\ALG@thistlm}[t]{@{}X@{}}
+    #1
+  \end{tabularx}
+}
+\makeatother
+
 %=====================================================================
 
 \hypersetup{breaklinks=true}

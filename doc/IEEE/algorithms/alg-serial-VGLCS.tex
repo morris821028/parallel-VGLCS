@@ -1,4 +1,4 @@
-\begin{algorithm*}[!thb]
+\begin{algorithm}[!thb]
   \caption{Algorithm for Finding VGLCS~\cite{Peng2011TheLC}}
   \label{alg:serial-VGLCS}
   \begin{algorithmic}[1]
@@ -13,18 +13,21 @@
       \State $r \gets i - (GA[i]+1)$
       \For{$j \gets 1$ to $m$}
         \If{$A[i] = B[j]$}
-            \State $t \gets $ query suffix maximum value from position $j - (GB[j]+1)$ to tail in $RQ$.
+            \State \multiline{Get the suffix maximum value $t$ from 
+                    position $j - (GB[j]+1)$ to the end in $RQ$.}
             \State $V[i][j] \gets t + 1$
-            \State $t \gets $ get the suffix maximum value from position $r$ to $i$ in $Q[j]$
+            \State \multiline{Get the suffix maximum value $t$ from 
+                    position $r$ to $i$ in $Q[j]$.}
             \State Append value $t$ into $RQ$.
             \State Append value $V[i][j]$ into $Q[j]$.
         \Else
             \State $V[i][j] \gets 0$
-            \State $t \gets $ get the suffix maximum value from position $r$ to $i$ in $Q[j]$
+            \State \multiline{Get the suffix maximum value $t$ from 
+                    position $r$ to $i$ in $Q[j]$.}
             \State Append value $t$ into $RQ$.
         \EndIf
       \EndFor
     \EndFor
     \State Retrieve the VGLCS by tracing $V[n][m]$
   \end{algorithmic}
-\end{algorithm*}
+\end{algorithm}
