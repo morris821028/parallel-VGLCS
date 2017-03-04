@@ -48,6 +48,9 @@ which Catalan index a block belongs to, the algorithm can use the
 index table, identified by its Catalan index, and look into the
 correct index table.
 
+% Morris: I think the heap and binary search tree should be named
+% Cartesian tree here.
+
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} builds index
 tables by choosing $s = \frac{1}{4} \log n$ as the block size.  As a
 result and preprocessing time is $O(n)$, and the space complexity is
@@ -56,13 +59,36 @@ requires $O(n)$ time in preprocessing, and $O(1)$ time in answering a
 query, and both preprocessing time and query answering are the best.
 
 % fill in XXX
+% Morris: Demaine, On Cartesian Trees and Range Minimum Queries
 
 When $n$ is large, Fischer's algorithm uses four memory accesses,
 causing {\em serious cache miss}.  In order to reduce cache miss,
-Demaine~\cite{XXX} introduced the cache-oblivious the algorithm in
-Cartesian tree~\cite{Vuillemin1980AUL}.
+Demaine~\cite{Demaine2009OnCT} introduced the cache-oblivious the
+algorithm in Cartesian tree~\cite{Vuillemin1980AUL}.
 
 % intermediate ???
+
+% Definition: the signature of the block = the index table of the block
+% Definition: all the signature of the blocks in an array $A$ = $S(A)$
+
+% Morris: In Demaine's paper, "In the cache-oblivious model however,
+% each of the n/s blocks checks might bring a new block to cache. If the
+% block size $s$ < cache size $B$, this incurs more memory transfers".
+% Due to Fischer's algorithm will construct the part of the index table
+% $P$ correspond to signatures in $S(A)$.
+
+% Morris: In order to avoid memory transfers, building the entire table
+% $P$ is the good solution.  In the Demaine's paper, it use binary
+% strings to present a block, and the length of binary string is $2s$.
+
+% Morris: the binary string format need "count the number of 1's between
+% the last two 0's".  It is hard to implement efficiently in modern
+% computer.  Therefore, I use fixed size to present it.
+
+% Morris: Further, tending to get less memory transfers is better than
+% lookup table.  The compression version is easy-to-implement. But, The
+% fixed size encoding is hard to mapping, so I run the RMQ with bit
+% operation.
 
 We proposed the intermediate algorithm in this section to improve the
 cache miss in parallel environment.  We parallelize Fischer's
