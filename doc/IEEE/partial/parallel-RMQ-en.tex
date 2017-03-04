@@ -4,38 +4,72 @@
 \subsection{Background}
 
 The efficiency of a parallel VGLCS algorithm is limited by the the
-efficiency of its range maximum/minimum query.
+efficiency of its {\em range maximum query}.  We can use a parallel
+sparse table implementation to answer range maximum queries with $p$
+processors, so that it requires $O(n \log n / p + \log n)$ in
+preprocessing, and takes only $O(1)$ time to answer a query.  On the
+other hand, it is difficult to parallelize both pre-processing and
+query on tree-like data structures efficiently.
 
-The parallel range maximum query run $O(n \log n / p + \log n)$ --
-$O(1)$ by sparse table. % why two?
+Fischer~\cite{Fischer2006TheoreticalAP} consider a {\em blocked}
+version of the sparse table.  The input is partitioned into $s$ blocks.
+We now have two types of queries -- {\em super block} query and a {\em
+  in-block} query.  A super block query queries the answer for
+consecutive blocks, and a in-block query queries a segment {\em
+  within} a block.  Then we compute the maximum for each blocks, and
+compute a sparse table $T_s$ for these maximums.  It is easy to see
+that we can query this sparse table $T_s$ {\em twice} to answer any
+super block query.  An in-block queries can be answered by a single
+lookup into an {\em index table} that encodes the elements in block
+into a {\em Cartesian tree index}.  More details will be provided
+later.  Since we can split {\em any} range query into at most a
+super-block queries and two in-block queries, we need at most four
+memory access to answer any ranged query.
 
-It is difficult to parallelize both pre-processing and query on other
-tree-like data structures efficiently
+Fischer's algorithm~\cite{Fischer2006TheoreticalAP} computes an {\em
+  index table} for every block.  The algorithm scans through the data
+within a block, and places the data within a maximum heap, where the
+indexes of the input data are in sorted binary tree order.  As a
+result any ranged query from the $i$-th to the $j$-th element is
+located at the least common ancestor in heap.  Let the index of this
+least common ancestor be $k$. then we add the key value pairs $((i,
+j), k$ into the index table of this block.  Note that the algorithm
+does {\em not} maintain the value the $k$-th element.  Instead it
+keeps the {\em index} of the least common ancestor so that two blocks
+with the same relative key order can share the the same index table.
+For example, the blocks $(10, 20, 30)$ and $(101, 202, 303)$ can share
+the same index table in which $(1, 2)$ is $2$.  That is the ranged
+maximum query from the first to the second element will return the
+{\em second} element.  It is easy to see that there are at most $C_s$
+different index tables, where $C_s$ is $s$-th Catalan number, i.e. the
+number of different binary trees of $s$ nodes.  Also $C_s =
+\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$.  By knowing
+which Catalan index a block belongs to, the algorithm can use the
+index table, identified by its Catalan index, and look into the
+correct index table.
 
+Fischer's algorithm~\cite{Fischer2006TheoreticalAP} builds index
+tables by choosing $s = \frac{1}{4} \log n$ as the block size.  As a
+result and preprocessing time is $O(n)$, and the space complexity is
+$O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$.  As a result a sequential version
+requires $O(n)$ time in preprocessing, and $O(1)$ time in answering a
+query, and both preprocessing time and query answering are the best.
 
-In the off-line RMQ problem, we known the best complexity $O(n)$ --
-$O(1)$. % why two?
+% fill in XXX
 
-Fischer~\cite{Fischer2006TheoreticalAP} introduced $O(n)$ -- $O(1)$
-algorithm.  Let $C_s$ be the $s$-th Catalan number and $C_s =
-\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$.  Fischer's
-algorithm builds a look-up table in $O()$. % I assuem a function of C_s
+When $n$ is large, Fischer's algorithm uses four memory accesses,
+causing {\em serious cache miss}.  In order to reduce cache miss,
+Demaine~\cite{XXX} introduced the cache-oblivious the algorithm in
+Cartesian tree~\cite{Vuillemin1980AUL}.
 
-When we choose $s = \frac{1}{4} \log n$ as block size, the space
-complexity is $O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$, and time complexity
-is $O(n)$.
+% intermediate ???
 
-Each range query will be split into 4 parts, 2 super-block queries and
-2 in-block queries.  It need to 4 time memory access.  We give an
-example in the figure \ref{fig:interval- decomposition}.  The in-block
-queries can look up table by encoding the relationship of the block
-elements into a number by a Cartesian tree.
-
-When $n$ is large, four-time memory access caused the serious cache
-miss.  In order to improve cache miss, Demaine introduced the cache-
-oblivious the algorithm \cite{Demaine2009OnCT} in Cartesian
-tree~\cite{Vuillemin1980AUL}.  We proposed the intermediate algorithm
-in this section to improve the cache miss in parallel environment.
+We proposed the intermediate algorithm in this section to improve the
+cache miss in parallel environment.  We parallelize Fischer's
+algorithm and reduce time complexity to $O(n / p + \log n)$ in
+preprocessing, and $O(1)$ in query, Our algorithm combines compression
+techniques from Demaine's paper, and reduces cache-miss and has a
+asymptotically optimal time complexity.
 
 \subsection{Compressed Cartesian Tree}
 
@@ -50,26 +84,25 @@ $O(s^2 \frac{4^s}{s^{1.5}}) = o(n)$ 且建表複雜度 $o(n)$。每一個區間�
 (cache oblivious) 形式的查找方案，降低在離線版本中的 in-block 詢問產生
 的快取未中。\fi
 
-In above technology, we parallel RMQ problem by Fischer's idea and get
-time complexity $O(n / p + \log n)$ -- $O(1)$ algorithm, which combine
-compression skill from Demaine's paper. It reduces cache-miss and run in
-ideal complexity.
 
-\iffalse
-在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至 $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案 $s = 16$，其能解決序列長度為 $n = 2^{64}$ 的區間查找，將 16 個整數壓縮成一棵笛卡爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合 $\sum_{i=1}^{n} l_i < i$。
-\fi
+\iffalse在上述的技術中，我們可以藉由 Fischer 提出的方案平行化 RMQ 至
+$O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用量，
+降低快取未中以提升運行效能。這裡我們挑選固定長度的壓縮方案 $s = 16$，
+其能解決序列長度為 $n = 2^{64}$ 的區間查找，將 16 個整數壓縮成一棵笛卡
+爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合
+$\sum_{i=1}^{n} l_i < i$。\fi
 
 The compressed sparse table is composed of Fischer's sparse table and
-Cartesian tree, and we replace look-up operation to naive operation.  We
-pick the fixed length $s = 16$ of each block, which can solve $n =
+Cartesian tree, and we replace look-up operation to naive operation.
+We pick the fixed length $s = 16$ of each block, which can solve $n =
 2^{64}$ one-dimension range maximum query.  When inserting $i$-th
 elements, the number of $i$-th insertion satisfy $\sum_{i=1}^{n} l_i <
 i$ where $0 \le l_i < s$ is the number of nodes remove from the
 rightmost path of Cartesian tree.  Because all $l_i$ is small than 16,
 it can present in 4-bit integer.  Due to above property of Cartesian
 tree, we merge 16 4-bit integers into a 64-bit integer to present a
-Caartesian tree. The compressed algorithm \ref{alg:cartesian-to-64bits}
-run in $O(s)$.
+Cartesian tree. The compressed algorithm
+\ref{alg:cartesian-to-64bits} run in $O(s)$.
 
 
 \input{algorithms/alg-cartesian-to-64bits}
