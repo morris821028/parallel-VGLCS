@@ -1,4 +1,4 @@
-\begin{table}
+\begin{table*}
   %\tiny
   \centering
   \caption{   Our study shows in the bold front. We use the fixed size
@@ -6,32 +6,50 @@ $s=16$ on Cartesian tree. The small amortized constant will not
 encounter serious load imbalance problem.   }
 
   \label{tlb:cmp-complexity}
-  \begin{tabular}{ccc}
+  \begin{tabular}{rlcc}
     \toprule
-     & serial & parallel \\
+    & data structure & serial & parallel \\
     \midrule
-    horizontal & \begin{tabular}{@{}c@{}}
-              $\left \langle n \alpha(n) \right \rangle$ \cite{yunghsing} \\ 
-              amortized $\left \langle n \right \rangle$\end{tabular}
+    First stage &\begin{tabular}{@{}l@{}}
+              disjoint set~\cite{Peng2011TheLC} \\ 
+              tree set union~\cite{Gabow1983ALA} \\
+              sparse table\end{tabular}
               & \begin{tabular}{@{}c@{}}
-                $\left \langle n \alpha(n)/p + \alpha(n) \right \rangle$ \cite{yunghsing} \\
-                amortized $\left \langle n /p + o(1) \right \rangle$
-                \end{tabular} \\
-    vertical & \begin{tabular}{@{}c@{}}
-                $\left \langle n \alpha(n) \right \rangle$ \\
-                amortized $\left \langle n \right \rangle$
+              amortized $O(n \alpha(n))$ \\ 
+              amortized $O(n)$ \\ 
+              amortized $O(n)$\end{tabular}
+              & \begin{tabular}{@{}c@{}}
+                $O(n \alpha(n)/p + \alpha(n))$ \\
+                amortized $O(n /p + 1)$ \\
+                amortized $O(n /p + 1)$
+                \end{tabular} \\ \hline
+    Second stage &\begin{tabular}{@{}l@{}}
+              disjoint set~\cite{Peng2011TheLC} \\ 
+              tree set union~\cite{Gabow1983ALA} \\
+              sparse table\end{tabular}
+            & \begin{tabular}{@{}c@{}}
+                $O(n \alpha(n))$ \\
+                amortized $O(n)$ \\
+                amortized $O(n)$
                 \end{tabular}
             & \begin{tabular}{@{}c@{}}
-                impossible \\
-                amortized $\left \langle n /p + o(1) \right \rangle$
+                difficult \\
+                difficult \\
+                amortized $O(n/p + \log n)$
               \end{tabular}
-              \\
-    total & \begin{tabular}{@{}c@{}}
-              $\left \langle n^2 \alpha(n) \right \rangle$ \cite{yunghsing} \\ 
-              amortized $\left \langle n^2 \right \rangle$\end{tabular}
-          & \begin{tabular}{@{}c@{}}
-              impossible \\ 
-              amortized $\left \langle n^2 /p + n \log n \right \rangle$\end{tabular} \\
+              \\ \hline
+    Overall &\begin{tabular}{@{}l@{}}
+              disjoint set~\cite{Peng2011TheLC} \\ 
+              tree set union~\cite{Gabow1983ALA} \\
+              sparse table\end{tabular}
+            & \begin{tabular}{@{}c@{}}
+              $O(n^2 \alpha(n))$\\ 
+              $O(n^2)$\\ 
+              amortized $O(n^2)$\end{tabular}
+            & \begin{tabular}{@{}c@{}}
+              difficult \\ 
+              difficult \\ 
+              amortized $O(n^2 /p + n \log n)$\end{tabular} \\
     \bottomrule
   \end{tabular}
-\end{table}
+\end{table*}
