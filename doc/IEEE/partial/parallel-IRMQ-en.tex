@@ -35,7 +35,7 @@ the number of instructions and sorting step to reduce the cache miss.
 However, most of them focus on the offline algorithm.  It means that
 there are given $n$ elements and then has $m$ queries. During any
 queries, the $n$ elements will not be modified by any operation.  The
-pre-processing of their algorithm is at least $O(n)$ time and hard to
+preprocessing of their algorithm is at least $O(n)$ time and hard to
 parallel.  In VGLCS problem, we could not use sorting to improve cache
 miss because the number of elements and queries are similar.  We
 proposed the parallel algorithm for building lookup table by our encode
@@ -105,7 +105,7 @@ In order to store all binary search trees, the space complexity is
 \theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)
 \end{equation}
 
-, and the time complexity of parallel algorithm \ref{alg:parallel-LCA}
+, and the time complexity of parallel algorithm~\ref{alg:parallel-LCA}
 is
 
 \begin{equation}
@@ -123,7 +123,7 @@ is
 
 \input{algorithms/alg-parallel-LCA.tex}
 
-\subsection{Dynamic Cartesian Tree}
+\subsection{Dynamic Encoding Cartesian Tree}
 
 Recall that in the VGLCS problem, there are three intuitive solutions
 for ISMQ.  The first one uses naive disjoint set which uses amortized
@@ -137,13 +137,16 @@ of the algorithm is $O(\alpha(n))$ or $O(1)$, the algorithm incurs
 inefficient synchronizations in the parallel environment. Therefore, the
 last two data structure is more suitable than the first one.
 
-In the sparse table, Fischer provide the $\theta(n)$ -- $\theta(1)$
-could not support the append operation.  However, the sparse table
-support RMQ problem is more powerful than suffix maximum value
-problem.  In this section, we provide a solution to make the sparse
-table to support the append operation.  The problem which is more
-powerful than ISQM problem is named incremental range maximum query
-(IRMQ).  IRMQ support two kinds of operation as follows:
+About the sparse table, Fischer provide the $O(n)$ -- $O(1)$ algorithm.
+However, the sparse table support range maximum query problem is more
+powerful than suffix maximum value problem.  In this section, we provide
+a solution to make the sparse table to support the append operation. The
+problem which is more powerful than ISMQ problem is named incremental
+range maximum query (IRMQ).  IRMQ support three operations.  First, a
+{\tt make} operation creates an empty array $A$.  Second, a {\tt
+append(V) } operation appends a value $V$ to the end of an array $A$.
+Finally, a {\tt query(L, R)} operation finds the {\em maximum} value
+among the $L$-th value to the $R$-th value of an array $A$.
 
 \iffalse
 ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，
@@ -155,16 +158,6 @@ ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一�
 拓展其操作成為增長區間最大值查找 (\emph{incremental range maximum query}, IRMQ)，
 其支援兩項操作：
 \fi
-
-\begin{itemize}
-  \item 
-  	\texttt{Append V} : Append a new value $V$ to the tail of array.
-
-  \item
-    \texttt{Query L R} : Query the maximum value between position $L$
-and $R$. 
-
-\end{itemize}
 
 Now, we provide the dynamic encoding method so that each operation is
 amortized $\theta(1)$ time.  First, we need to fully recognize the
@@ -192,11 +185,11 @@ memory access in the algorithm \ref{alg:encode-tid}.
 \input{algorithms/alg-encode-tid}
 
 By the recursive formula,  we could implement without storing full
-cartesian tree.  The rightmost path is consisted of the root, the
+Cartesian tree.  The rightmost path is consisted of the root, the
 right child of the root, the right child of the right child of the
 root, ..., and so on.  We maintain the rightmost path of a Cartesian
 tree as a stack.  The algorithm \ref{alg :cartesian-encode-offline} is
-shown for offline encoding any cartesian tree.
+shown for offline encoding any Cartesian tree.
 
 \iffalse
 根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，實作上與堆疊結構相同。
@@ -206,12 +199,12 @@ shown for offline encoding any cartesian tree.
 
 \input{algorithms/alg-cartesian-encode-offline}
 
-In order to support online encoding, we use 5 variable to present the
-state of the cartesian tree.  The next step will insert $i$-th
-elements and final stage fill $s$ number of elements.  The current
-tree label is $\mathit{tid}$ and the rightmost path of the Cartesian
-tree is presented by two variable, stack pointer $\mathit{Dp}$ and the
-stack $\mathit{D}$. The structure of state is as follows:
+In order to support online encoding, we use five variables to present
+the state of the Cartesian tree.  The next step will insert $i$-th
+elements and final stage fill $s$ number of elements.  The identity of
+the current tree is $\mathit{tid}$ and the rightmost path of the
+Cartesian tree is presented by two variable, stack pointer $\mathit{Dp}$
+and the stack $\mathit{D}$. The structure of state is as follows:
 
 \iffalse
 我們定義轉移狀態由 5 個變數來決定動態笛卡爾樹的編碼，當前插入第 $i$ 個元素，最終填充 $s$ 個元素，
@@ -244,8 +237,8 @@ Because of lexicographical order, the rightmost path of Cartesian tree
 is belonged to the lower dimension in the row-major like.
 Simultaneously, building a Cartesian tree only modify the rightmost
 path. We can use the propagation characteristics to get the identity of
-the tree.  Finally, we propose the difference 
-algorithm~\ref{alg:cartesian-encode-online} to satisfy above requirement.
+the tree.  Finally, we propose the difference algorithm~\ref{alg
+:cartesian-encode-online} to satisfy above requirement.
 
 \iffalse
 為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。
@@ -258,16 +251,16 @@ We give an example of difference algorithm in the
 figure~\ref{fig:cartesianEncoding}.   Each block has $s$ number of
 elements.  We will build a Cartesian tree with $s$ number of nodes to
 solve in-block query.  In initialization, it assume $s$ number of nodes
-on the rightmost path and the default tree label $\mathit{tid} = C_s -
-1$.  When inserting $i$-th element, the tree label is $\mathit{tid}_i$,
-and the tree label of the subtree $A$ is $A.\mathit{tid}$.  If the value
-of $(i+1)$-th element is $x$, it will rotate onto the node $A$.  After
-rotation, $A$ is a left subtree of $A$, and we can compute the identify
-of subtree $A$ during rotation.  Then, $x.\mathit{tid}$ can be computed
-by the $s-(i+1)$ number of virtual nodes on the rightmost path and
-$A.\mathit{tid}$. According to the lexicographical order, we get
-$\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
-A.\mathit{tid})$.
+on the rightmost path and the default tree identity $\mathit{tid} = C_s
+- 1$.  When inserting $i$-th element, the tree identity is
+$\mathit{tid}_i$, and the tree identity of the subtree $A$ is
+$A.\mathit{tid}$.  If the value of $(i+1)$-th element is $x$, it will
+rotate onto the node $A$.  After rotation, $A$ is a left subtree of $A$,
+and we can compute the identify of subtree $A$ during rotation.  Then,
+$x.\mathit{tid}$ can be computed by the $s-(i+1)$ number of virtual
+nodes on the rightmost path and $A.\mathit{tid}$. According to the
+lexicographical order, we get $\mathit{tid}_{i+1} = \mathit{tid}_i +
+(x.\mathit{tid} - A.\mathit{tid})$.
 
 \input{algorithms/alg-cartesian-encode-online}
 
