@@ -69,7 +69,7 @@ parallel.
     of both update and query is $O(\log n)$ in one-dimension.
   \item Sparse table~\cite{Berkman1993RecursiveSP} requires a $O(n
     \log n)$ preprocessing, and can support ranged maximum query in
-    $O(1)$ time in one dimensional data.  A sparse table is a two
+    $O(1)$ time on one dimensional data.  A sparse table is a two
     dimensional array.  The element of a sparse table in the $j$-th
     row and $i$-th column is the maximum among the $i$-th elements
     and its $2^j - 1$ predecessors in the input array.
@@ -90,10 +90,10 @@ parallel.
 We give an example of the sparse table.  The input is in array $A$. We
 split array $A$ into five blocks so that each block has four elements.
 The we build a sparse table $ST$ on $A$ as described earlier.  Now a
-ranged maximum query on $A$ can be answered by at most two queries
-into the sparse table.  For example, if the query is of the range from
-2 to 13, then the answer is the maximum of the two answers -- one from
-2 to 9, and one from 6 to 13.
+ranged maximum query on $A$ can be answered by at most {\em two}
+queries into the sparse table.  For example, if the query is of the
+range from 2 to 13, then the answer is the maximum of the two answers
+-- one from 2 to 9, and one from 6 to 13.
 
 We now present a simple version of our parallel VGLCS algorithm.  The
 algorithm uses a sparse table and its time complexity is $O(n^2 \log n
@@ -102,25 +102,22 @@ Section~\ref{sec:parallelIRMQ}, we present a more complicated version
 that uses a variant of the sparse table, and runs in $O(n^2 / p + n
 \log n)$.
 
-We parallel the sparse table algorithm more easily than the disjoint set
-which is used in the second stage of Peng's VGLCS algorithm.  If use the
-disjoint set in the second stage, the append and query operation is
-alternative.  The alternative behavior causes heavy data dependency.
-Therefore, the parallelism is corrending by the length of path
-compression, which is often small.  The parallel sparse table
-algorithm~\ref{alg:parallel-sparse-table} run in $O(n \log n / p + \log
-n)$, which $n$ is the number of elements and $p$ is the number of
-processors.
+The operations on a sparse table are much easily to parallelize than
+those on a disjoint, which is used in the second stage of Peng's
+sequential VGLCS algorithm.  The second stage of Peng's algorithm
+alternates between append and query operations.  This alternation
+between append and query incurs heavy data dependency.  In addition,
+the parallelism of operations on a disjoint tree is limited by the
+length of path under compression.  The length is usually very short
+and provide very limited parallelism.  In contrast our parallel sparse
+table implementation in Algorithm~\ref{alg:parallel-sparse-table} runs
+in only $O(n \log n / p + \log n)$, where $n$ is the number of
+elements and $p$ is the number of processors, and is very easy to
+parallelize and to implement.
 
 \input{algorithms/alg-parallel-sparse-table}
 
-% say something about how to parallelize the Peng's algorithm with
-% sparse table.
-
-% say something about the advantage of using sparse table, instead of
-% disjoint set
-
-The pseudo code of our simple version parallel algorithm is in
+The pseudo code of our simple version parallel VGLCS algorithm is in
 Algorithm~\ref{alg:parallel-VGLCS}
 
 \input{algorithms/alg-parallel-VGLCS}
