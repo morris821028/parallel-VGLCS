@@ -36,16 +36,16 @@ Peng uses a {\em disjoint-set} data structure to answer incremental
 suffix maximum queries, and finds a VGLCS with answers from ISMQ. The
 disjoint-set data structure by Gabow~\cite{Gabow1983ALA} and
 Tarjan~\cite{Tarjan1975EfficiencyOA} solves the {\em union-and-find
-problem}.  The amortized time per union/find operation is
-$O(\alpha(n))$.  In ISMQ problem, the disjoint set maintains sequential
-groups, and each group has the maximum value which is large than the
-maximum value of successor group.  When appending the value $x$ as the
-new group in the disjoint set, if the maximum value of the last group is
-small than its successor group, joint them together; otherwise, nothing.
-The {\tt query(x)} operation just the maximum value of the group which
-$x$ belongs to.
-
-% How to use the disjoint set to solve ISMQ problem?
+  problem}.  The set of data are stored in a sequence of disjoint
+sets, and maintain the property that the {\em maximum} of disjoint
+sets are at the root and in {\em decreasing} order.  When we add a
+value $x$ into the data structure, we put it at the end as a set of
+itself.  Then we start joining (with union operation) from the last
+set to its previous set until the maximum of the previous set is {\em
+  larger}.  It is easy to see that the {\tt query(x)} operation is
+simply a {\em find} operation that finds the root, which has the {\em
+  maximum}, of the tree that $x$ belongs to.  The amortized time per
+union/find operation is $O(\alpha(n))$.
 
 However, a disjoint set implementation of Peng's algorithm is difficult
 to parallelize for two reasons.  First, the query in the second stage

@@ -28,28 +28,27 @@ memory access to answer any ranged query.
 
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} computes an {\em
   index table} for every block.  The algorithm scans through the data
-within a block, and places the data within a maximum heap, where the
-indexes of the input data are in sorted binary tree order.  As a
-result any ranged query from the $i$-th to the $j$-th element is
-located at the least common ancestor in heap.  Let the index of this
-least common ancestor be $k$. then we add the key value pairs $((i,
-j), k$ into the index table of this block.  Note that the algorithm
-does {\em not} maintain the value the $k$-th element.  Instead it
-keeps the {\em index} of the least common ancestor so that two blocks
-with the same relative key order can share the the same index table.
-For example, the blocks $(10, 20, 30)$ and $(101, 202, 303)$ can share
-the same index table in which $(1, 2)$ is $2$.  That is the ranged
-maximum query from the first to the second element will return the
-{\em second} element.  It is easy to see that there are at most $C_s$
-different index tables, where $C_s$ is $s$-th Catalan number, i.e. the
-number of different binary trees of $s$ nodes.  Also $C_s =
-\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$.  By knowing
-which Catalan index a block belongs to, the algorithm can use the
-index table, identified by its Catalan index, and look into the
-correct index table.
-
-% Morris: I think the heap and binary search tree should be named
-% Cartesian tree here.
+within a block, and places the data within a maximum {\em Cartesian
+  tree}.  One can think of this Cartesian tree as a heap where the
+data are in heap order and the indexes of the data are in sorted
+binary tree order.  As a result any ranged query from the $i$-th to
+the $j$-th element is located at the least common ancestor in heap.
+Let the index of this least common ancestor be $k$. then we add the
+key value pairs $((i, j), k$ into the index table of this block.  Note
+that the algorithm does {\em not} maintain the value the $k$-th
+element.  Instead it keeps the {\em index} of the least common
+ancestor so that two blocks with the same relative key order can share
+the the same index table.  For example, the blocks $(10, 20, 30)$ and
+$(101, 202, 303)$ can share the same index table in which $(1, 2)$ is
+$2$.  That is the ranged maximum query from the first to the second
+element will return the {\em second} element.  It is easy to see that
+there are at most $C_s$ different index tables, where $C_s$ is $s$-th
+Catalan number, i.e. the number of different Cartesian trees of $s$
+nodes.  Also $C_s = \frac{1}{s+1}\binom{2s}{s} =
+O(\frac{4^s}{s^{1.5}})$.  By knowing which Catalan index a block
+belongs to, the algorithm can use the index table, which can be
+identified by its Catalan index, and look into the correct index
+table.
 
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} builds index
 tables by choosing $s = \frac{1}{4} \log n$ as the block size.  As a
@@ -58,13 +57,12 @@ $O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$.  As a result a sequential version
 requires $O(n)$ time in preprocessing, and $O(1)$ time in answering a
 query, and both preprocessing time and query answering are the best.
 
-% fill in XXX
 % Morris: Demaine, On Cartesian Trees and Range Minimum Queries
 
 When $n$ is large, Fischer's algorithm uses four memory accesses,
 causing {\em serious cache miss}.  In order to reduce cache miss,
-Demaine~\cite{Demaine2009OnCT} introduced the cache-oblivious the
-algorithm in Cartesian tree~\cite{Vuillemin1980AUL}.
+Demaine~\cite{Demaine2009OnCT} introduced cache-oblivious operations
+on Cartesian tree~\cite{Vuillemin1980AUL}.
 
 % intermediate ???
 
