@@ -8,9 +8,10 @@ n)$ time, and better performance $O(n s / p + \log n)$ algorithm is
 proposed in section~\ref{sec:parallelRMQ}.  Oppositely, the second stage
 of Peng's VGLCS algorithm has $m$ number of independent data structure
 and run in amortized $O(n / p + 1)$ time.  In this section, we provide
-the new data structure to make row stage run in more stable amortized
-$O(n / p + 1)$ time.  The final result is presented on table~\ref{tlb
-:cmp-complexity}.
+the our encoding algorithm according to the parallel algorithm of
+building lookup table, and it make row stage run in more stable
+amortized $O(n / p + 1)$ time.  The final result is presented on
+table~\ref{tlb :cmp-complexity}.
 
 \iffalse
 VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，
@@ -33,7 +34,7 @@ performance.  Fischer introduced the first encoding method and the
 Masud~\cite{Hasan2010CacheOA} presents the new encoding method to reduce
 the number of instructions and sorting step to reduce the cache miss.
 However, most of them focus on the offline algorithm.  It means that
-there are given $n$ elements and then has $m$ queries. During any
+there are given $n$ elements and then has $m$ queries.  During any
 queries, the $n$ elements will not be modified by any operation.  The
 preprocessing of their algorithm is at least $O(n)$ time and hard to
 parallel.  In VGLCS problem, we could not use sorting to improve cache

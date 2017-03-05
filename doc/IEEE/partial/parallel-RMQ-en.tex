@@ -119,16 +119,16 @@ $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用
 $\sum_{i=1}^{n} l_i < i$。\fi
 
 The compressed sparse table is composed of Fischer's sparse table and
-Cartesian tree, and we replace look-up operation to naive operation.
-We pick the fixed length $s = 16$ of each block, which can solve $n =
+Cartesian tree, and we replace lookup operation to naive operation. We
+pick the fixed length $s = 16$ of each block, which can solve $n =
 2^{64}$ one-dimension range maximum query.  When inserting $i$-th
 elements, the number of $i$-th insertion satisfy $\sum_{i=1}^{n} l_i <
 i$ where $0 \le l_i < s$ is the number of nodes remove from the
 rightmost path of Cartesian tree.  Because all $l_i$ is small than 16,
-it can present in 4-bit integer.  Due to above property of Cartesian
+it can present in a 4-bit integer.  Due to above property of Cartesian
 tree, we merge 16 4-bit integers into a 64-bit integer to present a
-Cartesian tree. The compressed algorithm
-\ref{alg:cartesian-to-64bits} run in $O(s)$.
+Cartesian tree. The compressed algorithm \ref{alg:cartesian-to-64bits}
+run in $O(s)$.
 
 
 \input{algorithms/alg-cartesian-to-64bits}
@@ -150,7 +150,7 @@ register.  We modify Demaine's range query algorithm as the algorithm
 \fi
 
 In VGLCS problem, above algorithm provide compression skill to reduce
-cache miss, but increase the time complexity.  The pre-processing spend
+cache miss, but increase the time complexity.  The preprocessing spend
 $O(n)$ time, single query spends $O(s)$ time in RMQ, and the space
 complexity is  $O(n)$.  Totally, time complexity of the VGLCS algorithm
 is $O(n^2 \; s / p + n \max(\log n, s))$.
