@@ -57,31 +57,40 @@ $O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$.  As a result a sequential version
 requires $O(n)$ time in preprocessing, and $O(1)$ time in answering a
 query, and both preprocessing time and query answering are the best.
 
-% Morris: Demaine, On Cartesian Trees and Range Minimum Queries
+Fischer's algorithm causes {\em serious cache miss} When the number of
+data is large.  Fischer's algorithm will construct index tables for
+blocks in a on-demand manner.  Whne the algorithm finds that the
+corresponding index table is {\em not} present in memory, it will
+build it in memory, which will be cached.  This process will repeat
+the number of blocks times, and causes cahche misses.
 
-When $n$ is large, Fischer's algorithm uses four memory accesses,
-causing {\em serious cache miss}.  In order to reduce cache miss,
-Demaine~\cite{Demaine2009OnCT} introduced cache-oblivious operations
-on Cartesian tree~\cite{Vuillemin1980AUL}.
+In order to reduce cache miss, Demaine~\cite{Demaine2009OnCT} proposed
+{\em cache-aware} operations on Cartesian
+tree~\cite{Vuillemin1980AUL}.  Therefore Demaine's algorithm skip the
+checking for existing index table, and builds a index table for {\em
+  every} block.  In addition, Demaine's algorithm uses a binary string
+of length $2s$ as the identifier of a block using Cartesian tree.  One
+can answer ranged maximum queries directly from examing this binary
+string.  However, this opertion requires counting the number of 1's
+between the last two 0's, therefore it is hard to implement
+efficiently in a modern computer.
 
-% intermediate ???
+We propose a new enconding for blocks.  We will use another
+representation, called {\em compressed sparse table}, instead of the
+binary string to imporve perfromance.  The compressed sparse table is
+inspired by Fischer's sparse table and Cartesian tree.
 
-% Definition: the signature of the block = the index table of the block
-% Definition: all the signature of the blocks in an array $A$ = $S(A)$
+We replace lookup operation to naive operation.
 
-% Morris: In Demaine's paper, "In the cache-oblivious model however,
-% each of the n/s blocks checks might bring a new block to cache. If the
-% block size $s$ < cache size $B$, this incurs more memory transfers".
-% Due to Fischer's algorithm will construct the part of the index table
-% $P$ correspond to signatures in $S(A)$.
-
-% Morris: In order to avoid memory transfers, building the entire table
-% $P$ is the good solution.  In the Demaine's paper, it use binary
-% strings to present a block, and the length of binary string is $2s$.
-
-% Morris: the binary string format need "count the number of 1's between
-% the last two 0's".  It is hard to implement efficiently in modern
-% computer.  Therefore, I use fixed size to present it.
+We pick the fixed length $s = 16$ of each block, which can solve $n =
+2^{64}$ one-dimension range maximum query.  When inserting $i$-th
+elements, the number of $i$-th insertion satisfy $\sum_{i=1}^{n} l_i <
+i$ where $0 \le l_i < s$ is the number of nodes remove from the
+rightmost path of Cartesian tree.  Because all $l_i$ is small than 16,
+it can present in a 4-bit integer.  Due to above property of Cartesian
+tree, we merge 16 4-bit integers into a 64-bit integer to present a
+Cartesian tree. The compressed algorithm \ref{alg:cartesian-to-64bits}
+run in $O(s)$.
 
 % Morris: Further, tending to get less memory transfers is better than
 % lookup table.  The compression version is easy-to-implement. But, The
@@ -116,17 +125,6 @@ $O(n / p + \log n)$ -- $O(1)$，使用 Demaine 提供的技巧壓縮空間使用
 爾樹。在第 $i$ 次插入時，左旋的次數 $l_i$，每次操作皆符合
 $\sum_{i=1}^{n} l_i < i$。\fi
 
-The compressed sparse table is composed of Fischer's sparse table and
-Cartesian tree, and we replace lookup operation to naive operation. We
-pick the fixed length $s = 16$ of each block, which can solve $n =
-2^{64}$ one-dimension range maximum query.  When inserting $i$-th
-elements, the number of $i$-th insertion satisfy $\sum_{i=1}^{n} l_i <
-i$ where $0 \le l_i < s$ is the number of nodes remove from the
-rightmost path of Cartesian tree.  Because all $l_i$ is small than 16,
-it can present in a 4-bit integer.  Due to above property of Cartesian
-tree, we merge 16 4-bit integers into a 64-bit integer to present a
-Cartesian tree. The compressed algorithm \ref{alg:cartesian-to-64bits}
-run in $O(s)$.
 
 
 \input{algorithms/alg-cartesian-to-64bits}
