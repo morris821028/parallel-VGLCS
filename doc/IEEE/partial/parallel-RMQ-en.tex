@@ -75,6 +75,15 @@ string.  However, this operation requires counting the number of 1's
 between the last two 0's, therefore it is {\em hard} to implement
 efficiently in a modern computer.
 
+% We replace lookup operation to naive operation.  The naive operation
+% is find the maximum value by comparing each element on the compressed
+% data. On the other hand, the lookup operation find the index of
+% maximum value from the index table. When loading a element from index
+% table, it also bring some useless data to caches.   In order to use
+% cache efficiently, the naive operation is better than the lookup
+% operation because the access pattern is almost one by one in our VGLCS
+% algorithm.
+
 \subsection{Compressed Cartesian Tree}
 
 We propose a new encoding for blocks.  We a {\em compressed sparse
