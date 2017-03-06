@@ -1,27 +1,26 @@
 \section{Incremental Range Maximum Query}
 \label{sec:parallelIRMQ}
 
-In parallel environment, the first stage of Peng's VGLCS algorithm has a
-linear algorithm which use Fischer's sparse table instead of disjoint
-set, and we also parallel its algorithm in theoretical $O(n / p + \log
-n)$ time, and better performance $O(n s / p + \log n)$ algorithm is
-proposed in section~\ref{sec:parallelRMQ}.  Oppositely, the second stage
-of Peng's VGLCS algorithm has $m$ number of independent data structure
-and run in amortized $O(n / p + 1)$ time.  In this section, we provide
-the our encoding algorithm according to the parallel algorithm of
-building lookup table, and it make row stage run in more stable
-amortized $O(n / p + 1)$ time.  The final result is presented on
-table~\ref{tlb :cmp-complexity}.
+In parallel environment, the first stage of Peng's VGLCS algorithm has
+a linear algorithm which use Fischer's sparse table instead of
+disjoint set, and we also parallel its algorithm in theoretical $O(n /
+p + \log n)$ time, and better performance $O(n s / p + \log n)$
+algorithm is proposed in section~\ref{sec:parallelRMQ}.  Oppositely,
+the second stage of Peng's VGLCS algorithm has $m$ number of
+independent data structure and run in amortized $O(n / p + 1)$ time.
+In this section, we provide the our encoding algorithm according to
+the parallel algorithm of building lookup table, and it make row stage
+run in more stable amortized $O(n / p + 1)$ time.  The final result is
+presented on table~\ref{tlb :cmp-complexity}.
 
-\iffalse
-VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區間極值查找，橫向處理每一行的區間極值查找，
-兩者合併構成區域極值查找。在縱向方面為數個獨立的數據結構，這部分易於平行；
-相反地，在橫向方面，需要共同協作一個數據結構。
-綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而橫向可以離線完成區間查找。
-在上一節中，我們提出在橫向處理的實作，若限制上述的實作方案在單一處理器上，
-時間複雜度的瓶頸在於縱向的動態更新與查找。
-
-在這個章節中，我們提出支持動態插入和區間查找的數據結構，最後的成果如表 \ref{tlb:cmp-complexity}。
+\iffalse VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區間極值
+查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方
+面為數個獨立的數據結構，這部分易於平行；相反地，在橫向方面，需要共同協
+作一個數據結構。綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而
+橫向可以離線完成區間查找。在上一節中，我們提出在橫向處理的實作，若限制
+上述的實作方案在單一處理器上，時間複雜度的瓶頸在於縱向的動態更新與查找。
+在這個章節中，我們提出支持動態插入和區間查找的數據結構，最後的成果如表
+\ref{tlb:cmp-complexity}。
 \fi
 
 
@@ -31,21 +30,21 @@ VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區�
 
 We have two main subjects: Cartesian tree encoding and cache
 performance.  Fischer introduced the first encoding method and the
-Masud~\cite{Hasan2010CacheOA} presents the new encoding method to reduce
-the number of instructions and sorting step to reduce the cache miss.
-However, most of them focus on the offline algorithm.  It means that
-there are given $n$ elements and then has $m$ queries.  During any
-queries, the $n$ elements will not be modified by any operation.  The
-preprocessing of their algorithm is at least $O(n)$ time and hard to
-parallel.  In VGLCS problem, we could not use sorting to improve cache
-miss because the number of elements and queries are similar.  We
-proposed the parallel algorithm for building lookup table by our encode
-method.
+Masud~\cite{Hasan2010CacheOA} presents the new encoding method to
+reduce the number of instructions and sorting step to reduce the cache
+miss.  However, most of them focus on the offline algorithm.  It means
+that there are given $n$ elements and then has $m$ queries.  During
+any queries, the $n$ elements will not be modified by any operation.
+The preprocessing of their algorithm is at least $O(n)$ time and hard
+to parallel.  In VGLCS problem, we could not use sorting to improve
+cache miss because the number of elements and queries are similar.  We
+proposed the parallel algorithm for building lookup table by our
+encode method.
 
-In our encoding method,  we list all binary search trees by
-lexicographical order and label them from $0$ to $n$-th Catalan number.
-The lexicographical order for binary search tree is defined by the left
-subtree high priority and then right subtree.  The figure
+In our encoding method, we list all binary search trees by
+lexicographical order and label them from $0$ to $n$-th Catalan
+number.  The lexicographical order for binary search tree is defined
+by the left subtree high priority and then right subtree.  The figure
 \ref{fig:labelingBST} shows label of binary search tree for the
 $n=1,2,3$ number of nodes.
 
@@ -89,14 +88,15 @@ $O(s)$.  Finally, the formula \ref{fun:LCA} is shown for the lowest
 common ancestor.
 
 \iffalse
-對於 $s$ 個節點的二元搜尋樹，其權重從 $0$ 開始至 $s-1$、樹編號為 $\mathit{tid}$。
-定義 $\mathit{LCA}(s, \mathit{tid}, p, q)$ 為其樹上兩點 $p$ 和 $q$ 的最小共同祖先，
-如 $\mathit{LCA}(3, 2, 0, 2) = 1$。
 
-定義四個變數 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 分別為左右子樹的大小和其編號，
-這四個變數根據指定的 $\mathit{tid}$ 可在 $O(n)$ 時間內得到。
-最後，推導得遞迴公式 ~\ref{fun:LCA}。 
-\fi
+對於 $s$ 個節點的二元搜尋樹，其權重從 $0$ 開始至 $s-1$、樹編號為
+$\mathit{tid}$。定義 $\mathit{LCA}(s, \mathit{tid}, p, q)$ 為其樹上兩
+點 $p$ 和 $q$ 的最小共同祖先，如 $\mathit{LCA}(3, 2, 0, 2) = 1$。
+
+定義四個變數
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 分
+別為左右子樹的大小和其編號，這四個變數根據指定的 $\mathit{tid}$ 可在
+$O(n)$ 時間內得到。最後，推導得遞迴公式 ~\ref{fun:LCA}。  \fi
 
 \input{./formulas/fun-LCA.tex}
 
@@ -114,8 +114,10 @@ is
 \end{equation}.
 
 \iffalse
-為記錄所有的二元搜尋樹的 LCA，空間消耗 $\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)$；
-其平行算法 \ref{alg:parallel-LCA} 的時間複雜度如下：
+
+為記錄所有的二元搜尋樹的 LCA，空間消耗 $\theta\left(\frac{s^2}{s+1}
+\binom{2s}{s}\right) = \theta\left(n\right)$；其平行算法
+\ref{alg:parallel-LCA} 的時間複雜度如下：
 
 \begin{equation}
 \theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
@@ -129,31 +131,34 @@ is
 Recall that in the VGLCS problem, there are three intuitive solutions
 for ISMQ.  The first one uses naive disjoint set which uses amortized
 $O(\alpha(n))$ for each query, or advance variant disjoint set --
-incremental tree set union~\cite{Gabow1983ALA} uses amortized $O(1)$ for
-each query.  The second one uses sparse table which uses $O(\log n)$
-time to append a new value to the tail of array and $O(1)$ time to
+incremental tree set union~\cite{Gabow1983ALA} uses amortized $O(1)$
+for each query.  The second one uses sparse table which uses $O(\log
+n)$ time to append a new value to the tail of array and $O(1)$ time to
 response a query.  The third one is the binary indexed tree which used
-$O(\log n)$ time for each operation.   Even if the amortized complexity
+$O(\log n)$ time for each operation.  Even if the amortized complexity
 of the algorithm is $O(\alpha(n))$ or $O(1)$, the algorithm incurs
-inefficient synchronizations in the parallel environment. Therefore, the
-last two data structure is more suitable than the first one.
+inefficient synchronizations in the parallel environment. Therefore,
+the last two data structure is more suitable than the first one.
 
-About the sparse table, Fischer provide the $O(n)$ -- $O(1)$ algorithm.
-However, the sparse table support range maximum query problem is more
-powerful than suffix maximum value problem.  In this section, we provide
-a solution to make the sparse table to support the append operation. The
-problem which is more powerful than ISMQ problem is named incremental
-range maximum query (IRMQ).  IRMQ support three operations.  First, a
-{\tt make} operation creates an empty array $A$.  Second, a {\tt
-append(V) } operation appends a value $V$ to the end of an array $A$.
-Finally, a {\tt query(L, R)} operation finds the {\em maximum} value
-among the $L$-th value to the $R$-th value of an array $A$.
+About the sparse table, Fischer provide the $O(n)$ -- $O(1)$
+algorithm.  However, the sparse table support range maximum query
+problem is more powerful than suffix maximum value problem.  In this
+section, we provide a solution to make the sparse table to support the
+append operation. The problem which is more powerful than ISMQ problem
+is named incremental range maximum query (IRMQ).  IRMQ support three
+operations.  First, a {\tt make} operation creates an empty array $A$.
+Second, a {\tt append(V) } operation appends a value $V$ to the end of
+an array $A$.  Finally, a {\tt query(L, R)} operation finds the {\em
+  maximum} value among the $L$-th value to the $R$-th value of an
+array $A$.
 
 \iffalse
-ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，
-其二使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。
-其二，Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，
-其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個 in-block 塞滿至預設值才可解決。
+
+ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，其二
+使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。其二，
+Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，
+其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個
+in-block 塞滿至預設值才可解決。
 
 在我們的應用中維護後綴最大值，
 拓展其操作成為增長區間最大值查找 (\emph{incremental range maximum query}, IRMQ)，
@@ -166,14 +171,14 @@ formulas encoder and decoder, so that each step in the algorithm is
 $\theta(1)$.
 
 In the previous section, for any identify $\mathit{tid}$ of BST, we
-can get
-$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in
-$O(n)$ time.  Oppositely, we get $\mathit{tid}$ from
-$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ in
-$\theta(1)$.  The algorithm \ref{alg:encode-tid} show the inverse
-function run in $\theta(1)$.  By the pre-processing, all the prefix
-sum store in the memory, so the for loop can be replaced by one time
-memory access in the algorithm \ref{alg:encode-tid}.
+can get $\langle\mathit{lsz}, \mathit{lid}, \mathit{rsz},
+\mathit{rid}\rangle$ in $O(n)$ time.  Oppositely, we get
+$\mathit{tid}$ from $\langle\mathit{lsz}, \mathit{lid}, \mathit{rsz},
+\mathit{rid}\rangle$ in $\theta(1)$.  The algorithm
+\ref{alg:encode-tid} show the inverse function run in $\theta(1)$.  By
+the pre-processing, all the prefix sum store in the memory, so the for
+loop can be replaced by one time memory access in the algorithm
+\ref{alg:encode-tid}.
 
 \iffalse
 接下來的幾段中，我們提供動態的編碼方式使得每一操作皆均攤 $\theta(1)$ 完成。首先，我們需要充分認知編碼相互轉換的公式，藉以在算法中完成每一步皆為 $\theta(1)$ 的要求。
