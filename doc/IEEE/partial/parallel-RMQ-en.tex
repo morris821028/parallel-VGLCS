@@ -59,10 +59,17 @@ query, and both preprocessing time and query answering are the best.
 
 Fischer's algorithm causes {\em serious cache miss} When the number of
 data is large.  Fischer's algorithm will construct index tables for
-blocks in a on-demand manner.  Whne the algorithm finds that the
+blocks in a on-demand manner.  When the algorithm finds that the
 corresponding index table is {\em not} present in memory, it will
 build it in memory, which will be cached.  This process will repeat
-the number of blocks times, and causes cahche misses.
+the number of blocks times, and causes cache misses.
+
+% 定義 B: 在兩層以上記憶體模型，較慢且大的儲存裝置會拆成好幾個區塊，每一個區塊會有 B 個元素。
+% 假設要建立某個 index table，必然要反查原本的某一個 block (大小為 s)，一次會帶入 B 個連續片段。
+% 當 s < B 時，反查操作有發生傳送次數大於 scan(n)
+
+% Demaine's 那篇論文，採用直接建表的手法，不反查原本的輸入陣列 A
+% 直接從將所有 block 索引壓縮成一個序列 S、在掃描 S 的過程中，得到所有二元樹的任意區間最大索引值
 
 In order to reduce cache miss, Demaine~\cite{Demaine2009OnCT} proposed
 {\em cache-aware} operations on Cartesian
@@ -70,17 +77,23 @@ tree~\cite{Vuillemin1980AUL}.  Therefore Demaine's algorithm skip the
 checking for existing index table, and builds a index table for {\em
   every} block.  In addition, Demaine's algorithm uses a binary string
 of length $2s$ as the identifier of a block using Cartesian tree.  One
-can answer ranged maximum queries directly from examing this binary
-string.  However, this opertion requires counting the number of 1's
+can answer ranged maximum queries directly from examining this binary
+string.  However, this operation requires counting the number of 1's
 between the last two 0's, therefore it is hard to implement
 efficiently in a modern computer.
 
-We propose a new enconding for blocks.  We will use another
+We propose a new encoding for blocks.  We will use another
 representation, called {\em compressed sparse table}, instead of the
-binary string to imporve perfromance.  The compressed sparse table is
+binary string to improve performance.  The compressed sparse table is
 inspired by Fischer's sparse table and Cartesian tree.
 
-We replace lookup operation to naive operation.
+We replace lookup operation to naive operation.  The naive operation is
+find the maximum value by comparing each element on the compressed data.
+On the other hand, the lookup operation find the index of maximum value
+from the index table. When loading a element from index table, it also
+bring some useless data to caches.   In order to use cache efficiently,
+the naive operation is better than the lookup operation because the
+access pattern is almost one by one in our VGLCS algorithm.
 
 We pick the fixed length $s = 16$ of each block, which can solve $n =
 2^{64}$ one-dimension range maximum query.  When inserting $i$-th
@@ -89,7 +102,7 @@ i$ where $0 \le l_i < s$ is the number of nodes remove from the
 rightmost path of Cartesian tree.  Because all $l_i$ is small than 16,
 it can present in a 4-bit integer.  Due to above property of Cartesian
 tree, we merge 16 4-bit integers into a 64-bit integer to present a
-Cartesian tree. The compressed algorithm \ref{alg:cartesian-to-64bits}
+Cartesian tree. The compressed algorithm~\ref{alg:cartesian-to-64bits}
 run in $O(s)$.
 
 % Morris: Further, tending to get less memory transfers is better than
