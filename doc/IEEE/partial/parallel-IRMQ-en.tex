@@ -1,17 +1,38 @@
-\section{Incremental Range Maximum Query}
+\section{Query on Incrementally Updated Data}
 \label{sec:parallelIRMQ}
 
-In parallel environment, the first stage of Peng's VGLCS algorithm has
-a linear algorithm which use Fischer's sparse table instead of
-disjoint set, and we also parallel its algorithm in theoretical $O(n /
-p + \log n)$ time, and better performance $O(n s / p + \log n)$
-algorithm is proposed in section~\ref{sec:parallelRMQ}.  Oppositely,
-the second stage of Peng's VGLCS algorithm has $m$ number of
-independent data structure and run in amortized $O(n / p + 1)$ time.
-In this section, we provide the our encoding algorithm according to
-the parallel algorithm of building lookup table, and it make row stage
-run in more stable amortized $O(n / p + 1)$ time.  The final result is
-presented on table~\ref{tlb :cmp-complexity}.
+Recall that our VGLCS algorithm has two stages.  In the first stage,
+the algorithm uses incremental suffix maximum query to compute
+intermediate data on every {\em column} of a two dimensional matrix.
+In the second stage, the algorithm uses {\em ranged maximum query} on
+the rows of the matrix from the first stage to get the final answers.
+These two stages work together to find the maximum in a given
+rectangle area.
+
+The impemtation for two stages have different challenges.  The first
+stage is easier to parallelize because the operations on indiviual
+columns are independent.  However, it will insert new data into the
+data structure, and it still needs to answer ranged query efficientlt.
+The second stage does not requires insertion so it is more static, and
+easier.  However, it requires working on several columns simutanesouly
+and syncchnously.  Fortunately we have address this data synchronous
+issue by computing the index table in a off-line manner, as described
+in previous Section~\ref{sec:cct}.  As a result in this section we
+will focus on how to answer ranged maximum queries efficiently on
+incrementally updated data.
+
+%% In parallel environment, the first stage of Peng's VGLCS algorithm has
+%% a linear algorithm which use Fischer's sparse table instead of
+%% disjoint set, and we also parallel its algorithm in theoretical $O(n /
+%% p + \log n)$ time, and better performance $O(n s / p + \log n)$
+%% algorithm is proposed in section~\ref{sec:parallelRMQ}.
+
+%% Oppositely, the second stage of Peng's VGLCS algorithm has $m$ number
+%% of independent data structure and run in amortized $O(n / p + 1)$
+%% time.  In this section, we provide the our encoding algorithm
+%% according to the parallel algorithm of building lookup table, and it
+%% make row stage run in more stable amortized $O(n / p + 1)$ time.  The
+%% final result is presented on table~\ref{tlb :cmp-complexity}.
 
 \iffalse VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區間極值
 查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方
@@ -23,30 +44,39 @@ presented on table~\ref{tlb :cmp-complexity}.
 \ref{tlb:cmp-complexity}。
 \fi
 
-
-\input{./tables/tlb-cmp-complexity.tex}
+% not here, somewhere else
+%\input{./tables/tlb-cmp-complexity.tex}
 
 \subsection{Build Lookup Table}
 
-We have two main subjects: Cartesian tree encoding and cache
-performance.  Fischer introduced the first encoding method and the
-Masud~\cite{Hasan2010CacheOA} presents the new encoding method to
-reduce the number of instructions and sorting step to reduce the cache
-miss.  However, most of them focus on the offline algorithm.  It means
-that there are given $n$ elements and then has $m$ queries.  During
-any queries, the $n$ elements will not be modified by any operation.
-The preprocessing of their algorithm is at least $O(n)$ time and hard
-to parallel.  In VGLCS problem, we could not use sorting to improve
-cache miss because the number of elements and queries are similar.  We
-proposed the parallel algorithm for building lookup table by our
-encode method.
+There are two main issues in answering ranged maximum query --
+Cartesian tree encoding and cache performance.  Fischer introduced the
+first encoding method and the Masud~\cite{Hasan2010CacheOA} presents a
+new encoding method to reduce the number of instructions and sorting
+step to reduce cache miss.  Unfortunatly all these algoriothm work in
+a off-line model, i.e., they assume all $n$ data are given in advance,
+therefore they cannot copw with incrementally updated data in our
+problem.  In addition, they require a preprocessing of time $O(n)$,
+which is difficult to parallelize.
 
-In our encoding method, we list all binary search trees by
-lexicographical order and label them from $0$ to $n$-th Catalan
-number.  The lexicographical order for binary search tree is defined
-by the left subtree high priority and then right subtree.  The figure
-\ref{fig:labelingBST} shows label of binary search tree for the
-$n=1,2,3$ number of nodes.
+%% In VGLCS problem, we could not use sorting to improve cache miss
+%% because the number of elements and queries are similar.  We proposed
+%% the parallel algorithm for building lookup table by our encode method.
+
+\subsubsection{Cartesian Tree Encoding}
+
+Our Cartesian tree encoding method lists {\em all} binary search trees
+in {\em lexicographical order} and label them from $0$ to the $n$-th
+Catalan number minus 1.  The lexicographical order among binary search
+trees of the {\em same} number of nodes is defined {\em recursively}
+as follows.  A binary tree $a$ appears {\em before} another binary if
+$a$ has more nodes than $b$ in the left subtree, or $a$ and $b$ has
+the same number of nodes in the left subtree, and $a$'s left subtree
+appears before $b$'s left subtree in lexicographical order, or $a$ and
+$b$ has the same left subtree, and $a$'s right subtree appears before
+$b$'s right subtree in lexicographical order.
+Figure~\ref{fig:labelingBST} shows our labelling of binary search tree
+for 1, 2 and 3 nodes.
 
 \iffalse
 關於在線操作，我們從 Fischer \cite{fischer} 和 Masud \cite{masud} 的研究中，
@@ -66,50 +96,42 @@ $n=1,2,3$ number of nodes.
 \begin{figure}[!thb]
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-bst-encoding.pdf}
-  \caption{The label of each binary search tree}
+  \caption{The labelling of binary search trees}
   \label{fig:labelingBST}
 \end{figure}
 
-For the $s$ nodes binary search tree, we label node from $0$ to $s-1$
-and the identify $\mathit{tid}$.  We define $\mathit{LCA}(s,
-\mathit{tid}, p, q)$ as the lowest common ancestor of the node $p$ and
-$q$ on a binary search tree which has $s$ nodes and labeling
-$\mathit{tid}$, such as $\mathit{LCA}(3, 2, 0, 2) = 1$.
-
-We define four variable
-$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$,
-which $\mathit{lsz}$ is the size of the left subtree, $\mathit{rsz}$
-is the size of the right subtree, $\mathit{lid}$ is the identify of
-the left subtree, and $\mathit{rid}$ is the identify of the right
-subtree.  These four variables
-$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ is
-decided by the identify of binary search tree $\mathit{tid}$ in
-$O(s)$.  Finally, the formula \ref{fun:LCA} is shown for the lowest
-common ancestor.
-
-\iffalse
-
-對於 $s$ 個節點的二元搜尋樹，其權重從 $0$ 開始至 $s-1$、樹編號為
-$\mathit{tid}$。定義 $\mathit{LCA}(s, \mathit{tid}, p, q)$ 為其樹上兩
-點 $p$ 和 $q$ 的最小共同祖先，如 $\mathit{LCA}(3, 2, 0, 2) = 1$。
-
-定義四個變數
-$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ 分
-別為左右子樹的大小和其編號，這四個變數根據指定的 $\mathit{tid}$ 可在
-$O(n)$ 時間內得到。最後，推導得遞迴公式 ~\ref{fun:LCA}。  \fi
+For ease of discussion we define several notations.  Let
+$\mathit{tid}$ be the index of the search tree in our encoding, so
+$\mathit{tid}$ is between 0 and $s - 1$, where $s$ is the number of
+search trees.  Let $\mathit{LCA}(s, \mathit{tid}, p, q)$ denote the
+{\em lowest common ancestor} of the node $p$ and $q$ within a binary
+search tree with $s$ nodes label $\mathit{tid}$.  For exmaple,
+$\mathit{LCA}(3, 2, 0, 2) = 1$ from Figure~\ref{fig:labelingBST}.
+Also we consider the tree of $s$ nodes with label $\mathit{tid}$, and
+let $\mathit{lsz}$ denote the size of the left subtree, $\mathit{rsz}$
+denote the size of the right subtree, $\mathit{lid}$ be the label of
+its left subtree, and $\mathit{rid}$ be the label of its right
+subtree.  With these notations we can define the lowest common
+ancesstor recursively as in Equation~\ref{fun:LCA1} when $l_s \le
+  p \le q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}. 
 
 \input{./formulas/fun-LCA.tex}
 
-In order to store all binary search trees, the space complexity is 
+% need a formal proof here.
 
-\begin{equation}
-\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) = \theta\left(n\right)
+In order to store all binary search trees, the space complexity is in
+Equation~\ref{eq:space}, and the time complexity of parallel
+algorithm~\ref{alg:parallel-LCA} is in
+Equation~\ref{eq:parallel-time}.
+
+
+\begin{equation} \label{eq:space}
+\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) =
+\theta\left(n\right)
 \end{equation}
 
-, and the time complexity of parallel algorithm~\ref{alg:parallel-LCA}
-is
 
-\begin{equation}
+\begin{equation} \label{eq:parallel-time}
 \theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
 \end{equation}.
 
@@ -181,16 +203,20 @@ loop can be replaced by one time memory access in the algorithm
 \ref{alg:encode-tid}.
 
 \iffalse
-接下來的幾段中，我們提供動態的編碼方式使得每一操作皆均攤 $\theta(1)$ 完成。首先，我們需要充分認知編碼相互轉換的公式，藉以在算法中完成每一步皆為 $\theta(1)$ 的要求。
 
-在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；
-相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，如算法 ~\ref{alg:encode-tid}。
-透過預處理，事先將所有前綴和保存下來，在算法中的迴圈可視為一次內存存取，使得時間複雜度 $\theta(1)$。
-\fi
+接下來的幾段中，我們提供動態的編碼方式使得每一操作皆均攤 $\theta(1)$
+完成。首先，我們需要充分認知編碼相互轉換的公式，藉以在算法中完成每一步
+皆為 $\theta(1)$ 的要求。
+
+在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；
+相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，如算法
+~\ref{alg:encode-tid}。透過預處理，事先將所有前綴和保存下來，在算法中
+的迴圈可視為一次內存存取，使得時間複雜度 $\theta(1)$。\fi
 
 \input{algorithms/alg-encode-tid}
 
-By the recursive formula,  we could implement without storing full
+By the recursive formula, we could implement without storing full
 Cartesian tree.  The rightmost path is consisted of the root, the
 right child of the root, the right child of the right child of the
 root, ..., and so on.  We maintain the rightmost path of a Cartesian
@@ -209,12 +235,14 @@ In order to support online encoding, we use five variables to present
 the state of the Cartesian tree.  The next step will insert $i$-th
 elements and final stage fill $s$ number of elements.  The identity of
 the current tree is $\mathit{tid}$ and the rightmost path of the
-Cartesian tree is presented by two variable, stack pointer $\mathit{Dp}$
-and the stack $\mathit{D}$. The structure of state is as follows:
+Cartesian tree is presented by two variable, stack pointer
+$\mathit{Dp}$ and the stack $\mathit{D}$. The structure of state is as
+follows:
 
 \iffalse
-我們定義轉移狀態由 5 個變數來決定動態笛卡爾樹的編碼，當前插入第 $i$ 個元素，最終填充 $s$ 個元素，
-當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
+我們定義轉移狀態由 5 個變數來決定動態笛卡爾樹的編碼，當前插入第 $i$ 個
+元素，最終填充 $s$ 個元素，當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的
+右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
 \fi
 
 \begin{minipage}{0.9\linewidth}
@@ -246,27 +274,28 @@ path. We can use the propagation characteristics to get the identity of
 the tree.  Finally, we propose the difference algorithm~\ref{alg
 :cartesian-encode-online} to satisfy above requirement.
 
-\iffalse
-為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。
-根據字典順序的編碼性質，一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} = C_s - 1$ 。
-隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據編碼順序，我們藉由差值來維護在線編碼 (如圖 ~\ref{fig:cartesianEncoding})。
-根據上述的編碼想法，我們得到算法 ~\ref{alg:cartesian-encode-online}。
-\fi
+\iffalse 為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。根據字典順序
+的編碼性質，一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} =
+C_s - 1$ 。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據
+編碼順序，我們藉由差值來維護在線編碼 (如圖
+~\ref{fig:cartesianEncoding})。根據上述的編碼想法，我們得到算法
+~\ref{alg:cartesian-encode-online}。\fi
 
 We give an example of difference algorithm in the
-figure~\ref{fig:cartesianEncoding}.   Each block has $s$ number of
+figure~\ref{fig:cartesianEncoding}.  Each block has $s$ number of
 elements.  We will build a Cartesian tree with $s$ number of nodes to
-solve in-block query.  In initialization, it assume $s$ number of nodes
-on the rightmost path and the default tree identity $\mathit{tid} = C_s
-- 1$.  When inserting $i$-th element, the tree identity is
-$\mathit{tid}_i$, and the tree identity of the subtree $A$ is
-$A.\mathit{tid}$.  If the value of $(i+1)$-th element is $x$, it will
-rotate onto the node $A$.  After rotation, $A$ is a left subtree of $A$,
-and we can compute the identify of subtree $A$ during rotation.  Then,
-$x.\mathit{tid}$ can be computed by the $s-(i+1)$ number of virtual
-nodes on the rightmost path and $A.\mathit{tid}$. According to the
-lexicographical order, we get $\mathit{tid}_{i+1} = \mathit{tid}_i +
-(x.\mathit{tid} - A.\mathit{tid})$.
+solve in-block query.  In initialization, it assume $s$ number of
+nodes on the rightmost path and the default tree identity
+$\mathit{tid} = C_s - 1$.  When inserting $i$-th element, the tree
+identity is $\mathit{tid}_i$, and the tree identity of the subtree $A$
+is $A.\mathit{tid}$.  If the value of $(i+1)$-th element is $x$, it
+will rotate onto the node $A$.  After rotation, $A$ is a left subtree
+of $A$, and we can compute the identify of subtree $A$ during
+rotation.  Then, $x.\mathit{tid}$ can be computed by the $s-(i+1)$
+number of virtual nodes on the rightmost path and
+$A.\mathit{tid}$. According to the lexicographical order, we get
+$\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
+A.\mathit{tid})$.
 
 \input{algorithms/alg-cartesian-encode-online}
 

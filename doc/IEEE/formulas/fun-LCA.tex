@@ -1,16 +1,16 @@
-\begin{figure*}[!thb]
-  \normalsize
-  \begin{equation}
-    \mathit{LCA}(n, \mathit{tid}, p, q) = \begin{cases}
-          \mathit{LCA}(\mathit{lsz}, \mathit{lid}, p, q) 
-              &, p \le q < \mathit{lsz}\\ 
-          \mathit{LCA}(\mathit{rsz}, \mathit{rid}, p-\mathit{lsz}-1, q-\mathit{lsz}-1)+\mathit{lsz}+1 
-              &, \mathit{lsz} \le p \le q < n \\ 
-          \mathit{lsz}
-              &, 0 \le p \le \mathit{lsz}, \mathit{lsz} \le q \le i\\ 
-          -1 
-              &,\mathit{otherwise}
-        \end{cases}
-  \end{equation}
-  \label{fun:LCA}
-\end{figure*}
+\begin{eqnarray}  \label{fun:LCA1}
+  {\cal A}(n, t, p, q) = {\cal A}(r_s, r_t, p - l_s - 1, q - l_s - 1) + l_s + 1 
+\end{eqnarray}
+
+
+\begin{equation}  \label{fun:LCA2}
+    {\cal A}(n, t, p, q) =
+    \left\{
+    \begin{array}{ll}
+      {\cal A}(l_s, l_t, p, q) & p \le q < l_s\\
+      l_s & 0 \le p \le l_s, l_s \le q \le i\\
+      -1 & \mbox{otherwise} \\
+    \end{array}
+    \right.
+\end{equation}
+

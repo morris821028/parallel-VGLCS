@@ -1,11 +1,11 @@
-\section{Parallel Range Maximum Query}
+\section{Parallel Ranged Maximum Query}
 \label{sec:parallelRMQ}
 
 \subsection{Background}
 
 The efficiency of a parallel VGLCS algorithm is limited by the the
-efficiency of its {\em range maximum query}.  We can use a parallel
-sparse table implementation to answer range maximum queries with $p$
+efficiency of its {\em ranged maximum query}.  We can use a parallel
+sparse table implementation to answer ranged maximum queries with $p$
 processors, so that it requires $O(n \log n / p + \log n)$ in
 preprocessing, and takes only $O(1)$ time to answer a query.  On the
 other hand, it is difficult to parallelize both pre-processing and
@@ -22,7 +22,7 @@ that we can query this sparse table $T_s$ {\em twice} to answer any
 super block query.  An in-block queries can be answered by a single
 lookup into an {\em index table} that encodes the elements in block
 into a {\em Cartesian tree index}.  More details will be provided
-later.  Since we can split {\em any} range query into at most a
+later.  Since we can split {\em any} ranged query into at most a
 super-block queries and two in-block queries, we need at most four
 memory access to answer any ranged query.
 
@@ -84,14 +84,14 @@ efficiently in a modern computer.
 % operation because the access pattern is almost one by one in our VGLCS
 % algorithm.
 
-\subsection{Compressed Cartesian Tree}
+\subsection{Compressed Cartesian Tree} \label{sec:cct}
 
 We propose a new encoding for blocks.  We a {\em compressed sparse
   table}, instead of the binary string, in order to improve
 performance.  The compressed sparse table is inspired by Fischer's
 sparse table and the Cartesian tree.  We select a fixed block size of
 $s = {{\frac{\log n}{4}}} = 16$, which can efficiently answer
-one-dimension range maximum query for up to $n = 2^{64}$ data.  We
+one-dimension ranged maximum query for up to $n = 2^{64}$ data.  We
 consider the processing of adding data.  Let the $i$-th added data be
 $a_i$, so we need to {\em relocate} all the data along the {\em
   rightmost} path of the Cartesian tree that are smaller than $a_i$.
@@ -110,17 +110,22 @@ which runs in time $O(s)$. where $s$ is the size of a block.
 \input{algorithms/alg-cartesian-to-64bits}
 
 We answer a ranged maximum query from $l$ to $r$ as follows.  We
-maintain the number of data that are relocated as $x$ and
-initialize $x$ to 0.  We then loop through $t_l$ to $t_r$.  Every
-iteration adds 1 to $x$ then subtract $t_j$ from $x$.  We report the
-$j$ as the answer, where $j$ is the last index when $x$ becomes
-smaller or equal to 0.  The pseudo code of the querying algorithm is
-in Algorithm~\ref{alg:cartesian64bits-query}.
+maintain the number of data that are relocated as $x$ and initialize
+$x$ to 0.  We then loop through $t_l$ to $t_r$ and let the index run
+from $l$ to $r$.  Every iteration adds 1 to $x$ then subtracts $t_j$
+from $x$, and remember the index when $x$ becomes smaller or equal to
+0.  We report the $j$, the {\em last} index when $x$ becomes smaller
+or equal to 0, as the answer.  The pseudo code of the query answering
+algorithm is in Algorithm~\ref{alg:cartesian64bits-query}.  The
+corecteness proof is in Theorem~\ref{thm:correctness}.  Note that all
+the operations, e.g., shift, addtion, subtraction, map directly to
+machine instrcution so that unlike Demaine's algorithm, our algorithm
+is extremely to implement.
 
 \input{algorithms/alg-cartesian64bits-query}
 
-\begin{theorem}
-  Algorithm~\ref{alg:cartesian64bits-query} correctly answer a ranged
+\begin{theorem} \label{thm:correctness}
+  Algorithm~\ref{alg:cartesian64bits-query} correctly answers a ranged
   maximum query.
 \end{theorem}
 \begin{proof}
