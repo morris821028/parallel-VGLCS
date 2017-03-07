@@ -9,15 +9,15 @@ the rows of the matrix from the first stage to get the final answers.
 These two stages work together to find the maximum in a given
 rectangle area.
 
-The impemtation for two stages have different challenges.  The first
-stage is easier to parallelize because the operations on indiviual
-columns are independent.  However, it will insert new data into the
-data structure, and it still needs to answer ranged query efficientlt.
-The second stage does not requires insertion so it is more static, and
-easier.  However, it requires working on several columns simutanesouly
-and syncchnously.  Fortunately we have address this data synchronous
-issue by computing the index table in a off-line manner, as described
-in previous Section~\ref{sec:cct}.  As a result in this section we
+The implementation for two stages have different challenges.  The first
+stage is easier to parallelize because the operations on individual
+columns are independent.  However, it will insert new data into the data
+structure, and it still needs to answer ranged query efficiently. The
+second stage does not requires insertion so it is more static, and
+easier.  However, it requires working on several columns simultaneously
+and synchronously.  Fortunately we have address this data synchronous
+issue by computing the index table in a off-line manner, as described in
+previous Section~\ref{sec:parallelIRMQ}.  As a result in this section we
 will focus on how to answer ranged maximum queries efficiently on
 incrementally updated data.
 
@@ -53,9 +53,9 @@ There are two main issues in answering ranged maximum query --
 Cartesian tree encoding and cache performance.  Fischer introduced the
 first encoding method and the Masud~\cite{Hasan2010CacheOA} presents a
 new encoding method to reduce the number of instructions and sorting
-step to reduce cache miss.  Unfortunatly all these algoriothm work in
+step to reduce cache miss.  Unfortunately all these algorithm work in
 a off-line model, i.e., they assume all $n$ data are given in advance,
-therefore they cannot copw with incrementally updated data in our
+therefore they cannot cope with incrementally updated data in our
 problem.  In addition, they require a preprocessing of time $O(n)$,
 which is difficult to parallelize.
 
