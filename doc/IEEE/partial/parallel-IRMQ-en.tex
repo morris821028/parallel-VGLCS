@@ -75,7 +75,7 @@ the same number of nodes in the left subtree, and $a$'s left subtree
 appears before $b$'s left subtree in lexicographical order, or $a$ and
 $b$ has the same left subtree, and $a$'s right subtree appears before
 $b$'s right subtree in lexicographical order.
-Figure~\ref{fig:labelingBST} shows our labelling of binary search tree
+Figure~\ref{fig:labelingBST} shows our labeling of binary search tree
 for 1, 2 and 3 nodes.
 
 \iffalse
@@ -105,19 +105,47 @@ $\mathit{tid}$ be the index of the search tree in our encoding, so
 $\mathit{tid}$ is between 0 and $s - 1$, where $s$ is the number of
 search trees.  Let $\mathit{LCA}(s, \mathit{tid}, p, q)$ denote the
 {\em lowest common ancestor} of the node $p$ and $q$ within a binary
-search tree with $s$ nodes label $\mathit{tid}$.  For exmaple,
+search tree with $s$ nodes label $\mathit{tid}$.  For example,
 $\mathit{LCA}(3, 2, 0, 2) = 1$ from Figure~\ref{fig:labelingBST}.
 Also we consider the tree of $s$ nodes with label $\mathit{tid}$, and
 let $\mathit{lsz}$ denote the size of the left subtree, $\mathit{rsz}$
 denote the size of the right subtree, $\mathit{lid}$ be the label of
 its left subtree, and $\mathit{rid}$ be the label of its right
 subtree.  With these notations we can define the lowest common
-ancesstor recursively as in Equation~\ref{fun:LCA1} when $l_s \le
+ancestor recursively as in Equation~\ref{fun:LCA1} when $l_s \le
   p \le q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}. 
 
 \input{./formulas/fun-LCA.tex}
 
 % need a formal proof here.
+\begin{theorem} \label{thm:LCA-correctness}
+
+  The definition of the lowest common ancestor ${\cal A}(n, t, p, q)$ is
+correct recursively as in Equation~\ref{fun:LCA1} when $l_s \le   p \le
+q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}.
+
+\end{theorem}
+\begin{proof}
+
+A non-empty binary search tree(BST) can be present by three parts, such
+as root, left subtree, and right subtree, which the intersection of any
+two is empty.  The BST is a tree graph. By the definition of tree graph,
+any two nodes in BST can be connected by a unique simple path.  The
+lowest common ancestor(LCA) of the two nodes $u$ and $v$ must appear on
+unique simple path $u$  -- $v$.  Both left and right subtree is a
+connected tree, so the LCA of any two nodes is in the same graph.
+Therefore, we proof that the Equation~\ref{fun:LCA1} and the first
+condition of Equation~\ref{fun:LCA2} is correct.
+
+In the rest, we discuss two nodes $u$ and $v$ from the different part.
+The root has two edges $e1$ and $e2$, which $e1$ to link the top of
+nodes in left subtree and $e2$ to link the top of nodes in right
+subtree.  Any $u$ -- $v$ path must pass the edge $e1$, $e2$, or both of
+them because three parts are consider as a three-node tree.  The root is
+the lowest ancestor on above three cases, so the second condition of
+Equation~\ref{fun:LCA2} is correct.
+
+\end{proof}
 
 In order to store all binary search trees, the space complexity is in
 Equation~\ref{eq:space}, and the time complexity of parallel
