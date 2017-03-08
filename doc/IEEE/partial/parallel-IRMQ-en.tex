@@ -25,7 +25,7 @@ queries efficiently on {\em incrementally} updated data.
 
 \subsection{Build a Lookup Table for LCA}
 
-% why LCA is importnat
+% why LCA is important
 
 To find the lowest common ancestor is important for answering ranged
 maximum queries, which is important to find VGLCS.  We need to address
@@ -128,20 +128,21 @@ given a block of data.
 
 % how to compute t from tree data structure
 
-One way to determine the tree index $t$ is to build the tree and
-compute it from the the sizes and ids of the left and right subtrees.
-This require a recursive traversal on the tree and has a $O(n)$ time
-complexity, where $n$ is the number of tree nodes.  The pseudo code of
-the conversion is given as Algorithm~\ref{alg:encode-tid}.
+One way to determine the tree index $t$ is to build the tree and compute
+it from the the sizes and ids of the left and right subtrees. This
+require a recursive traversal on the tree and has a $O(n)$ time
+complexity, where $n$ is the number of tree nodes.  The
+Equation~\ref{fun:tid} is given as the conversion.
 
-\input{algorithms/alg-encode-tid}
+% \input{algorithms/alg-encode-tid}
 
-We can further optimize Algorithm~\ref{alg:encode-tid} by
-pre-computing the prefix sum of Catalan numbers, and store them in
-memory, so that we can use them directly, instead of recomputing them
-in Algorithm~\ref{alg:encode-tid}.  That is, we can pre-compute these
-offsets, and replace the loop at line 6 of
-Algorithm~\ref{alg:encode-tid} with a table lookup.
+\input{formulas/fun-tid}
+
+We can further optimize Equation~\ref{fun:tid} by pre-computing the
+prefix sum of Catalan numbers, and store them in memory, so that we can
+use them directly, instead of recomputing them in
+Equation~\ref{fun:tid}.  That is, we can pre-compute these summation,
+and replace the summation in Equation~\ref{fun:tid} with a table lookup.
 
 % how to compute t with rightmost path of the tree
 
@@ -160,7 +161,7 @@ instead of making a edge of nodes for each nodes, which these are on the
 rightmost path which is stored in the stack.  In the rotate operation of
 building Cartesian tree algorithm, we maintain the $\mathit{rid},
 \mathit{rsz}$ in the pop operations, and the subtree index $t$ can be
-recomputed with Algorithm~\ref{alg:encode-tid} by the $\mathit{rid},
+recomputed with Equation~\ref{fun:tid} by the $\mathit{rid},
 \mathit{rsz}$ and the information $\mathit{lid}, \mathit{lsz}$ on the
 stack.
 
