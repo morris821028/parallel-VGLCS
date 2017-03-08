@@ -169,9 +169,30 @@ encoding any Cartesian tree.
 
 \input{algorithms/alg-cartesian-encode-offline}
 
-% Morris: remove the cache issue
+% Morris: what is the incremental ranged maximum query
 
-There is a main issues in answering incremental ranged maximum query --
+The incremental ranged maximum query problem which is more powerful than
+incremental suffix maximum query problem, which supports three
+operations.  First, a {\tt make} operation creates an empty array $A$.
+Second, a {\tt append(V) } operation appends a value $V$ to the end of
+an array $A$.  Finally, a {\tt query(L, R)} operation finds the {\em
+maximum} value among the $L$-th value to the $R$-th value of an array
+$A$.  
+
+% Morris: Cartesian tree can be used to solve above problem
+
+By the interactive encoding Cartesian tree, we can use the index of tree
+to support the {\tt query(L, R)} operation.  The stack-based algorithm
+of a Cartesian tree can support the {\tt append(V)} operation, but we
+could not cope with a {\tt query(L, R)} operation on a Cartesian tree
+intuitively.
+
+% Morris: How to use tree index to lookup? Then, what's encode method we
+% know in previous study.
+
+In order to solve {\tt query(L, R)} operation on a Cartesian tree, we
+can build lookup table to answer the maximum value by the tree index.
+There is a main issue in answering incremental ranged maximum query --
 Cartesian tree encoding.  Fischer introduced the first encoding method
 and the Masud~\cite{Hasan2010CacheOA} presents a new encoding method to
 reduce the number of instructions.  Unfortunately all these algorithm
@@ -181,42 +202,19 @@ our problem.  In addition, they require a preprocessing of time $O(n)$.
 The preprocessing need more memory transfer to find the information of
 the block of an input array, or read external files from disk.
 
-However, the sparse table support range maximum query problem is more
-powerful than suffix maximum value problem.
-
-In this section, we provide a solution to make the sparse table to
-support the append operation. The problem which is more powerful than
-ISMQ problem is named incremental range maximum query (IRMQ).  IRMQ
-support three operations.  First, a {\tt make} operation creates an
-empty array $A$.  Second, a {\tt append(V) } operation appends a value
-$V$ to the end of an array $A$.  Finally, a {\tt query(L, R)}
-operation finds the {\em maximum} value among the $L$-th value to the
-$R$-th value of an array $A$.
-
-\iffalse
-
-ISMQ 已知解法有二，其一使用並查集在 $O(\alpha(n))$ 解決單一操作，其二
-使用樸素的稀疏表在 $O(\log n)$完成插入操作、$O(1)$ 完成詢問操作。其二，
-Fischer \cite{fischer} 提出的 $\theta(n)$ -- $\theta(1)$ 無法應用在此，
-其原因在於插入元素時，無法動態決定 in-block 的最大值，必須等到整個
-in-block 塞滿至預設值才可解決。
-
-在我們的應用中維護後綴最大值，
-拓展其操作成為增長區間最大值查找 (\emph{incremental range maximum query}, IRMQ)，
-其支援兩項操作：
-\fi
+% Morris: Our encoding with parallel algorithm without find the block of
+% input array or external files.
 
 Now, we provide the dynamic encoding method so that each operation is
-amortized $\theta(1)$ time.  First, we need to fully recognize the
-formulas encoder and decoder, so that each step in the algorithm is
-$\theta(1)$.
+amortized $O(1)$ time.  First, we need to fully recognize the formulas
+encoder and decoder, so that each step in the algorithm is $O(1)$.
 
 
 \iffalse
 
-接下來的幾段中，我們提供動態的編碼方式使得每一操作皆均攤 $\theta(1)$
+接下來的幾段中，我們提供動態的編碼方式使得每一操作皆均攤 $O(1)$
 完成。首先，我們需要充分認知編碼相互轉換的公式，藉以在算法中完成每一步
-皆為 $\theta(1)$ 的要求。
+皆為 $O(1)$ 的要求。
 
 在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到
 $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；
