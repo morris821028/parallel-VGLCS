@@ -117,9 +117,9 @@ from $x$, and remember the index when $x$ becomes smaller or equal to
 0.  We report the $j$, the {\em last} index when $x$ becomes smaller
 or equal to 0, as the answer.  The pseudo code of the query answering
 algorithm is in Algorithm~\ref{alg:cartesian64bits-query}.  The
-corecteness proof is in Theorem~\ref{thm:correctness}.  Note that all
-the operations, e.g., shift, addtion, subtraction, map directly to
-machine instrcution so that unlike Demaine's algorithm, our algorithm
+correctness proof is in Theorem~\ref{thm:correctness}.  Note that all
+the operations, e.g., shift, addition, subtraction, map directly to
+machine instruction so that unlike Demaine's algorithm, our algorithm
 is extremely to implement.
 
 \input{algorithms/alg-cartesian64bits-query}
@@ -155,7 +155,7 @@ Demaine \cite{demaine} 進行修改，得到壓縮下的詢問算法
 \ref{alg:cartesian64bits-query}。\fi
 
 Our VGLCS algorithm using the compressed sparse table does improve
-cache per romance, but increase the time complexity.  The
+cache performance, but increase the time complexity.  The
 preprocessing time is $O(n)$ time as in Fischer's algorithm.  However,
 a single query time becomes $O(s)$, where $s$ is the block size.  This
 is acceptable in practice since we use $s = 16$, which is a small

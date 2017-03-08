@@ -14,6 +14,22 @@ Intel CPU 同時也支持 hyper-threading 技術，每個處理器有 6 個實�
 所有的演算法使用 C++ 和 OpenMP 實作，使用優化參數為 \texttt{-O2} 和 \textt{-fopenmp}。
 \fi
 
+
+
+We implement sparse table and binary index tree in the experiments and
+evaluate thir perfromance.  Recall that there are three solutions to
+incremental suffix maximum query in solving VGLCS.  The first solution
+is a disjoint set with amortized time $O(\alpha(n))$ for each query,
+or its variant, {\em incremental tree set union}~\cite{Gabow1983ALA},
+with amortized time $O(1)$ for each query.  The second solution is a
+sparse table with $O(\log n)$ time to append a new value and $O(1)$
+time to response a query.  The third solution is a binary indexed tree
+with $O(\log n)$ time for each query.  Even if the amortized
+complexity of the first solution is $O(\alpha(n))$ or $O(1)$, it
+incurs inefficient synchronizations in a parallel implementation.
+Therefore, we choose to implement the last two data structures
+andconduct experiments to evalute their perfromance.
+
 \subsection{VGLCS with Compressed Sparse Table}
 
 In the random test data, we get the better performance with compressed

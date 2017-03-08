@@ -1,5 +1,4 @@
-\section{Query on Incrementally Updated Data}
-\label{sec:parallelIRMQ}
+\section{Query on Incrementally Updated Data} \label{sec:parallelIRMQ}
 
 Recall that our VGLCS algorithm has two stages.  In the first stage,
 the algorithm uses incremental suffix maximum query to compute
@@ -9,59 +8,32 @@ the rows of the matrix from the first stage to get the final answers.
 These two stages work together to find the maximum in a given
 rectangle area.
 
-The implementation for two stages have different challenges.  The first
-stage is easier to parallelize because the operations on individual
-columns are independent.  However, it will insert new data into the data
-structure, and it still needs to answer ranged query efficiently. The
-second stage does not requires insertion so it is more static, and
-easier.  However, it requires working on several columns simultaneously
-and synchronously.  Fortunately we have address this data synchronous
-issue by computing the index table in a off-line manner, as described in
-previous Section~\ref{sec:parallelIRMQ}.  As a result in this section we
-will focus on how to answer ranged maximum queries efficiently on
-incrementally updated data.
-
-%% In parallel environment, the first stage of Peng's VGLCS algorithm has
-%% a linear algorithm which use Fischer's sparse table instead of
-%% disjoint set, and we also parallel its algorithm in theoretical $O(n /
-%% p + \log n)$ time, and better performance $O(n s / p + \log n)$
-%% algorithm is proposed in section~\ref{sec:parallelRMQ}.
-
-%% Oppositely, the second stage of Peng's VGLCS algorithm has $m$ number
-%% of independent data structure and run in amortized $O(n / p + 1)$
-%% time.  In this section, we provide the our encoding algorithm
-%% according to the parallel algorithm of building lookup table, and it
-%% make row stage run in more stable amortized $O(n / p + 1)$ time.  The
-%% final result is presented on table~\ref{tlb :cmp-complexity}.
-
-\iffalse VGLCS 問題主要分成縱向和橫向兩階段，縱向處理每一列的區間極值
-查找，橫向處理每一行的區間極值查找，兩者合併構成區域極值查找。在縱向方
-面為數個獨立的數據結構，這部分易於平行；相反地，在橫向方面，需要共同協
-作一個數據結構。綜觀這兩者的差異，縱向需要動態的後綴插入和區間查詢，而
-橫向可以離線完成區間查找。在上一節中，我們提出在橫向處理的實作，若限制
-上述的實作方案在單一處理器上，時間複雜度的瓶頸在於縱向的動態更新與查找。
-在這個章節中，我們提出支持動態插入和區間查找的數據結構，最後的成果如表
-\ref{tlb:cmp-complexity}。
-\fi
+The implementation for two stages have different challenges.  The
+first stage is easier to parallelize because the operations on
+individual columns are independent.  However, it will insert new data
+into the data structure, and it still needs to answer ranged query
+efficiently. The second stage does not requires insertion so it is
+more static, and easier.  However, it requires working on several
+columns simultaneously and synchronously.  Fortunately we have address
+this data synchronous issue by computing the index table in a off-line
+manner, as described in previous Section~\ref{sec:parallelIRMQ}.  As a
+result in this section we will focus on how to answer ranged maximum
+queries efficiently on {\em incrementally} updated data.
 
 % not here, somewhere else
 %\input{./tables/tlb-cmp-complexity.tex}
 
-\subsection{Build Lookup Table}
+\subsection{Build a Lookup Table for LCA}
 
-There are two main issues in answering ranged maximum query --
-Cartesian tree encoding and cache performance.  Fischer introduced the
-first encoding method and the Masud~\cite{Hasan2010CacheOA} presents a
-new encoding method to reduce the number of instructions and sorting
-step to reduce cache miss.  Unfortunately all these algorithm work in
-a off-line model, i.e., they assume all $n$ data are given in advance,
-therefore they cannot cope with incrementally updated data in our
-problem.  In addition, they require a preprocessing of time $O(n)$,
-which is difficult to parallelize.
+% why LCA is importnat
+
+To find the lowest common ancestor is important for answering ranged
+maximum queries, which is important to find VGLCS.  We need to address
+two issues -- how to encode a binary tree and how to find the lowest
+common ancestor under the given tree encoding.
 
 %% In VGLCS problem, we could not use sorting to improve cache miss
-%% because the number of elements and queries are similar.  We proposed
-%% the parallel algorithm for building lookup table by our encode method.
+%% because the number of elements and queries are similar.  
 
 \subsubsection{Cartesian Tree Encoding}
 
@@ -78,129 +50,118 @@ $b$'s right subtree in lexicographical order.
 Figure~\ref{fig:labelingBST} shows our labeling of binary search tree
 for 1, 2 and 3 nodes.
 
-\iffalse
-關於在線操作，我們從 Fischer \cite{fischer} 和 Masud \cite{masud} 的研究中，
-分別得到關於笛卡爾的編碼與快取改善的技術，而這些技術都著手於離線操作，
-即一開始給訂 $n$ 個元素值，並且在 $O(n)$ 時間內編碼一棵樹；
-接著，再利用前處理的查找表完成極值查找。
-
-關於快取效能，因詢問次數與元素個數相當，
-故無法像 Masud \cite{masud} 的研究藉由排序編碼以減少快取未中的問題，
-只能依賴數據本身的分佈和編碼之間的關聯來減少快取未中的情況。
-
-從上述幾點觀點出發，我們提出動態的編碼方式。
-算法採用字典順序的方式編碼一棵樹，優先增長左子樹，
-當相同左子樹時，增長右子樹的方式進行編號，其編碼方式如圖 \ref{fig:lablingBST}。
-\fi
-
 \begin{figure}[!thb]
   \centering
   \includegraphics[width=\linewidth]{graphics/fig-bst-encoding.pdf}
-  \caption{The labelling of binary search trees}
+  \caption{The labeling of binary search trees}
   \label{fig:labelingBST}
 \end{figure}
 
-For ease of discussion we define several notations.  Let
-$\mathit{tid}$ be the index of the search tree in our encoding, so
-$\mathit{tid}$ is between 0 and $s - 1$, where $s$ is the number of
-search trees.  Let $\mathit{LCA}(s, \mathit{tid}, p, q)$ denote the
-{\em lowest common ancestor} of the node $p$ and $q$ within a binary
-search tree with $s$ nodes label $\mathit{tid}$.  For example,
-$\mathit{LCA}(3, 2, 0, 2) = 1$ from Figure~\ref{fig:labelingBST}.
-Also we consider the tree of $s$ nodes with label $\mathit{tid}$, and
-let $\mathit{lsz}$ denote the size of the left subtree, $\mathit{rsz}$
-denote the size of the right subtree, $\mathit{lid}$ be the label of
-its left subtree, and $\mathit{rid}$ be the label of its right
+\subsubsection{Lowest Common Ancestor}
+
+We also need to determine the lowest common ancestor efficiently for
+answering ranged maximum queries.  For ease of discussion we define
+several notations.  Let $t$ be the index of the search tree in our
+encoding, so $t$ is between 0 and $s - 1$, where $s$ is the number of
+search trees.  Let ${\cal A}(s, t, p, q)$ denote the {\em lowest
+  common ancestor} of the node $p$ and $q$ within a binary search tree
+with $s$ nodes and label $t$.  For example, ${\cal A}(3, 2, 0, 2) = 1$
+from Figure~\ref{fig:labelingBST}.  Also we consider the tree of $s$
+nodes with label $t$, and let $l_s$ denote the size of the left
+subtree, $r_s$ denote the size of the right subtree, $l_t$ be the
+label of its left subtree, and $r_t$ be the label of its right
 subtree.  With these notations we can define the lowest common
-ancestor recursively as in Equation~\ref{fun:LCA1} when $l_s \le
-  p \le q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}. 
+ancestor {\em recursively} as in Equation~\ref{fun:LCA1} when $l_s
+\le p \le q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}.
 
 \input{./formulas/fun-LCA.tex}
 
-% need a formal proof here.
-\begin{theorem} \label{thm:LCA-correctness}
-
-  The definition of the lowest common ancestor ${\cal A}(n, t, p, q)$ is
-correct recursively as in Equation~\ref{fun:LCA1} when $l_s \le   p \le
-q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}.
-
-\end{theorem}
-\begin{proof}
-
-A non-empty binary search tree(BST) can be present by three parts, such
-as root, left subtree, and right subtree, which the intersection of any
-two is empty.  The BST is a tree graph. By the definition of tree graph,
-any two nodes in BST can be connected by a unique simple path.  The
-lowest common ancestor(LCA) of the two nodes $u$ and $v$ must appear on
-unique simple path $u$  -- $v$.  Both left and right subtree is a
-connected tree, so the LCA of any two nodes is in the same graph.
-Therefore, we proof that the Equation~\ref{fun:LCA1} and the first
-condition of Equation~\ref{fun:LCA2} is correct.
-
-In the rest, we discuss two nodes $u$ and $v$ from the different part.
-The root has two edges $e1$ and $e2$, which $e1$ to link the top of
-nodes in left subtree and $e2$ to link the top of nodes in right
-subtree.  Any $u$ -- $v$ path must pass the edge $e1$, $e2$, or both of
-them because three parts are consider as a three-node tree.  The root is
-the lowest ancestor on above three cases, so the second condition of
-Equation~\ref{fun:LCA2} is correct.
-
-\end{proof}
-
-In order to store all binary search trees, the space complexity is in
-Equation~\ref{eq:space}, and the time complexity of parallel
-algorithm~\ref{alg:parallel-LCA} is in
+In order to store all binary search trees, the space complexity of
+Algorithm~\ref{XXX} is in Equation~\ref{eq:space}, and the time
+complexity of parallel Algorithm~\ref{alg:parallel-LCA} is in
 Equation~\ref{eq:parallel-time}.
 
+% need a formal proof here for the space and time complexity.
 
 \begin{equation} \label{eq:space}
 \theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) =
 \theta\left(n\right)
 \end{equation}
 
-
 \begin{equation} \label{eq:parallel-time}
 \theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
 \end{equation}.
 
-\iffalse
+% how to compute subtree information from t
 
-為記錄所有的二元搜尋樹的 LCA，空間消耗 $\theta\left(\frac{s^2}{s+1}
-\binom{2s}{s}\right) = \theta\left(n\right)$；其平行算法
-\ref{alg:parallel-LCA} 的時間複雜度如下：
-
-\begin{equation}
-\theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
-\end{equation}.
-\fi
+Note that in line 4 of Algorithm~\ref{alg:parallel-LCA}, when given
+the tree id $t$, we need to compute the sizes and ids of the left and
+right subtrees in our encoding.  We can do this in $O(n)$ time, where
+$n$ is the number of tree nodes.
 
 \input{algorithms/alg-parallel-LCA.tex}
 
-\subsection{Dynamic Encoding Cartesian Tree}
 
-Recall that in the VGLCS problem, there are three intuitive solutions
-for ISMQ.  The first one uses naive disjoint set which uses amortized
-$O(\alpha(n))$ for each query, or advance variant disjoint set --
-incremental tree set union~\cite{Gabow1983ALA} uses amortized $O(1)$
-for each query.  The second one uses sparse table which uses $O(\log
-n)$ time to append a new value to the tail of array and $O(1)$ time to
-response a query.  The third one is the binary indexed tree which used
-$O(\log n)$ time for each operation.  Even if the amortized complexity
-of the algorithm is $O(\alpha(n))$ or $O(1)$, the algorithm incurs
-inefficient synchronizations in the parallel environment. Therefore,
-the last two data structure is more suitable than the first one.
+\subsection{Tree Index Computation}
+
+Note that Algrotihm~\ref{alg:parallel-LCA} requires tree index $t$
+under our encoding scheme, so we need to determine $t$ efficiently,
+given a block of data.
+
+% how to compute t from tree data structure
+
+One way to determine the tree index $t$ is to build the tree and
+compute it from the the sizes and ids of the left and right subtrees.
+This require a recusive travsal on the tree and has a $O(n)$ time
+complexity, where $n$ is the number of tree nodes.  The pseudo code of
+the conversion is given as Algortihm~\ref{alg:encode-tid}.
+
+\input{algorithms/alg-encode-tid}
+
+We can further optimize Algorithm~\ref{alg:encode-tid} by
+pre-computing the prefix sum of Catalan numbers, and store them in
+memory, so that we can use them directly, instead of recomputing them
+in Algorithm~\ref{alg:encode-tid}.  That is, we can pre-compute these
+offsets, and replace the loop at line 6 of
+Algorithm~\ref{alg:encode-tid} with a table lookup.
+
+% how to compute t with rigthmost path of the tree
+
+The previosu computation of tree index requires build the tree to
+obtain subtree information, and may not be efficient.  We propose a
+method that keeps only the {\em rightmost path} in a stack without
+building the entire tree.  After knowing tree index $t$ we can compute
+LCA and answer queries with algortihm~\ref{alg:parallel-LCA}.
+
+
+The algorithm~\ref{alg:cartesian-encode-offline} is shown for offline
+encoding any Cartesian tree.
+
+
+There are two main issues in answering ranged maximum query --
+Cartesian tree encoding and cache performance.  Fischer introduced the
+first encoding method and the Masud~\cite{Hasan2010CacheOA} presents a
+new encoding method to reduce the number of instructions and sorting
+step to reduce cache miss.  Unfortunately all these algorithm work in
+a off-line model, i.e., they assume all $n$ data are given in advance,
+therefore they cannot cope with incrementally updated data in our
+problem.  In addition, they require a preprocessing of time $O(n)$,
+which is difficult to parallelize.
 
 About the sparse table, Fischer provide the $O(n)$ -- $O(1)$
-algorithm.  However, the sparse table support range maximum query
-problem is more powerful than suffix maximum value problem.  In this
-section, we provide a solution to make the sparse table to support the
-append operation. The problem which is more powerful than ISMQ problem
-is named incremental range maximum query (IRMQ).  IRMQ support three
-operations.  First, a {\tt make} operation creates an empty array $A$.
-Second, a {\tt append(V) } operation appends a value $V$ to the end of
-an array $A$.  Finally, a {\tt query(L, R)} operation finds the {\em
-  maximum} value among the $L$-th value to the $R$-th value of an
-array $A$.
+algorithm.
+
+However, the sparse table support range maximum query problem is more
+powerful than suffix maximum value problem.
+
+In this section, we provide a solution to make the sparse table to
+support the append operation. The problem which is more powerful than
+ISMQ problem is named incremental range maximum query (IRMQ).  IRMQ
+support three operations.  First, a {\tt make} operation creates an
+empty array $A$.  Second, a {\tt append(V) } operation appends a value
+$V$ to the end of an array $A$.  Finally, a {\tt query(L, R)}
+operation finds the {\em maximum} value among the $L$-th value to the
+$R$-th value of an array $A$.
 
 \iffalse
 
@@ -220,15 +181,6 @@ amortized $\theta(1)$ time.  First, we need to fully recognize the
 formulas encoder and decoder, so that each step in the algorithm is
 $\theta(1)$.
 
-In the previous section, for any identify $\mathit{tid}$ of BST, we
-can get $\langle\mathit{lsz}, \mathit{lid}, \mathit{rsz},
-\mathit{rid}\rangle$ in $O(n)$ time.  Oppositely, we get
-$\mathit{tid}$ from $\langle\mathit{lsz}, \mathit{lid}, \mathit{rsz},
-\mathit{rid}\rangle$ in $\theta(1)$.  The algorithm
-\ref{alg:encode-tid} show the inverse function run in $\theta(1)$.  By
-the pre-processing, all the prefix sum store in the memory, so the for
-loop can be replaced by one time memory access in the algorithm
-\ref{alg:encode-tid}.
 
 \iffalse
 
@@ -242,14 +194,8 @@ $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；
 ~\ref{alg:encode-tid}。透過預處理，事先將所有前綴和保存下來，在算法中
 的迴圈可視為一次內存存取，使得時間複雜度 $\theta(1)$。\fi
 
-\input{algorithms/alg-encode-tid}
 
-By the recursive formula, we could implement without storing full
-Cartesian tree.  The rightmost path is consisted of the root, the
-right child of the root, the right child of the right child of the
-root, ..., and so on.  We maintain the rightmost path of a Cartesian
-tree as a stack.  The algorithm \ref{alg :cartesian-encode-offline} is
-shown for offline encoding any Cartesian tree.
+
 
 \iffalse
 根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，實作上與堆疊結構相同。
