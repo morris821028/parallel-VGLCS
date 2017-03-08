@@ -59,11 +59,11 @@ for 1, 2 and 3 nodes.
 
 \subsubsection{Lowest Common Ancestor}
 
-We also need to determine the lowest common ancestor efficiently for
-answering ranged maximum queries.  For ease of discussion we define
-several notations.  Let $t$ be the index of the search tree in our
-encoding, so $t$ is between 0 and $s - 1$, where $s$ is the number of
-search trees.  Let ${\cal A}(s, t, p, q)$ denote the {\em lowest
+We also need to determine the lowest common ancestor {\em efficiently}
+for answering ranged maximum queries.  For ease of discussion we
+define several notations.  Let $t$ be the index of the search tree in
+our encoding, so $t$ is between 0 and $s - 1$, where $s$ is the number
+of search trees.  Let ${\cal A}(s, t, p, q)$ denote the {\em lowest
   common ancestor} of the node $p$ and $q$ within a binary search tree
 with $s$ nodes and label $t$.  For example, ${\cal A}(3, 2, 0, 2) = 1$
 from Figure~\ref{fig:labelingBST}.  Also we consider the tree of $s$
@@ -71,53 +71,51 @@ nodes with label $t$, and let $l_s$ denote the size of the left
 subtree, $r_s$ denote the size of the right subtree, $l_t$ be the
 label of its left subtree, and $r_t$ be the label of its right
 subtree.  With these notations we can define the lowest common
-ancestor {\em recursively} as in Equation~\ref{fun:LCA1} when $l_s
-\le p \le q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}.
+ancestor {\em recursively} as in Equation~\ref{fun:LCA1} when $l_s \le
+p \le q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}.
 
 \input{./formulas/fun-LCA.tex}
 
-In order to store all binary search trees, the space complexity of
-Algorithm~\ref{alg:parallel-LCA} is in Equation~\ref{eq:space}, and the
-time complexity of parallel Algorithm~\ref{alg:parallel-LCA} is in
-Equation~\ref{eq:parallel-time}.
+We analyze the space and time complexity of
+Algorithm~\ref{alg:parallel-LCA}.  The lookup table records the all
+the binary tree of sizes from 1 to $s$.  When tree size is $m$, the
+number of different binary trees is the $n$-th Catalan number $C_m$,
+which is $\frac{1}{m+1}\binom{2m}{m} = O(\frac{4^m}{m^{1.5}})$.  For
+each binary tree of size $m$, we store the lowest common ancestor of
+{\em every} pair of nodes into the table, so the size of the table is
+$O(m^2)$.  Therefore, the space complexity is $O(s \times
+\frac{1}{s+1}\binom{2s}{s} \times s^2)$, where $s$ is the number of
+elements in a block.  When we set $s$ to $\frac{\log n}{4}$, the space
+complexity is $O(\sqrt{n} \log ^{1.5} n)$.  Note that the query will
+be on the tree size of $s$ {\em only}.  However, we do need the space
+for tables of {\em smaller} tree sizes as intermiedate data to compute
+the table of tree size $s$.  Also since the number of operations in
+Equation~\ref{fun:LCA1} and \ref{fun:LCA2} is a constant, the time
+complexity is also $O(\sqrt{n} \log ^{1.5} n)$ when we set $s$ to
+$\frac{\log n}{4}$.
 
-% need a formal proof here for the space and time complexity.
+We now analyze the time complexity of the parallel version of
+Algorithm~\ref{alg:parallel-LCA}.  As deescribed earlier, the
+sequential time complexity of Algorithm~\ref{alg:parallel-LCA} is
+$O(\frac{s^3}{s+1} \binom{2s}{s})$.Now we have $p$ processor, and we
+find that the computation of the $C_m$ tree of size $m$ are
+independent, and can be done in parallel.  However, the time
+complexity of finding the sizes and idsof subtrees wil take $O(m)$ for
+a tree of size $m$.  Since both line 4 and 5 are in the same loop
+body, it is not necessary to parallel line 6 since line 5 will
+dominate the time of the loop body.  As a result we can only
+parallelize the double loops in line 2 and 3 in
+Algortihm~\ref{alg:parallel-LCA}, and the time complexity of our
+parallel algorithm is $O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2) =
+O(\sqrt{n} (\log ^{1.5} n) / p + \log^2 n )$.
 
-The lookup table records the all the binary tree with the number of tree
-nodes from 1 to $s$.  When the number of tree nodes is $n$, the number
-of rooted binary trees is the $n$-th Catalan number $C_n$, which $C_n =
-\frac{1}{n+1}\binom{2n}{n} = O(\frac{4^n}{n^{1.5}})$.  For each binary
-tree, we store the lowest common ancestor of every pair of nodes into
-table, and the number of pairs is $O(n^2)$.  Therefore, the space
-complexity is $O(s \times \frac{1}{s+1}\binom{2s}{s} \times s^2)$
-corresponding the number of the answers in different binary trees.  When
-pick $s = \frac{\log n}{4}$, the space complexity is $O(n)$.
 
-The Algorithm~\ref{alg:parallel-LCA} compute all the answers.  Because
-the number of answers is $O(\frac{s^3}{s+1} \binom{2s}{s})$ and the cost
-of translation in formula is $O(1)$.  The sequence version run in
-$O(\frac{s^3}{s+1} \binom{2s}{s})$ time.  With $p$ processor, we find
-that all the computation in the same number of tree nodes are
-independent, but the time complexity of finding
-$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ is
-$O(s)$.  Therefore, the parallel algorithm can be found in $O(s^2)$ time
-easily.
+%% % how to compute subtree information from t
 
-\begin{equation} \label{eq:space}
-O\left(\frac{s^3}{s+1} \binom{2s}{s}\right) =
-O\left(n\right)
-\end{equation}
-
-\begin{equation} \label{eq:parallel-time}
-O\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
-\end{equation}.
-
-% how to compute subtree information from t
-
-Note that in line 4 of Algorithm~\ref{alg:parallel-LCA}, when given
-the tree id $t$, we need to compute the sizes and ids of the left and
-right subtrees in our encoding.  We can do this in $O(n)$ time, where
-$n$ is the number of tree nodes.
+%% Note that in line 4 of Algorithm~\ref{alg:parallel-LCA}, when given
+%% the tree id $t$, we need to compute the sizes and ids of the left and
+%% right subtrees in our encoding.  We can do this in $O(n)$ time, where
+%% $n$ is the number of tree nodes.
 
 \input{algorithms/alg-parallel-LCA.tex}
 
@@ -250,7 +248,7 @@ follows:
 \fi
 
 \begin{minipage}{0.9\linewidth}
-\begin{lstlisting}[frame=single,caption=State of Cartesian Tree]
+\begin{lstlisting}[frame=single,basicstyle=\tt,caption=State of Cartesian Tree]
 struct Node {
   int lsz, lid, val;
 };
