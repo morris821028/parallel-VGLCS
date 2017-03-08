@@ -77,19 +77,39 @@ ancestor {\em recursively} as in Equation~\ref{fun:LCA1} when $l_s
 \input{./formulas/fun-LCA.tex}
 
 In order to store all binary search trees, the space complexity of
-Algorithm~\ref{XXX} is in Equation~\ref{eq:space}, and the time
-complexity of parallel Algorithm~\ref{alg:parallel-LCA} is in
+Algorithm~\ref{alg:parallel-LCA} is in Equation~\ref{eq:space}, and the
+time complexity of parallel Algorithm~\ref{alg:parallel-LCA} is in
 Equation~\ref{eq:parallel-time}.
 
 % need a formal proof here for the space and time complexity.
 
+The lookup table records the all the binary tree with the number of tree
+nodes from 1 to $s$.  When the number of tree nodes is $n$, the number
+of rooted binary trees is the $n$-th Catalan number $C_n$, which $C_n =
+\frac{1}{n+1}\binom{2n}{n} = O(\frac{4^n}{n^{1.5}})$.  For each binary
+tree, we store the lowest common ancestor of every pair of nodes into
+table, and the number of pairs is $O(n^2)$.  Therefore, the space
+complexity is $O(s \times \frac{1}{s+1}\binom{2s}{s} \times s^2)$
+corresponding the number of the answers in different binary trees.  When
+pick $s = \frac{\log n}{4}$, the space complexity is $O(n)$.
+
+The Algorithm~\ref{alg:parallel-LCA} compute all the answers.  Because
+the number of answers is $O(\frac{s^3}{s+1} \binom{2s}{s})$ and the cost
+of translation in formula is $O(1)$.  The sequence version run in
+$O(\frac{s^3}{s+1} \binom{2s}{s})$ time.  With $p$ processor, we find
+that all the computation in the same number of tree nodes are
+independent, but the time complexity of finding
+$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ is
+$O(s)$.  Therefore, the parallel algorithm can be found in $O(s^2)$ time
+easily.
+
 \begin{equation} \label{eq:space}
-\theta\left(\frac{s^2}{s+1} \binom{2s}{s}\right) =
-\theta\left(n\right)
+O\left(\frac{s^3}{s+1} \binom{2s}{s}\right) =
+O\left(n\right)
 \end{equation}
 
 \begin{equation} \label{eq:parallel-time}
-\theta\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
+O\left(\frac{s^3}{s+1} \binom{2s}{s} \bigg/ p + s^2 \right)
 \end{equation}.
 
 % how to compute subtree information from t
@@ -104,7 +124,7 @@ $n$ is the number of tree nodes.
 
 \subsection{Tree Index Computation}
 
-Note that Algrotihm~\ref{alg:parallel-LCA} requires tree index $t$
+Note that Algorithm~\ref{alg:parallel-LCA} requires tree index $t$
 under our encoding scheme, so we need to determine $t$ efficiently,
 given a block of data.
 
@@ -112,9 +132,9 @@ given a block of data.
 
 One way to determine the tree index $t$ is to build the tree and
 compute it from the the sizes and ids of the left and right subtrees.
-This require a recusive travsal on the tree and has a $O(n)$ time
+This require a recursive traversal on the tree and has a $O(n)$ time
 complexity, where $n$ is the number of tree nodes.  The pseudo code of
-the conversion is given as Algortihm~\ref{alg:encode-tid}.
+the conversion is given as Algorithm~\ref{alg:encode-tid}.
 
 \input{algorithms/alg-encode-tid}
 
@@ -125,31 +145,43 @@ in Algorithm~\ref{alg:encode-tid}.  That is, we can pre-compute these
 offsets, and replace the loop at line 6 of
 Algorithm~\ref{alg:encode-tid} with a table lookup.
 
-% how to compute t with rigthmost path of the tree
+% how to compute t with rightmost path of the tree
 
-The previosu computation of tree index requires build the tree to
-obtain subtree information, and may not be efficient.  We propose a
-method that keeps only the {\em rightmost path} in a stack without
-building the entire tree.  After knowing tree index $t$ we can compute
-LCA and answer queries with algortihm~\ref{alg:parallel-LCA}.
+In order to find the index of the block, we build a Cartesian tree
+corresponding to the elements of the block, and then find the id of the
+Cartesian tree. The previous computation of tree index requires build
+the tree to obtain subtree information, and may not be efficient.  We
+propose a method that keeps only the {\em rightmost path} in a stack
+without building the entire tree.  After knowing tree index $t$ we can
+compute LCA and answer queries with Algorithm~\ref{alg:parallel-LCA}.
 
+We compute the tree index $t$ on the rightmost path efficiently. Because
+the Cartesian tree for a sequence is constructed in linear time using a
+stack-based algorithm, we reserve the $\mathit{lid}, \mathit{lsz}$
+instead of making a edge of nodes for each nodes, which these are on the
+rightmost path which is stored in the stack.  In the rotate operation of
+building Cartesian tree algorithm, we maintain the $\mathit{rid},
+\mathit{rsz}$ in the pop operations, and the subtree index $t$ can be
+recomputed with Algorithm~\ref{alg:encode-tid} by the $\mathit{rid},
+\mathit{rsz}$ and the information $\mathit{lid}, \mathit{lsz}$ on the
+stack.
 
-The algorithm~\ref{alg:cartesian-encode-offline} is shown for offline
+The Algorithm~\ref{alg:cartesian-encode-offline} is shown for offline
 encoding any Cartesian tree.
 
+\input{algorithms/alg-cartesian-encode-offline}
 
-There are two main issues in answering ranged maximum query --
-Cartesian tree encoding and cache performance.  Fischer introduced the
-first encoding method and the Masud~\cite{Hasan2010CacheOA} presents a
-new encoding method to reduce the number of instructions and sorting
-step to reduce cache miss.  Unfortunately all these algorithm work in
-a off-line model, i.e., they assume all $n$ data are given in advance,
-therefore they cannot cope with incrementally updated data in our
-problem.  In addition, they require a preprocessing of time $O(n)$,
-which is difficult to parallelize.
+% Morris: remove the cache issue
 
-About the sparse table, Fischer provide the $O(n)$ -- $O(1)$
-algorithm.
+There is a main issues in answering incremental ranged maximum query --
+Cartesian tree encoding.  Fischer introduced the first encoding method
+and the Masud~\cite{Hasan2010CacheOA} presents a new encoding method to
+reduce the number of instructions.  Unfortunately all these algorithm
+work in a off-line model, i.e., they assume all $n$ data are given in
+advance, therefore they cannot cope with incrementally updated data in
+our problem.  In addition, they require a preprocessing of time $O(n)$.
+The preprocessing need more memory transfer to find the information of
+the block of an input array, or read external files from disk.
 
 However, the sparse table support range maximum query problem is more
 powerful than suffix maximum value problem.
@@ -202,8 +234,6 @@ $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；
 基於 row-major 順序和遞迴定義 ~\ref{fun:LCA}，修改之前論文對於的離線編碼，
 其對應方案如算法 \ref{alg:cartesian-encode-offline}。
 \fi
-
-\input{algorithms/alg-cartesian-encode-offline}
 
 In order to support online encoding, we use five variables to present
 the state of the Cartesian tree.  The next step will insert $i$-th
