@@ -166,11 +166,13 @@ recomputed with Equation~\ref{fun:tid} by the $\mathit{rid},
 stack.
 
 The Algorithm~\ref{alg:cartesian-encode-offline} is shown for offline
-encoding any Cartesian tree.
+encoding any Cartesian tree.  Each element can take part in at most two
+operations, so the algorithm~\ref{alg:cartesian-encode-offline} run in
+$O(s)$ time.
 
 \input{algorithms/alg-cartesian-encode-offline}
 
-% Morris: what is the incremental ranged maximum query
+% Morris: what is the incremental ranged maximum query?
 
 The incremental ranged maximum query problem which is more powerful than
 incremental suffix maximum query problem, which supports three
@@ -207,38 +209,20 @@ the block of an input array, or read external files from disk.
 % input array or external files.
 
 Now, we provide the dynamic encoding method so that each operation is
-amortized $O(1)$ time.  First, we need to fully recognize the formulas
-encoder and decoder, so that each step in the algorithm is $O(1)$.
-
-
-\iffalse
-
-接下來的幾段中，我們提供動態的編碼方式使得每一操作皆均攤 $O(1)$
-完成。首先，我們需要充分認知編碼相互轉換的公式，藉以在算法中完成每一步
-皆為 $O(1)$ 的要求。
-
-在上一節提出對於任意編號 $\mathit{tid}$ 可以在 $O(n)$ 時間內得到
-$\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$；
-相反地，可以在 $\theta(1)$ 時間內逆推得到 $\mathit{tid}$，如算法
-~\ref{alg:encode-tid}。透過預處理，事先將所有前綴和保存下來，在算法中
-的迴圈可視為一次內存存取，使得時間複雜度 $\theta(1)$。\fi
-
-
-
-
-\iffalse
-根據先前的字典順序編碼，只需要維護笛卡爾樹的右鏈，實作上與堆疊結構相同。
-基於 row-major 順序和遞迴定義 ~\ref{fun:LCA}，修改之前論文對於的離線編碼，
-其對應方案如算法 \ref{alg:cartesian-encode-offline}。
-\fi
+amortized $O(1)$ time.  This encoding method is designed corresponding
+to the Algorithm~\ref{alg:parallel-LCA} and Equation~\ref{fun:tid}.
 
 In order to support online encoding, we use five variables to present
 the state of the Cartesian tree.  The next step will insert $i$-th
-elements and final stage fill $s$ number of elements.  The identity of
-the current tree is $\mathit{tid}$ and the rightmost path of the
-Cartesian tree is presented by two variable, stack pointer
-$\mathit{Dp}$ and the stack $\mathit{D}$. The structure of state is as
-follows:
+elements and final stage fill $s$ number of elements.  The index of the
+current tree is ${\mathit t}$ and the rightmost path of the Cartesian
+tree is presented by two variable, stack pointer ${\mathit Dp}$ and the
+stack ${\mathit D}$.  Before any insertion, the initialization state set
+$i$ to zero, $s$ to $\frac{\log n}{4}$, ${\mathit t}$ to $C_s$ subtract
+one, ${\mathit Dp}$ to zero, and the top element in stack ${\mathit D}$
+to infinity.
+
+The structure of state is as follows:
 
 \iffalse
 我們定義轉移狀態由 5 個變數來決定動態笛卡爾樹的編碼，當前插入第 $i$ 個
@@ -246,34 +230,28 @@ follows:
 右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
 \fi
 
+% State(i = 0, s = n, tid = C[n]-1, Dp = 0, D[0].val = INF)
+
 \begin{minipage}{0.9\linewidth}
-\begin{lstlisting}[frame=single,basicstyle=\tt,caption=State of Cartesian Tree]
-struct Node {
-  int lsz, lid, val;
-};
-struct State {
-  int i, s, tid, Dp;
-  struct Node D[s+1];
-  State(i = 0, s = n, 
-          tid = C[n]-1, Dp = 0,
-           D[0].val = INF)
-};
-\end{lstlisting}
+
+\lstinputlisting[frame=single,basicstyle=\tt,caption=State of Cartesian Tree]{codes/cartesian-state.h}
+
 \end{minipage}
 
-For the online query, we choose $s=\frac{\log n}{4}$ by the Fischer's
-RMQ.  In our encoding method, we initialize the $s$ number of virtual
-node on the rightmost path, so the default tree label $\mathit{tid}$
-is $C_s - 1$, which $C_s$ is the $s$-th Catalan number.  Following the
-elements insertion, we assume the sequence of elements which is not
-yet inserted are increasing.
+% Morris: Idea for encode Cartesian tree dynamically: virtual node &
+% propagation
 
-Because of lexicographical order, the rightmost path of Cartesian tree
-is belonged to the lower dimension in the row-major like.
-Simultaneously, building a Cartesian tree only modify the rightmost
-path. We can use the propagation characteristics to get the identity of
-the tree.  Finally, we propose the difference algorithm~\ref{alg
-:cartesian-encode-online} to satisfy above requirement.
+In order to encode Cartesian tree dynamically, we initialize the $s$
+number of virtual node on the rightmost path, and that is why the
+default tree index ${\mathit t}$ is $C_s - 1$, which $C_s$ is the $s$-th
+Catalan number.  Following the elements insertion, we assume the
+sequence of elements which is not yet inserted are increasing.  In
+lexicographical order, the rightmost path of Cartesian tree is belonged
+to the lower dimension in the row-major like.  Simultaneously, building
+a Cartesian tree only modify the rightmost path.  We use the propagation
+to get the tree index in the next insertion.  Finally, we propose the
+difference algorithm~\ref{alg:cartesian-encode-online} to satisfy above
+requirement.
 
 \iffalse 為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。根據字典順序
 的編碼性質，一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} =
@@ -285,16 +263,15 @@ C_s - 1$ 。隨著插入元素的增加，尚未加入的元素都預設嚴格�
 We give an example of difference algorithm in the
 figure~\ref{fig:cartesianEncoding}.  Each block has $s$ number of
 elements.  We will build a Cartesian tree with $s$ number of nodes to
-solve in-block query.  In initialization, it assume $s$ number of
-nodes on the rightmost path and the default tree identity
-$\mathit{tid} = C_s - 1$.  When inserting $i$-th element, the tree
-identity is $\mathit{tid}_i$, and the tree identity of the subtree $A$
-is $A.\mathit{tid}$.  If the value of $(i+1)$-th element is $x$, it
-will rotate onto the node $A$.  After rotation, $A$ is a left subtree
-of $A$, and we can compute the identify of subtree $A$ during
-rotation.  Then, $x.\mathit{tid}$ can be computed by the $s-(i+1)$
-number of virtual nodes on the rightmost path and
-$A.\mathit{tid}$. According to the lexicographical order, we get
+solve in-block query.  In initialization, it assume $s$ number of nodes
+on the rightmost path and the default tree index $\mathit{tid} = C_s -
+1$.  When inserting $i$-th element, the tree index is $\mathit{tid}_i$,
+and the tree index of the subtree $A$ is $A.\mathit{tid}$.  If the value
+of $(i+1)$-th element is $x$, it will rotate onto the node $A$.  After
+rotation, $A$ is a left subtree of $A$, and we can compute the index of
+subtree $A$ during rotation.  Then, $x.\mathit{tid}$ can be computed by
+the $s-(i+1)$ number of virtual nodes on the rightmost path and
+$A.\mathit{tid}$.  According to the lexicographical order, we get
 $\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
 A.\mathit{tid})$.
 
