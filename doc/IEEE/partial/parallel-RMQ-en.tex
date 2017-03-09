@@ -1,7 +1,6 @@
-\section{Parallel Ranged Maximum Query}
-\label{sec:parallelRMQ}
+\section{Ranged Maximum Query} \label{sec:parallelRMQ}
 
-\subsection{Background}
+% Why Ranged Maximum Query is important?
 
 The efficiency of a parallel VGLCS algorithm is limited by the the
 efficiency of its {\em ranged maximum query}.  We can use a parallel
@@ -10,6 +9,8 @@ processors, so that it requires $O(n \log n / p + \log n)$ in
 preprocessing, and takes only $O(1)$ time to answer a query.  On the
 other hand, it is difficult to parallelize both preprocessing and
 query on tree-like data structures efficiently.
+
+\subsection{Blocked Sparse Table}
 
 Fischer~\cite{Fischer2006TheoreticalAP} consider a {\em blocked}
 version of the sparse table.  The input is partitioned into $s$ blocks.
@@ -86,26 +87,31 @@ efficiently in a modern computer.
 
 \subsection{Compressed Cartesian Tree} \label{sec:cct}
 
-We propose a new encoding for blocks.  We a {\em compressed sparse
+We propose a new encoding for blocks called {\em compressed sparse
   table}, instead of the binary string, in order to improve
 performance.  The compressed sparse table is inspired by Fischer's
-sparse table and the Cartesian tree.  We select a fixed block size of
-$s = {{\frac{\log n}{4}}} = 16$, which can efficiently answer
-one-dimension ranged maximum query for up to $n = 2^{64}$ data.  We
-consider the processing of adding data.  Let the $i$-th added data be
-$a_i$, so we need to {\em relocate} all the data along the {\em
-  rightmost} path of the Cartesian tree that are smaller than $a_i$.
-Let $t_i$ be the number of nodes that need to be relocated, and it
-is easy to see that $0 \le t_i < s$.  The key point is that we store
-these $t_i$ to {\em implicitly identify} this Cartesian tree for this
-block of data, so that we can answer queries by examining these $t_i$.
-More details on how to answer queries with these $t_i$ will be
-described later.  Now since all $t_i$'s are small than 16, we can
-represent each of them as a 4-bit integer.  We then merge 16 of these
-4-bit integers into a 64-bit integer to present a Cartesian tree for a
-block.  The pseudo code on how to build a 64 bit integer to represent
-a block of 16 data is in Algorithm~\ref{alg:cartesian-to-64bits},
-which runs in time $O(s)$. where $s$ is the size of a block.
+sparse table and the Cartesian tree.  We also use the block approach
+and select a fixed block size $s = {{\frac{\log n}{4}}} = 16$, which
+can efficiently answer one-dimension ranged maximum query for up to $n
+= 2^{64}$ data.
+
+The compressed sparse table works by keeping only the {\rm rightmost}
+path of the Cartesian tree.  Consider the processing of adding a data.
+Let the $i$-th added data be $a_i$, so we need to {\em relocate} all
+the data along the rightmost path of the Cartesian tree that are
+smaller than $a_i$.  Let $t_i$ be the number of nodes that need to be
+relocated, and it is easy to see that $0 \le t_i < s$.
+
+The key point of compressed sparse table is that we store $t_i$ to
+{\em implicitly identify} this Cartesian tree for this block of data,
+so that we can answer queries by examining these $t_i$'s.  More
+details on how to answer queries with these $t_i$ will be described
+later.  Now since all $t_i$'s are small than 16, we can represent each
+of them as a 4-bit integer.  We then merge 16 of these 4-bit integers
+into a 64-bit integer to present a Cartesian tree for a block.  The
+pseudo code on how to build a 64 bit integer to represent a block of
+16 data is in Algorithm~\ref{alg:cartesian-to-64bits}, which runs in
+time $O(s)$. where $s$ is the size of a block.
 
 \input{algorithms/alg-cartesian-to-64bits}
 
@@ -146,26 +152,11 @@ implicitly maintain the Cartesian tree information within these 64
 bit $t_i$, so we reduce the memory usage and improve cache
 performance.
 
-\iffalse 因所有 $t_i < 16$，使得每個 $l_i$ 可用 4-bit 表示之，整體便可
-用 64-bit 長整數表示一棵笛卡爾樹的狀態。為了現在常見的 64-byte 快取列
-(cache line) 和 64-bit 暫存器 (register) 考量，我們選用合適的大小進行
-測試，不僅壓縮空間使用量，同時也減少快取未中的問題。最後，我們得到壓縮
-算法 \ref{alg:cartesian-to-64bits}，其相對應的區間查找算法，根據
-Demaine \cite{demaine} 進行修改，得到壓縮下的詢問算法
-\ref{alg:cartesian64bits-query}。\fi
-
-Our VGLCS algorithm using the compressed sparse table does improve
-cache performance, but increase the time complexity.  The
-preprocessing time is $O(n)$ time as in Fischer's algorithm.  However,
-a single query time becomes $O(s)$, where $s$ is the block size.  This
-is acceptable in practice since we use $s = 16$, which is a small
-constant.  The space complexity is $O(n)$ as in Fischer's algorithm.
-The overall time complexity of the parallel version of our VGLCS
-algorithm is $O(n^2 s / p + n \times \max(\log n, s))$.
-
-\iffalse
-回到 VGLCS 的應用中，上述算法使用壓縮方式降低快取未中。
-我們可以使用上述的算法取代原先的并查集，建表的時間複雜度為 $O(n)$，
-單一查詢的時間複雜度為 $O(s)$。
-整體的時間複雜度為 $O(n^2 \; s / p + n \max(\log n, s))$。
-\fi
+Our compressed sparse table approach does improve cache performance,
+but will increase the time complexity.  The preprocessing time is
+$O(n)$ time as in Fischer's algorithm.  However, a single query time
+becomes $O(s)$, where $s$ is the block size.  This is acceptable in
+practice since we use $s = 16$, which is a small constant.  The space
+complexity is $O(n)$ as in Fischer's algorithm.  The overall time
+complexity of the parallel version of our VGLCS algorithm becomes
+$O(n^2 s / p + n \times \max(\log n, s))$.

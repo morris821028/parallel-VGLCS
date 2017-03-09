@@ -1,21 +1,23 @@
-\section{Parallel VGLCS Algorithm} %
+\section{Parallel VGLCS Algorithm with Sparse Table} %
 \label{sec:parallelVGLCS}
+
+The serial VGLCS algorithm~\ref{alg:serial-VGLCS} by
+Peng~\cite{Peng2011TheLC} (shown as Algorithm~\ref{alg:serial-VGLCS}
+below) and other variants of LCS are difficult to parallelize.  These
+algorithms use several states to determine a new state during dynamic
+programming.  This construction requires {\em heavy data dependency},
+and makes it difficult to parallelize the computation in a naive
+row-by-row manner.  If we parallel Peng's algorithm with wavefront
+method intuitively, it will require extra space to record all row
+status, which is not required in the origin algorithm.  On the other
+hand, if we use the Maleki's~\cite{Maleki2016EfficientPU} technique,
+it also uses extra space to maintain state translation, and spends
+more time to merge split parts.  Therefore, it is crucial that our
+parallelization conserves both memory and time.
 
 \input{algorithms/alg-serial-VGLCS}
 
-The serial VGLCS algorithm~\ref{alg:serial-VGLCS} by
-Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
-parallelize.  These algorithms use several states to determine a new
-state during dynamic programming.  This construction requires {\em
-  heavy data dependency}, and makes it difficult to parallelize the
-computation in a naive row-by-row manner.  If we parallel Peng's
-algorithm with wavefront method intuitively, it will require extra
-space to record all row status, which is not required in the origin
-algorithm.  On the other hand, if we use the
-Maleki's~\cite{Maleki2016EfficientPU} technique, it also uses extra
-space to maintain state translation, and spends more time to merge
-split parts.  Therefore, it is crucial that our parallelization
-conserves both memory and time.
+\subsection{Incremental Suffix Maximum Query}
 
 In order to find VGLCS efficiently, we need to address the {\em
   incremental suffix maximum query} (ISMQ) problem, which was
@@ -59,6 +61,8 @@ the first stage there will be a large number of threads that work on
 different part of the disjoint-set forests, therefore it will be
 difficult to synchronize them efficiently.
 
+\subsection{Sparse Table}
+
 Since the disjoint set cannot support ISMQ efficiently in parallel, we
 consider the following data structures to support ISMQ efficiently in
 parallel.
@@ -95,6 +99,8 @@ queries into the sparse table.  For example, if the query is of the
 range from 2 to 13, then the answer is the maximum of the two answers
 -- one from 2 to 9, and one from 6 to 13.
 
+\subsection{Parallel VGLCS with Sparse Table}
+
 We now present a simple version of our parallel VGLCS algorithm.  The
 algorithm uses a sparse table and its time complexity is $O(n^2 \log n
 / p + n \log n)$, where $p$ is the number of processors.  In
@@ -117,7 +123,7 @@ parallelize and to implement.
 
 \input{algorithms/alg-parallel-sparse-table}
 
-The pseudo code of our simple version parallel VGLCS algorithm is in
-Algorithm~\ref{alg:parallel-VGLCS}
+The pseudo code of our simple version parallel VGLCS algorithm using
+sparse table is given in Algorithm~\ref{alg:parallel-VGLCS}
 
 \input{algorithms/alg-parallel-VGLCS}

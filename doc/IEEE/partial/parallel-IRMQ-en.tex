@@ -60,19 +60,19 @@ for 1, 2 and 3 nodes.
 \subsubsection{Lowest Common Ancestor}
 
 We also need to determine the lowest common ancestor {\em efficiently}
-for answering ranged maximum queries.  For ease of discussion we
-define several notations.  Let $t$ be the index of the search tree in
-our encoding, so $t$ is between 0 and $s - 1$, where $s$ is the number
-of search trees.  Let ${\cal A}(s, t, p, q)$ denote the {\em lowest
-  common ancestor} of the node $p$ and $q$ within a binary search tree
-with $s$ nodes and label $t$.  For example, ${\cal A}(3, 2, 0, 2) = 1$
-from Figure~\ref{fig:labelingBST}.  Also we consider the tree of $s$
-nodes with label $t$, and let $l_s$ denote the size of the left
-subtree, $r_s$ denote the size of the right subtree, $l_t$ be the
-label of its left subtree, and $r_t$ be the label of its right
-subtree.  With these notations we can define the lowest common
-ancestor {\em recursively} as in Equation~\ref{fun:LCA1} when $l_s \le
-p \le q < n$.  Other cases are defined in Equation~\ref{fun:LCA2}.
+for answering ranged maximum queries.  Let $t$ be the index of the
+search tree in our encoding, so $t$ is between 0 and $s - 1$, where
+$s$ is the number of search trees.  Let ${\cal A}(s, t, p, q)$ denote
+the {\em lowest common ancestor} of the node $p$ and $q$ within a
+binary search tree with $s$ nodes and label $t$.  For example, ${\cal
+  A}(3, 2, 0, 2) = 1$ from Figure~\ref{fig:labelingBST}.  Also we
+consider the tree of $s$ nodes with label $t$, and let $l_s$ denote
+the size of the left subtree, $r_s$ denote the size of the right
+subtree, $l_t$ be the label of its left subtree, and $r_t$ be the
+label of its right subtree.  With these notations we can define the
+lowest common ancestor {\em recursively} as in Equation~\ref{fun:LCA1}
+when $l_s \le p \le q < n$.  Other cases are defined in
+Equation~\ref{fun:LCA2}.
 
 \input{./formulas/fun-LCA.tex}
 
@@ -97,17 +97,18 @@ $\frac{\log n}{4}$.
 We now analyze the time complexity of the parallel version of
 Algorithm~\ref{alg:parallel-LCA}.  As deescribed earlier, the
 sequential time complexity of Algorithm~\ref{alg:parallel-LCA} is
-$O(\frac{s^3}{s+1} \binom{2s}{s})$.Now we have $p$ processor, and we
-find that the computation of the $C_m$ tree of size $m$ are
-independent, and can be done in parallel.  However, the time
-complexity of finding the sizes and idsof subtrees wil take $O(m)$ for
-a tree of size $m$.  Since both line 4 and 5 are in the same loop
-body, it is not necessary to parallel line 6 since line 5 will
-dominate the time of the loop body.  As a result we can only
-parallelize the double loops in line 2 and 3 in
-Algortihm~\ref{alg:parallel-LCA}, and the time complexity of our
-parallel algorithm is $O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2) =
-O(\sqrt{n} (\log ^{1.5} n) / p + \log^2 n )$.
+$O(\frac{s^3}{s+1} \binom{2s}{s})$. 
+
+We observe that the computation of the $C_m$ trees of size $m$ are
+independent, hence can be done in parallel.  However, the time to find
+the sizes and ids of subtrees (in line 4) is $O(m)$ for a tree of size
+$m$.  Since both line 4 and 5 are in the same loop body, it is not
+necessary to parallel line 4 since line 5 will dominate the time of
+the loop body.  As a result we can only parallelize the double loops
+in line 2 and 3 in Algortihm~\ref{alg:parallel-LCA}, and the time
+complexity of our parallel algorithm is $O(\frac{s^3}{s+1}
+\binom{2s}{s} / p + s^2) = O(\sqrt{n} (\log ^{1.5} n) / p + \log^2 n
+)$, where $p$ is the number of processors.
 
 
 %% % how to compute subtree information from t
@@ -123,104 +124,117 @@ O(\sqrt{n} (\log ^{1.5} n) / p + \log^2 n )$.
 \subsection{Tree Index Computation}
 
 Note that Algorithm~\ref{alg:parallel-LCA} requires tree index $t$
-under our encoding scheme, so we need to determine $t$ efficiently,
+from our encoding scheme, so we need to determine $t$ efficiently when
 given a block of data.
 
 % how to compute t from tree data structure
 
-One way to determine the tree index $t$ is to build the tree and compute
-it from the the sizes and ids of the left and right subtrees. This
-require a recursive traversal on the tree and has a $O(n)$ time
-complexity, where $n$ is the number of tree nodes.  The
-Equation~\ref{fun:tid} is given as the conversion.
+One way to determine the tree index $t$ is to build the tree and
+compute it from the the sizes and ids of the left and right subtrees.
+This require a recursive traversal on the tree and has a $O(n)$ time
+complexity, where $n$ is the number of tree nodes.  The conversion is
+as in Equation~\ref{fun:tid}.
 
 % \input{algorithms/alg-encode-tid}
 
 \input{formulas/fun-tid}
 
 We can further optimize Equation~\ref{fun:tid} by pre-computing the
-prefix sum of Catalan numbers, and store them in memory, so that we can
-use them directly, instead of recomputing them in
-Equation~\ref{fun:tid}.  That is, we can pre-compute these summation,
-and replace the summation in Equation~\ref{fun:tid} with a table lookup.
+{\em prefix sum} of Catalan numbers.  Then we store these sums in
+memory, so that we can use them directly, instead of recomputing them
+as in Equation~\ref{fun:tid}.  That is, we can pre-compute these
+summation, and replace the summation in Equation~\ref{fun:tid} with a
+table lookup.
 
 % how to compute t with rightmost path of the tree
 
-In order to find the index of the block, we build a Cartesian tree
-corresponding to the elements of the block, and then find the id of the
-Cartesian tree. The previous computation of tree index requires build
-the tree to obtain subtree information, and may not be efficient.  We
-propose a method that keeps only the {\em rightmost path} in a stack
-without building the entire tree.  After knowing tree index $t$ we can
-compute LCA and answer queries with Algorithm~\ref{alg:parallel-LCA}.
+In order to find the tree index of the block, we build a Cartesian
+tree corresponding to the elements of the block, and then find the
+index of the Cartesian tree.  The previous computation of tree index
+requires building the tree to obtain subtree information, and may not
+be efficient.  We propose a method that detremines the tree index by
+keeps only the {\em rightmost path} in a {\em stack} without building
+the entire tree.  After knowing the tree index $t$ we can compute LCA
+and answer queries with Algorithm~\ref{alg:parallel-LCA}.
 
-We compute the tree index $t$ on the rightmost path efficiently. Because
-the Cartesian tree for a sequence is constructed in linear time using a
-stack-based algorithm, we reserve the $\mathit{lid}, \mathit{lsz}$
-instead of making a edge of nodes for each nodes, which these are on the
-rightmost path which is stored in the stack.  In the rotate operation of
-building Cartesian tree algorithm, we maintain the $\mathit{rid},
-\mathit{rsz}$ in the pop operations, and the subtree index $t$ can be
-recomputed with Equation~\ref{fun:tid} by the $\mathit{rid},
-\mathit{rsz}$ and the information $\mathit{lid}, \mathit{lsz}$ on the
-stack.
+We compute the tree index $t$ efficiently by the matintaining the {\em
+  rightmost path}.  The Cartesian tree for a sequence of data can be
+constructed in linear time using a {\em stack} as follows.  The stack
+maintains the tree indexes and sizes of every left subtree along the
+right most path.  That is, we will {\em not} build these left
+subtrees, but only keep their tree indexes and sizes.
 
-The Algorithm~\ref{alg:cartesian-encode-offline} is shown for offline
-encoding any Cartesian tree.  Each element can take part in at most two
-operations, so the algorithm~\ref{alg:cartesian-encode-offline} run in
-$O(s)$ time.
+We will insert the data from the end of the right most path, which is
+at the top of the stack, and traverse towards the root by popping any
+smaller data out of the stack.  When we rotate nodes along the
+rightmost path to update the Cartesian tree, we compute the new index
+and size of a left subtree whenever the newly inserted data replaces
+it.  As a result the new tree index $t$ can be recomputed with
+Equation~\ref{fun:tid} by the indexes and sizes of left and right
+subtrees in the stack.  Please refer to Figure~\ref{} for an
+illustration.
+
+The pseudo code of this Cartesian tree index computation is in
+Algorithm~\ref{alg:cartesian-encode-offline} computes tree encoding
+any Cartesian tree off-line.  The algorithm runs in $O(s)$ time since
+an elelment is pushed/popped at most once.
 
 \input{algorithms/alg-cartesian-encode-offline}
 
+\subsection{Dynamic Tree Index Computation}
+
 % Morris: what is the incremental ranged maximum query?
 
-The incremental ranged maximum query problem which is more powerful than
-incremental suffix maximum query problem, which supports three
-operations.  First, a {\tt make} operation creates an empty array $A$.
-Second, a {\tt append(V) } operation appends a value $V$ to the end of
-an array $A$.  Finally, a {\tt query(L, R)} operation finds the {\em
-maximum} value among the $L$-th value to the $R$-th value of an array
-$A$.  
+The {\em incremental ranged maximum query} problem is more complicated
+than the previous incremental suffix maximum query problem.  Again a
+{\tt make} operation creates an empty array $A$, an {\tt append(V)}
+operation appends a value $V$ to the end of an array $A$.  Finally, a
+{\tt query(L, R)} operation finds the {\em maximum} value among the
+$L$-th value to the $R$-th value of an array $A$.  One can think of
+the incremental suffix maximum query as a special case of the
+incremental ranged maximum query.
+
+Fischer introduced the first encoding method and the
+Masud~\cite{Hasan2010CacheOA} presents a new encoding method to reduce
+the number of instructions.  Unfortunately all these algorithm work in
+an off-line model, i.e., they assume all $n$ data are given in
+advance, therefore they cannot cope with incrementally updated data in
+our problem.  In addition, they require a preprocessing of time
+$O(n)$.  The preprocessing need more memory transfer to find the
+information of the block of an input array, or read external files
+from disk.
 
 % Morris: Cartesian tree can be used to solve above problem
 
-By the interactive encoding Cartesian tree, we can use the index of tree
-to support the {\tt query(L, R)} operation.  The stack-based algorithm
-of a Cartesian tree can support the {\tt append(V)} operation, but we
-could not cope with a {\tt query(L, R)} operation on a Cartesian tree
-intuitively.
-
-% Morris: How to use tree index to lookup? Then, what's encode method we
-% know in previous study.
-
-In order to solve {\tt query(L, R)} operation on a Cartesian tree, we
-can build lookup table to answer the maximum value by the tree index.
-There is a main issue in answering incremental ranged maximum query --
-Cartesian tree encoding.  Fischer introduced the first encoding method
-and the Masud~\cite{Hasan2010CacheOA} presents a new encoding method to
-reduce the number of instructions.  Unfortunately all these algorithm
-work in a off-line model, i.e., they assume all $n$ data are given in
-advance, therefore they cannot cope with incrementally updated data in
-our problem.  In addition, they require a preprocessing of time $O(n)$.
-The preprocessing need more memory transfer to find the information of
-the block of an input array, or read external files from disk.
+We can use our encoding scheme on Cartesian tree to support the
+incremental ranged maximum query.  First, our stack-based algorithm
+can easily support the {\tt append} operation on Cartesian tree, as
+long as we can provide a dynamic encoding method.  That is, we can
+update all the tree index whenever we insert a new data.  That is, we
+can {\em dynamically} maintain a lookup table to obtain the maximum
+value in a range, so as to answer a ranged querey {\tt query(L, R)},
+by our Cartesian tree encoding.  
 
 % Morris: Our encoding with parallel algorithm without find the block of
 % input array or external files.
 
-Now, we provide the dynamic encoding method so that each operation is
-amortized $O(1)$ time.  This encoding method is designed corresponding
-to the Algorithm~\ref{alg:parallel-LCA} and Equation~\ref{fun:tid}.
 
-In order to support online encoding, we use five variables to present
-the state of the Cartesian tree.  The next step will insert $i$-th
-elements and final stage fill $s$ number of elements.  The index of the
-current tree is ${\mathit t}$ and the rightmost path of the Cartesian
-tree is presented by two variable, stack pointer ${\mathit Dp}$ and the
-stack ${\mathit D}$.  Before any insertion, the initialization state set
-$i$ to zero, $s$ to $\frac{\log n}{4}$, ${\mathit t}$ to $C_s$ subtract
-one, ${\mathit Dp}$ to zero, and the top element in stack ${\mathit D}$
-to infinity.
+
+%% Now, we provide the dynamic encoding method so that each operation is
+%% amortized $O(1)$ time.
+
+We use five variables to record the state of a Cartesian tree, so as
+to support dynamic encoding,
+
+This dynamic encoding method is based on
+Algorithm~\ref{alg:parallel-LCA} and Equation~\ref{fun:tid}.
+
+Consider the step to insert the $i$-th element.  Let the index of the
+current tree be $t$ and the rightmost path of the Cartesian tree is
+presented by two variables -- stack pointer $Dp$ and a stack $D$.  We
+first initialize a state set $i$ to be empty, $s$ to $\frac{\log
+  n}{4}$, ${t}$ to $C_s - 1$, $Dp$ to 0, and the top of stack $D$ to
+infinity.
 
 The structure of state is as follows:
 
@@ -243,14 +257,18 @@ The structure of state is as follows:
 
 In order to encode Cartesian tree dynamically, we initialize the $s$
 number of virtual node on the rightmost path, and that is why the
-default tree index ${\mathit t}$ is $C_s - 1$, which $C_s$ is the $s$-th
-Catalan number.  Following the elements insertion, we assume the
-sequence of elements which is not yet inserted are increasing.  In
-lexicographical order, the rightmost path of Cartesian tree is belonged
-to the lower dimension in the row-major like.  Simultaneously, building
-a Cartesian tree only modify the rightmost path.  We use the propagation
-to get the tree index in the next insertion.  Finally, we propose the
-difference algorithm~\ref{alg:cartesian-encode-online} to satisfy above
+default tree index ${\mathit t}$ is $C_s - 1$, which $C_s$ is the
+$s$-th Catalan number.
+
+Following the elements insertion, we assume the sequence of elements
+which is not yet inserted are increasing.  In lexicographical order,
+the rightmost path of Cartesian tree is belonged to the lower
+dimension in the row-major like.
+
+Simultaneously, building a Cartesian tree only modify the rightmost
+path.  We use the propagation to get the tree index in the next
+insertion.  Finally, we propose the difference
+algorithm~\ref{alg:cartesian-encode-online} to satisfy above
 requirement.
 
 \iffalse 為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。根據字典順序
