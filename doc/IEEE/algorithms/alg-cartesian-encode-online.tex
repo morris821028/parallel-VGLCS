@@ -7,9 +7,7 @@
       $v$: the value which append to array
   \Ensure
       $\mathit{tid}$: this label
-  \State $\textit{Dp} \gets \textit{state}.\textit{Dp}$
-  \State $\textit{lsz} \gets 0$ 
-  \State $\textit{lid} \gets 0$
+  \State $\textit{Dp} \gets \textit{state}.\textit{Dp}$, $\textit{lsz} \gets 0$, $\textit{lid} \gets 0$
   \State $\textit{bsz} \gets \textit{state}.\textit{s} - \textit{state}.\textit{i} + 1$
   \State $\textit{bid} \gets C[\textit{bsz}] - 1$
   \While{$\textit{state}.D[\textit{Dp}].\textit{value} < v$}

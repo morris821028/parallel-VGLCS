@@ -17,7 +17,7 @@ Intel CPU 同時也支持 hyper-threading 技術，每個處理器有 6 個實�
 
 
 We implement sparse table and binary index tree in the experiments and
-evaluate thir perfromance.  Recall that there are three solutions to
+evaluate their performance.  Recall that there are three solutions to
 incremental suffix maximum query in solving VGLCS.  The first solution
 is a disjoint set with amortized time $O(\alpha(n))$ for each query,
 or its variant, {\em incremental tree set union}~\cite{Gabow1983ALA},
@@ -28,12 +28,12 @@ with $O(\log n)$ time for each query.  Even if the amortized
 complexity of the first solution is $O(\alpha(n))$ or $O(1)$, it
 incurs inefficient synchronizations in a parallel implementation.
 Therefore, we choose to implement the last two data structures
-andconduct experiments to evalute their perfromance.
+and conduct experiments to evaluate their performance.
 
 \subsection{VGLCS with Compressed Sparse Table}
 
 In the random test data, we get the better performance with compressed
-sparse table compared to theoretical $\theta(1)$ sparse table.  The
+sparse table compared to theoretical $O(1)$ sparse table.  The
 figure~\ref{fig:fig-parallel} shows the different runtime in different
 parallelism, and the figure~\ref{fig:fig-parallel-scala} shows the scalability
 of our parallel algorithm.  On our server, the parallel algorithm can
