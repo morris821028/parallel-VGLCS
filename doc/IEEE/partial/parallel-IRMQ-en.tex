@@ -164,15 +164,22 @@ maintains the tree indexes and sizes of every left subtree along the
 right most path.  That is, we will {\em not} build these left
 subtrees, but only keep their tree indexes and sizes.
 
-We will insert the data from the end of the right most path, which is
-at the top of the stack, and traverse towards the root by popping any
-smaller data out of the stack.  When we rotate nodes along the
-rightmost path to update the Cartesian tree, we compute the new index
-and size of a left subtree whenever the newly inserted data replaces
-it.  As a result the new tree index $t$ can be recomputed with
+We will insert the data from the end of the right most path, which is at
+the top of the stack, and traverse towards the root by popping any
+smaller data out of the stack.  When we rotate nodes along the rightmost
+path to update the Cartesian tree, we compute the new index and size of
+a left subtree whenever the newly inserted data replaces it.  As a
+result the new tree index $t$ can be recomputed with
 Equation~\ref{fun:tid} by the indexes and sizes of left and right
-subtrees in the stack.  Please refer to Figure~\ref{} for an
-illustration.
+subtrees in the stack.  Please refer to 
+Figure~\ref{fig:fig-cartesian-encoding-static} for an illustration.
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding-static.pdf}
+  \label{fig:fig-cartesian-encoding-static}
+  \caption{Encoding Method of a Cartesian tree}
+\end{figure}
 
 The pseudo code of this Cartesian tree index computation is in
 Algorithm~\ref{alg:cartesian-encode-offline} computes tree encoding
@@ -212,7 +219,7 @@ can easily support the {\tt append} operation on Cartesian tree, as
 long as we can provide a dynamic encoding method.  That is, we can
 update all the tree index whenever we insert a new data.  That is, we
 can {\em dynamically} maintain a lookup table to obtain the maximum
-value in a range, so as to answer a ranged querey {\tt query(L, R)},
+value in a range, so as to answer a ranged query {\tt query(L, R)},
 by our Cartesian tree encoding.  
 
 % Morris: Our encoding with parallel algorithm without find the block of
