@@ -1,0 +1,20 @@
+\begin{algorithm}[!thb]
+\SetAlgoNoLine
+\KwIn{
+      $G[1 \cdots n]$: the variable gap constraints\;
+}
+\KwOut{
+      $\textit{limD}$: boundary for doubling algorithm\;
+}
+Create an array $\textit{limD}[n]$ with all zero elements.\;
+  \For{$i \gets n$ to $1$} {
+    $\textit{limD}[i] \gets \max(\textit{limD}[i], \lfloor \log_2(\min(G[i]+1, \; i)) \rfloor)$\;
+    \For{$k \gets 1$ to $\textit{limD}[i]$} {
+      $\textit{limD}[i-2^{k-1}] \gets \max(\textit{limD}[i-2^{k-1}], \; k-1)$\;
+    }
+  }
+return \textit{limD}\;
+
+\caption{Reduce Boundary Dynamic Programming}
+\label{alg:reduce-boundary}
+\end{algorithm}
