@@ -47,11 +47,11 @@ get $8 \times$ faster than the serial algorithm.
 \begin{figure}[!thb]
   \centering
   \subfigure[Runtime]{
-    \includegraphics[width=\linewidth]{graphics/fig-parallel-n.pdf}
+    \includegraphics[width=\linewidth]{\GraphicPath/fig-parallel-n.pdf}
     \label{fig:fig-parallel}
   }
   \subfigure[Scalability]{
-    \includegraphics[width=\linewidth]{graphics/fig-parallel-p.pdf}
+    \includegraphics[width=\linewidth]{\GraphicPath/fig-parallel-p.pdf}
     \label{fig:fig-parallel-scala}
   }
   \caption{Serial and Parallel Algorithm run on E5-2620}
@@ -124,7 +124,7 @@ query has a uniform distribution.
 
 \begin{figure}[!thb]
   \centering
-  \includegraphics[width=\linewidth]{graphics/fig-ISMQ.pdf}
+  \includegraphics[width=\linewidth]{\GraphicPath/fig-ISMQ.pdf}
   \caption{
   The performance of the ISMQ problem with different data structures on 
   E5-2620 server.
@@ -154,7 +154,7 @@ faster than the compressed table in above situation.
 其中插入和詢問比例為 1:10，當詢問比重更大時，將有更明顯的加速。
 \fi
 
-\input{./tables/tlb-ISMQcmp.tex}
+\input{\TablePath/tlb-ISMQcmp.tex}
 
 \subsection{Parallel Range Query}
 
@@ -172,4 +172,4 @@ result of the strategy of the parallel range query.
 在 \texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速，結果如表 ~\ref{tlb:CORMQ}。
 \fi
 
-\input{./tables/tlb-CORMQ.tex}
+\input{\TablePath/tlb-CORMQ.tex}

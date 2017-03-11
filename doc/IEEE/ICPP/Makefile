@@ -5,7 +5,7 @@ SPELL_CHECK_TARGETS = ICPP.tex
 all: $(TARGETS)
 
 $(TARGETS):
-	cd graphics && make
+	cd ../graphics && make
 	$(BUILD_ENGINE) $@
 	bibtex $@
 	$(BUILD_ENGINE) $@

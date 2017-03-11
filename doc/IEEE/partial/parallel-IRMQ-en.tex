@@ -52,7 +52,7 @@ for 1, 2 and 3 nodes.
 
 \begin{figure}[!thb]
   \centering
-  \includegraphics[width=\linewidth]{graphics/fig-bst-encoding.pdf}
+  \includegraphics[width=\linewidth]{\GraphicPath/fig-bst-encoding.pdf}
   \caption{The labeling of binary search trees}
   \label{fig:labelingBST}
 \end{figure}
@@ -74,7 +74,7 @@ lowest common ancestor {\em recursively} as in Equation~\ref{fun:LCA1}
 when $l_s \le p \le q < n$.  Other cases are defined in
 Equation~\ref{fun:LCA2}.
 
-\input{./formulas/fun-LCA.tex}
+\input{\FormulaPath/fun-LCA.tex}
 
 We analyze the space and time complexity of
 Algorithm~\ref{alg:parallel-LCA}.  The lookup table records the all
@@ -118,7 +118,7 @@ complexity of our parallel algorithm is $O(\frac{s^3}{s+1}
 %% right subtrees in our encoding.  We can do this in $O(n)$ time, where
 %% $n$ is the number of tree nodes.
 
-\input{algorithms/alg-parallel-LCA.tex}
+\input{\AlgoPath/alg-parallel-LCA.tex}
 
 
 \subsection{Tree Index Computation}
@@ -137,7 +137,7 @@ as in Equation~\ref{fun:tid}.
 
 % \input{algorithms/alg-encode-tid}
 
-\input{formulas/fun-tid}
+\input{\FormulaPath/fun-tid}
 
 We can further optimize Equation~\ref{fun:tid} by pre-computing the
 {\em prefix sum} of Catalan numbers.  Then we store these sums in
@@ -176,7 +176,7 @@ Figure~\ref{fig:fig-cartesian-encoding-static} for an illustration.
 
 \begin{figure}[!thb]
   \centering
-  \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding-static.pdf}
+  \includegraphics[width=\linewidth]{\GraphicPath/fig-cartesian-encoding-static.pdf}
   \label{fig:fig-cartesian-encoding-static}
   \caption{Encoding Method of a Cartesian tree}
 \end{figure}
@@ -186,7 +186,7 @@ Algorithm~\ref{alg:cartesian-encode-offline} computes tree encoding
 any Cartesian tree off-line.  The algorithm runs in $O(s)$ time since
 an elelment is pushed/popped at most once.
 
-\input{algorithms/alg-cartesian-encode-offline}
+\input{\AlgoPath/alg-cartesian-encode-offline}
 
 \subsection{Dynamic Tree Index Computation}
 
@@ -255,7 +255,7 @@ The structure of state is as follows:
 
 \begin{minipage}{0.9\linewidth}
 
-\lstinputlisting[frame=single,basicstyle=\tt,caption=State of Cartesian Tree]{codes/cartesian-state.h}
+\lstinputlisting[frame=single,basicstyle=\tt,caption=State of Cartesian Tree]{\CodePath/cartesian-state.h}
 
 \end{minipage}
 
@@ -300,11 +300,11 @@ $A.\mathit{tid}$.  According to the lexicographical order, we get
 $\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
 A.\mathit{tid})$.
 
-\input{algorithms/alg-cartesian-encode-online}
+\input{\AlgoPath/alg-cartesian-encode-online}
 
 \begin{figure*}[!thb]
   \centering
-  \includegraphics[width=\linewidth]{graphics/fig-cartesian-encoding.pdf}
+  \includegraphics[width=\linewidth]{\GraphicPath/fig-cartesian-encoding.pdf}
 
   \caption{An example for difference algorithm to encode Cartesian tree.}
 
