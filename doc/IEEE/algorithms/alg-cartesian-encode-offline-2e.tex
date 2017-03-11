@@ -1,0 +1,34 @@
+\begin{algorithm}
+\SetAlgoNoLine
+\KwIn{
+  $A[1 \cdots s]$: storage array\;
+  $s$: the number of elements\;
+}
+\KwOut{
+  $\mathit{tid}$: this label
+}
+$\langle\mathit{lsz},\mathit{lid},\mathit{value}\rangle$ $D$[$s+1$] \;
+$\textit{Dp} \gets 0$ \;
+$D[0] \gets \langle 0,0,\infty \rangle$ \;
+\For{$i \gets 1$ to $s$} {
+  $v \gets A[i], \; \textit{lsz} \gets 0, \; \textit{lid} \gets 0$ \;
+  \While{$D[\textit{Dp}].\textit{value} < v$} {
+    $\textit{lid} \gets \textit{tid}(D[\textit{Dp}].\textit{lsz}, D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$ \;
+    $\textit{lsz} \gets \textit{lsz} + D[\textit{Dp}].\textit{lsz} + 1$ \;
+    $\textit{Dp} \gets \textit{Dp} - 1$ \;
+  }
+  $\textit{Dp} \gets \textit{Dp} + 1$ \;
+  $D[\textit{Dp}] \gets \langle\mathit{lsz},\mathit{lid},\mathit{v}\rangle$ \;
+}
+
+$\textit{lsz} \gets 0, \; \textit{lid} \gets 0$ \;
+\While{$\textit{Dp} > 0$} {
+  $\textit{lid} \gets \textit{tid}(D[\textit{Dp}].\textit{lsz}, D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$ \;
+  $\textit{lsz} \gets \textit{lsz} + D[\textit{Dp}].\textit{lsz} + 1$ \;
+  $\textit{Dp} \gets \textit{Dp} - 1$ \;
+}
+return $\textit{lid}$ \;
+
+\caption{Offline Type of Cartesian Tree}
+\label{alg:cartesian-encode-offline}
+\end{algorithm}

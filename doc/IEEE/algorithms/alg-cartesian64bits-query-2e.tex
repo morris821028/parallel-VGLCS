@@ -1,0 +1,18 @@
+\begin{algorithm}[!thb]
+\SetAlgoNoLine
+\KwIn{$\textit{tmask}$: 64-bits Cartesian tree; $[l, r]$: query range}
+\KwOut{$\textit{minIdx}$: the index of the minimum value in interval}
+    
+$\textit{minIdx} \gets l, \; x \gets 0$ \;
+\For{$l \gets l+1$ to $r$} {
+  $x \gets x+1 - ((\textit{tmask} \gg (l \ll 2)) \mathrel{\&} 15)$ \;
+  \If{$x \le 0$} {
+    $\textit{minIdx} \gets l$ \;
+    $x \gets 0$ \;
+  }
+}
+return $\textit{minIdx}$ \;
+
+  \caption{Range Minimum Query in 64-bits Cartesian Tree}
+  \label{alg:cartesian64bits-query}
+\end{algorithm}

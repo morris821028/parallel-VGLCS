@@ -1,0 +1,32 @@
+\begin{algorithm}[!thb]
+\SetAlgoNoLine
+\KwIn{
+      $\mathit{state}$: state of Cartesian Tree\;
+      $v$: the value which append to array\;
+}
+\KwOut{
+      $\mathit{tid}$: this label
+}
+
+$\textit{Dp} \gets \textit{state}.\textit{Dp}$, $\textit{lsz} \gets 0$, $\textit{lid} \gets 0$ \;
+$\textit{bsz} \gets \textit{state}.\textit{s} - \textit{state}.\textit{i} + 1$ \;
+$\textit{bid} \gets C[\textit{bsz}] - 1$ \;
+
+\While{$\textit{state}.D[\textit{Dp}].\textit{value} < v$} {
+  $\textit{lid} \gets \textit{tid}(\textit{state}.D[\textit{Dp}].\textit{lsz}, \textit{state}.D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$ \;
+  $\textit{bid} \gets \textit{tid}(\textit{state}.D[\textit{Dp}].\textit{lsz}, \textit{state}.D[\textit{Dp}].\textit{lid}, \textit{bsz}, \textit{bid})$ \;
+  $\textit{lsz} \gets \textit{lsz} + \textit{state}.D[\textit{Dp}].\textit{lsz}+1$ \;
+  $\textit{bsz} \gets \textit{bsz} + \textit{state}.D[\textit{Dp}].\textit{lsz}+1$ \;
+  $\textit{Dp} \gets \textit{Dp} - 1$ \;
+}
+$\textit{Dp} \gets \textit{Dp} + 1$ \;
+$\textit{state}.D[\textit{Dp}] \gets \left \langle \textit{lsz}, \textit{lid}, \textit{v} \right \rangle$ \;
+$\textit{state}.\textit{Dp} \gets \textit{Dp}$ \;
+$x.\textit{tid} \gets \textit{tid}(\textit{lsz}, \textit{lid}, \textit{state}.s-\textit{state}.i, C[\textit{state}.s-\textit{state}.i]-1)$ \;
+$\textit{state}.\textit{tid} \gets \textit{state}.\textit{tid} + \textit{bid} - x.\textit{tid}$ \;
+$\textit{state}.i \gets \textit{state}.i + 1$ \;
+return $\textit{state}.\textit{tid}$ \;
+
+  \caption{Online Type of Cartesian Tree}
+  \label{alg:cartesian-encode-online}
+\end{algorithm}

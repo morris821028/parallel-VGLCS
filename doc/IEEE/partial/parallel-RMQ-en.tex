@@ -113,7 +113,7 @@ pseudo code on how to build a 64 bit integer to represent a block of
 16 data is in Algorithm~\ref{alg:cartesian-to-64bits}, which runs in
 time $O(s)$. where $s$ is the size of a block.
 
-\input{\AlgoPath/alg-cartesian-to-64bits}
+\input{\AlgoPath/alg-cartesian-to-64bits-2e}
 
 We answer a ranged maximum query from $l$ to $r$ as follows.  We
 maintain the number of data that are relocated as $x$ and initialize
@@ -128,7 +128,7 @@ the operations, e.g., shift, addition, subtraction, map directly to
 machine instruction so that unlike Demaine's algorithm, our algorithm
 is extremely to implement.
 
-\input{\AlgoPath/alg-cartesian64bits-query}
+\input{\AlgoPath/alg-cartesian64bits-query-2e}
 
 \begin{theorem} \label{thm:correctness}
   Algorithm~\ref{alg:cartesian64bits-query} correctly answers a ranged

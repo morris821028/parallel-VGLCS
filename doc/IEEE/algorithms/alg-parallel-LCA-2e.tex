@@ -1,0 +1,18 @@
+\begin{algorithm}[!thb]
+\SetAlgoNoLine
+\KwIn{$s$: Maximum size for required the number of BST}
+
+\For{$n \gets 1$ to $s$} {
+  \ForPar{$\mathit{tid} \gets 0$ to $C_n - 1$} {
+    \ForPar{$p \gets 0$ to $n-1$} {
+      Compute $\langle\mathit{lsz},\mathit{lid},\mathit{rsz},\mathit{rid}\rangle$ \;
+      \For{$q \gets p$ to $n-1$} {
+        $\textit{LCA}[n][\mathit{tid}][p][q] \gets$ Equation~\ref{fun:LCA1} and \ref{fun:LCA2} \;
+      }
+    }
+  }
+}
+
+\caption{Parallel Algorithm for building LCA}
+\label{alg:parallel-LCA}
+\end{algorithm}

@@ -1,0 +1,15 @@
+\begin{algorithm}[!thb]
+\SetAlgoNoLine
+\KwIn{$A[0 \cdots N]$: The input array with $N$ elements.}
+\KwOut{$ST$: The sparse table of the input array $A$.}
+
+Create two-dimensional $ST[\log N][N]$. \;
+Copy $A$ to $ST[0]$. \;
+\For{$j \gets 0$ to $\log N$} {
+  \ForPar{$i \gets 2^j$ to $N$} {
+    $ST[j][i] \gets \max(ST[j-1][i-2^{j}], ST[j-1][i])$ \;
+  }
+}
+  \caption{Parallel Sparse Table Algorithm}
+  \label{alg:parallel-sparse-table}
+\end{algorithm}

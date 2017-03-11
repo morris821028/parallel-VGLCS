@@ -1,0 +1,26 @@
+\begin{algorithm}
+\SetAlgoNoLine
+\KwIn{$A, B$: the input string; $G_A, G_B$: the array of variable gapped constraints;}
+\KwOut{Find the LCS with variable gapped constraints}
+    
+Create $m$ number of data structure $Q[m]$ to support ISMQ problem.\;
+Create an empty table $V[n][m]$. \;
+\For{$i \gets 1$ to $n$} {
+  Create a sparse table data structure $\textit{sp}$, and initialize $\textit{sp}$ to zero. \;
+  \ForPar{$j \gets 1$ to $m$} {
+    $\textit{sp}[j] \gets$ query suffix maximum value from position $r$ to tail in $Q[j]$. \;
+  }
+  Build sparse table $\textit{sp}$ with $m$ elements in parallel $O(n/p \log n + \log n)$ time. \;
+  \ForPar{$j \gets 1$ to $m$} {
+    \If{$A[i] = B[j]$} {
+        $t \gets $ query suffix maximum value from position $j - (GB[j] + 1)$ to $j-1$ in $\textit{sp}$ \;
+        $V[i][j] \gets t + 1$ \;
+        Append value $V[i][j]$ into $Q[j]$. \;
+    }
+  }
+}
+Retrieve the VGLCS by tracing $V[n][m]$. \;
+
+  \caption{Parallel Algorithm for Finding VGLCS}
+  \label{alg:parallel-VGLCS}
+\end{algorithm}

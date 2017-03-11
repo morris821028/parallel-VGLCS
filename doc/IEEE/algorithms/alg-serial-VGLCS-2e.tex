@@ -1,0 +1,31 @@
+\begin{algorithm}[t]
+\SetAlgoNoLine
+\KwIn{$A, B$: the input string; $G_A, G_B$: the array of variable gapped constraints;}
+\KwOut{Find the LCS with variable gapped constraints.}
+
+Create $m$ number of data structure $Q[m]$ to support ISMQ problem. \;
+Create an empty table $V[n][m]$.
+
+\For{$i \gets 1$ to $n$} {
+  Create a data structure $RQ$ to support ISMQ problem.\;
+  $r \gets i - (GA[i]+1)$ \;
+  \For{$j \gets 1$ to $m$} {
+    \uIf{$A[i] = B[j]$} {
+        Get the suffix maximum value $t$ from position $j - (GB[j]+1)$ to the end in $RQ$.\;
+        $V[i][j] \gets t + 1$;
+        Get the suffix maximum value $t$ from position $r$ to $i$ in $Q[j]$.\;
+        Append value $t$ into $RQ$. \;
+        Append value $V[i][j]$ into $Q[j]$. \;
+    }
+    \Else {
+        $V[i][j] \gets 0$ \;
+        Get the suffix maximum value $t$ from position $r$ to $i$ in $Q[j]$.\;
+        Append value $t$ into $RQ$. \;
+    }
+  }
+}
+Retrieve the VGLCS by tracing $V[n][m]$\;
+
+  \caption{Algorithm for Finding VGLCS~\cite{Peng2011TheLC}}
+  \label{alg:serial-VGLCS}
+\end{algorithm}

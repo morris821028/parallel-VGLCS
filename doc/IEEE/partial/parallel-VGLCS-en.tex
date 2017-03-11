@@ -15,7 +15,7 @@ it also uses extra space to maintain state translation, and spends
 more time to merge split parts.  Therefore, it is crucial that our
 parallelization conserves both memory and time.
 
-\input{\AlgoPath/alg-serial-VGLCS}
+\input{\AlgoPath/alg-serial-VGLCS-2e}
 
 \subsection{Incremental Suffix Maximum Query}
 
@@ -88,10 +88,10 @@ parallel.
 
 \begin{figure}[!thb]
   \centering \subfigure[Array]{
-    \includegraphics[width=\linewidth]{\GraphicPath/fig-interval-decomposition-origin.pdf}
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-interval-decomposition-origin.pdf}
     \label{fig:fig-interval-decomposition}
   } \subfigure[Sparse Table]{
-    \includegraphics[width=\linewidth]{\GraphicPath/fig-sparse-table-origin.pdf}
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-sparse-table-origin.pdf}
     \label{fig:fig-sparse-table}
   }
   \caption{A sparse table example}
@@ -128,9 +128,9 @@ in only $O(n \log n / p + \log n)$, where $n$ is the number of
 elements and $p$ is the number of processors, and is very easy to
 parallelize and to implement.
 
-\input{\AlgoPath/alg-parallel-sparse-table}
+\input{\AlgoPath/alg-parallel-sparse-table-2e}
 
 The pseudo code of our simple version parallel VGLCS algorithm using
 sparse table is given in Algorithm~\ref{alg:parallel-VGLCS}
 
-\input{\AlgoPath/alg-parallel-VGLCS}
+\input{\AlgoPath/alg-parallel-VGLCS-2e}

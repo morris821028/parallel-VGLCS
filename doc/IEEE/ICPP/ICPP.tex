@@ -37,19 +37,14 @@
 
 %=====================================================================
 % Algorithm
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-% declaration of the new block
-\algblock{ParFor}{EndParFor}
-% customising the new block
-\algnewcommand\algorithmicparfor{\textbf{para for}}
-\algnewcommand\algorithmicpardo{\textbf{do}}
-\algnewcommand\algorithmicendparfor{}
-\algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
-\algrenewtext{EndParFor}{\algorithmicendparfor}
-\algtext*{EndParFor}
-\renewcommand{\algorithmicrequire}{\textbf{Input:}}
-\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\usepackage[ruled]{algorithm2e} % For algorithms
+\renewcommand{\algorithmcfname}{ALGORITHM}
+\SetAlFnt{\small}
+\SetAlCapFnt{\small}
+\SetAlCapNameFnt{\small}
+\SetAlCapHSkip{0pt}
+\IncMargin{-\parindent}
 
 \makeatletter
 \newcommand{\multiline}[1]{%
@@ -115,17 +110,17 @@ Institute of Information Science, Academia Sinica \\
 
 \input{\PartialPath/parallel-VGLCS-en.tex}
 
-\input{\PartialPath/parallel-RMQ-en.tex}
+%\input{\PartialPath/parallel-RMQ-en.tex}
 
-\input{\PartialPath/parallel-IRMQ-en.tex}
+%\input{\PartialPath/parallel-IRMQ-en.tex}
 
-\input{\PartialPath/implementation-en.tex}
+%\input{\PartialPath/implementation-en.tex}
 
-\input{\PartialPath/experiment-en.tex}
+%\input{\PartialPath/experiment-en.tex}
 
-\input{\PartialPath/conclusion-en.tex}
+%\input{\PartialPath/conclusion-en.tex}
 
-\input{\PartialPath/feature-en.tex}
+%\input{\PartialPath/feature-en.tex}
 
 \nocite{Rahman2006AlgorithmsFC}
 \nocite{Peng2011TheLC}

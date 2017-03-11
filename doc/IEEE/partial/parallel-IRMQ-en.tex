@@ -118,7 +118,7 @@ complexity of our parallel algorithm is $O(\frac{s^3}{s+1}
 %% right subtrees in our encoding.  We can do this in $O(n)$ time, where
 %% $n$ is the number of tree nodes.
 
-\input{\AlgoPath/alg-parallel-LCA.tex}
+\input{\AlgoPath/alg-parallel-LCA-2e}
 
 
 \subsection{Tree Index Computation}
@@ -186,7 +186,7 @@ Algorithm~\ref{alg:cartesian-encode-offline} computes tree encoding
 any Cartesian tree off-line.  The algorithm runs in $O(s)$ time since
 an elelment is pushed/popped at most once.
 
-\input{\AlgoPath/alg-cartesian-encode-offline}
+\input{\AlgoPath/alg-cartesian-encode-offline-2e}
 
 \subsection{Dynamic Tree Index Computation}
 
@@ -300,7 +300,7 @@ $A.\mathit{tid}$.  According to the lexicographical order, we get
 $\mathit{tid}_{i+1} = \mathit{tid}_i + (x.\mathit{tid} -
 A.\mathit{tid})$.
 
-\input{\AlgoPath/alg-cartesian-encode-online}
+\input{\AlgoPath/alg-cartesian-encode-online-2e}
 
 \begin{figure*}[!thb]
   \centering
