@@ -1,15 +1,13 @@
 \begin{algorithm}
 \SetAlgoNoLine
 \KwIn{
-  $A[1 \cdots s]$: storage array\;
-  $s$: the number of elements\;
+  $A[1 \cdots s]$: storage array; $s$: the number of elements\;
 }
 \KwOut{
   $\mathit{tid}$: this label
 }
 $\langle\mathit{lsz},\mathit{lid},\mathit{value}\rangle$ $D$[$s+1$] \;
-$\textit{Dp} \gets 0$ \;
-$D[0] \gets \langle 0,0,\infty \rangle$ \;
+$\textit{Dp} \gets 0$, $D[0] \gets \langle 0,0,\infty \rangle$ \;
 \For{$i \gets 1$ to $s$} {
   $v \gets A[i], \; \textit{lsz} \gets 0, \; \textit{lid} \gets 0$ \;
   \While{$D[\textit{Dp}].\textit{value} < v$} {

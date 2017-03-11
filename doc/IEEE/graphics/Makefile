@@ -14,6 +14,10 @@ all: fig-VGLCSex.pdf \
 	fig-parallel-p.pdf \
 	fig-ISMQ.pdf \
 
+fig-bst-encoding.pdf: fig-bst-n1.tex \
+	fig-bst-n2.tex \
+	fig-bst-n3.tex
+
 %.pdf: %.tex
 	pdflatex $^
 

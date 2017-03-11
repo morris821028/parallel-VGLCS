@@ -5,15 +5,13 @@
 
 $\tt{LOGS} \gets 4$, $\tt{POWS} \gets 2^{\tt{LOGS}}$ \;
 Create an array $D[\tt{POWS}+1]$ with size $\tt{POWS}+1$. \;
-$\textit{Dp} \gets 0$ \;
+$\textit{Dp} \gets 0$, $D[0] \gets \infty$ \;
 
 Unsigned 64-bit integer $\textit{tmask} \gets 0$ \;
-$D[0] \gets \infty$ \;
 \For{$i \gets 1$ to $\tt{POWS}$} {
   $v \gets A[i], \; \textit{cnt} \gets 0$\;
   \While{$D[\textit{Dp}] < v$} {
-    $\textit{Dp} \gets \textit{Dp}-1$ \;
-    $\textit{cnt} \gets \textit{cnt} + 1$ \;
+    $\textit{Dp} \gets \textit{Dp}-1$, $\textit{cnt} \gets \textit{cnt} + 1$ \;
   }
   $\textit{Dp} \gets \textit{Dp}+1$ \;
   $D[\textit{Dp}] \gets v$ \;

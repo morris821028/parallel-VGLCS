@@ -7,8 +7,7 @@ $\textit{minIdx} \gets l, \; x \gets 0$ \;
 \For{$l \gets l+1$ to $r$} {
   $x \gets x+1 - ((\textit{tmask} \gg (l \ll 2)) \mathrel{\&} 15)$ \;
   \If{$x \le 0$} {
-    $\textit{minIdx} \gets l$ \;
-    $x \gets 0$ \;
+    $\textit{minIdx} \gets l$, $x \gets 0$ \;
   }
 }
 return $\textit{minIdx}$ \;

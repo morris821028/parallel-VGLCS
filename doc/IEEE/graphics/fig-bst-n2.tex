@@ -1,22 +1,22 @@
-\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
-  level distance = 0.6cm}]
-\node[arn_n]{1}
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.6cm,
+  level distance = 0.4cm}]
+\node[arn_n]{\tiny $1$}
   child{
-    node[arn_n]{0}
+    node[arn_n]{\tiny $0$}
   }
   child[missing]{
   }
 ; 
-\node[below=1cm, align=flush center,text width=1cm]{$0$};
+\node[below=1cm, align=flush center,text width=1cm]{\small $0$};
 \end{tikzpicture}
-\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.5cm/#1,
-  level distance = 0.6cm}]
-\node[arn_n]{0}
+\begin{tikzpicture}[-,>=stealth',level/.style={sibling distance = 0.6cm,
+  level distance = 0.4cm}]
+\node[arn_n]{\tiny $0$}
 	child[missing]{
 	}
 	child{
-		node[arn_n]{1}
+		node[arn_n]{\tiny $1$}
 	}
 ; 
-\node[below=1cm, align=flush center,text width=1cm]{$1$};
+\node[below=1cm, align=flush center,text width=1cm]{\small $1$};
 \end{tikzpicture}
