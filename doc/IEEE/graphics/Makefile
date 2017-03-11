@@ -1,6 +1,8 @@
 all: fig-VGLCSex.pdf \
 	fig-VGLCSex2.pdf \
+	fig-VGLCS-dp-naive.pdf \
 	fig-VGLCS-dp.pdf \
+	fig-VGLCS-dp-rmq.pdf \
 	fig-interval-decomposition-origin.pdf \
 	fig-interval-decomposition.pdf \
 	fig-sparse-table-origin.pdf \

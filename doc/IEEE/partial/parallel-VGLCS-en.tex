@@ -63,8 +63,18 @@ difficult to synchronize them efficiently.
 
 \begin{figure}[!thb]
   \centering
-  \includegraphics[width=\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
-  \label{fig:fig-VGLCS-dp}
+  \subfigure[Na\"{i}ve]{
+    \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp-naive.pdf}
+    \label{fig:fig-VGLCS-dp-naive}
+  }
+  \subfigure[ISMQ]{
+    \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
+    \label{fig:fig-VGLCS-dp}
+  }
+  \subfigure[two-step]{
+    \includegraphics[width=0.82\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq.pdf}
+    \label{fig:fig-VGLCS-dp}
+  }
   \caption{Workflow}
 \end{figure}
 

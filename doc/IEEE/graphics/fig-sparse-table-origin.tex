@@ -123,7 +123,7 @@ at (0,-4)
 \node[below=5pt of mat4](formula1)
 {
   $ST[i][j] = \left\{\begin{matrix*}[l]
-    \max(B_{j+1}) && , i = 0\\
+    A[j] && , i = 0\\
     \max(ST[i-1][j], ST[i-1][j-2^{i-1}]) && , \textit{otherwise}
   \end{matrix*}\right.$
 };

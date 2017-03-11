@@ -12,6 +12,19 @@ query on tree-like data structures efficiently.
 
 \subsection{Blocked Sparse Table}
 
+\begin{figure}[!thb]
+  \centering \subfigure[Array]{
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-interval-decomposition.pdf}
+    \label{fig:fig-interval-decomposition}
+  } \subfigure[Sparse Table]{
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-sparse-table.pdf}
+    \label{fig:fig-sparse-table}
+  }
+  \caption{A sparse table example}
+  \label{fig:interval-decomposition}
+\end{figure}
+
+
 Fischer~\cite{Fischer2006TheoreticalAP} consider a {\em blocked}
 version of the sparse table.  The input is partitioned into $s$ blocks.
 We now have two types of queries -- {\em super block} query and a {\em
