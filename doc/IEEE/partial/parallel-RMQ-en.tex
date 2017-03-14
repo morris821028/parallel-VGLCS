@@ -40,6 +40,13 @@ later.  Since we can split {\em any} ranged query into at most a
 super-block queries and two in-block queries, we need at most four
 memory access to answer any ranged query.
 
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{\GraphicPath/fig-interval-cartesian.pdf}
+  \caption{Index table}
+  \label{fig:interval-cartesian}
+\end{figure}
+
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} computes an {\em
   index table} for every block.  The algorithm scans through the data
 within a block, and places the data within a maximum {\em Cartesian
