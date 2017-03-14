@@ -5,6 +5,7 @@ all: fig-VGLCSex.pdf \
 	fig-VGLCS-dp-rmq.pdf \
 	fig-interval-decomposition-origin.pdf \
 	fig-interval-decomposition.pdf \
+	fig-interval-cartesian.pdf \
 	fig-sparse-table-origin.pdf \
 	fig-sparse-table.pdf \
 	fig-cartesian-encoding.pdf \
