@@ -201,19 +201,19 @@ at (10,-7)
 \draw (B1tree) -- (B1treef) -- (type1f);
 \draw (B2tree) -- (B2treef) -- (type1f);
 \draw (B3tree) -- (B3treef) -- (type1f);
-\draw (type1) -- (type1f);
+\draw[-{Stealth[scale=1.5]}] (type1f) -- (type1);
 
 \coordinate(type2f) at([yshift=18pt, xshift=30pt]type2.north);
 \coordinate(type2b) at([xshift=30pt]type2.north);
 
 \draw (B4tree) -- (B4treef) -- (type2f);
-\draw (type2b) -- (type2f);
+\draw[-{Stealth[scale=1.5]}] (type2f) -- (type2b);
 
 \coordinate(type3f) at([yshift=18pt, xshift=30pt]type3.north);
 \coordinate(type3b) at([xshift=30pt]type3.north);
 
 \draw (B5tree) -- (B5treef) -- (type3f);
-\draw (type3b) -- (type3f);
+\draw[-{Stealth[scale=1.5]}] (type3f) -- (type3b);
 
 \end{tikzpicture}
 

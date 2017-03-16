@@ -8,12 +8,16 @@ all: fig-VGLCSex.pdf \
 	fig-interval-cartesian.pdf \
 	fig-sparse-table-origin.pdf \
 	fig-sparse-table.pdf \
+	fig-cartesian-encoding-stack.pdf \
 	fig-cartesian-encoding.pdf \
 	fig-cartesian-encoding-static.pdf \
 	fig-bst-encoding.pdf \
 	fig-parallel-n.pdf \
 	fig-parallel-p.pdf \
 	fig-ISMQ.pdf \
+	fig-LCS-dependency.pdf \
+	fig-LCS-dependency2.pdf \
+	fig-LCS-data-layout.pdf \
 
 fig-bst-encoding.pdf: fig-bst-n1.tex \
 	fig-bst-n2.tex \

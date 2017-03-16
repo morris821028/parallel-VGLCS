@@ -1,0 +1,250 @@
+\documentclass[border=2pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,chains,%
+                    decorations.pathreplacing}
+\usetikzlibrary{matrix,positioning,arrows.meta,arrows}
+\usetikzlibrary{patterns}
+
+\tikzset{
+mymat/.style={
+  matrix of nodes,
+  nodes in empty cells,
+  text height=2.5ex,
+  text depth=0.75ex,
+  text width=3.25ex,
+  align=center,
+  column sep=-\pgflinewidth
+  }
+}
+\tikzset{
+  rows/.style 2 args={
+    sub@rows/.style={row ##1 column #2/.style={nodes={rectangle,draw=black}}},
+    sub@rows/.list={#1}
+  },
+  box/.style 2 args={
+    sub@box/.style={rows={#1}{##1}},
+    sub@box/.list={#2}
+  }
+}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}   %% some additional layers for demo
+
+
+\begin{document}
+
+\begin{tikzpicture}[>=latex]
+\matrix[mymat,anchor=west,
+    box={2, 3, 4, 5}{2, 3, 4, 5, 6, 7}]
+at (0,0) 
+(mat1)
+{ 
+   & $\epsilon$ &  &  &  &  &  & \\
+  $\epsilon$ & 0 & 0 & 0 & 0 & 0 & 0 \\
+   & 0 &  &  &  &  &  & \\
+   & 0 &  &  &  &  &  & \\
+   & 0 &  &  &  &  &  & \\ };
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-5.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-1.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-5.center);
+\coordinate(bleft-f) at([xshift=-15pt]mat1-1-1.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_0$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-4.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-2-1.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-4.center);
+\coordinate(bleft-f) at([xshift=-15pt]mat1-2-1.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_0$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-6.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-2.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-6.center);
+\coordinate(bleft-f) at([xshift=-5pt,yshift=5pt]mat1-1-2.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_0$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-7.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-3.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-7.center);
+\coordinate(bleft-f) at([xshift=-5pt,yshift=5pt]mat1-1-3.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_1$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-4-7.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-4.center);
+\coordinate(bup-f) at([yshift=5pt,xshift=15pt]mat1-4-7.center);
+\coordinate(bleft-f) at([xshift=-5pt,yshift=5pt]mat1-1-4.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[right=of bup]{$p_1$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-3-7.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-5.center);
+\coordinate(bup-f) at([yshift=5pt,xshift=15pt]mat1-3-7.center);
+\coordinate(bleft-f) at([xshift=-5pt,yshift=5pt]mat1-1-5.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[right=of bup]{$p_1$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-3.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-3-1.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-3.center);
+\coordinate(bleft-f) at([xshift=-15pt]mat1-3-1.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_2$};
+\end{scope}
+
+\end{tikzpicture}
+
+\begin{tikzpicture}[>=latex]
+\matrix[mymat,anchor=west,
+    box={2, 3, 4, 5}{2, 3, 4, 5, 6, 7}]
+at (0,0) 
+(mat1)
+{ 
+   &   &  &  &  &  &  & \\
+   &   &  &  &  &  &  & \\
+   &   &  &  &  &  &  & \\
+   &   &  &  &  &  &  & \\
+   &   &  &  &  &  &  & \\ };
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-5.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-1.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-5.center);
+\coordinate(bleft-f) at([xshift=-15pt]mat1-1-1.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_0$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-4.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-2-1.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-4.center);
+\coordinate(bleft-f) at([xshift=-15pt]mat1-2-1.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_0$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-6.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-2.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-6.center);
+\coordinate(bleft-f) at([xshift=-5pt,yshift=5pt]mat1-1-2.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_0$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-7.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-3.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-7.center);
+\coordinate(bleft-f) at([xshift=-5pt,yshift=5pt]mat1-1-3.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_1$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-4-7.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-4.center);
+\coordinate(bup-f) at([yshift=5pt,xshift=15pt]mat1-4-7.center);
+\coordinate(bleft-f) at([xshift=-5pt,yshift=5pt]mat1-1-4.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[right=of bup]{$p_1$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-3-7.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-1-5.center);
+\coordinate(bup-f) at([yshift=5pt,xshift=15pt]mat1-3-7.center);
+\coordinate(bleft-f) at([xshift=-5pt,yshift=5pt]mat1-1-5.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[right=of bup]{$p_1$};
+\end{scope}
+
+\begin{scope}
+\coordinate(bup) at([yshift=5pt]mat1-5-3.center);
+\coordinate(bleft) at([xshift=-5pt]mat1-3-1.center);
+\coordinate(bup-f) at([yshift=-15pt]mat1-5-3.center);
+\coordinate(bleft-f) at([xshift=-15pt]mat1-3-1.center);
+
+\draw (bup) -- (bleft);
+\draw (bup) -- (bup-f);
+\draw (bleft) -- (bleft-f);
+\node[below=of bup]{$p_2$};
+\end{scope}
+
+\begin{pgfonlayer}{background}
+\draw[pattern=north west lines, pattern color=blue] (mat1-2-2.north west) rectangle (mat1-2-3.south east); 
+\draw[pattern=north east lines, pattern color=red]  (mat1-2-4.north west) rectangle (mat1-2-5.south east); 
+\draw[pattern=north west lines, pattern color=blue] (mat1-2-6.north west) rectangle (mat1-2-7.south east); 
+
+\draw[pattern=north east lines, pattern color=red]  (mat1-3-2.north west) rectangle (mat1-3-3.south east); 
+\draw[pattern=north west lines, pattern color=blue] (mat1-3-4.north west) rectangle (mat1-3-5.south east); 
+\draw[pattern=north east lines, pattern color=red]  (mat1-3-6.north west) rectangle (mat1-3-7.south east); 
+
+\draw[pattern=north west lines, pattern color=blue] (mat1-4-2.north west) rectangle (mat1-4-3.south east); 
+\draw[pattern=north east lines, pattern color=red]  (mat1-4-4.north west) rectangle (mat1-4-5.south east); 
+\draw[pattern=north west lines, pattern color=blue] (mat1-4-6.north west) rectangle (mat1-4-7.south east); 
+
+\draw[pattern=north east lines, pattern color=red]  (mat1-5-2.north west) rectangle (mat1-5-3.south east); 
+\draw[pattern=north west lines, pattern color=blue] (mat1-5-4.north west) rectangle (mat1-5-5.south east); 
+\draw[pattern=north east lines, pattern color=red]  (mat1-5-6.north west) rectangle (mat1-5-7.south east); 
+\end{pgfonlayer}
+
+\end{tikzpicture}
+
+\end{document}
