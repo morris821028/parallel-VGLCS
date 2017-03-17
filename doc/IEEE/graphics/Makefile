@@ -17,6 +17,7 @@ all: fig-VGLCSex.pdf \
 	fig-ISMQ.pdf \
 	fig-LCS-dependency.pdf \
 	fig-LCS-dependency2.pdf \
+	fig-LCS-dependency-eff.pdf \
 	fig-LCS-data-layout.pdf \
 
 fig-bst-encoding.pdf: fig-bst-n1.tex \
