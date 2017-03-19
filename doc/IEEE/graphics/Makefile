@@ -19,6 +19,11 @@ all: fig-VGLCSex.pdf \
 	fig-LCS-dependency2.pdf \
 	fig-LCS-dependency-eff.pdf \
 	fig-LCS-data-layout.pdf \
+	fig-LCS-bitvector.pdf \
+	fig-LCS-task.pdf \
+	fig-LCS-task2.pdf \
+	fig-LCS-adder.pdf \
+	fig-LCS-doubling.pdf \
 
 fig-bst-encoding.pdf: fig-bst-n1.tex \
 	fig-bst-n2.tex \
