@@ -122,6 +122,13 @@ the data along the rightmost path of the Cartesian tree that are
 smaller than $a_i$.  Let $t_i$ be the number of nodes that need to be
 relocated, and it is easy to see that $0 \le t_i < s$.
 
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=\linewidth]{\GraphicPath/fig-cartesian-encoding-stack.pdf}
+  \caption{Right most path in stack}
+  \label{fig:interval-cartesian}
+\end{figure}
+
 The key point of compressed sparse table is that we store $t_i$ to
 {\em implicitly identify} this Cartesian tree for this block of data,
 so that we can answer queries by examining these $t_i$'s.  More
@@ -147,6 +154,8 @@ correctness proof is in Theorem~\ref{thm:correctness}.  Note that all
 the operations, e.g., shift, addition, subtraction, map directly to
 machine instruction so that unlike Demaine's algorithm, our algorithm
 is extremely to implement.
+
+\input{\FormulaPath/fun-rmq.tex}
 
 \input{\AlgoPath/alg-cartesian64bits-query-2e}
 

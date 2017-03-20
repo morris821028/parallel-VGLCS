@@ -1,0 +1,15 @@
+\begin{eqnarray}  \label{fun:rmq-stack-pos}
+	\text{stack position: } \textit{pos}_i = i - \sum_{j=0}^{i} t_j && t_i \text{ is \#pop operation in $i$-th insertion}
+\end{eqnarray}
+
+\begin{eqnarray}  \label{fun:rmq-reduction}
+	\max(A[l, r]) = \max(A[k, r])
+		&& \text{if } k \in [l, r]\text{ and } \forall \alpha \in [l, r): a_\alpha \le a_k
+\end{eqnarray}
+
+\begin{eqnarray}  \label{fun:rmq-reduction-compute}
+	\textit{pos}_k \le \textit{pos}_l 
+		&\Rightarrow& k - \sum_{j=0}^{k} t_j \le l - \sum_{j=0}^{l} t_j \\
+		&\Rightarrow& (k-l) - \sum_{j=l+1}^{k} t_j \le 0
+\end{eqnarray}
+
