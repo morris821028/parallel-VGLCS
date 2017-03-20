@@ -1,38 +1,32 @@
 \section{Parallel VGLCS Algorithm with Sparse Table} %
 \label{sec:parallelVGLCS}
 
-The serial VGLCS algorithm~\ref{alg:serial-VGLCS} by
+% use line number in the following to explain the idea.
+
+The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} (shown as Algorithm~\ref{alg:serial-VGLCS}
-below) and other variants of LCS are difficult to parallelize.  These
-algorithms use several states to determine a new state during dynamic
-programming.  This construction requires {\em heavy data dependency},
-and makes it difficult to parallelize the computation in a naive
-row-by-row manner.  If we parallel Peng's algorithm with wavefront
-method intuitively, it will require extra space to record all row
-status, which is not required in the origin algorithm.  On the other
-hand, if we use the Maleki's~\cite{Maleki2016EfficientPU} technique,
-it also uses extra space to maintain state translation, and spends
-more time to merge split parts.  Therefore, it is crucial that our
-parallelization conserves both memory and time.
+below) works as follows.  The algorithm has two stages.  In the first
+stage, the algorithm uses a {\em disjoint set} to efficiently answer
+ISMQ to compute an answer for every column.  The answers on all
+columns form an array $S$.  In the second stage, the algorithm again
+uses ISMQ on array $S$ obtained from the first stage to get the final
+answers.
+
 
 \input{\AlgoPath/alg-serial-VGLCS-2e}
 
 \subsection{Incremental Suffix Maximum Query}
 
 In order to find VGLCS efficiently, we need to address the {\em
-  incremental suffix maximum query} (ISMQ) problem, which was
-proposed by Peng~\cite{Peng2011TheLC}.  A data structure that supports
+  incremental suffix maximum query} (ISMQ) problem, which was proposed
+by Peng~\cite{Peng2011TheLC}.  A data structure that supports
 incremental suffix maximum queries should support the following three
 operations.  First, a {\tt make} operation creates an empty array $A$.
 Second, an {\tt append(V)} operation appends a value $V$ to array $A$.
 Finally an ISMQ {\tt query(x)} finds the {\em maximum} value among the
 $x$-th value to the end of an array $A$.
 
-The sequential version of Peng's algorithm has two stages.  In the
-first stage, the algorithm uses a {\em disjoint set} to efficiently
-answer ISMQ to compute the answer on every column, which form an array
-$S$.  In the second stage, the algorithm again uses ISMQ on array $S$
-obtained from the first stage to get the final answers.
+
 
 Peng uses a {\em disjoint-set} data structure to answer incremental
 suffix maximum queries, and finds a VGLCS with answers from ISMQ. The
@@ -49,17 +43,38 @@ simply a {\em find} operation that finds the root, which has the {\em
   maximum}, of the tree that $x$ belongs to.  The amortized time per
 union/find operation is $O(\alpha(n))$.
 
-However, a disjoint set implementation of Peng's algorithm is difficult
-to parallelize for two reasons.  First, the query in the second stage
+% Both the following TWO paragraphs explain why Peng's algorithm are hard to parallelize.
+
+The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
+Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
+parallelize.  These algorithms use several states to determine a new
+state during dynamic programming.  This construction requires {\em
+  heavy data dependency}, and makes it difficult to parallelize the
+computation in a naive row-by-row manner.  If we parallelize Peng's
+algorithm with wavefront method intuitively, it will require extra
+space to record all row status, which is not required in the origin
+sequential algorithm.  On the other hand, if we use the
+Maleki's~\cite{Maleki2016EfficientPU} technique, % need to explain this technique
+it also uses extra
+space to maintain state translation, and spends more time to merge
+data.  Therefore, it is crucial that our parallelization conserves
+{\em both} memory and time.
+
+% It seems that you should use the new figures to explain these???
+
+The disjoint set implementation of Peng's algorithm is difficult to
+parallelize for three reasons.  First, the query in the second stage
 will change the data structure because the lookup operation will
 compress the path to the root, so it is difficult to maintain a
-consistent view of the data structure when multiple processing units are
-compressing the path simultaneously.  Second, in the first stage when
-multiple processing units are compressing different paths, the load
-among them could very different, and incurs load imbalance.  Third, in
-the first stage there will be a large number of threads that work on
-different part of the disjoint-set forests, therefore it will be
-difficult to synchronize them efficiently.
+consistent view of the data structure when multiple processing units
+are compressing the path {\em simultaneously}.  Second, in the first
+stage when multiple processing units are compressing different paths,
+the load among them could be very different, and this will incur load
+imbalance.  Third, in the first stage there will be a large number of
+threads that work on different part of the disjoint-set forests,
+therefore it will be difficult to synchronize them efficiently.
+
+% these figures were never referenced????
 
 \begin{figure}[!thb]
   \centering
@@ -125,6 +140,9 @@ Section~\ref{sec:parallelIRMQ}, we present a more complicated version
 that uses a variant of the sparse table, and runs in $O(n^2 / p + n
 \log n)$.
 
+\input{\AlgoPath/alg-parallel-sparse-table-2e}
+
+
 The operations on a sparse table are much easily to parallelize than
 those on a disjoint, which is used in the second stage of Peng's
 sequential VGLCS algorithm.  The second stage of Peng's algorithm
@@ -136,11 +154,8 @@ and provide very limited parallelism.  In contrast our parallel sparse
 table implementation in Algorithm~\ref{alg:parallel-sparse-table} runs
 in only $O(n \log n / p + \log n)$, where $n$ is the number of
 elements and $p$ is the number of processors, and is very easy to
-parallelize and to implement.
-
-\input{\AlgoPath/alg-parallel-sparse-table-2e}
-
-The pseudo code of our simple version parallel VGLCS algorithm using
-sparse table is given in Algorithm~\ref{alg:parallel-VGLCS}
+parallelize and to implement.  The pseudo code of our simple version
+parallel VGLCS algorithm using sparse table is given in
+Algorithm~\ref{alg:parallel-VGLCS}.
 
 \input{\AlgoPath/alg-parallel-VGLCS-2e}

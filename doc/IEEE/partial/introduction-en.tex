@@ -1,9 +1,6 @@
 \section{Introduction} %Introduction
 \label{sec:Introduction}
 
-% This is a topic sentence by itself.
-% say something about sequence alignment
-
 The {\em longest common subsequence} (LCS)~\cite{Hirschberg1975ALS} is
 a famous problem in string processing.  For example, the {\tt diff}
 utility show the difference between texts by finding their LCS.
@@ -13,8 +10,6 @@ the LCS problem is the sequence
 alignment~\cite{mount2001bioinformatics, Ann2010EfficientAF}, which
 identifies the region of similarity between the sequences of DNA, RND,
 or protein.
-
-% give citation
 
 Iliopoulos and Rahman~\cite{Rahman2006AlgorithmsFC} introduced many
 constrained versions of LCS.  For example, a {\em fixed gap LCS}
@@ -51,8 +46,6 @@ function~\cite{Banachowski1980ACT}.  In this paper we propose our
 $O(nm)$ algorithm which is {\em easy} to implement and runs {\em
   efficiently} in a {\em parallel} environment.
 
-% then we???
-
 The parallelization of LCS on most multi-core platforms focuses on
 {\em wavefront} parallelism.  The wavefront parallelism is motivated
 by the recursive solution of LCS.  For example,
@@ -60,9 +53,6 @@ Yang~\cite{Yang2010AnEP} introduced a new formulation to exploit more
 cache performance.  Our algorithm uses a more powerful {\em sparse
   table} instead of the disjoint set in the Peng's serial algorithm
 and achieves better cache performance.
-
-% Then we will ???
-% Use reference in all section numbering
 
 The remainder of the paper is organized as follows.  In
 Section~\ref{sec:parallelVGLCS}, we present previous parallel
