@@ -7,6 +7,21 @@ The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} (shown as Algorithm~\ref{alg:serial-VGLCS}
 below) works as follows.  
 
+% these figures were never referenced????
+
+\begin{figure}[!thb]
+  \centering
+  \subfigure[Na\"{i}ve]{
+    \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp-naive.pdf}
+    \label{fig:fig-VGLCS-dp-naive}
+  }
+  \subfigure[ISMQ]{
+    \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
+    \label{fig:fig-VGLCS-dp}
+  }
+  \caption{Workflow}
+\end{figure}
+
 \begin{enumerate}
   \item 
 
@@ -16,14 +31,17 @@ the maximum length of the variable gapped longest common subsequence
 between substring $A[1, i]$ and $B[1, j]$.  The na\"{i}ve algorithm can
 be constructed by solve $V[i, j]$ by finding the maximum value in the
 area $V[i-G_A(i)-1 \cdots i-1, j-G_B(j)-1 \cdots j-1]$ as the area
-maximum value queries.
+maximum value queries.  The Figure~\ref{fig:fig-VGLCS-dp-naive}
+illustrates the workflow of the na\"{i}ve algorithm to solve the VGLCS
+problem.
 
   \item 
 
 When computing the $V[i, j]$ with the same $i$, the gapped constraint of
 the $G_A(i)$ is same.  Therefore, the area maximum queries can be
 combined by the multiple results of incremental suffix maximum queries
-because of the same upper and lower $x$-coordinate.
+because of the same upper and lower $x$-coordinate.  Please refer to
+Figure~\ref{fig:fig-VGLCS-dp} for an illustration.
 
   \item 
 
@@ -77,17 +95,21 @@ union/find operation is $O(\alpha(n))$.
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
 parallelize.  These algorithms use several states to determine a new
-state during dynamic programming.  This construction requires {\em
-  heavy data dependency}, and makes it difficult to parallelize the
-computation in a naive row-by-row manner.  If we parallelize Peng's
-algorithm with wavefront method intuitively, it will require extra
-space to record all row status, which is not required in the origin
-sequential algorithm.  On the other hand, if we use the
-Maleki's~\cite{Maleki2016EfficientPU} technique, % need to explain this technique
-it also uses extra
-space to maintain state translation, and spends more time to merge
-data.  Therefore, it is crucial that our parallelization conserves
-{\em both} memory and time.
+state during dynamic programming.  This construction requires {\em heavy
+data dependency}, and makes it difficult to parallelize the computation
+in a naive row-by-row manner.  If we parallelize Peng's algorithm with
+wavefront method intuitively, it will require extra space to record all
+row status, which is not required in the origin sequential algorithm.
+Simultaneously, the length of the critical path of wavefront method is
+greater than the row-by-row manner.
+
+
+% On the other hand, if we use the
+% Maleki's~\cite{Maleki2016EfficientPU} technique, % need to explain this technique
+% it also uses extra
+% space to maintain state translation, and spends more time to merge
+% data.  Therefore, it is crucial that our parallelization conserves
+% {\em both} memory and time.
 
 % It seems that you should use the new figures to explain these???
 
@@ -103,30 +125,22 @@ imbalance.  Third, in the first stage there will be a large number of
 threads that work on different part of the disjoint-set forests,
 therefore it will be difficult to synchronize them efficiently.
 
-% these figures were never referenced????
-
-\begin{figure}[!thb]
-  \centering
-  \subfigure[Na\"{i}ve]{
-    \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp-naive.pdf}
-    \label{fig:fig-VGLCS-dp-naive}
-  }
-  \subfigure[ISMQ]{
-    \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
-    \label{fig:fig-VGLCS-dp}
-  }
-  \subfigure[two-step]{
-    \includegraphics[width=0.82\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq.pdf}
-    \label{fig:fig-VGLCS-dp-rmq}
-  }
-  \caption{Workflow}
-\end{figure}
-
 \subsection{Sparse Table}
 
 Since the disjoint set cannot support ISMQ efficiently in parallel, we
 consider the following data structures to support ISMQ efficiently in
-parallel.
+parallel.  Therefore, we find two major data structures which can
+parallel build table and answer queries, and the workflow of the VGLCS
+problem is shown in Figure~\ref{fig:fig-VGLCS-dp-rmq}.
+
+% these figures were never referenced????
+
+\begin{figure}
+  \includegraphics[width=0.82\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq.pdf}
+  \caption{Two-step workflow}
+  \label{fig:fig-VGLCS-dp-rmq}
+\end{figure}
+
 
 \begin{itemize}
   \item Segment tree~\cite{berg2000computational} supports ranged
