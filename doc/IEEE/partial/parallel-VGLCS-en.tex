@@ -5,12 +5,42 @@
 
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} (shown as Algorithm~\ref{alg:serial-VGLCS}
-below) works as follows.  The algorithm has two stages.  In the first
-stage, the algorithm uses a {\em disjoint set} to efficiently answer
-ISMQ to compute an answer for every column.  The answers on all
-columns form an array $S$.  In the second stage, the algorithm again
-uses ISMQ on array $S$ obtained from the first stage to get the final
-answers.
+below) works as follows.  
+
+\begin{enumerate}
+  \item 
+
+The VGLCS problem has the two input string $A$ and $B$, and the variable
+gapped constraints $G_A$ and $G_B$.  The state $V[i, j]$ is defined as
+the maximum length of the variable gapped longest common subsequence
+between substring $A[1, i]$ and $B[1, j]$.  The na\"{i}ve algorithm can
+be constructed by solve $V[i, j]$ by finding the maximum value in the
+area $V[i-G_A(i)-1 \cdots i-1, j-G_B(j)-1 \cdots j-1]$ as the area
+maximum value queries.
+
+  \item 
+
+When computing the $V[i, j]$ with the same $i$, the gapped constraint of
+the $G_A(i)$ is same.  Therefore, the area maximum queries can be
+combined by the multiple results of incremental suffix maximum queries
+because of the same upper and lower $x$-coordinate.
+
+  \item 
+
+Then, the concept of the sweep line algorithm is the main point to solve
+each area maximum queries.  We transform the sequential area maximum
+queries into the incremental suffix maximum queries when moving sweep
+line.
+
+
+\end{enumerate}
+
+% The algorithm has two stages.  In the first
+% stage, the algorithm uses a {\em disjoint set} to efficiently answer
+% ISMQ to compute an answer for every column.  The answers on all
+% columns form an array $S$.  In the second stage, the algorithm again
+% uses ISMQ on array $S$ obtained from the first stage to get the final
+% answers.
 
 
 \input{\AlgoPath/alg-serial-VGLCS-2e}
@@ -18,14 +48,13 @@ answers.
 \subsection{Incremental Suffix Maximum Query}
 
 In order to find VGLCS efficiently, we need to address the {\em
-  incremental suffix maximum query} (ISMQ) problem, which was proposed
-by Peng~\cite{Peng2011TheLC}.  A data structure that supports
-incremental suffix maximum queries should support the following three
-operations.  First, a {\tt make} operation creates an empty array $A$.
-Second, an {\tt append(V)} operation appends a value $V$ to array $A$.
-Finally an ISMQ {\tt query(x)} finds the {\em maximum} value among the
-$x$-th value to the end of an array $A$.
-
+incremental suffix maximum query} (ISMQ) problem, which was proposed by
+Peng~\cite{Peng2011TheLC}.  A data structure that supports incremental
+suffix maximum queries should support the following three operations.
+First, a {\tt make} operation creates an empty array $A$. Second, an
+{\tt append(V)} operation appends a value $V$ to array $A$. Finally an
+ISMQ {\tt query(x)} finds the {\em maximum} value among the $x$-th value
+to the end of an array $A$.
 
 
 Peng uses a {\em disjoint-set} data structure to answer incremental
@@ -88,7 +117,7 @@ therefore it will be difficult to synchronize them efficiently.
   }
   \subfigure[two-step]{
     \includegraphics[width=0.82\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq.pdf}
-    \label{fig:fig-VGLCS-dp}
+    \label{fig:fig-VGLCS-dp-rmq}
   }
   \caption{Workflow}
 \end{figure}
