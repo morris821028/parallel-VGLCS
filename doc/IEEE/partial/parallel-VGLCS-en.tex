@@ -91,6 +91,7 @@ simply a {\em find} operation that finds the root, which has the {\em
 union/find operation is $O(\alpha(n))$.
 
 % Both the following TWO paragraphs explain why Peng's algorithm are hard to parallelize.
+% Morris: why intuitive parallel algorithm is not good
 
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
@@ -112,18 +113,22 @@ greater than the row-by-row manner.
 % {\em both} memory and time.
 
 % It seems that you should use the new figures to explain these???
+% Morris: how to make it to row-by-row manner
 
-The disjoint set implementation of Peng's algorithm is difficult to
-parallelize for three reasons.  First, the query in the second stage
-will change the data structure because the lookup operation will
-compress the path to the root, so it is difficult to maintain a
-consistent view of the data structure when multiple processing units
-are compressing the path {\em simultaneously}.  Second, in the first
-stage when multiple processing units are compressing different paths,
-the load among them could be very different, and this will incur load
-imbalance.  Third, in the first stage there will be a large number of
-threads that work on different part of the disjoint-set forests,
-therefore it will be difficult to synchronize them efficiently.
+Therefore, we focus on parallel VGLCS algorithm by row-by-row manner.
+The parallel method is decided by the data structure, and the data
+structure is often an bottleneck for the performance of the parallel
+program.  We observe that the disjoint set implementation of Peng's
+algorithm is difficult to parallelize for three reasons.  First, the
+query in the second stage will change the data structure because the
+lookup operation will compress the path to the root, so it is difficult
+to maintain a consistent view of the data structure when multiple
+processing units are compressing the path {\em simultaneously}.  Second,
+in the first stage when multiple processing units are compressing
+different paths, the load among them could be very different, and this
+will incur load imbalance. Third, in the first stage there will be a
+large number of threads that work on different part of the disjoint-set
+forests, therefore it will be difficult to synchronize them efficiently.
 
 \subsection{Sparse Table}
 
@@ -184,7 +189,6 @@ that uses a variant of the sparse table, and runs in $O(n^2 / p + n
 \log n)$.
 
 \input{\AlgoPath/alg-parallel-sparse-table-2e}
-
 
 The operations on a sparse table are much easily to parallelize than
 those on a disjoint, which is used in the second stage of Peng's
