@@ -1,26 +1,25 @@
 \begin{algorithm}[t]
 \SetAlgoNoLine
 \KwIn{$A, B$: the input string; $G_A, G_B$: the array of variable gapped constraints;}
-\KwOut{Find the LCS with variable gapped constraints.}
+\KwOut{Find the LCS with variable gap constraints.}
 
-Create $m$ number of data structure $Q[m]$ to support ISMQ problem. \;
-Create an empty table $V[n][m]$.
+Create an array of $m$ data structures $C[m]$ that support ISMQ\;
+Create an empty table $V[n][m]$\;
 
 \For{$i \gets 1$ to $n$} {
-  Create a data structure $RQ$ to support ISMQ problem.\;
-  $r \gets i - (GA[i]+1)$ \;
+  Create a data structure $R$ that supports ISMQ\;
   \For{$j \gets 1$ to $m$} {
     \uIf{$A[i] = B[j]$} {
-        Get the suffix maximum value $t$ from position $j - (GB[j]+1)$ to the end in $RQ$.\;
-        $V[i][j] \gets t + 1$;
-        Get the suffix maximum value $t$ from position $r$ to $i$ in $Q[j]$.\;
-        Append value $t$ into $RQ$. \;
-        Append value $V[i][j]$ into $Q[j]$. \;
+        $t \gets$ Query $R$ for the maximum among the last $G_B[j]+1$ elements \;
+        $V[i][j] \gets t + 1$\; 
+        $t \gets$ Query $C[j]$ for the maximum among the last $G_A[i]+1$ elements \;
+        Append $t$ to $R$ \;
+        Append $V[i][j]$ into $C[j]$ \;
     }
     \Else {
         $V[i][j] \gets 0$ \;
-        Get the suffix maximum value $t$ from position $r$ to $i$ in $Q[j]$.\;
-        Append value $t$ into $RQ$. \;
+        $t \gets$ Query $C[j]$ for the maximum among the last $G_A[i]+1$ elements \;
+        Append $t$ to $R$ \;
     }
   }
 }

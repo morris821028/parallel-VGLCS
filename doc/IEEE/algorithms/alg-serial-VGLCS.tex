@@ -1,23 +1,21 @@
 \begin{algorithm}[!thb]
-  \caption{Algorithm for Finding VGLCS~\cite{Peng2011TheLC}}
+  \caption{Peng's Algorithm for Finding VGLCS~\cite{Peng2011TheLC}}
   \label{alg:serial-VGLCS}
   \begin{algorithmic}[1]
     \Require
       $A, B$: the input string;
-      $G_A, G_B$: the array of variable gapped constraints;
-    \Ensure Find the LCS with variable gapped constraints
-    \State Create $m$ number of data structure $Q[m]$ to support ISMQ problem.
+      $G_A, G_B$: the array of variable gap constraints;
+    \Ensure Find the LCS with variable gap constraints
+    \State Create an array of $m$ data structures $C[m]$ that support ISMQ.
     \State Create an empty table $V[n][m]$.
     \For{$i \gets 1$ to $n$}
-      \State Create a data structure $RQ$ to support ISMQ problem.
+      \State Create a data structure $R$ that supports ISMQ.
       \State $r \gets i - (GA[i]+1)$
       \For{$j \gets 1$ to $m$}
         \If{$A[i] = B[j]$}
-            \State \multiline{Get the suffix maximum value $t$ from 
-                    position $j - (GB[j]+1)$ to the end in $RQ$.}
+            \State Get the suffix maximum value $t$ from position $j - (GB[j]+1)$ to the end from $R$.
             \State $V[i][j] \gets t + 1$
-            \State \multiline{Get the suffix maximum value $t$ from 
-                    position $r$ to $i$ in $Q[j]$.}
+            \State Get the suffix maximum value $t$ from position $r$ to $i$ in $Q[j]$.
             \State Append value $t$ into $RQ$.
             \State Append value $V[i][j]$ into $Q[j]$.
         \Else
