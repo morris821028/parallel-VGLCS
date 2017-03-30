@@ -3,6 +3,7 @@ all: fig-VGLCSex.pdf \
 	fig-VGLCS-dp-naive.pdf \
 	fig-VGLCS-dp.pdf \
 	fig-VGLCS-dp-rmq.pdf \
+	fig-VGLCS-dp-wavefront.pdf \
 	fig-interval-decomposition-origin.pdf \
 	fig-interval-decomposition.pdf \
 	fig-interval-cartesian.pdf \
