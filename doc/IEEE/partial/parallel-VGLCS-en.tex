@@ -101,13 +101,24 @@ union/find operation is $O(\alpha(n))$.
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
 parallelize.  These algorithms use several states to determine a new
-state with a dynamic programming.  This construction requires {\em
-  heavy data dependency}, and is difficult to parallelize in a naive
-row-by-row manner because an element of the dynamic table needs the
-values of elements in the same row to compute its value.  On the other
-hand, if we parallelize Peng's algorithm with the wavefront method, it
-will require {\em extra space} to record all row status, % what status??
-which is not required in the the sequential algorithm.
+state with a dynamic programming.  This construction requires {\em heavy
+data dependency}, and is difficult to parallelize in a naive row- by-row
+manner because an element of the dynamic table needs the values of
+elements in the same row to compute its value.  On the other hand, if we
+parallelize Peng's algorithm with the wavefront method, it will require
+{\em extra space} to record all row status, required in the the
+sequential algorithm.  The Figure~\ref{fig:fig-VGLCS-dp-wavefront} shows
+the record data on all rows which is expressed with solid line, and
+append the new elements to the rows by corresponding columns in the
+wavefront.
+
+% what status?? which is not
+
+\begin{figure}[!thb]
+  \includegraphics[width=0.82\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront.pdf}
+  \caption{The record data of the VGLCS algorithm in the wavefront method}
+  \label{fig:fig-VGLCS-dp-wavefront}
+\end{figure}
 
 % On the other hand, if we use the
 % Maleki's~\cite{Maleki2016EfficientPU} technique, % need to explain this technique
@@ -138,11 +149,7 @@ suffix maximum on $V$.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Then in the
 second stage, the algorithm uses {\em range maximum query} on $A$ to
 compute the all elements in the $i$-th row of $V$ {\em in parallel}.
-<<<<<<< .mine
-Note that since we compute all element in the $i$-th row of $V$ in
-=======
 Note that since we compute all elements in the $i$-th row of $V$ in
->>>>>>> .r17522
 parallel, we cannot query the suffix of $A$, and instead we need to
 query a range of $A$ for the maximum.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Note that we
