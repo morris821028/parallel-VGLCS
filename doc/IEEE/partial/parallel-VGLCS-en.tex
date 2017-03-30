@@ -138,7 +138,11 @@ suffix maximum on $V$.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Then in the
 second stage, the algorithm uses {\em range maximum query} on $A$ to
 compute the all elements in the $i$-th row of $V$ {\em in parallel}.
+<<<<<<< .mine
 Note that since we compute all element in the $i$-th row of $V$ in
+=======
+Note that since we compute all elements in the $i$-th row of $V$ in
+>>>>>>> .r17522
 parallel, we cannot query the suffix of $A$, and instead we need to
 query a range of $A$ for the maximum.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Note that we
@@ -233,9 +237,10 @@ sparse table is given in Algorithm~\ref{alg:parallel-VGLCS}.  The
 algorithm computes $V$ one row at a time.  The computation of each row
 has two stages.  In the first stage, the algorithm queries the $C$'s
 {\em in parallel} to obtain the maximums of suffix of length $G_A + 1$
-and place them into an array $A$.  Then in the second stage, the
-algorithm uses range maximum query on $A$ to compute the all elements
-in the $i$-th row of $V$ {\em in parallel}.
+and place them into an array $M$, and build a sparse table $T$ with
+the data of $M$.  Then in the second stage, the algorithm query $T$ to
+find the range maximum in $M$ to compute the all elements in the
+$i$-th row of $V$ {\em in parallel}.
 
 \input{\AlgoPath/alg-parallel-VGLCS-2e}
 

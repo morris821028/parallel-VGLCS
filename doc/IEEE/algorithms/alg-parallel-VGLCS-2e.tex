@@ -3,22 +3,22 @@
 \KwIn{$A, B$: the input string; $G_A, G_B$: the array of variable gapped constraints;}
 \KwOut{Find the LCS with variable gapped constraints}
     
-Create an array of $m$ data structure $C[m]$ to support ISMQ.\;
-Create an empty table $V[n][m]$. \;
+Create an array of $m$ data structure $C[m]$ to support ISMQ \;
+Create an empty table $V[n][m]$ \;
 \For{$i \gets 1$ to $n$} {
   \ForPar{$j \gets 1$ to $m$} {
-    $A[j] \gets$ suffix maximum of length $G_A + 1$ from $C[j]$. \;
+    $M[j] \gets$ suffix maximum of length $G_A + 1$ from $C[j]$ \;
   }
-  Build a sparse table $T$ with $A$ in parallel\;
+  Build a sparse table $T$ with data of $M$ in parallel with Algorithm~\ref{alg:parallel-sparse-table}\; 
   \ForPar{$j \gets 1$ to $m$} {
     \If{$A[i] = B[j]$} {
-        $t \gets $ range maximum from $A[j - (GB[j] + 1)]$ to $A[j-1]$ from $T$ \;
+        $t \gets $ the range maximum among the $GB[j] + 1$ elements before $M[j]$ by querying $T$ \;
         $V[i][j] \gets t + 1$ \;
-        Append value $V[i][j]$ into $C[j]$. \;
+        Append $V[i][j]$ to $C[j]$ \;
     }
   }
 }
-Retrieve the VGLCS by tracing $V[n][m]$. \;
+Retrieve the VGLCS by tracing $V[n][m]$ \;
   \caption{Parallel Algorithm for Finding VGLCS}
   \label{alg:parallel-VGLCS}
 \end{algorithm}
