@@ -1,16 +1,22 @@
 \section{Ranged Maximum Query} \label{sec:parallelRMQ}
 
-% Why Ranged Maximum Query is important?
+In this section we will describe our approach to address the
+challenges in the second stage of Algorithm~\ref{alg:parallel-VGLCS},
+i.e., an efficient {\em ranged maximum query} on the sparse table $T$.
+The ranged maximum query problem is more complicated than the previous
+incremental suffix maximum query problem.  Again a {\tt make}
+operation creates an empty array $A$, an {\tt append(V)} operation
+appends a value $V$ to the end of an array $A$.  Finally, a {\tt
+  query(L, R)} operation finds the {\em maximum} value among the
+$L$-th value to the $R$-th value of an array $A$.  One can think of
+the suffix maximum query as a special case of the ranged maximum
+query.
 
-Form our simple version of VGLCS algorithm
-(Algorithm~\ref{alg:parallel-VGLCS}) we observe that the efficiency of
-a parallel VGLCS algorithm depends on the the efficiency of its {\em
-  ranged maximum query}.  We can use a parallel sparse table
-implementation to answer ranged maximum queries with $p$ processors,
-so that it requires $O(n \log n / p + \log n)$ in preprocessing, and
-takes only $O(1)$ time to answer a query.  On the other hand, it is
-difficult to efficiently parallelize the querying on tree-like data
-structures, e.g., disjoint sets.
+%% We can use a parallel sparse table implementation to answer ranged
+%% maximum queries with $p$ processors, so that it requires $O(n \log n /
+%% p + \log n)$ in preprocessing, and takes only $O(1)$ time to answer a
+%% query.  On the other hand, it is difficult to efficiently parallelize
+%% the querying on tree-like data structures, e.g., disjoint sets.
 
 \subsection{Blocked Sparse Table}
 
@@ -22,12 +28,11 @@ structures, e.g., disjoint sets.
   \caption{A Sparse Table}
 \end{figure}
 
-We will further improve the efficiency of our parallel VGLCS algorithm
-by a improved sparse table implementation.
-Fischer~\cite{Fischer2006TheoreticalAP} consider a {\em blocked}
-version of the sparse table.  The algorithm first partition the data
-into $s$ blocks, then it computes the maximum of each block, and
-compute a sparse table $T_s$ for these maximums.
+We improve the efficiency of our parallel VGLCS algorithm by a {\em
+  blocked} sparse table proposed by
+Fischer~\cite{Fischer2006TheoreticalAP}.  The blocked approach first
+partition the data into $s$ blocks, then it computes the maximum of
+each block, and compute a sparse table $T_s$ for these maximums.
 
 The blocked approach answers a ranged maximum query as follows.  We
 consider two types of queries -- {\em super block} query and {\em
@@ -35,15 +40,11 @@ consider two types of queries -- {\em super block} query and {\em
 consecutive blocks, and a in-block query queries a segment {\em
   within} a block.  It is easy to see that we can answer a super block
 query by querying $T_s$ at most {\em twice}.  We can also answer an
-in-block queries answered by a {\em single} lookup into an {\em index
-  table} that encodes the elements in block into a {\em Cartesian tree
-  index}.  We will provide more details on this later.  Since we can
-split {\em any} ranged query into at most {\em two} queries into $T_s$
-and {\em two} in-block queries, we need at most {\em four} memory
-access to answer any ranged maximum query.
-
-
-\subsubsection{In-block Query}
+in-block queries answered by a {\em single} lookup into an {\em
+  ancestor table}.  We will provide more details on this later.  Since
+we can split {\em any} ranged query into at most {\em two} queries
+into $T_s$ and {\em two} in-block queries, we need at most {\em four}
+memory access to answer any ranged maximum query.
 
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} scans through the
 data within a block, and places the data into a {\em Cartesian tree}.
@@ -93,15 +94,14 @@ answer a in-block ranged maximum query by looking into its
 corresponding ancestor table.  Please refer to
 Figure~\ref{fig:ancesstor-cartesian} for an illustration.
 
-\subsubsection{Cache Issues}
-
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} builds ancestor
-tables by choosing $s = \frac{1}{4} \log n$ as the block size.  Recall
-that $C_s = \frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$.  As
-a result the preprocessing time is $O(n)$, and the space complexity is
-$O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$.  That is, a sequential version
-requires $O(n)$ time in preprocessing, and $O(1)$ time in answering a
-query, and both preprocessing time and query answering are the best.
+tables by choosing $s = \frac{1}{4} \log n$ as the block size for
+performance reason.  Recall that $C_s = \frac{1}{s+1}\binom{2s}{s} =
+O(\frac{4^s}{s^{1.5}})$.  As a result the preprocessing time is
+$O(n)$, and the space complexity is $O(s^2 \frac{4^s}{s^{1.5}}) =
+O(n)$.  That is, a sequential version requires $O(n)$ time in
+preprocessing, and $O(1)$ time in answering a query, and both
+preprocessing time and query answering are the best.
 
 Fischer's algorithm causes {\em serious cache miss} when the number of
 data is large.  Fischer's algorithm will construct ancestor tables for
@@ -133,20 +133,30 @@ computer.
 
 \subsection{Compressed Cartesian Tree} \label{sec:cct}
 
-We propose a new encoding for blocks called {\em compressed sparse
-  table}, instead of the binary string, in order to improve
-performance.  The compressed sparse table is inspired by Fischer's
-sparse table and the Cartesian tree.  We also use the block approach
-and select a fixed block size $s = {{\frac{\log n}{4}}} = 16$, which
-can efficiently answer one-dimension ranged maximum query for up to $n
-= 2^{64}$ data.
+We propose a new encoding for blocks called {\em compressed Cartesian
+  tree}, instead of the binary string by
+Demaine~\cite{Demaine2009OnCT}, in order to improve performance.  The
+compressed sparse table is inspired by Fischer's sparse table and
+Cartesian tree.
 
 The compressed sparse table works by keeping only the {\rm rightmost}
-path of the Cartesian tree.  Consider the processing of adding a data.
-Let the $i$-th added data be $a_i$, so we need to {\em relocate} all
-the data along the rightmost path of the Cartesian tree that are
-smaller than $a_i$.  Let $t_i$ be the number of nodes that need to be
-relocated, and it is easy to see that $0 \le t_i < s$.
+path of the Cartesian tree in a {\em stack}.  Please refer to
+Figure~\ref{fig:interval-cartesian} for an illustration.  It is easy
+to see that when we add the $i$-th data $a_i$ into the Cartesian tree,
+we need to {\em pop} the data in the stack, which stores the rightmost
+path of the Cartesian tree, that are {\em smaller} than $a_i$.  We
+keep popping data until the top of stack is no less than $a_i$, then
+we push $a_i$ into the stack.  Let $t_i$ be the number of nodes that
+need to be popped, and it is easy to see that $0 \le t_i < s$, where
+$s$ is the block size.  
+
+Consider the example in Figure~\ref{fig:interval-cartesian}.  When we
+insert $a_1 = 0$, we just insert it into the stack since $a_0 = 1$,
+and no data is popped, so $t_1$ is $0$.  When we insert $a_2 = 4$ we
+need to pop both $a_0$ and $a_1$ out of the stack, since they are
+smaller than $a_2$, so $t_2$ is $2$.  It is easy to see that the
+contents of the stack is exactly the rightmost path of the Cartesian
+tree.
 
 \begin{figure}[!thb]
   \centering
@@ -155,63 +165,77 @@ relocated, and it is easy to see that $0 \le t_i < s$.
   \label{fig:interval-cartesian}
 \end{figure}
 
-The key point of compressed sparse table is that we store $t_i$ to
-{\em implicitly identify} this Cartesian tree for this block of data,
-so that we can answer queries by examining these $t_i$'s.  More
-details on how to answer queries with these $t_i$ will be described
-later.  Now since all $t_i$'s are small than 16, we can represent each
-of them as a 4-bit integer.  We then merge 16 of these 4-bit integers
-into a 64-bit integer to present a Cartesian tree for a block.  The
-pseudo code on how to build a 64 bit integer to represent a block of
-16 data is in Algorithm~\ref{alg:cartesian-to-64bits}, which runs in
-time $O(s)$. where $s$ is the size of a block.
+
+The key observation of compressed Cartesian tree is that we can use
+$t_i$'s to {\em implicitly identify} the Cartesian tree of this block
+of data, so that we can answer in-block ranged queries simply by
+examining these $t_i$'s.  More details on how to answer queries with
+these $t_i$'s will be described later.  Now since all $t_i$'s are
+small than 16, we can represent each of them as a 4-bit integer.  We
+then merge 16 of these 4-bit integers into a 64-bit integer to present
+a Cartesian tree for a block.  The pseudo code on how to build a 64
+bit integer to represent a block of 16 data is in
+Algorithm~\ref{alg:cartesian-to-64bits}, which runs in time
+$O(s)$. where $s$ is the block size.  Note that all the operations,
+e.g., shift, addition, subtraction, in
+Algorithm~\ref{alg:cartesian-to-64bits} map directly to machine
+instructions and are straightforward to implement.
 
 \input{\AlgoPath/alg-cartesian-to-64bits-2e}
 
-We answer a ranged maximum query from $l$ to $r$ as follows.  We
-maintain the number of data that are relocated as $x$ and initialize
-$x$ to 0.  We then loop through $t_l$ to $t_r$ and let the index run
-from $l$ to $r$.  Every iteration adds 1 to $x$ then subtracts $t_j$
-from $x$, and remember the index when $x$ becomes smaller or equal to
-0.  We report the $j$, the {\em last} index when $x$ becomes smaller
+We answer an in-block maximum query that ranges from $l$ to $r$ with
+these $t_i$'s as follows.  We maintain the number of times data are
+{\em popped} from the stack in a variable $x$, and initialize $x$ to
+0.  We then loop through $t_l$ to $t_r$ and let the index run from $l$
+to $r$.  Every iteration adds 1 to $x$ then subtracts $t_j$ from $x$.
+We need to remember the index when $x$ becomes smaller or equal to 0.
+We report the index $j$, the {\em last} index when $x$ becomes smaller
 or equal to 0, as the answer.  The pseudo code of the query answering
 algorithm is in Algorithm~\ref{alg:cartesian64bits-query}.  The
-correctness proof is in Theorem~\ref{thm:correctness}.  Note that all
-the operations, e.g., shift, addition, subtraction, map directly to
-machine instruction so that unlike Demaine's algorithm, our algorithm
-is extremely to implement.
+correctness proof of Algorithm~\ref{alg:cartesian64bits-query} is in
+Theorem~\ref{thm:correctness}.  Again all the operations of
+Algorithm~\ref{alg:cartesian64bits-query} map directly to machine
+instructions so that unlike Demaine's algorithm,
+Algorithm~\ref{alg:cartesian64bits-query} is extremely intuitive to
+implement.
 
-\input{\FormulaPath/fun-rmq.tex}
+%\input{\FormulaPath/fun-rmq.tex}
 
 \input{\AlgoPath/alg-cartesian64bits-query-2e}
 
 \begin{theorem} \label{thm:correctness}
-  Algorithm~\ref{alg:cartesian64bits-query} correctly answers a ranged
-  maximum query.
+  Algorithm~\ref{alg:cartesian64bits-query} correctly answers a
+  in-block ranged maximum query.
 \end{theorem}
 \begin{proof}
-The algorithm will correctly answer a ranged maximum query for the
-following reason.  When the $x$, the number of relocation, is smaller
-than or equal to 0, that means the added data becomes the {\em root} of
-the subtree of the query interval.  As ma result we should report the
-{\em last time} the added data actually becomes the root of the
-subtree, which according to the heap property, is the maximum in the
-query interval.
+The algorithm will correctly answer a in-block ranged maximum query.
+When the $x$, the number of poppings, is {\em smaller than or equal}
+to 0, it means the added data has become the {\em root} of the subtree
+of the queried interval.  As a result when we report that the added
+data became the root of the subtree for the {\em last} time, the
+reported root is indeed the maximum among this interval, because
+according to the heap property, the root is the maximum among the
+nodes within this subtree.
 \end{proof}
 
-We choose the block size as 16 for performance.  Modern CPUs support
-64 bit register and fast operation on them.  When we pack 16 $t_i$ in
-to a 64 integer, we can leverage fast 64 bit instructions and improve
-performance.  In addition, we do {\em not} build lookup tables since
-implicitly maintain the Cartesian tree information within these 64
-bit $t_i$, so we reduce the memory usage and improve cache
-performance.
+We choose the block size as $s = {{\frac{\log n}{4}}} = 16$ for
+performance reason.  Modern CPUs support 64 bit register and fast
+operation on them.  When we pack 16 $t_i$ in to a 64 integer, we can
+leverage fast 64 bit instructions and improve performance.  In
+addition, we do {\em not} build ancestor {\em explicitly} tables
+since we implicitly maintain the Cartesian tree information within
+these 64 bit $t_i$.  This approach reduces memory usage and improve
+cache performance, it also can efficiently answer one-dimension ranged
+maximum query for up to $n = 2^{64}$ data.
 
-Our compressed sparse table approach does improve cache performance,
-but will increase the time complexity.  The preprocessing time is
-$O(n)$ time as in Fischer's algorithm.  However, a single query time
-becomes $O(s)$, where $s$ is the block size.  This is acceptable in
-practice since we use $s = 16$, which is a small constant.  The space
-complexity is $O(n)$ as in Fischer's algorithm.  The overall time
-complexity of the parallel version of our VGLCS algorithm becomes
-$O(n^2 s / p + n \times \max(\log n, s))$.
+Note that our compressed Cartesian table approach does improve cache
+performance, but will increase the time complexity.
+Algorithm~\ref{alg:cartesian64bits-query} access data in a very
+regular manner and has a better data locality than Fischer's
+algorithm.  The preprocessing time is $O(n)$, as same as in Fischer's
+algorithm.  However, a single query now needs $O(s)$ time, where $s$
+is the block size.  This is acceptable in practice since we use $s =
+16$, which is a small constant.  The space complexity is $O(n)$ as in
+Fischer's algorithm.  The overall time complexity of the parallel
+version of our VGLCS algorithm becomes $O(n^2 s / p + n \times
+\max(\log n, s))$.

@@ -1,32 +1,32 @@
 \begin{algorithm}
 \SetAlgoNoLine
 \KwIn{
-  $A[1 \cdots s]$: storage array; $s$: the number of elements\;
+  $A[1 .. n]$: input data block; $n$: the number of elements\;
 }
 \KwOut{
-  $\mathit{tid}$: this label
+  $t$: The Catalan index of the input data block
 }
-$\langle\mathit{lsz},\mathit{lid},\mathit{value}\rangle$ $D$[$s+1$] \;
-$\textit{Dp} \gets 0$, $D[0] \gets \langle 0,0,\infty \rangle$ \;
-\For{$i \gets 1$ to $s$} {
-  $v \gets A[i], \; \textit{lsz} \gets 0, \; \textit{lid} \gets 0$ \;
-  \While{$D[\textit{Dp}].\textit{value} < v$} {
-    $\textit{lid} \gets \textit{tid}(D[\textit{Dp}].\textit{lsz}, D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$ \;
-    $\textit{lsz} \gets \textit{lsz} + D[\textit{Dp}].\textit{lsz} + 1$ \;
-    $\textit{Dp} \gets \textit{Dp} - 1$ \;
+Create a stack $D$ of $n+1$ elements.  Every element has $s$, $t$, and $v$ \;
+$p \gets 0$, $D[0] \gets \langle 0,0,\infty \rangle$ \;
+\For{$i \gets 1$ to $n$} {
+  $v \gets A[i]$ \; $s \gets 0$ \; $t \gets 0$ \;
+  \While{$D[p].{v} < v$} {
+    $t \gets {\cal T}(D[p].s, D[p].t, s, t)$ \;
+    $s \gets s + D[p].s + 1$ \;
+    $p \gets p - 1$ \;
   }
-  $\textit{Dp} \gets \textit{Dp} + 1$ \;
-  $D[\textit{Dp}] \gets \langle\mathit{lsz},\mathit{lid},\mathit{v}\rangle$ \;
+  $p \gets p + 1$ \;
+  $D[p] \gets \langle s,t,{v}\rangle$ \;
 }
 
-$\textit{lsz} \gets 0, \; \textit{lid} \gets 0$ \;
-\While{$\textit{Dp} > 0$} {
-  $\textit{lid} \gets \textit{tid}(D[\textit{Dp}].\textit{lsz}, D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$ \;
-  $\textit{lsz} \gets \textit{lsz} + D[\textit{Dp}].\textit{lsz} + 1$ \;
-  $\textit{Dp} \gets \textit{Dp} - 1$ \;
+$s \gets 0 \; t \gets 0$ \;
+\While{$p > 0$} {
+  $t \gets {\cal T}(D[p].s, D[p].t, s, t)$ \;
+  $s \gets s + D[p].s + 1$ \;
+  $p \gets p - 1$ \;
 }
-return $\textit{lid}$ \;
+return $t$ \;
 
-\caption{Offline Type of Cartesian Tree}
+\caption{Catalan index computation for a data block}
 \label{alg:cartesian-encode-offline}
 \end{algorithm}

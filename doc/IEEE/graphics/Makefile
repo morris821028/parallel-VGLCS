@@ -26,6 +26,7 @@ all: fig-VGLCSex.pdf \
 	fig-LCS-adder.pdf \
 	fig-LCS-doubling.pdf \
 
+
 fig-bst-encoding.pdf: fig-bst-n1.tex \
 	fig-bst-n2.tex \
 	fig-bst-n3.tex
