@@ -1,5 +1,5 @@
 \begin{eqnarray}  \label{fun:LCA1}
-  {\cal A}(n, t, p, q) = {\cal A}(r_s, r_t, p - l_s - 1, q - l_s - 1) + l_s + 1 
+  {\cal A}(n, t, p, q) = {\cal A}(s_r, t_r, p - s_l - 1, q - s_l - 1) + s_l + 1 
 \end{eqnarray}
 
 
@@ -7,8 +7,8 @@
     {\cal A}(n, t, p, q) =
     \left\{
     \begin{array}{ll}
-      {\cal A}(l_s, l_t, p, q) & p \le q < l_s\\
-      l_s & 0 \le p \le l_s, l_s \le q \le i\\
+      {\cal A}(s_l, t_l, p, q) & p \le q < s_l\\
+      s_l & 0 \le p \le s_l, s_l \le q \le i\\
       -1 & \mbox{otherwise} \\
     \end{array}
     \right.

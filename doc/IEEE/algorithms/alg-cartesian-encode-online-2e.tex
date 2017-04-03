@@ -1,31 +1,31 @@
 \begin{algorithm}[!thb]
 \SetAlgoNoLine
 \KwIn{
-      $\mathit{state}$: state of Cartesian Tree\;
-      $v$: the value which append to array\;
+  $S$: state of Cartesian Tree;  $v$: the added data;
+  $D$: A stack where every element has $s$, $t$, and $v$ \;
 }
 \KwOut{
-      $\mathit{tid}$: this label
+  $t$: The Catalan index of the input data block after adding $v$
 }
 
-$\textit{Dp} \gets \textit{state}.\textit{Dp}$, $\textit{lsz} \gets 0$, $\textit{lid} \gets 0$ \;
-$\textit{bsz} \gets \textit{state}.\textit{s} - \textit{state}.\textit{i} + 1$ \;
-$\textit{bid} \gets C[\textit{bsz}] - 1$ \;
+$p \gets S.p$, $s \gets 0$, $t \gets 0$ \;
+$s' \gets S.s - S.{i} + 1$ \;
+$t' \gets C[s'] - 1$ \;
 
-\While{$\textit{state}.D[\textit{Dp}].\textit{value} < v$} {
-  $\textit{lid} \gets \textit{tid}(\textit{state}.D[\textit{Dp}].\textit{lsz}, \textit{state}.D[\textit{Dp}].\textit{lid}, \textit{lsz}, \textit{lid})$ \;
-  $\textit{bid} \gets \textit{tid}(\textit{state}.D[\textit{Dp}].\textit{lsz}, \textit{state}.D[\textit{Dp}].\textit{lid}, \textit{bsz}, \textit{bid})$ \;
-  $\textit{lsz} \gets \textit{lsz} + \textit{state}.D[\textit{Dp}].\textit{lsz}+1$ \;
-  $\textit{bsz} \gets \textit{bsz} + \textit{state}.D[\textit{Dp}].\textit{lsz}+1$ \;
-  $\textit{Dp} \gets \textit{Dp} - 1$ \;
+\While{$D[p].{value} < v$} {
+  $t \gets t(D[p].s, D[p].t, s, t)$ \;
+  $t' \gets t(D[p].s, D[p].t, s', t')$ \;
+  $s \gets s + D[p].s+1$ \;
+  $s' \gets s' + D[p].s+1$ \;
+  $p \gets p - 1$ \;
 }
-$\textit{Dp} \gets \textit{Dp} + 1$ \;
-$\textit{state}.D[\textit{Dp}] \gets \left \langle \textit{lsz}, \textit{lid}, \textit{v} \right \rangle$ \;
-$\textit{state}.\textit{Dp} \gets \textit{Dp}$ \;
-$x.\textit{tid} \gets \textit{tid}(\textit{lsz}, \textit{lid}, \textit{state}.s-\textit{state}.i, C[\textit{state}.s-\textit{state}.i]-1)$ \;
-$\textit{state}.\textit{tid} \gets \textit{state}.\textit{tid} + \textit{bid} - x.\textit{tid}$ \;
-$\textit{state}.i \gets \textit{state}.i + 1$ \;
-return $\textit{state}.\textit{tid}$ \;
+$p \gets p + 1$ \;
+$D[p] \gets \left \langle s, t, {v} \right \rangle$ \;
+$S.p \gets p$ \;
+$x.t \gets t(s, t, S.s-S.i, C[S.s-S.i]-1)$ \;
+$S.t \gets S.t + t' - x.t$ \;
+$S.i \gets S.i + 1$ \;
+return $S.t$ \;
 
   \caption{Online Type of Cartesian Tree}
   \label{alg:cartesian-encode-online}
