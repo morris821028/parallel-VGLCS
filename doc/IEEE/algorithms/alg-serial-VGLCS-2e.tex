@@ -14,13 +14,13 @@ Create an empty table $V[n][m]$\;
         $V[i][j] \gets t + 1$\; 
         $t \gets$ Query $C[j]$ for the maximum among the last $G_A[i]+1$ elements \;
         Append $t$ to $R$ \;
-        Append $V[i][j]$ into $C[j]$ \;
     }
     \Else {
         $V[i][j] \gets 0$ \;
         $t \gets$ Query $C[j]$ for the maximum among the last $G_A[i]+1$ elements \;
         Append $t$ to $R$ \;
     }
+    Append $V[i][j]$ into $C[j]$ \;
   }
 }
 Retrieve the VGLCS by tracing $V[n][m]$\;

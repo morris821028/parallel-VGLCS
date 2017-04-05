@@ -119,7 +119,11 @@ the record data on all rows which is expressed with solid line, and
 append the new elements to the rows by corresponding columns in the
 wavefront.
 
-We propose a parallel VGLCS algorithm with an optimized row-by-row
+We propose a parallel VGLCS algorithm with an optimized row-by-row,
+which maintains only one row data structure which collects the suffix
+maximum values from all columns.  Compare to the wavefront method, it
+reduces the constant of the space complexity and 
+
 % what status?? which is not
 
 \begin{figure}[!thb]
