@@ -19,11 +19,11 @@ itria/.style={
   child[missing]{}
   child { node[circle,draw](Atid){$A$}
     child { node[]{}
-            { node[](Alsub){$A_{\mathit lid}$, $A_{\mathit lsz}$}}
+            { node[](Alsub){$t_{A_{l}}$, $s_{A_{l}}$}}
     }
     child { node[circle,draw](Btid){$B$}
       child { node[]{}
-            { node[](Blsub){$B_{\mathit lid}$, $B_{\mathit lsz}$}}
+            { node[](Blsub){$t_{B_{l}}$, $s_{B_{l}}$}}
       }
       child[dashed] { node[circle,draw](xtid){$x$}
         child[missing]{}
@@ -33,9 +33,9 @@ itria/.style={
   };
 
 \path[solid,->](Alsub)edge [bend right=45]  (Atid);
-\path[solid,->](Btid)edge [bend right=45] node[above right]{$A_{\mathit tid}={\mathit tid}(A_{\mathit lid}, A_{\mathit lsz}, B_{\mathit tid}, B_{\mathit size})$} (Atid);
+\path[solid,->](Btid)edge [bend right=45] node[above right]{$t_{A}={\cal T}(s_{A_l}, t_{A_l}, s_{B}, t_{B})$} (Atid);
 \path[solid,->](Blsub)edge [bend right=45]  (Btid);
-\path[solid,->](xtid)edge [bend right=45] node[above right]{$B_{\mathit tid}={\mathit tid}(B_{\mathit lid}, B_{\mathit lsz}, x_{\mathit tid}, x_{\mathit size})$} (Btid);
+\path[solid,->](xtid)edge [bend right=45] node[above right]{$t_{B}={\cal T}(s_{B_l}, t_{B_l}, s_{x}, t_{x})$} (Btid);
 \end{tikzpicture}
 
 \end{document}

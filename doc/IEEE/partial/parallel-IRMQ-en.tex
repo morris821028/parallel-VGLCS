@@ -223,11 +223,17 @@ explanation we will refer to this added path as the {\em virtual
   path}.
 
 \begin{figure*}[!thb]
-  \centering
-  \includegraphics[width=\linewidth]{\GraphicPath/fig-cartesian-encoding.pdf}
-
+  \centering \subfigure[Initiation $t_{{\it root}_0}= C_n - 1$]{
+    \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding.pdf}
+    \label{fig:cartesianEncoding-init}
+  } \subfigure[$t_{{\it root}_i}$]{
+    \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding-before.pdf}
+    \label{fig:cartesianEncoding-before}
+  } \subfigure[$t_{{\it root}_{i+1}} = t_{{\it root}_i} + t_x - t_A$]{
+    \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding-after.pdf}
+    \label{fig:cartesianEncoding-after}
+  }
   \caption{An example for difference algorithm to encode Cartesian tree.}
-
   \label{fig:cartesianEncoding}
 \end{figure*}
 

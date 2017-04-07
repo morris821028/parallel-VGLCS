@@ -11,6 +11,8 @@ all: fig-VGLCSex.pdf \
 	fig-sparse-table.pdf \
 	fig-cartesian-encoding-stack.pdf \
 	fig-cartesian-encoding.pdf \
+	fig-cartesian-encoding-before.pdf \
+	fig-cartesian-encoding-after.pdf \
 	fig-cartesian-encoding-static.pdf \
 	fig-bst-encoding.pdf \
 	fig-parallel-n.pdf \
