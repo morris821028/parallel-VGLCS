@@ -79,14 +79,14 @@ $O(m^2)$.  Therefore, the space complexity is $O(s \times
 elements in a block.  When we set $s$ to $\frac{\log n}{4}$, the space
 complexity is $O(\sqrt{n} \log ^{1.5} n)$.  Note that the query will
 be on the tree size of $s$ {\em only}.  However, we do need the space
-for tables of {\em smaller} tree sizes as intermiedate data to compute
+for tables of {\em smaller} tree sizes as intermediate data to compute
 the table of tree size $s$.  Also since the number of operations in
 Equation~\ref{fun:LCA1} and \ref{fun:LCA2} is a constant, the time
 complexity is also $O(\sqrt{n} \log ^{1.5} n)$ when we set $s$ to
 $\frac{\log n}{4}$.
 
 We now analyze the time complexity of the parallel version of
-Algorithm~\ref{alg:parallel-LCA}.  As deescribed earlier, the
+Algorithm~\ref{alg:parallel-LCA}.  As described earlier, the
 sequential time complexity of Algorithm~\ref{alg:parallel-LCA} is
 $O(\frac{s^3}{s+1} \binom{2s}{s})$.  We observe that the computation
 of the $C_m$ trees of size $m$ are independent, hence can be done in
@@ -95,7 +95,7 @@ line 4) is $O(m)$ for a tree of size $m$.  Since both line 4 and 5 are
 in the same loop body, it is not necessary to parallel line 4 since
 line 5 will dominate the time of the loop body.  As a result we can
 only parallelize the double loops in line 2 and 3 in
-Algortihm~\ref{alg:parallel-LCA}, and the time complexity of our
+Algorithm~\ref{alg:parallel-LCA}, and the time complexity of our
 parallel algorithm is $O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2) =
 O(\sqrt{n} (\log ^{1.5} n) / p + \log^2 n )$, where $p$ is the number
 of processors.
@@ -120,12 +120,13 @@ In order to find the Catalan index of the block, we can build a
 Cartesian tree corresponding to the elements of the block, and then
 find the index of the Cartesian tree.  That is, we build the tree and
 compute it from the the sizes and ids of the left and right subtrees.
-This require a recursive traversal on the tree and has a $O(n)$ tgime
+This require a recursive traversal on the tree and has a $O(n)$ time
 complexity, where $n$ is the number of tree nodes.  The conversion is
 as in Equation~\ref{fun:tid}.  Recall that $s_l$ denotes the size of
 the left subtree, $s_r$ denotes the size of the right subtree, $t_l$
 is the Catalan index of the left subtree, and $t_r$ is the Catalan
-index of the right subtree.
+index of the right subtree.  Also note that we use ${\cal C}_i$ to
+  denote the Catalan number of tree of size $i$.
 
 % \input{algorithms/alg-encode-tid}
 
@@ -144,13 +145,13 @@ Equation~\ref{fun:tid} with a table lookup.
 
 The previous computation of Catalan index requires building the tree
 to obtain subtree information, and may not be efficient.  We propose a
-method that detremines the Catalan index by keeps only the {\em
+method that determines the Catalan index by keeps only the {\em
   rightmost path} in a {\em stack} without building the entire tree.
-This technique is similar to the {\em compressed cartesian tree} in
+This technique is similar to the {\em compressed Cartesian tree} in
 Section~\ref{sec:cct}.  After knowing the Catalan index $t$ we can
 compute LCA and answer queries with Algorithm~\ref{alg:parallel-LCA}.
 
-We compute the Catalan index $t$ efficiently by the matintaining its
+We compute the Catalan index $t$ efficiently by the maintaining its
 {\em rightmost path}.  The Cartesian tree for a sequence of data can
 be constructed in linear time using a {\em stack} as follows.  The
 stack maintains the Catalan indexes and sizes of every left subtree
@@ -188,7 +189,7 @@ Catalan index for the entire block.
 
 Algorithm~\ref{alg:cartesian-encode-offline} can compute any Catalan
 index for Cartesian trees with the entire block of data and the block
-size.  The algorithm runs in $O(s)$ time since an elelment is
+size.  The algorithm runs in $O(s)$ time since an element is
 pushed/popped at most {\em once}.
 
 \input{\AlgoPath/alg-cartesian-encode-offline-2e}
@@ -206,96 +207,20 @@ $n$ is the number of data.  The preprocessing need more memory
 transfer to find the information of the block of an input array, or
 read external files from disk.
 
-% Morris: Cartesian tree can be used to solve above problem
-
 We can generalize our Catalan index computation technique for
-incrementally added data.
-
-It is easy to see that our stack-based
-Algorithm~\ref{alg:cartesian-encode-offline} can easily support the
-{\tt append} operation on Cartesian tree, as long as we provide a
-dynamic encoding method.
-
-That is, we can update all the Catalan index whenever we insert a new
-data.  That is, we can {\em dynamically} maintain a lookup table to
-obtain the maximum value in a range, so as to answer a ranged query
-{\tt query(L, R)}, by our Cartesian tree encoding.
-
-
-%% Now, we provide the dynamic encoding method so that each operation is
-%% amortized $O(1)$ time.
-
-We use five variables to record the state of a Cartesian tree, so as
-to support dynamic encoding,
-
-This dynamic encoding method is based on
-Algorithm~\ref{alg:parallel-LCA} and Equation~\ref{fun:tid}.
-
-Consider the step to insert the $i$-th element.  Let the index of the
-current tree be $t$ and the rightmost path of the Cartesian tree is
-presented by two variables -- stack pointer $Dp$ and a stack $D$.  We
-first initialize a state set $i$ to be empty, $s$ to $\frac{\log
-  n}{4}$, ${t}$ to $C_s - 1$, $Dp$ to 0, and the top of stack $D$ to
-infinity.
-
-The structure of state is as follows:
-
-\iffalse
-我們定義轉移狀態由 5 個變數來決定動態笛卡爾樹的編碼，當前插入第 $i$ 個
-元素，最終填充 $s$ 個元素，當前的樹編號 $\mathit{tid}$，以及笛卡爾樹的
-右鏈狀態指針 $Dp$ 與其堆疊 $D$，其結構如下：
-\fi
-
-% State(i = 0, s = n, tid = C[n]-1, Dp = 0, D[0].val = INF)
-
-%\begin{minipage}{\linewidth}
-
-\lstinputlisting[frame=single,basicstyle=\tt,caption=State of Cartesian Tree]{\CodePath/cartesian-state.h}
-
-%\end{minipage}
-
-% Morris: Idea for encode Cartesian tree dynamically: virtual node &
-% propagation
-
-In order to encode Cartesian tree dynamically, we initialize the $s$
-number of virtual node on the rightmost path, and that is why the
-default Catalan index ${\mathit t}$ is $C_s - 1$, which $C_s$ is the
-$s$-th Catalan number.
-
-Following the elements insertion, we assume the sequence of elements
-which is not yet inserted are increasing.  In lexicographical order,
-the rightmost path of Cartesian tree is belonged to the lower
-dimension in the row-major like.
-
-Simultaneously, building a Cartesian tree only modify the rightmost
-path.  We use the propagation to get the Catalan index in the next
-insertion.  Finally, we propose the difference
-algorithm~\ref{alg:cartesian-encode-online} to satisfy above
-requirement.
-
-\iffalse 為了解決在線詢問操作，取 $s = \frac{\log n}{4}$。根據字典順序
-的編碼性質，一開始建立虛設點 $s$ 個在右鏈上，其樹編號 $\mathit{tid} =
-C_s - 1$ 。隨著插入元素的增加，尚未加入的元素都預設嚴格遞減，加上根據
-編碼順序，我們藉由差值來維護在線編碼 (如圖
-~\ref{fig:cartesianEncoding})。根據上述的編碼想法，我們得到算法
-~\ref{alg:cartesian-encode-online}。\fi
-
-We give an example of difference algorithm in the
-figure~\ref{fig:cartesianEncoding}.  Each block has $s$ number of
-elements.  We will build a Cartesian tree with $s$ number of nodes to
-solve in-block query.  In initialization, it assume $s$ number of
-nodes on the rightmost path and the default Catalan index
-$\mathit{tid} = C_s - 1$.  When inserting $i$-th element, the Catalan
-index is $\mathit{tid}_i$, and the Catalan index of the subtree $A$ is
-$A.\mathit{tid}$.  If the value of $(i+1)$-th element is $x$, it will
-rotate onto the node $A$.  After rotation, $A$ is a left subtree of
-$A$, and we can compute the index of subtree $A$ during rotation.
-Then, $x.\mathit{tid}$ can be computed by the $s-(i+1)$ number of
-virtual nodes on the rightmost path and $A.\mathit{tid}$.  According
-to the lexicographical order, we get $\mathit{tid}_{i+1} =
-\mathit{tid}_i + (x.\mathit{tid} - A.\mathit{tid})$.
-
-\input{\AlgoPath/alg-cartesian-encode-online-2e}
+incrementally added data by {\em normalization}.  Suppose we want to
+encode a series of Cartesian search trees of increasing sizes up to
+$n$, we can append a path of $n-i$ {\em right-child-only} nodes to the
+right most path of the existing tree of size $i$, so that the total
+number remains $n$.  That is, when the computation starts whiteout any
+existing tree nodes we will use a path of $n$ right-child-only nodes.
+Please refer to the figure on the left of
+Figure~\ref{fig:cartesianEncoding} for an illustration.  After we have
+added $i$ nodes, we will have a a path of $n - i$ right-child-only
+nodes attached to the right most path, as illustrated by the figure in
+the left of Figure~\ref{fig:cartesianEncoding}.  For ease of
+explanation we will refer to this added path as the {\em virtual
+  path}.
 
 \begin{figure*}[!thb]
   \centering
@@ -306,9 +231,88 @@ to the lexicographical order, we get $\mathit{tid}_{i+1} =
   \label{fig:cartesianEncoding}
 \end{figure*}
 
-Finally, we do not increase the time complexity of the building
-Cartesian tree algorithm because each operation is $O(1)$.  For the in-
-block query, we get the index of the Cartesian tree in amortized $O(1)$.
+There are two advantages of this tree normalization.  First, this tree
+normalization simplifies the computation of Catalan index, as we will
+explain later.  That is, we can update the Catalan index with ease
+whenever we insert a new data.  Second, one can image this
+normalization as adding increasing larger data to the end of a data
+block, so that the interval maximum on any existing tree in the series
+will not be affected.  That is, we can {\em dynamically} maintain a
+lookup table to obtain the maximum value in a range, so as to answer a
+ranged query by this Cartesian tree encoding.
+
+%% Now, we provide the dynamic encoding method so that each operation is
+%% amortized $O(1)$ time.
+
+The dynamic Catalan index computation with tree normalization works as
+follows.  We will remember the current index of the tree (as $t^*$),
+and a stack of the right most path of the current tree, as $D$ in
+Algorithm~\ref{alg:cartesian-encode-offline}.  Then we will {\em
+  update} these information once we add a new data $x$ into the tree,
+by calling Algorithm~\ref{alg:cartesian-encode-online}, which is based
+on Algorithm~\ref{alg:parallel-LCA} and Equation~\ref{fun:tid}.  At
+any given time, i.e., for any $i$ where $i$ is the index of the data,
+we we can compute the Catalan index of the current tree, which has $i$
+nodes, and use it to answer a ranged maximum query.
+
+For ease of notation we use we use $t$ and $s$ to denote the index and
+the size of the tree {\em without} the virtual path.  This is similar
+to Algorithm~\ref{alg:cartesian-encode-offline}.  We also use $t'$ and
+$s'$ to maintain the index and size of the tree {\em with} the virtual
+path, as indicated by the part enclosed by the red dotted line in the
+middle of Figure~\ref{fig:cartesianEncoding}.
+
+Algorithm~\ref{alg:cartesian-encode-online} first initializes $s$ and
+$t$ as in Algorithm~\ref{alg:cartesian-encode-offline}, since it will
+work from the end of the rightmost path and start with an empty tree.
+Then the algorithm initializes $s'$ to $n - i$ since we will append
+the a virtual path of length $n - i$ to the end of the rightmost path.
+Consequently $t'$ is the ${\cal C}_{s'} - 1$ since it has the largest
+Catalan index.
+
+Algorithm~\ref{alg:cartesian-encode-online} then inserts the $i$-th
+element, $x$, in two stages.  The first stage is to pop the elements
+smaller than $x$ from the stack $D$.  Recall that we maintain the
+index of the current tree as $t$ and the rightmost path of the
+Cartesian tree as two variables -- stack pointer $p$ and a stack $D$.
+Note that $t$ and $s$ are the index and size of the last subtree {\em
+  without} the virtual path.  Consequently as we popped smaller
+elements from the stack and update $s$ and $t$ just as in
+Algorithm~\ref{alg:cartesian-encode-online}.  The update on $s'$ and
+$t'$ is similar, but it assumes that there is a virtual path of $n -
+s'$ right-child-only nodes to the right of the rightmost path.  Please
+refer to the inner loop of Algorithm~\ref{alg:cartesian-encode-online}
+and Figure~\ref{fig:cartesianEncoding}.
+
+\input{\AlgoPath/alg-cartesian-encode-online-2e}
+
+Now we are ready to update the stack and the Catalan index $t^*$.  The
+new top of stack is now $x$, with left subtree of size $s$ and index
+$t$, so we push them into the stack.  Please refer to the right
+figures of Figure~\ref{fig:cartesianEncoding}.  Next we update the
+overall Catalan index $t^*$.  After we popped all elements smaller
+than $x$, they should be inserted to the left of the $x$.  Please
+compare the middle and right figures in
+Figure~\ref{fig:cartesianEncoding}.  The only difference between the
+the middle and right figures of Figure~\ref{fig:cartesianEncoding} is
+the area enclosed by the red dotted line.  If we compute the
+difference between the index of the two dotted line area, we can {\em
+  patch} the overall $t^*$ into the correct value, since our encoding
+considers left subtree {\em before} right subtree.  Since the
+difference is $t' - {\cal T}(s, t, s - i, {\cal C}_{s-i} - 1)$, the
+new $t^*$ is the old value of $t^*$, plus $t' - {\cal T}(s, t, s - i,
+{\cal C}_{s-i} - 1)$.
+
+Note that Algorithm~\ref{alg:cartesian-encode-online} does {\em not}
+increase the amrtized time complexity to compute teh Catalan index,
+even when we dynamically add data into the tree.  As described
+earleir, the time complexity of the static index computation
+(Algorithm~\ref{alg:cartesian-encode-online}) is $O(n)$ because each
+element is popped exactly once.  Similarly the total cost of calling
+Algorithm~\ref{alg:cartesian-encode-online} $n$ times is also $O(n)$,
+since each operation within the loop is $O(1)$.  As a result the
+amortized cost for an in-block query, including the computation of
+tree index, is also $O(1)$.
 
 \iffalse
 最後，我們不改變原本的建立笛卡爾樹算法，便能在過程中擭得樹的編號，
