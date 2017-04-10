@@ -1,43 +1,37 @@
 \section{Experiment}
 \label{sec:Experiment}
 
-For the experiments we used a server with Intel Xeon E5-2620 2.4 Ghz
-processor and 384 KiB of level 1 cache, 1536 KiB of level 2 cache, 15
-MiB of shared level 3 cache, and running Ubuntu 14.04.  The Intel CPU
-supports hyper-threading technique, and each processor has six cores.
-All algorithms were implemented in C++ and OpenMP compiled with GCC
-using the {\tt -O2} and {\tt -fopenmp} flag.
+We conduct experiments on a Intel Xeon E5-2620 2.4 Ghz processor with
+384K bytes of level 1 cache, 1536K bytes of level 2 cache, and 15M
+bytes of shared level 3 cache.  The Intel CPU supports
+hyper-threading, and each processor has six cores.  The opearating
+system is Ubuntu 14.04.  We implemented all algorithms in C++ and
+OpenMP and compiled them using gcc with {\tt -O2} and {\tt -fopenmp}
+flag.
 
-\iffalse
-我們運行在 Intel Xeon E5-2620 2.40 GHz 主機上，其擁有 L1 cache 384 KiB、L2 cache 1536 KiB 和 L3 cache 15 MiB，
-Intel CPU 同時也支持 hyper-threading 技術，每個處理器有 6 個實體核心。
-所有的演算法使用 C++ 和 OpenMP 實作，使用優化參數為 \texttt{-O2} 和 \textt{-fopenmp}。
-\fi
-
-
-
-We implement sparse table and binary index tree in the experiments and
-evaluate their performance.  Recall that there are three solutions to
-incremental suffix maximum query in solving VGLCS.  The first solution
-is a disjoint set with amortized time $O(\alpha(n))$ for each query,
-or its variant, {\em incremental tree set union}~\cite{Gabow1983ALA},
-with amortized time $O(1)$ for each query.  The second solution is a
-sparse table with $O(\log n)$ time to append a new value and $O(1)$
-time to response a query.  The third solution is a binary indexed tree
-with $O(\log n)$ time for each query.  Even if the amortized
-complexity of the first solution is $O(\alpha(n))$ or $O(1)$, it
-incurs inefficient synchronizations in a parallel implementation.
-Therefore, we choose to implement the last two data structures
-and conduct experiments to evaluate their performance.
+We implement {\em sparse table} and {\em binary index tree} in our
+experiments and evaluate their performance.  Recall that there are
+three data structures we can use to answer incremental suffix maximum
+query.  The first one is {\em disjoint set}, and it has an amortized
+time $O(\alpha(n))$ for each query.  Its variant, {\em incremental
+  tree set union}~\cite{Gabow1983ALA}, has an amortized time $O(1)$
+for each query.  The second data structure is {\em sparse table}.  It
+takes $O(\log n)$ time to append a new value and $O(1)$ time to answer
+a query.  The third data structure is {\em binary indexed tree}.  It
+takes $O(\log n)$ time to answer a query.  Although the amortized
+complexity of answering a query with a disjoint set is $O(\alpha(n))$
+or $O(1)$, it causes inefficient synchronizations in a parallel
+environment, therefore, we chose to implement the last two data
+structures and conduct experiments to evaluate their performance.
 
 \subsection{VGLCS with Compressed Sparse Table}
 
 In the random test data, we get the better performance with compressed
 sparse table compared to theoretical $O(1)$ sparse table.  The
 figure~\ref{fig:fig-parallel} shows the different runtime in different
-parallelism, and the figure~\ref{fig:fig-parallel-scala} shows the scalability
-of our parallel algorithm.  On our server, the parallel algorithm can
-get $8 \times$ faster than the serial algorithm.
+parallelism, and the figure~\ref{fig:fig-parallel-scala} shows the
+scalability of our parallel algorithm.  On our server, the parallel
+algorithm can get $8 \times$ faster than the serial algorithm.
 
 \iffalse
 我們運行優化策略中的空間壓縮版本，而非理論分析的 $\theta(1)$ 操作，
@@ -132,27 +126,27 @@ query has a uniform distribution.
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
-However, we observe that our amortized $O(1)$ sparse table is more slow
-than compressed sparse table.  In the dynamic programming, the tendency
-of insertion value will inflict the performance of data structure, so we
-experiment the different probability for each data structure.  The
-number of the query is ten multiple of the number of insertion.  The
-result is shown on table~\ref{tlb:ISMQcmp}.  The table~\ref{tlb:ISMQcmp}
-show the performance of the ISMQ with sizes $N = 10^7$, different
-maximum interval sizes $L$, the probability $p$ of incremental elements
-and the probability $q$ of zero elements. There are two strategies for
-each $(p, q, L)$, implemented by compressed sparse table and amortized
-$O(1)$ sparse table.  The amortized $O(1)$ sparse table run $1.5 \times$
-faster than the compressed table in above situation.
+However, we observe that our amortized $O(1)$ sparse table is more
+slow than compressed sparse table.  In the dynamic programming, the
+tendency of insertion value will inflict the performance of data
+structure, so we experiment the different probability for each data
+structure.  The number of the query is ten multiple of the number of
+insertion.  The result is shown on table~\ref{tlb:ISMQcmp}.  The
+table~\ref{tlb:ISMQcmp} show the performance of the ISMQ with sizes $N
+= 10^7$, different maximum interval sizes $L$, the probability $p$ of
+incremental elements and the probability $q$ of zero elements. There
+are two strategies for each $(p, q, L)$, implemented by compressed
+sparse table and amortized $O(1)$ sparse table.  The amortized $O(1)$
+sparse table run $1.5 \times$ faster than the compressed table in
+above situation.
 
-\iffalse
-當運行 $n > 10^6$ 時，我們提出的壓縮稀疏表的效能已經勝過并查集的版本，
-其運行結果如圖表 ~\ref{fig:fig-ISMQcmp}。在 $n = 10^7$ 時，加速 $1.25 \times$。
-然而，我們提供的 amortized $\theta(1)$ 的稀疏表慢於并查集，
-我們做了深入的機率探討 (參照表 ~\ref{tlb:ISMQcmp})，由於大部分的操作都被區塊後綴和前綴解決，
-沒有實際運用到內部詢問，約束區間詢問的大小為 $L$，在 $N = 10^7$ 時，最多能加速 $1.26 \times$，
-其中插入和詢問比例為 1:10，當詢問比重更大時，將有更明顯的加速。
-\fi
+\iffalse 當運行 $n > 10^6$ 時，我們提出的壓縮稀疏表的效能已經勝過并查
+集的版本，其運行結果如圖表 ~\ref{fig:fig-ISMQcmp}。在 $n = 10^7$ 時，
+加速 $1.25 \times$。然而，我們提供的 amortized $\theta(1)$ 的稀疏表慢
+於并查集，我們做了深入的機率探討 (參照表 ~\ref{tlb:ISMQcmp})，由於大部
+分的操作都被區塊後綴和前綴解決，沒有實際運用到內部詢問，約束區間詢問的
+大小為 $L$，在 $N = 10^7$ 時，最多能加速 $1.26 \times$，其中插入和詢問
+比例為 1:10，當詢問比重更大時，將有更明顯的加速。\fi
 
 \input{\TablePath/tlb-ISMQcmp.tex}
 
@@ -165,11 +159,10 @@ all range size before building, we get the {\tt CORMQ-opt} which run
 $2.35$ faster than origin RMQ.  The table~\ref{tlb:CORMQ} is shown the
 result of the strategy of the parallel range query.
 
-\iffalse
-每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，
-我們運行樸素的 \texttt{CORMQ} (compressed RMQ) 得到效能改善，
-搭配可預測的分析降低運算量 (參照 \texttt{CORMQ-opt})，得到更好的改善。
-在 \texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速，結果如表 ~\ref{tlb:CORMQ}。
-\fi
+\iffalse 每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，我
+們運行樸素的 \texttt{CORMQ} (compressed RMQ) 得到效能改善，搭配可預測
+的分析降低運算量 (參照 \texttt{CORMQ-opt})，得到更好的改善。在
+\texttt{CORMQ-opt} 策略中，得到 $2.35 \times$ 倍的加速，結果如表
+~\ref{tlb:CORMQ}。\fi
 
 \input{\TablePath/tlb-CORMQ.tex}

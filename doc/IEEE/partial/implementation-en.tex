@@ -3,13 +3,22 @@
 
 \subsection{The Strategy of Disjoint Set}
 
-The merging of disjoint set has two main strategies, path compression,
-and rank strategy.  Patwary, Blair, and
-Manne~\cite{Patwary2010ExperimentsOU} make the experiments for the
-disjoint-set data structure, which impact of implementation will
-encounter different level of cache miss. The {\textrm RemSP} strategy
-tends to fewer cache misses and fewer parent jumps.  Therefore, we
-consider above situations to implement our application carefully.
+There two methods to merge disjoint sets -- {\em path compression},
+and {\em rank strategy}.  Patwary, Blair, and
+Manne~\cite{Patwary2010ExperimentsOU} conducted experiments on
+disjoint-set, and showed that different implementations have different
+impact on different levels of caches.
+% like what???
+
+% what is the full name for RemSP? What does it mean???
+
+The {\tt RemSP} strategy~\cite{} tends to cause cache misses and fewer
+parent jumps.  %?????
+
+Therefore, we consider above situations %???
+
+to implement
+our application carefully.
 
 \iffalse
 運行 VGLCS 時，將耗費 $\theta(n^2)$ 的內存空間。使用遞增後綴最大值 (ISMQ) 時，
@@ -18,10 +27,17 @@ consider above situations to implement our application carefully.
 實務上須考慮到快取未中
 \fi
 
-In the serial algorithm, we tend to use lazy propagation because of the
-cache miss.  Due to the tendency of the dynamic programming, there are
-two cases in which the trend of the inserted value.  The first case is
-the continuous zero value insert because it violates the definition.
+In the serial algorithm, we tend to use lazy propagation because of
+the cache miss.  % what is lazy propagation???
+
+Due to the tendency of the dynamic programming, there are two cases in
+which the trend of the inserted value.  %???
+
+
+The first case is the continuous zero value insert because it violates
+the definition.  %???
+
+
 The second case is the insertion of incremental elements.  Finally, we
 can use the lazy propagation to improve the performance in
 implementation.
@@ -30,6 +46,8 @@ For the multi-core platform, the efficiency of thread synchronization is
 the important part of the performance, so we tends to make the worst
 case as more smaller as possible.  Therefore, we always merge the groups
 as possible.
+
+% I cannot even undertsand this, even it is in Chinese
 
 \iffalse
 每個執行緒負責數個完整的并查集，操作時應偏向延遲標記操作，
@@ -45,7 +63,9 @@ problem by remove duplicate computation and imposing a boundary
 limitation.  For example, the logarithm function is often used in the
 query of a sparse table, and we can preprocessing all the result of the
 requirements.  In the VGLCS problem, the information of range query is
-known for using.  Therefore, the reduce-boundary 
+known for using.  %???
+
+Therefore, the reduce-boundary 
 algorithm~\ref{alg:reduce-boundary} runs $O(n \log n)$ time, which $n$ 
 is the length of the input sequence.  It would not increase the time 
 complexity because the VGLCS problem is solved in 
