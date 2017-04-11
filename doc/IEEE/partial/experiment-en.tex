@@ -9,19 +9,17 @@ system is Ubuntu 14.04.  We implemented all algorithms in C++ and
 OpenMP and compiled them using gcc with {\tt -O2} and {\tt -fopenmp}
 flag.
 
-We implement {\em sparse table} and {\em binary index tree} in our
-experiments and evaluate their performance.  Recall that there are
-three data structures we can use to answer incremental suffix maximum
-query.  The first one is {\em disjoint set}, and it has an amortized
-time $O(\alpha(n))$ for each query.  Its variant, {\em incremental
-  tree set union}~\cite{Gabow1983ALA}, has an amortized time $O(1)$
-for each query.  The second data structure is {\em sparse table}.  It
-takes $O(\log n)$ time to append a new value and $O(1)$ time to answer
-a query.  The third data structure is {\em binary indexed tree}.  It
-takes $O(\log n)$ time to answer a query.  Although the amortized
-complexity of answering a query with a disjoint set is $O(\alpha(n))$
-or $O(1)$, it causes inefficient synchronizations in a parallel
-environment, therefore, we chose to implement the last two data
+We implement {\em disjoint set} and {\em sparse table} in our
+experiments and evaluate their performance.  Recall that there are three
+data structures we can use to answer incremental suffix maximum query.
+The first one is {\em disjoint set}, and it has an amortized time
+$O(\alpha(n))$ for each query.  Its variant, {\em incremental   tree set
+union}~\cite{Gabow1983ALA}, has an amortized time $O(1)$ for each query.
+The second data structure is {\em sparse table}.  It takes $O(\log n)$
+time to append a new value and $O(1)$ time to answer a query.  Although
+the amortized complexity of answering a query with a disjoint set is
+$O(\alpha(n))$ or $O(1)$, it causes inefficient synchronizations in a
+parallel environment, therefore, we chose to implement the last data
 structures and conduct experiments to evaluate their performance.
 
 \subsection{VGLCS with Compressed Sparse Table}
@@ -57,9 +55,11 @@ algorithm can get $8 \times$ faster than the serial algorithm.
 
 \subsection{Incremental Suffix Maximum Query}
 
-In VGLCS problem, the number of insertion equals the number of the
-queries. We compare the performance between the four data structure as
-follows:
+We use the random test cases without any limitation, e.g. the length of
+range query has a uniform distribution.  After each append operation,
+there is only one query operation in the experiment.  Then, we compare
+the performance between the four data structure without parallel
+environment as follows:
 
 \iffalse
 針對插入和詢問次數相同的 ISMQ 問題，運行以下四種數據結構：
@@ -75,7 +75,9 @@ path compression and rank.
 
 Sparse table: Insertion in $O(\log n)$ time, and query in $O(1)$ time.
 We allocate $\tt{table}[\log N][N]$ which arranged in row-major to
-reduce cache miss.
+reduce cache miss.  The Algorithm~\ref{alg:parallel-VGLCS} and
+Figure~\ref{fig:interval-decomposition} illustrate the method of this
+sparse table.
 
 %   \item 
 
@@ -88,7 +90,7 @@ Compressed sparse table: The insert operation consume amortized
 $O(1)$ time.  The query operation consumes $O(s)$ time, which $s$ is the
 size of the block.  Here, the program implement by the fixed size $s =
 16$.  We can maintain extra the prefix and suffix maximum in block to
-reduce the time complexity $O(s)$ to $O(1)$ in most queries.
+reduce the time complexity $O(s)$ to $O(1)$ in most queries.  It is introduced in the 
 
   \item
 
@@ -109,12 +111,10 @@ optimization is same as compressed sparse table.
 \end{itemize}
 \fi
 
-The figure~\ref{fig:fig-ISMQcmp} shows that our compressed sparse table
+The Figure~\ref{fig:fig-ISMQcmp} illustrate our compressed sparse table
 run faster than the disjoint set when $n$ is greater than  $10^6$.  When
 $n$ is greater than $10^7$, the compressed sparse table run $1.8 \times$
-faster than the disjoint set in random test data.  We use the
-random test cases without any limitation, e.g. the length of range
-query has a uniform distribution.
+faster than the disjoint set in random test data.
 
 \begin{figure}[!thb]
   \centering
