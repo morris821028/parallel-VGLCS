@@ -76,9 +76,9 @@ From the previous discussion of Peng's algorithm, we note that in
 order to find VGLCS efficiently, we need to address the {\em
   incremental suffix maximum query} (ISMQ) problem.  A data structure
 that supports incremental suffix maximum queries should support the
-three operations.  First, a {\tt make} operation creates an empty
-array $A$. Second, an {\tt append(V)} operation appends a value $V$ to
-array $A$. Finally an ISMQ {\tt query(x)} finds the {\em maximum}
+three operations.  First, a {\sc Make} operation creates an empty
+array $A$. Second, an {\sc Append(V)} operation appends a value $V$ to
+array $A$. Finally an ISMQ {\tt Query(x)} finds the {\em maximum}
 value among the $x$-th value to the end of an array $A$.
 
 Peng uses a {\em disjoint-set} data structure to answer incremental
@@ -91,7 +91,7 @@ sets are at the root and in {\em decreasing} order.  When we add a
 value $x$ into the data structure, we put it at the end as a set of
 itself.  Then we start joining (with union operation) from the last
 set to its previous set until the maximum of the previous set is {\em
-  larger}.  It is easy to see that the {\tt query(x)} operation is
+  larger}.  It is easy to see that the {\sc Query(x)} operation is
 simply a {\em find} operation that finds the root, which has the {\em
   maximum}, of the tree that $x$ belongs to.  The amortized time per
 union/find operation is $O(\alpha(n))$.

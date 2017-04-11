@@ -24,10 +24,11 @@
 			]
 			\addplot [mark=*, mark options={fill=white}] file{./data/ismq-disjoint.dat};
 			\addplot [mark=square*, mark options={fill=white}] file{./data/ismq-st.dat};
-			\addplot [mark=diamond*, mark options={fill=white}] file{./data/ismq-bit.dat};
+			% binary indexed tree
+			% \addplot [mark=diamond*, mark options={fill=white}] file{./data/ismq-bit.dat};
 			\addplot [mark=triangle*, mark options={fill=white}] file{./data/ismq-cost.dat};
 			\addplot [mark=triangle*, mark options={fill=black}] file{./data/ismq-onest.dat};
-			\legend{Disjoint Set, Sparse Table, Binary Indexed Tree, Compressed Sparse Table, O(1) Sparse Table}
+			\legend{Disjoint Set, Sparse Table, Compressed Sparse Table, O(1) Sparse Table}
 		\end{axis}
 	\end{tikzpicture}
 \end{document}
