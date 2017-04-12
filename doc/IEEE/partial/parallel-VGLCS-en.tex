@@ -78,7 +78,7 @@ order to find VGLCS efficiently, we need to address the {\em
 that supports incremental suffix maximum queries should support the
 three operations.  First, a {\sc Make} operation creates an empty
 array $A$. Second, an {\sc Append(V)} operation appends a value $V$ to
-array $A$. Finally an ISMQ {\tt Query(x)} finds the {\em maximum}
+array $A$. Finally an ISMQ {\sc Query(x)} finds the {\em maximum}
 value among the $x$-th value to the end of an array $A$.
 
 Peng uses a {\em disjoint-set} data structure to answer incremental
@@ -121,7 +121,11 @@ and the thread synchronized efficiency.
 % what status?? which is not
 
 \begin{figure}[!thb]
-  \includegraphics[width=0.82\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront.pdf}
+  \centering \subfigure[The first stage]{
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront-second.pdf}
+  } \subfigure[The second stage]{
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront-first.pdf}
+  }
   \caption{The record data of the VGLCS algorithm in the wavefront method}
   \label{fig:fig-VGLCS-dp-wavefront}
 \end{figure}

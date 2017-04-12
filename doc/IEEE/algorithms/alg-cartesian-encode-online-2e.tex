@@ -12,13 +12,12 @@
 }
 
 $s \gets 0$, $t \gets 0$ \;
-$s' \gets n - i + 1$ \;
-$t' \gets {\cal C}_{s'} - 1$ \;
+$s' \gets n - i + 1$, $t' \gets {\cal C}_{s'} - 1$ \;
 
 \While{$D[p].v < x$} {
   $t \gets {\cal T}(D[p].s, D[p].t, s, t)$ \;
-  $t' \gets {\cal T}(D[p].s, D[p].t, s', t')$ \;
   $s \gets s + D[p].s+1$ \;
+  $t' \gets {\cal T}(D[p].s, D[p].t, s', t')$ \;
   $s' \gets s' + D[p].s+1$ \;
   $p \gets p - 1$ \;
 }
