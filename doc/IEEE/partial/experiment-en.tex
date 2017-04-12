@@ -22,12 +22,23 @@ $O(\alpha(n))$ or $O(1)$, it causes inefficient synchronizations in a
 parallel environment, therefore, we chose to implement the last data
 structures and conduct experiments to evaluate their performance.
 
-\subsection{VGLCS with Compressed Sparse Table}
+\subsection{Variable Gapped Longest Common Subsequence}
 
-In the random test data, we get the better performance with compressed
-sparse table compared to theoretical $O(1)$ sparse table.  The
-figure~\ref{fig:fig-parallel} shows the different runtime in different
-parallelism, and the figure~\ref{fig:fig-parallel-scala} shows the
+The strings of the experiment are generated randomly with alpha set
+$\Sigma={\tt ATCG}$.   There are four kinds of the combinations of data
+structure to implement VGLCS problem.  Among one kind of them is
+implemented with disjoint set on both the first stage and second stage,
+and it is origin serial Peng's algorithm.   The rest of the other kinds
+can run in parallel environment.  The parallel-ST-disjoint version uses
+sparse table in the second stage and disjoint set in the first stage.
+The parallel-COST-disjoint version uses compressed sparse table in the
+second stage and disjoint set in the first stage.  The parallel-COST
+uses compressed sparse table in both first and second stage.
+
+As a result, we get the better performance with compressed sparse table
+compared to theoretical $O(1)$ sparse table.  The 
+Figure~\ref{fig:fig-parallel} shows the different runtime in different 
+parallelism, and the Figure~\ref{fig:fig-parallel-scala} shows the
 scalability of our parallel algorithm.  On our server, the parallel
 algorithm can get $8 \times$ faster than the serial algorithm.
 
@@ -118,7 +129,7 @@ faster than the disjoint set in random test data.
 
 \begin{figure}[!thb]
   \centering
-  \includegraphics[width=\linewidth]{\GraphicPath/fig-ISMQ.pdf}
+  \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-ISMQ.pdf}
   \caption{
   The performance of the ISMQ problem with different data structures on 
   E5-2620 server.
@@ -153,11 +164,11 @@ above situation.
 \subsection{Parallel Range Query}
 
 Each stage will have $n$ number of elements and the $n$ number of the
-query.  In this special cases, we run the {\tt CORMQ} (compressed RMQ)
-to improve the performance compared to the origin.  If we can predict
-all range size before building, we get the {\tt CORMQ-opt} which run
-$2.35$ faster than origin RMQ.  The table~\ref{tlb:CORMQ} is shown the
-result of the strategy of the parallel range query.
+query.  In this special cases, we run the compressed sparse table to
+improve the performance compared to the origin.  If we preprocess all
+range size before building and , we get the optimized version which run
+$2.35$ faster than origin sparse table.  The Table~\ref{tlb:CORMQ} is
+shown the result of the strategy of the parallel range query.
 
 \iffalse 每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，我
 們運行樸素的 \texttt{CORMQ} (compressed RMQ) 得到效能改善，搭配可預測
