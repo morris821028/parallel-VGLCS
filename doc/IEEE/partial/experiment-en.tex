@@ -79,8 +79,11 @@ environment as follows:
 \begin{itemize}
   \item 
 
-Disjoint set: Average run time $o(\alpha(n))$ which is implemented by
-path compression and rank.
+Disjoint set: We implement amortized time $o(\alpha(n))$ by path
+compression and rank strategies.  If occupy the equivalence in above
+strategies, tend to use {\sc Rem} strategy.  In order to solve ISMQ
+problem, using the stack to store the indices of maximum value node
+reduce amount of jumps.
 
   \item 
 
@@ -97,11 +100,12 @@ sparse table.
 
   \item 
 
-Compressed sparse table: The insert operation consume amortized
-$O(1)$ time.  The query operation consumes $O(s)$ time, which $s$ is the
-size of the block.  Here, the program implement by the fixed size $s =
-16$.  We can maintain extra the prefix and suffix maximum in block to
-reduce the time complexity $O(s)$ to $O(1)$ in most queries.  It is introduced in the 
+Compressed sparse table: The insert operation consume amortized $O(1)$
+time.  The query operation consumes $O(s)$ time, which $s$ is the size
+of the block.  Here, the program implement by the fixed size $s = 16$.
+We can maintain extra the prefix and suffix maximum in block to reduce
+the time complexity $O(s)$ to $O(1)$ in most queries.  It is introduced
+in the Section~\ref{sec:parallelRMQ}
 
   \item
 
@@ -166,9 +170,10 @@ above situation.
 Each stage will have $n$ number of elements and the $n$ number of the
 query.  In this special cases, we run the compressed sparse table to
 improve the performance compared to the origin.  If we preprocess all
-range size before building and , we get the optimized version which run
-$2.35$ faster than origin sparse table.  The Table~\ref{tlb:CORMQ} is
-shown the result of the strategy of the parallel range query.
+range size and mark the necessary compressed blocks before building, we
+get the optimized version which run $2.35$ faster than origin sparse
+table. The Table~\ref{tlb:CORMQ} is shown the result of the strategy of
+the parallel range query.
 
 \iffalse 每一次有 $n$ 個元素和 $n$ 組詢問，針對這種特殊性質的問題，我
 們運行樸素的 \texttt{CORMQ} (compressed RMQ) 得到效能改善，搭配可預測

@@ -1,12 +1,12 @@
 \section{Conclusion}
 \label{sec:Conclusion}
 
-Our parallel VGLCS algorithm run in $\theta(n \log n)$ time, and we use
+Our parallel VGLCS algorithm run in $O(n \log n)$ time, and we use
 sparse table to solve incremental suffix maximum query problem.  We
 provide the amortized sparse table which supports incremental range
 maximum query problem.  Finally, we can use them to solve VGLCS problem
-in $\theta(nm)$ time, and also use $\theta(nm)$ time to solve variable
-range gapped LCS problem which is hard than variable gapped LCS problem.
+in $O(nm)$ time, and also use $O(nm)$ time to solve variable
+ranged gapped LCS problem which is hard than variable gapped LCS problem.
 
 In practice, we presented easy-to-implements data structure for
 constant-time IRMQ-retrieval and provide the extra dynamic programming to
