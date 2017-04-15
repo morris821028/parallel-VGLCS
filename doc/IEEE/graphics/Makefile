@@ -2,7 +2,8 @@ all: fig-VGLCSex.pdf \
 	fig-VGLCSex2.pdf \
 	fig-VGLCS-dp-naive.pdf \
 	fig-VGLCS-dp.pdf \
-	fig-VGLCS-dp-rmq.pdf \
+	fig-VGLCS-dp-rmq-first.pdf \
+	fig-VGLCS-dp-rmq-second.pdf \
 	fig-VGLCS-dp-wavefront-first.pdf \
 	fig-VGLCS-dp-wavefront-second.pdf \
 	fig-interval-decomposition-origin.pdf \

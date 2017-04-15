@@ -169,7 +169,11 @@ algorithm iterates in rows, so $C$ only needs to support suffix
 maximum query.
 
 \begin{figure}
-  \includegraphics[width=0.82\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq.pdf}
+  \centering \subfigure[The first stage]{
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-first.pdf}
+  } \subfigure[The second stage]{
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-second.pdf}
+  }
   \caption{Two stages of the computation of one row of $V$.}
   \label{fig:fig-VGLCS-dp-rmq}
 \end{figure}
