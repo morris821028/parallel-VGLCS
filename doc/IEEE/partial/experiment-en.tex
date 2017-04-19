@@ -4,7 +4,7 @@
 We conduct experiments on an Intel Xeon E5-2620 2.4 Ghz processor with
 384K bytes of level 1 cache, 1536K bytes of level 2 cache, and 15M
 bytes of shared level 3 cache.  The Intel CPU supports
-hyper-threading, and each processor has six cores.  The opearating
+hyper-threading, and each processor has six cores.  The operating
 system is Ubuntu 14.04.  We implemented all algorithms in C++ and
 OpenMP and compiled them using gcc with {\tt -O2} and {\tt -fopenmp}
 flag.
@@ -24,23 +24,30 @@ structures and conduct experiments to evaluate their performance.
 
 \subsection{Variable Gapped Longest Common Subsequence}
 
-The strings of the experiment are generated randomly with alpha set
-$\Sigma={\tt ATCG}$.   There are four kinds of the combinations of data
-structure to implement VGLCS problem.  Among one kind of them is
-implemented with disjoint set on both the first stage and second stage,
-serial Peng's algorithm.   The rest of the other kinds can run in
-parallel environment.  The parallel-ST-disjoint version uses sparse
-table in the second stage and disjoint set in the first stage. The
-parallel-COST-disjoint version uses compressed sparse table in the
-second stage and disjoint set in the first stage.  The parallel-COST
-uses compressed sparse table in both first and second stage.
+We implemented four combinations of data structures in solving the
+VGLCS problem and evaluated their performance.  The first combination
+is a {\em sequential} implementation of Peng's algorithm using
+disjoint set on {\em both} the first stage and second stage.  The
+other three combinations are implemented in parallel environment.  The
+{\em parallel-ST-disjoint} combination uses disjoint set in the first
+stage and sparse table in the second stage.  The {\em
+  parallel-COST-disjoint} combination uses disjoint set in the first
+stage and compressed sparse table in the second stage.  Finally the
+{\em parallel-COST} combination uses compressed sparse table in both
+first and second stage.
 
-As a result, we get the better performance with compressed sparse table
-compared to theoretical $O(1)$ sparse table.  The 
-Figure~\ref{fig:fig-parallel} shows the different runtime in different 
-parallelism, and the Figure~\ref{fig:fig-parallel-scala} shows the
-scalability of our parallel algorithm.  On our server, the parallel
-algorithm can get $8 \times$ faster than the serial algorithm.
+We compare the performance of the four combinations on input strings
+generated randomly from the alphabet $\{A, T, C, G\}$.
+Figure~\ref{fig:fig-parallel} shows the execution time of all
+combinations under different lengths of input.  We note that the
+compressed sparse table implementation outperforms the theoretically
+better $O(1)$ sparse table implementation.  % why?
+That is, {\em parallel-COST} outperforms all other parallel implementations.
+
+Figure~\ref{fig:fig-parallel-scala} shows the scalability of the best
+parallel combination {\em parallel-COST}.  It achieves a speedup of
+$8$ than the serial implementation on our server with 6 cores and
+hyper-threading.
 
 \iffalse
 我們運行優化策略中的空間壓縮版本，而非理論分析的 $\theta(1)$ 操作，
@@ -57,7 +64,9 @@ algorithm can get $8 \times$ faster than the serial algorithm.
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-p.pdf}
     \label{fig:fig-parallel-scala}
   }
-  \caption{Serial and Parallel Algorithm run on E5-2620}
+  \caption{The execution time and scability results of our parallel
+    impementations on an E5-2620 server with six cores and
+    hyper-threading}
 \end{figure}
 
 %\subsection{理論常數 VGLCS}
@@ -66,55 +75,45 @@ algorithm can get $8 \times$ faster than the serial algorithm.
 
 \subsection{Incremental Suffix Maximum Query}
 
-We use the random test cases without any limitation, e.g. the length of
-range query has a uniform distribution.  After each append operation,
-there is only one query operation in the experiment.  Then, we compare
-the performance between the four data structure without parallel
-environment as follows:
+We compare the performance of four data structures for supporting
+incremental suffix maximum query.  The experiments alternatie between
+appending a data and issuing a range query.  Both the length and the
+position of the range query are uniformly distributed among all
+possibilities.
 
 \iffalse
 針對插入和詢問次數相同的 ISMQ 問題，運行以下四種數據結構：
 \fi
 
-\begin{itemize}
-  \item 
+The first data structure is {\em disjoint set}.  We implemented path
+compression and rank strategies so that the amortized time
+$o(\alpha(n))$.
 
-Disjoint set: We implement amortized time $o(\alpha(n))$ by path
-compression and rank strategies.  If occupy the equivalence in above
-strategies, tend to use {\sc Rem} strategy.  In order to solve ISMQ
-problem, using the stack to store the indices of maximum value node
-reduce amount of jumps.
+% ???
+If occupy the equivalence in above strategies, tend to use {\sc Rem}
+strategy.  In order to solve ISMQ problem, using the stack to store
+the indices of maximum value node reduce amount of jumps.
 
-  \item 
+The second data structure is {\em sparse table}.  The insertion time
+is $O(\log n)$, and the query time is $O(1)$.  The sparse table is
+allocated in row-major to reduce cache miss.  Please refer to
+Algorithm~\ref{alg:parallel-VGLCS} and
+Figure~\ref{fig:interval-decomposition} for details.
 
-Sparse table: Insertion in $O(\log n)$ time, and query in $O(1)$ time.
-We allocate $\tt{table}[\log N][N]$ which arranged in row-major to
-reduce cache miss.  The Algorithm~\ref{alg:parallel-VGLCS} and
-Figure~\ref{fig:interval-decomposition} illustrate the method of this
-sparse table.
+The third data structure is {\em compressed sparse table}.  The
+amortized insertion time is $O(1)$ and the query time is $O(s)$, where
+$s$ is the size of the block and is set to $16$ in the experimetns.
 
-%   \item 
+% ???
+The query time can be reduced to $O(1)$ by extra prefix and suffix
+maximum in block queries.
 
-% Binary indexed tree: Both insert and query operation consume $O(\log
-% n)$ time.
+Please refer to Section~\ref{sec:parallelRMQ} for detials.
 
-  \item 
-
-Compressed sparse table: The insert operation consume amortized $O(1)$
-time.  The query operation consumes $O(s)$ time, which $s$ is the size
-of the block.  Here, the program implement by the fixed size $s = 16$.
-We can maintain extra the prefix and suffix maximum in block to reduce
-the time complexity $O(s)$ to $O(1)$ in most queries.  It is introduced
-in the Section~\ref{sec:parallelRMQ}
-
-  \item
-
-Amortized $O(1)$ sparse table:  The insert operation consume amortized
-$O(1)$ time.  The query operation consume $O(1)$ time.  In the
-implementation, we choose the fixed size $s = 8$.  The other
-optimization is same as compressed sparse table.
-
-\end{itemize}
+The final data strcture is {\em amortized sparse table}.  Both the
+amortized insertion time and the query time are $O(1)$.  In our
+implementation we set the block size $s$ to $8$, and apply other
+similar optimization as in compressed sparse table.
 
 \iffalse
 \begin{itemize}
@@ -126,18 +125,18 @@ optimization is same as compressed sparse table.
 \end{itemize}
 \fi
 
-The Figure~\ref{fig:fig-ISMQcmp} illustrate our compressed sparse table
-run faster than the disjoint set when $n$ is greater than  $10^6$.  When
-$n$ is greater than $10^7$, the compressed sparse table run $1.8 \times$
-faster than the disjoint set in random test data.
+Figure~\ref{fig:fig-ISMQcmp} indicates that our compressed sparse
+table implementation runs faster than the disjoint set implementation
+when the number of data $n$ is greater than $10^6$.  In particular
+when $n$ is greater than $10^7$, the compressed sparse table runs
+$1.8$ times faster than the disjoint set.
 
 \begin{figure}[!thb]
   \centering
   \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-ISMQ.pdf}
-  \caption{
-  The performance of the ISMQ problem with different data structures on 
-  E5-2620 server.
-  }
+
+  \caption{The performance of the different data structures for
+    supporting incremental suffix maximum query on an E5-2620 server}
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
