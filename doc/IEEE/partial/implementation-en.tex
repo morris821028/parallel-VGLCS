@@ -11,16 +11,37 @@ different levels of caches miss, such as the lower time complexity will
 need the less long jumps opposite to higher time complexity use more
 short jumps. % like what???
 
+\begin{figure}[!thb]
+  \centering \subfigure[Other strategy] {
+    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-long-jump.pdf}
+  } \subfigure[Rem's algorithm] {
+    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-short-jump.pdf}
+  }
+  \caption{The parent jump in disjoint set}
+  \label{fig:long-short-jump-disjoint}
+\end{figure}
+
 % what is the full name for RemSP? What does it mean???
 
 The Rem's algorithm ({\sc Rem})~\cite{dijkstra1976a} is the {\sc Int}
 algorithm which assumes that each node has a unique identifier that can
 be ordered.  The identifier often used to express $0$ to $n$.  When
-union two disjoint- set trees, we make the lower index of the root node
+union two disjoint-set trees, we make the lower index of the root node
 point to higher index of the root node. Another compression technique is
 known as {\sc Splicing} ({\sc Sp}) which makes the index of new parent
 of each node is higher than the index of old parent after {\sc Union}
 operations.
+
+\begin{figure}[!thb]
+  \centering \subfigure[Before] {
+    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-remsp-before.pdf}
+  } \subfigure[After] {
+    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-remsp-after.pdf}
+  }
+  \caption{The {\sc RemSp} strategy}
+  \label{fig:RemSp-strategy}
+\end{figure}
+
 
 The {\sc RemSp} is the strategy which integrates {\sc Rem} and {\sc Sp}
 techniques.  The time complexity of the {\sc RemSp} is $O(m \log_{2+m/n}

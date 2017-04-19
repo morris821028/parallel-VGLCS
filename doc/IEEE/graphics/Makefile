@@ -29,6 +29,10 @@ all: fig-VGLCSex.pdf \
 	fig-LCS-task2.pdf \
 	fig-LCS-adder.pdf \
 	fig-LCS-doubling.pdf \
+	fig-rem-long-jump.pdf \
+	fig-rem-short-jump.pdf \
+	fig-remsp-before.pdf \
+	fig-remsp-after.pdf \
 
 
 fig-bst-encoding.pdf: fig-bst-n1.tex \
