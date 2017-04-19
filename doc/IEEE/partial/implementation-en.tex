@@ -35,13 +35,6 @@ problem to reduce the amount of parent jumps~\cite{Peng2011TheLC} on {\sc
 Append} operation.  Then, the all operations is supported by {\sc Rem}
 technique.
 
-\iffalse
-運行 VGLCS 時，將耗費 $\theta(n^2)$ 的內存空間。使用遞增後綴最大值 (ISMQ) 時，
-採用並查集實作將會遭遇到很多不平衡的工作負載，其原因在於合併的策略，
-常見的有路徑壓縮和啟發式合併兩種策略，這間接影響到不同次數的分枝判斷。
-實務上須考慮到快取未中
-\fi
-
 In the serial algorithm, we tend to actual append the new elements until
 appearing the non-zero elements which is the lowest value of the integer
 type in our application.  It causes less jumps and modification of the
@@ -62,13 +55,16 @@ the important part of the performance, so we tends to make the worst
 case as more smaller as possible.  Therefore, we always merge the nodes
 as possible opposite to serial algorithm.
 
+
 % I cannot even undertsand this, even it is in Chinese
 
 \iffalse
-每個執行緒負責數個完整的并查集，操作時應偏向延遲標記操作，
-儘早合併的策略易造成快取未中。由於動態規劃的傾向中，插入值的趨勢有兩種情況，
-其一為連續不合定義的零元素插入，其二為遞增元素的插入，在這兩者穿插的趨勢中，
-我們發現延遲操作將會帶來較能改善快取未中問題。
+在單一處理器下，由於動態規劃常會遇到不合定義而填入連續的 0，
+多次的插入操作可以直到下一個非零的時候再進行，同時也改善查表的花費，
+直到下一個非零的才進行的操作，增加嚴重增加某一次操作的時間。
+
+在多核心平台下，要避免單一操作時間過長，一旦單一操作時間過長，
+多個工作的同步將變得非常沒有效率。因此，每一次操作都強制合併，這有別於循序算法的版本。
 \fi
 
 \subsection{Parallel Range Query}
