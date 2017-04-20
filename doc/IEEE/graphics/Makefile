@@ -33,6 +33,7 @@ all: fig-VGLCSex.pdf \
 	fig-rem-short-jump.pdf \
 	fig-remsp-before.pdf \
 	fig-remsp-after.pdf \
+	fig-compressed-sp-prefix-suffix.pdf \
 
 
 fig-bst-encoding.pdf: fig-bst-n1.tex \

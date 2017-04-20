@@ -11,12 +11,12 @@ The cache is essential to efficient implementation of disjoint sets.
 Patwary, Blair, and Manne~\cite{Patwary2010ExperimentsOU} conducted
 experiments on disjoint-set and showed that different implementations
 have different impact on different levels of caches misses.  In
-practice the cache miss is stronly related to how we go from a child
+practice the cache miss is strongly related to how we go from a child
 to its ancestors through pointer chasing during path compression.
 Usually, an algorithm with a lower time complexity, e.g.,  will have more
 ``long jumps'' than an algorithm with a higher time complexity.  Here
 the long jump means the pointer chasing will go from a memory address
-to a far away memeory address.  Pleasew refer to
+to a far away memory address.  Please refer to
 Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 
 \begin{figure}[!thb]
@@ -45,39 +45,9 @@ trees being merged.  That is, the root of the new merged tree will be
 the root with the ``larger'' index.
 
 In our experiments we still use merge-by-rank to merger trees.
-However, when we have two eqauly ranked disjoint set trees to merger,
+However, when we have two equally ranked disjoint set trees to merger,
 we apply the merge-by-index technique to resolve the case, so as to
 improve cache performance.
-
-%% When union two disjoint-set trees, we make the lower index of the root
-%% node point to higher index of the root node. Another compression
-%% technique is known as {\sc Splicing} ({\sc Sp}) which makes the index
-%% of new parent of each node is higher than the index of old parent
-%% after {\sc Union} operations.
-
-%% \begin{figure}[!thb]
-%%   \centering \subfigure[Before {\sc Union} operation] {
-%%     \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-remsp-before.pdf}
-%%   } \subfigure[After {\sc Union} operation] {
-%%     \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-remsp-after.pdf}
-%%   }
-%%   \caption{The {\sc RemSp} strategy}
-%%   \label{fig:RemSp-strategy}
-%% \end{figure}
-
-
-%% The {\sc RemSp} is the strategy which integrates {\sc Rem} and {\sc Sp}
-%% techniques.  The time complexity of the {\sc RemSp} is $O(m \log_{2+m/n}
-%% n)$.  The report of Patwary et al.~\cite{Patwary2010ExperimentsOU} shows
-%% that {\sc RemSp} is given both fewer cache missed and fewer parent jumps
-%% than the other classical algorithms.
-
-%% Recalled VGLCS problem, we consider above cache issue to implement our
-%% program carefully.  We maintain the stack which stores the indices of
-%% maximum value node for the {\em incremental suffix maximum query}
-%% problem to reduce the amount of parent jumps~\cite{Peng2011TheLC} on {\sc
-%% Append} operation.  Then, the all operations is supported by {\sc Rem}
-%% technique.
 
 \subsubsection{Application on VGLCS}
 
@@ -87,16 +57,6 @@ In the serial algorithm, we tend to actual append the new elements until
 appearing the non-zero elements which is the lowest value of the integer
 type in our application.  It causes less jumps and modification of the
 parent for each node to improve the performance.
-
-% what is lazy propagation???
-
-% Due to the tendency of the dynamic programming, there are two cases in
-% which the trend of the inserted value. The first case is the
-% continuous zero value insert because it violates the definition.
-
-% The second case is the insertion of incremental elements.  Finally, we
-% can use the lazy propagation to improve the performance in
-% implementation.
 
 For the multi-core platform, the efficiency of thread synchronization is
 the important part of the performance, so we tends to make the worst
@@ -115,7 +75,7 @@ as possible opposite to serial algorithm.
 多個工作的同步將變得非常沒有效率。因此，每一次操作都強制合併，這有別於循序算法的版本。
 \fi
 
-\subsection{Parallel Range Query}
+\subsection{Parallel Range Query in VGLCS Problem}
 
 %???
 
@@ -124,7 +84,7 @@ lots of times.  We can reduce the amount of computation for our dynamic
 programming problem by remove duplicate computation and imposing a
 boundary limitation.  For example, the logarithm function is often used
 in the query of a sparse table, and we can preprocessing all the result
-of the requirements.  Therefore, the reduce-boundary algorithm~\ref{alg
+of the requirements.  Therefore, the reduce-boundary Algorithm~\ref{alg
 :reduce-boundary} runs $O(n \log n)$ time, which $n$  is the length of
 the input sequence.  It would not increase the time complexity because
 the VGLCS problem is solved in  $O(n^2 / p + n \log n)$, which $p$ is
@@ -132,26 +92,34 @@ the number of the processors.
 
 
 \iffalse
-運行區間查找時，一般依賴內建函數在 $O(1)$ 時間完成對數取整，
-然而，在 VGLCS 這類型的動態規劃中，區間查找的對數結果是可以被預測的，預先將每一組詢問的區段對數結果儲存在陣列中，便可降低指令次數。
-\fi
-
-\iffalse
-由於已知所有詢問區間，建立稀疏表時，可藉由動態規劃在 $O(n \log n)$ 排除掉不可能的計算 (參照算法 ~\ref{alg:reduce-boundary})，
-降低過程中的計算量。由於 VGLCS 在平行操作需要 $O(n \log n)$，故使用動態規劃不影響我們的最終結果。
+在 VGLCS 問題中，平行區間詢問的每個區間範圍都是已知的，每一個會重複使用好幾次，
+由於已知詢問的區間資訊，我們可以藉由建表範圍縮小，
+從算法 \ref{alg:reduce-boundary} 推導邊界來減少計算量。
 \fi
 
 \input{\AlgoPath/alg-reduce-boundary-2e}
 
-Due to small $s = \frac{\log n}{4}$, the in-block query is a very
-small probability event.  We can use prefix and suffix maximum array
-to instead of the lookup table.  In our application, we even predict
-whether the Cartesian tree is necessary to use for the in-block query.
-If not, we can reduce time to compute it.  These two arrays brought
-$O(n)$ space, but improve the performance by strength reduction.
+The in-block query is a very small probability event due to small $s =
+\frac{\log n}{4}$. We can use prefix and suffix maximum array to reduce
+the number of lookup operation on LCA table.  Please refer to
+Figure~\ref{fig:compressed-sp-opt} for an illustration.
 
-\iffalse
-從機率分佈的角度來看，因 $s = \frac{1}{4} \log n$ 過小，區間詢問完全落於 block 的機率低，
-故額外維護區段前綴和後綴最大值 (prefix/suffix maximum value in block) 取代笛卡爾樹的建立。
-藉這兩個額外儲存空間，將會增加空間複雜度的常數，卻能有效地降低整體的指令次數。
-\fi
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=0.75\linewidth]{\GraphicPath/fig-compressed-sp-prefix-suffix.pdf}
+  \caption{The prefix/suffix maximum array for each block of compressed sparse table}
+  \label{fig:compressed-sp-opt}
+\end{figure}
+
+In our application, we even predict whether the Cartesian tree is
+necessary to use for the in-block query. If not, we can reduce time to
+compute it. These arrays need extra $O(n)$ space, but improve the
+performance on lookup operation.  
+
+Algorithm~\ref{alg:rmq-access-order-2e} shows the access order for the
+ranged maximum query to reduce the cache miss.  The first level of the
+compressed sparse table $T_s[0]$ consider as a small cache which can
+provide a probabilistic test to determine whether the load the value
+from prefix/suffix maximum array is necessary.
+
+\input{\AlgoPath/alg-rmq-access-order-2e}

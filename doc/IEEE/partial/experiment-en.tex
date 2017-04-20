@@ -64,26 +64,19 @@ hyper-threading.
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-p.pdf}
     \label{fig:fig-parallel-scala}
   }
-  \caption{The execution time and scability results of our parallel
-    impementations on an E5-2620 server with six cores and
+  \caption{The execution time and scalability results of our parallel
+    implementations on an E5-2620 server with six cores and
     hyper-threading}
 \end{figure}
 
-%\subsection{理論常數 VGLCS}
-
-%尚未完成
 
 \subsection{Incremental Suffix Maximum Query}
 
 We compare the performance of four data structures for supporting
-incremental suffix maximum query.  The experiments alternatie between
+incremental suffix maximum query.  The experiments alternate between
 appending a data and issuing a range query.  Both the length and the
 position of the range query are uniformly distributed among all
 possibilities.
-
-\iffalse
-針對插入和詢問次數相同的 ISMQ 問題，運行以下四種數據結構：
-\fi
 
 The first data structure is {\em disjoint set}.  We implemented path
 compression and rank strategies so that the amortized time
@@ -98,15 +91,11 @@ Figure~\ref{fig:interval-decomposition} for details.
 
 The third data structure is {\em compressed sparse table}.  The
 amortized insertion time is $O(1)$ and the query time is $O(s)$, where
-$s$ is the size of the block and is set to $16$ in the experimetns.
+$s$ is the size of the block and is set to $16$ in the experiments.
 
-% ???
-The query time can be reduced to $O(1)$ by extra prefix and suffix
-maximum in block queries.
+Please refer to Section~\ref{sec:parallelRMQ} for details.
 
-Please refer to Section~\ref{sec:parallelRMQ} for detials.
-
-The final data strcture is {\em amortized sparse table}.  Both the
+The final data stricture is {\em amortized sparse table}.  Both the
 amortized insertion time and the query time are $O(1)$.  In our
 implementation we set the block size $s$ to $8$, and apply other
 similar optimization as in compressed sparse table.

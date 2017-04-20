@@ -1,0 +1,40 @@
+\begin{algorithm}
+\SetAlgoNoLine
+\KwIn{
+  $A$: the input array\; 
+  $P, \; S$: the prefix/suffix maximum array for each block of the compressed sparse table \;
+  ${\cal T}$: the Catalan index array for each block of the compressed sparse table \;
+  $T_s$: the compressed sparse table \; 
+  $[l, r]$: ranged query \;
+}
+\KwOut{
+  $v$: the maximum value in $A[l .. r]$ \;
+}
+
+\If{$l$ and $r$ in the same block} {
+  $i \gets$ Query the ranged maximum query $[l, r]$ on ${\cal T}_\text{block(l)}$ \;
+  return $A[i]$ \;
+}
+$v \gets - \infty$ \;
+$l' \gets$ The lower bound of the next block by the position $l$ \;
+$r' \gets$ The upper bound of the previous block by the position $r$ \;
+\If{$l' \le r'$} {
+  $t \gets \lfloor \log_2 (r'-l'+1) \rfloor$ \;
+  $SQ_L \gets T_s[t][l' + 2^t - 1]$ \;
+  $SQ_R \gets T_s[t][r']$ \;
+  $v \gets \max(SQ_L, SQ_R)$ \;
+}
+
+\If(\tcc*[f]{$T_s[0]$ is a cache to avoid impossible event}){$T_s[0][\text{block}(r)] > v$} {
+  $v \gets \max(v, P[r])$ \;
+}
+
+\If(\tcc*[f]{Place very low possibility event to the end}){$T_s[0][\text{block}(l)] > v$} {
+  $v \gets \max(v, S[l])$ \;
+}
+
+return $v$ \;
+
+\caption{Access order of ranged maximum query}
+\label{alg:rmq-access-order-2e}
+\end{algorithm}
