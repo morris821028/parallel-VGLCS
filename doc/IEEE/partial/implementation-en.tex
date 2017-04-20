@@ -1,20 +1,28 @@
-\section{Implementation}
-\label{sec:Implementation}
+\section{Implementation} \label{sec:Implementation}
 
-\subsection{The Strategy of Disjoint Set}
+\subsection{The Strategy of Disjoint Set Implementaion}
 
-There two methods to merge disjoint sets -- {\em path compression}, and
-{\em rank strategy}.  Patwary, Blair, and
-Manne~\cite{Patwary2010ExperimentsOU} conducted experiments on disjoint-
-set, and showed that different implementations have different impact on
-different levels of caches miss, such as the lower time complexity will
-need the less long jumps opposite to higher time complexity use more
-short jumps. % like what???
+%% There two techniques to efficiently merge two disjoint sets -- {\em
+%%   path compression}, and {\em rank strategy}.
+
+\subsubsection{Cache Performance}
+
+The cache is essential to efficient implementation of disjoint sets.
+Patwary, Blair, and Manne~\cite{Patwary2010ExperimentsOU} conducted
+experiments on disjoint-set and showed that different implementations
+have different impact on different levels of caches misses.  In
+practice the cache miss is stronly related to how we go from a child
+to its ancestors through pointer chasing during path compression.
+Usually, an algorithm with a lower time complexity, e.g.,  will have more
+``long jumps'' than an algorithm with a higher time complexity.  Here
+the long jump means the pointer chasing will go from a memory address
+to a far away memeory address.  Pleasew refer to
+Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 
 \begin{figure}[!thb]
-  \centering \subfigure[Other strategy] {
+  \centering \subfigure[An algorithm with a lower time complexity] {
     \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-long-jump.pdf}
-  } \subfigure[Rem's algorithm] {
+  } \subfigure[An algorithm with a higher time complexity] {
     \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-short-jump.pdf}
   }
   \caption{The parent jump in disjoint set}
@@ -23,38 +31,57 @@ short jumps. % like what???
 
 % what is the full name for RemSP? What does it mean???
 
-The Rem's algorithm ({\sc Rem})~\cite{dijkstra1976a} is the {\sc Int}
-algorithm which assumes that each node has a unique identifier that can
-be ordered.  The identifier often used to express $0$ to $n$.  When
-union two disjoint-set trees, we make the lower index of the root node
-point to higher index of the root node. Another compression technique is
-known as {\sc Splicing} ({\sc Sp}) which makes the index of new parent
-of each node is higher than the index of old parent after {\sc Union}
-operations.
+The Rem's algorithm ({\sc Rem})~\cite{dijkstra1976a} achieves better
+cache perfromance by a {\em merge-by-index} technique.  Traditional
+disjoint set merging techniqes are {\em merge-by-rank}\cite{XXX} and
+{\em merge-by-size}\cite{XXX}, which determine the root of new tree by
+the ranks and the sizes of the two trees respeitively.  Despite that
+they do have asymtotivcally better time complexity, put their better
+time complexity here.  However, their perfromance in practice is not
+so imperssive due to the previously mentioned cache issue.  In
+contrast Rem's algorithm assigns an {\em index} to each node, and
+merge two disjoint sets according the index of the roots of the two
+trees being merged.  That is, the root of the new merged tree will be
+the root with the ``larger'' index.
 
-\begin{figure}[!thb]
-  \centering \subfigure[Before {\sc Union} operation] {
-    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-remsp-before.pdf}
-  } \subfigure[After {\sc Union} operation] {
-    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-remsp-after.pdf}
-  }
-  \caption{The {\sc RemSp} strategy}
-  \label{fig:RemSp-strategy}
-\end{figure}
+In our experiments we still use merge-by-rank to merger trees.
+However, when we have two eqauly ranked disjoint set trees to merger,
+we apply the merge-by-index technique to resolve the case, so as to
+improve cache performance.
+
+%% When union two disjoint-set trees, we make the lower index of the root
+%% node point to higher index of the root node. Another compression
+%% technique is known as {\sc Splicing} ({\sc Sp}) which makes the index
+%% of new parent of each node is higher than the index of old parent
+%% after {\sc Union} operations.
+
+%% \begin{figure}[!thb]
+%%   \centering \subfigure[Before {\sc Union} operation] {
+%%     \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-remsp-before.pdf}
+%%   } \subfigure[After {\sc Union} operation] {
+%%     \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-remsp-after.pdf}
+%%   }
+%%   \caption{The {\sc RemSp} strategy}
+%%   \label{fig:RemSp-strategy}
+%% \end{figure}
 
 
-The {\sc RemSp} is the strategy which integrates {\sc Rem} and {\sc Sp}
-techniques.  The time complexity of the {\sc RemSp} is $O(m \log_{2+m/n}
-n)$.  The report of Patwary et al.~\cite{Patwary2010ExperimentsOU} shows
-that {\sc RemSp} is given both fewer cache missed and fewer parent jumps
-than the other classical algorithms.
+%% The {\sc RemSp} is the strategy which integrates {\sc Rem} and {\sc Sp}
+%% techniques.  The time complexity of the {\sc RemSp} is $O(m \log_{2+m/n}
+%% n)$.  The report of Patwary et al.~\cite{Patwary2010ExperimentsOU} shows
+%% that {\sc RemSp} is given both fewer cache missed and fewer parent jumps
+%% than the other classical algorithms.
 
-Recalled VGLCS problem, we consider above cache issue to implement our
-program carefully.  We maintain the stack which stores the indices of
-maximum value node for the {\em incremental suffix maximum query}
-problem to reduce the amount of parent jumps~\cite{Peng2011TheLC} on {\sc
-Append} operation.  Then, the all operations is supported by {\sc Rem}
-technique.
+%% Recalled VGLCS problem, we consider above cache issue to implement our
+%% program carefully.  We maintain the stack which stores the indices of
+%% maximum value node for the {\em incremental suffix maximum query}
+%% problem to reduce the amount of parent jumps~\cite{Peng2011TheLC} on {\sc
+%% Append} operation.  Then, the all operations is supported by {\sc Rem}
+%% technique.
+
+\subsubsection{Application on VGLCS}
+
+% VGLCS
 
 In the serial algorithm, we tend to actual append the new elements until
 appearing the non-zero elements which is the lowest value of the integer
