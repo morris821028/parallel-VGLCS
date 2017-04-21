@@ -1,6 +1,14 @@
-\section{Implementation} \label{sec:Implementation}
+\section{Implementation Optimizations} \label{sec:Implementation}
+
+This section describes the optimization in our implmentations of VGLCS
+algorithms, both in seqential and parrallel environments.  Note that
+some of these techniques address hardware characteristics, e.g., cache
+bahavior, and are not confined to asymtotical analyasis only.
 
 \subsection{The Strategy of Disjoint Set Implementaion}
+
+We now describe the optimization in the implmentations of disjoint
+sets, whose applications include VGLCS.
 
 %% There two techniques to efficiently merge two disjoint sets -- {\em
 %%   path compression}, and {\em rank strategy}.
@@ -72,62 +80,55 @@ are non-negative, and hence larger than zero, we can link all zeros to
 $v$.  From the experiments we observe that this technique causes less
 pointer chasing and updates and does improve performance.
 
-For the multi-core platform, the efficiency of thread synchronization is
-the important part of the performance, so we tends to make the worst
-case as more smaller as possible.  Therefore, we always merge the nodes
-as possible opposite to serial algorithm.
+Note that we do not apply the lazy insertion optimization in our
+parallel implementation.  For a multi-core platform, the efficiency of
+thread synchronization is essential to the performance.  Since the
+threads of a parallel VGLCS algorithm needs to synchronize at every
+column of the dynamic programming table in order to process a row, the
+lazy insertion, which can ingore this dependency in a sequential
+environment, is not beneficial, and is not adopted in our parallel
+implementation.
 
+\subsection{Parallel Range Query in VGLCS}
 
-% I cannot even undertsand this, even it is in Chinese
+%% %???
 
-\iffalse
-在單一處理器下，由於動態規劃常會遇到不合定義而填入連續的 0，
-多次的插入操作可以直到下一個非零的時候再進行，同時也改善查表的花費，
-直到下一個非零的才進行的操作，增加嚴重增加某一次操作的時間。
+%% In the VGLCS problem, the information of range query can be reused a
+%% lots of times.  We can reduce the amount of computation for our
+%% dynamic programming problem by remove duplicate computation and
+%% imposing a boundary limitation.  For example, the logarithm function
+%% is often used in the query of a sparse table, and we can preprocessing
+%% all the result of the requirements.  Therefore, the reduce-boundary
+%% Algorithm~\ref{alg:reduce-boundary} runs $O(n \log n)$ time, which $n$
+%% is the length of the input sequence.  It would not increase the time
+%% complexity because the VGLCS problem is solved in $O(n^2 / p + n \log
+%% n)$, which $p$ is the number of the processors.
 
-在多核心平台下，要避免單一操作時間過長，一旦單一操作時間過長，
-多個工作的同步將變得非常沒有效率。因此，每一次操作都強制合併，這有別於循序算法的版本。
-\fi
+%% \iffalse
+%% 在 VGLCS 問題中，平行區間詢問的每個區間範圍都是已知的，每一個會重複使用好幾次，
+%% 由於已知詢問的區間資訊，我們可以藉由建表範圍縮小，
+%% 從算法 \ref{alg:reduce-boundary} 推導邊界來減少計算量。
+%% \fi
 
-\subsection{Parallel Range Query in VGLCS Problem}
-
-%???
-
-In the VGLCS problem, the information of range query can be reused a
-lots of times.  We can reduce the amount of computation for our dynamic
-programming problem by remove duplicate computation and imposing a
-boundary limitation.  For example, the logarithm function is often used
-in the query of a sparse table, and we can preprocessing all the result
-of the requirements.  Therefore, the reduce-boundary Algorithm~\ref{alg
-:reduce-boundary} runs $O(n \log n)$ time, which $n$  is the length of
-the input sequence.  It would not increase the time complexity because
-the VGLCS problem is solved in  $O(n^2 / p + n \log n)$, which $p$ is
-the number of the processors.
-
-\iffalse
-在 VGLCS 問題中，平行區間詢問的每個區間範圍都是已知的，每一個會重複使用好幾次，
-由於已知詢問的區間資訊，我們可以藉由建表範圍縮小，
-從算法 \ref{alg:reduce-boundary} 推導邊界來減少計算量。
-\fi
-
-\input{\AlgoPath/alg-reduce-boundary-2e}
+%% \input{\AlgoPath/alg-reduce-boundary-2e}
 
 The in-block query is a very small probability event due to small $s =
-\frac{\log n}{4}$. We can use prefix and suffix maximum array to reduce
-the number of lookup operation on LCA table.  Please refer to
+\frac{\log n}{4}$. We can use prefix and suffix maximum array to
+reduce the number of lookup operation on LCA table.  Please refer to
 Figure~\ref{fig:compressed-sp-opt} for an illustration.
 
 \begin{figure}[!thb]
   \centering
   \includegraphics[width=0.75\linewidth]{\GraphicPath/fig-compressed-sp-prefix-suffix.pdf}
-  \caption{The prefix/suffix maximum array for each block of compressed sparse table}
+  \caption{The prefix/suffix maximum array for each block of
+    compressed sparse table}
   \label{fig:compressed-sp-opt}
 \end{figure}
 
 In our application, we even predict whether the Cartesian tree is
 necessary to use for the in-block query. If not, we can reduce time to
 compute it. These arrays need extra $O(n)$ space, but improve the
-performance on lookup operation.  
+performance on lookup operation.
 
 Algorithm~\ref{alg:rmq-access-order-2e} shows the access order for the
 ranged maximum query to reduce the cache miss.  The first level of the
