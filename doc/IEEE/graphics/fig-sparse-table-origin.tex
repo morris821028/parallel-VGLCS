@@ -112,26 +112,26 @@ at (0,-4)
 
 \end{scope}
 
-\node[left=5pt of mat1]{ $A = ST[0]$ };
+\node[left=5pt of mat1-2-1.west]{ $A = ST[0]$ };
 
-\node[left=5pt of mat2]{ $ST[1]$ };
+\node[left=5pt of mat2-1-1.west]{ $ST[1]$ };
 
-\node[left=5pt of mat3]{ $ST[2]$ };
+\node[left=5pt of mat3-1-1.west]{ $ST[2]$ };
 
-\node[left=5pt of mat4]{ $ST[3]$ };
+\node[left=5pt of mat4-1-1.west]{ $ST[3]$ };
 
-\node[below=5pt of mat4](formula1)
-{
-  $ST[i][j] = \left\{\begin{matrix*}[l]
-    A[j] && , i = 0\\
-    \max(ST[i-1][j], ST[i-1][j-2^{i-1}]) && , \textit{otherwise}
-  \end{matrix*}\right.$
-};
+% \node[below=5pt of mat4](formula1)
+% {
+%   $ST[i][j] = \left\{\begin{matrix*}[l]
+%     A[j] && , i = 0\\
+%     \max(ST[i-1][j], ST[i-1][j-2^{i-1}]) && , \textit{otherwise}
+%   \end{matrix*}\right.$
+% };
 
-\node[below=5pt of formula1]
-{
-  $Q_L = ST[3][9] = 8, \; Q_R = ST[3][13] = 6$
-};
+% \node[below=5pt of formula1]
+% {
+%   $Q_L = ST[3][9] = 8, \; Q_R = ST[3][13] = 6$
+% };
 
 \end{tikzpicture}
 

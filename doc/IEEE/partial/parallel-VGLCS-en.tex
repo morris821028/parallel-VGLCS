@@ -12,9 +12,16 @@ rectangle $V[i-G_A(i)-1 \cdots i-1, j-G_B(j)-1 \cdots j-1]$.  Please
 refer to Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
 
 \begin{figure}[!thb]
-  \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp-naive.pdf}
-  \caption{How to compute $V$.}
-  \label{fig:fig-VGLCS-dp-naive}
+  \centering \subfigure[How to compute $V$.] {
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-naive.pdf}
+    % \caption{How to compute $V$.}
+    \label{fig:fig-VGLCS-dp-naive}
+  } \subfigure[Compute $V$ with incremental suffix maximum queries.] {
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
+    \label{fig:fig-VGLCS-dp}
+  }
+  \caption{The basic dynamic programming for VGLCS}
+  \label{fig:basic-dp-VGLCS}
 \end{figure}
 
 The computation of $V$ can be optimized as follows.  Note that the
@@ -31,11 +38,11 @@ refer to this type of queries as {\em incremental suffix maximum
 we can find the maximum of its suffix efficiently while we add data at
 its end.
 
-\begin{figure}[!thb]
-  \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
-  \caption{Compute $V$ with incremental suffix maximum queries.}
-  \label{fig:fig-VGLCS-dp}
-\end{figure}
+% \begin{figure}[!thb]
+%   \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
+%   \caption{Compute $V$ with incremental suffix maximum queries.}
+%   \label{fig:fig-VGLCS-dp}
+% \end{figure}
 
 \subsection{Peng's Algorithm}
 
@@ -216,7 +223,7 @@ answers -- one from 2 to 9, and one from 6 to 13.
   \centering \subfigure[Array]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-interval-decomposition-origin.pdf}
     \label{fig:fig-interval-decomposition}
-  } \subfigure[Sparse Table]{
+  } \subfigure[Sparse table]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-sparse-table-origin.pdf}
     \label{fig:fig-sparse-table}
   }
