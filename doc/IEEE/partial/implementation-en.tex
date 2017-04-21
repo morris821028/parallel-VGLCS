@@ -53,10 +53,24 @@ improve cache performance.
 
 % VGLCS
 
-In the serial algorithm, we tend to actual append the new elements until
-appearing the non-zero elements which is the lowest value of the integer
-type in our application.  It causes less jumps and modification of the
-parent for each node to improve the performance.
+It is possible to further optimize the implementation of Peng's
+sequential algorithm (Algorithm~\ref{alg:serial-VGLCS}) by a {\em lazy
+  insertion} technique.  Recall that in
+Algorithm~\ref{alg:serial-VGLCS} when the $i$-th characters from one
+input string does not match the $j$-th character of the other input
+string, we need to place a zero into the dynamic programming table at
+position $V[i][j]$.  In practice this this mismatch will happen very
+frequently, and causing frequent insertions of zeros into the disjoint
+sets.  Each insertion then links the newly inserted singlton node of
+zero the previous node of zero that was inserted one iteration ago. 
+
+We implemented an optimization that resolves this repeated insertion,
+and linking, of zeros.  Our implementation will scan through a series
+of zeros, and locate the next non-zero $V$ element (denoted as $v$) in
+the same column, and insert them as a batch.  Since all values in $V$
+are non-negative, and hence larger than zero, we can link all zeros to
+$v$.  From the experiments we observe that this technique causes less
+pointer chasing and updates and does improve performance.
 
 For the multi-core platform, the efficiency of thread synchronization is
 the important part of the performance, so we tends to make the worst
@@ -90,7 +104,6 @@ the input sequence.  It would not increase the time complexity because
 the VGLCS problem is solved in  $O(n^2 / p + n \log n)$, which $p$ is
 the number of the processors.
 
-
 \iffalse
 在 VGLCS 問題中，平行區間詢問的每個區間範圍都是已知的，每一個會重複使用好幾次，
 由於已知詢問的區間資訊，我們可以藉由建表範圍縮小，
@@ -123,3 +136,4 @@ provide a probabilistic test to determine whether the load the value
 from prefix/suffix maximum array is necessary.
 
 \input{\AlgoPath/alg-rmq-access-order-2e}
+
