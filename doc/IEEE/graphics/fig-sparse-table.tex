@@ -6,6 +6,8 @@
                     decorations.pathreplacing}
 \usetikzlibrary{matrix,positioning,arrows.meta,arrows}
 
+\newcommand\hlight[1]{\tikz[overlay, remember picture]\node[rectangle,fill=blue!50,rounded corners,fill opacity = 0.2,draw,thick,text opacity =1] {$#1$};} 
+
 \tikzset{
 mymat/.style={
   matrix of nodes,
@@ -33,31 +35,31 @@ mymat/.style={
 
 \matrix[mymat,anchor=west,
     box={2}{1, 2, 3, 4, 5}]
-at (0,0) 
-(mat1)
+at (0,-3.5) 
+(sp-mat1)
 { 
   0 & 1 & 2 & 3 & 4 \\
-  8 & 7 & 6 & 6 & 9 \\ };
+  8 & 7 & 6 & 6 & 9\\ };
 
-\matrix[mymat,anchor=west,
+  \matrix[mymat,anchor=west,
     box={1}{1, 2, 3, 4, 5}]
-at (0,-1.2) 
-(mat2)
+at (0,-4.7) 
+(sp-mat2)
 { 
-  8 & 8 & 7 & 6 & 9\\ };
+  8 & 8 & \hlight{7} & \hlight{6} & 9\\ };
 
 \matrix[mymat,anchor=west,
     box={1}{1, 2, 3, 4, 5}]
-at (0,-2.0) 
-(mat3)
+at (0,-5.5) 
+(sp-mat3)
 { 
   8 & 8 & 8 & 8 & 9 \\ };
 
-\node[left=5pt of mat1-2-1.west]{ $T_s[0]$ };
+\node[left=5pt of sp-mat1-2-1.west]{ $T_s[0]$ };
 
-\node[left=5pt of mat2-1-1.west]{ $T_s[1]$ };
+\node[left=5pt of sp-mat2-1-1.west]{ $T_s[1]$ };
 
-\node[left=5pt of mat3-1-1.west]{ $T_s[2]$ };
+\node[left=5pt of sp-mat3-1-1.west]{ $T_s[2]$ };
 
 % \node[right=5pt of mat1]
 % {

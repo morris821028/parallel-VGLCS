@@ -118,10 +118,12 @@ reduce the number of lookup operation on LCA table.  Please refer to
 Figure~\ref{fig:compressed-sp-opt} for an illustration.
 
 \begin{figure}[!thb]
-  \centering
-  \includegraphics[width=0.75\linewidth]{\GraphicPath/fig-compressed-sp-prefix-suffix.pdf}
-  \caption{The prefix/suffix maximum array for each block of
-    compressed sparse table}
+  \centering \subfigure[The prefix/suffix maximum array for each block of
+    compressed sparse table] {
+  \includegraphics[width=0.65\linewidth]{\GraphicPath/fig-compressed-sp-prefix-suffix.pdf}
+  } \subfigure[Blocked sparse table] {
+	\includegraphics[width=0.25\linewidth]{\GraphicPath/fig-sparse-table.pdf}
+  }
   \label{fig:compressed-sp-opt}
 \end{figure}
 

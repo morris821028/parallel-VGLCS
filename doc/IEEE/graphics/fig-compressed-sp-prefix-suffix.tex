@@ -4,6 +4,8 @@
                     decorations.pathreplacing}
 \usetikzlibrary{matrix,positioning,arrows.meta,arrows}
 
+\newcommand\hlight[1]{\tikz[overlay, remember picture]\node[rectangle,fill=blue!50,rounded corners,fill opacity = 0.2,draw,thick,text opacity =1] {$#1$};} 
+
 \tikzset{
 mymat/.style={
   matrix of nodes,
@@ -20,8 +22,16 @@ mymat/.style={
     sub@rows/.style={row ##1 column #2/.style={nodes={rectangle,draw=black}}},
     sub@rows/.list={#1}
   },
+  hrows/.style 2 args={
+    sub@rows/.style={row ##1 column #2/.style={nodes={rectangle,draw=black}}},
+    sub@rows/.list={#1}
+  },
   box/.style 2 args={
     sub@box/.style={rows={#1}{##1}},
+    sub@box/.list={#2}
+  },
+  highlight/.style 2 args={
+    sub@box/.style={hrows={#1}{##1}},
     sub@box/.list={#2}
   }
 }
@@ -72,14 +82,14 @@ mymat/.style={
 \matrix[mymat,anchor=west, box={1}{1, 2, 3, 4}] at (12,-1.4) 
 (prefix-mat5)
 {
-  5 & 5 & 5 & 9 \\ };
+  5 & 5 & \hlight{5} & 9 \\ };
 
 \node[left=5pt of prefix-mat1-1-1.west]{$P$};
 
 \matrix[mymat,anchor=west, box={1}{1, 2, 3, 4}] at (0,-2.5) 
 (suffix-mat1)
 { 
-  8 & 8 & 8 & 2 \\ };
+  8 & 8 & \hlight{8} & 2 \\ };
 \matrix[mymat,anchor=west, box={1}{1, 2, 3, 4}] at (3,-2.5) 
 (suffix-mat2)
 { 
@@ -109,20 +119,10 @@ mymat/.style={
   (mat5-2-1.north west) to node[black,midway,above=25pt] {$Q_R = P[18]$} (mat5-2-3.north east);
 
 \draw[decorate,decoration={brace, amplitude=10pt, raise=15pt}]
-  (mat2-2-1.north west) to node[black,midway,above=25pt] {$SQ_L$} (mat3-2-4.north east);
+  (mat2-2-1.north west) to node[black,midway,above=25pt] {$SQ_L = T_s[1][2]$} (mat3-2-4.north east);
 
 \draw[decorate,decoration={brace, amplitude=20pt, raise=15pt}]
-  (mat3-2-1.north west) to node[black,midway,above=35pt] {$SQ_R$} (mat4-2-4.north east);
-
-\matrix[mymat,anchor=west,
-    box={2}{1, 2, 3, 4, 5}]
-at (0,-3.5) 
-(sp-mat0)
-{ 
-  0 & 1 & 2 & 3 & 4 \\
-  8 & 7 & 6 & 6 & 9\\ };
-
-\node[left=5pt of sp-mat0-2-1.west]{ $T_s[0]$ };
+  (mat3-2-1.north west) to node[black,midway,above=35pt] {$SQ_R = T_s[1][3]$} (mat4-2-4.north east);
 
 \end{tikzpicture}
 
