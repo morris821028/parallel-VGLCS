@@ -56,7 +56,7 @@ In our experiments we still use merge-by-rank to merge disjoint set
 trees.  However, when we have two {\em equally ranked} disjoint set
 trees to merge, we will apply the {\em merge-by-index} technique to
 break the tie, so as to improve cache performance.  Experiments show
-that the merge-by-index technique improves by up to 5 \%.
+that the merge-by-index technique improves by up to 3 \%.
 
 \subsubsection{Application on VGLCS}
 
@@ -179,8 +179,10 @@ check into the suffix table.
   
 In our application, we even predict whether the Cartesian tree is
 necessary to use for the in-block query. If not, we can reduce time to
-compute it. These arrays need extra $O(n)$ space, but improve the
-performance on lookup operation.
+compute it. These arrays need extra $O(n)$ space.  Experiments show that
+``peek'' improves overall performance by up to 8 \% when $n = 10^4$, and
+it also improves the performance of {\sc Query} operations by up to 35
+\% when $n = 10^7$.
 
 Algorithm~\ref{alg:rmq-access-order-2e} shows the access order for the
 ranged maximum query to reduce the cache miss.  The first level of the
