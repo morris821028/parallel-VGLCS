@@ -20,8 +20,7 @@ $l' \gets$ The lower bound of the next block by the position $l$ \;
 $r' \gets$ The upper bound of the previous block by the position $r$ \;
 \If{$l' \le r'$} {
   $t \gets \lfloor \log_2 (r'-l'+1) \rfloor$ \;
-  $SQ_L \gets T_s[t][l' + 2^t - 1]$ \;
-  $SQ_R \gets T_s[t][r']$ \;
+  $SQ_L \gets T_s[t][l' + 2^t - 1]$, $SQ_R \gets T_s[t][r']$ \;
   $v \gets \max(SQ_L, SQ_R)$ \;
 }
 

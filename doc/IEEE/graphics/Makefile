@@ -11,6 +11,7 @@ all: fig-VGLCSex.pdf \
 	fig-interval-cartesian.pdf \
 	fig-sparse-table-origin.pdf \
 	fig-sparse-table.pdf \
+	fig-sparse-table-opt.pdf \
 	fig-cartesian-encoding-stack.pdf \
 	fig-cartesian-encoding.pdf \
 	fig-cartesian-encoding-before.pdf \

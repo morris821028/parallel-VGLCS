@@ -5,8 +5,12 @@
 \usetikzlibrary{arrows.meta,chains,%
                     decorations.pathreplacing}
 \usetikzlibrary{matrix,positioning,arrows.meta,arrows}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{shapes.misc}
 
-\newcommand\hlight[1]{\tikz[overlay, remember picture]\node[rectangle,fill=blue!50,rounded corners,fill opacity = 0.2,draw,thick,text opacity =1] {$#1$};} 
+\newcommand\hlight[1]{\tikz[overlay, remember picture]\node[rectangle,fill=blue!50,rounded corners=0.5em,fill opacity = 0.2,draw,thick,text opacity =1] {$#1$};} 
+
+\newcommand\hhlight[1]{\tikz[overlay, remember picture]\node[rectangle,fill=red!50,rounded corners=0.8em,fill opacity = 0.2,dashed,text opacity =1] {$#1$};} 
 
 \tikzset{
 mymat/.style={
@@ -39,7 +43,7 @@ at (0,-3.5)
 (sp-mat1)
 { 
   0 & 1 & 2 & 3 & 4 \\
-  8 & 7 & 6 & 6 & 9\\ };
+  \hhlight{8} & 7 & 6 & 6 & \hhlight{9}\\ };
 
   \matrix[mymat,anchor=west,
     box={1}{1, 2, 3, 4, 5}]
