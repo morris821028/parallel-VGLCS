@@ -152,26 +152,26 @@ Figure~\ref{fig:compressed-sp-opt} for an illustration.
 We argue that the {\em order} to access these maximum tables is
 important.  Our implementation accesses the block maximum {\em first},
 then the prefix maximum {\em second}, then the suffix maximum {\em
-  last}.  The reasoning for this order is as follows.  Since we need
-to access two elements in the sparse table for $T_S$ in {\em the same
-  level}, it is very likely they will be in the same cache line, so
-access the first will bring in the other automatically by hardware
-cache.  For example, in Figure~\ref{fig:compressed-sp-opt}, we will
-access both $T_{S}[1][2]$ and $T_{S}[1][3]$ in order to find the
-maximum from block 1 to 3.  In addition, our implementation will also
-``peek'' into the two neighboring elements $T_{S}[1][1]$ and
-$T_{S}[1][4]$, which are very likely also present in cache because
-they are in the same level of the sparse table.  If the maximum from
-the block maximum, i.e., the maximum of $T_{S}[1][2]$ and
-$T_{S}[1][3]$, is already larger than the overall block maximum where
-the prefix belongs, i.e., in $T_{S}[1][4]$, then we do not need to
-check the $P$ table.  Similarly if If the maximum from the block
-maximum and the prefix maximum is larger than the overall block maximum
-where the suffix belongs, i.e., in $T_{S}[1][1]$, then we do not need
-to check the $S$ table either.  Note that we check for the prefix
-before the suffix since the value of the dynamic programming table is
-{\em increasing}, so it is more likely that a prefix maximum can save a
-check into the suffix table.
+last}.  The reasoning for this order is as follows.  Since we need to
+access two elements in the sparse table for $T_S$ in {\em the same
+level}, it is very likely they will be in the same cache line, so access
+the first will bring in the other automatically by hardware cache.  For
+example, in Figure~\ref{fig:compressed-sp-opt}, we will access both
+$T_{S}[1][2]$ and $T_{S}[1][3]$ in order to find the maximum from block
+1 to 3.  In addition, our implementation will also ``peek'' into the two
+elements $T_{S}[0][0]$ and $T_{S}[0][4]$, which are very likely also
+present in cache because the first level of the blocked sparse table
+storing $n/s$ elements is smaller than $n$ elements of the auxiliary
+array.   If the maximum from the block maximum, i.e., the maximum of
+$T_{S}[1][2]$ and $T_{S}[1][3]$, is already larger than the overall
+block maximum where the prefix belongs, i.e., in $T_{S}[0][4]$, then we
+do not need to check the $P$ table.  Similarly if If the maximum from
+the block maximum and the prefix maximum is larger than the overall
+block maximum where the suffix belongs, i.e., in $T_{S}[0][0]$, then we
+do not need to check the $S$ table either.  Note that we check for the
+prefix before the suffix since the value of the dynamic programming
+table is {\em increasing}, so it is more likely that a prefix maximum
+can save a check into the suffix table.
 
 
 
@@ -186,7 +186,7 @@ it also improves the performance of {\sc Query} operations by up to 35
 
 Algorithm~\ref{alg:rmq-access-order-2e} shows the access order for the
 ranged maximum query to reduce the cache miss.  The first level of the
-compressed sparse table $T_s[0]$ consider as a small cache which can
+compressed sparse table $T_S[0]$ consider as a small cache which can
 provide a probabilistic test to determine whether the load the value
 from prefix/suffix maximum array is necessary.
 
