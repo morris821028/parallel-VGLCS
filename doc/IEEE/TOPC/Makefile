@@ -17,8 +17,8 @@ PDF = $(PACKAGE).pdf ${SAMPLES:%.tex=%.pdf}
 
 all:  ${PDF}
 
-
 %.pdf:  %.dtx   $(PACKAGE).cls
+	cd ../graphics && make
 	pdflatex $<
 	- bibtex $*
 	pdflatex $<
@@ -54,7 +54,6 @@ TOPC.pdf: \
 	../formulas/*.tex \
 	../graphics/*.tex \
 	../tables/*.tex
-
 
 .PRECIOUS:  $(PACKAGE).cfg $(PACKAGE).cls
 
