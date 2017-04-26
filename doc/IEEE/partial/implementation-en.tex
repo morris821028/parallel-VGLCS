@@ -160,25 +160,36 @@ example, in Figure~\ref{fig:compressed-sp-opt}, we will access both
 $T_{S}[1][2]$ and $T_{S}[1][3]$ in order to find the maximum from block
 1 to 3.
 
-Our implementation will also ``peek'' into the two elements
-$T_{S}[1][1]$ and $T_{S}[1][4]$, which are very likely also present in
-cache because they are in the same level of the sparse table. If the
-maximum from the block maximum, i.e., the maximum of $T_{S}[1][2]$ and
-$T_{S}[1][3]$, is already larger than the overall block maximum where
-the prefix belongs, i.e., in $T_{S}[1][4]$, then we do not need to check
-the $P$ table.  Similarly, if the maximum from the block maximum and
-the prefix maximum is larger than the overall block maximum where the
-suffix belongs, i.e., in $T_{S}[1][1]$, then we do not need to check the
-$S$ table either. Note that we check for the prefix before the suffix
-since the value of the dynamic programming table is {\em increasing}, so
-it is more likely that a prefix maximum can save a check into the suffix
-table. Our experiments show that Despite that these maximum arrays
-require extra $O(n)$ space, the ``peek'' technique improves overall
-performance by up to 8 \% when $n = 10^4$, and it improves the
-performance of query operations by up to 35 \% when $n = 10^7$.
+Our implementation improves performance by ``peeking'' into two
+neighboring elements in the $T_{S}$ tables.  To be more specific, we
+peek the element before the first element, and the one after the
+second element we just accesses from the sparse table $T_S$.  That is, we 
+
+will peek into $T_{S}[1][1]$ and $T_{S}[1][4]$, which are very likely
+also present in cache because they are in the same level of the sparse
+table.  The idea is that if the maximum from the block maximum, i.e.,
+the maximum of $T_{S}[1][2]$ and $T_{S}[1][3]$, is already {\em
+  larger} than the overall block maximum where the prefix belongs,
+i.e., in $T_{S}[1][4]$, then we do {\em not} need to check the $P$
+table.  Similarly, if the maximum from the block maximum {\em and} the
+prefix maximum is larger than the block maximum where the suffix
+belongs, i.e., in $T_{S}[1][1]$, then we do not need to check the $S$
+table either.  This peeking is efficient since the data are most
+likely in the same cache line, and can save unnecessary access to $P$
+and $S$ tables.
 
 Algorithm~\ref{alg:rmq-access-order-2e} shows the access order for the
-ranged maximum query to reduce the cache miss.  
+ranged maximum query to reduce the cache miss.  Note that we check the
+prefix maximum $P$ {\em before} the suffix maximum $S$ since the value
+of the dynamic programming table in the same row is {\em increasing},
+so it is more likely that a prefix maximum, which has a larger column
+index, can save a check into the suffix table, which has a smaller row
+index.
+
+Our experiments show that despite that these maximum arrays require
+additional $O(n)$ memory, the ``peek'' technique improves overall
+performance by up to 8 \% when $n = 10^4$, and it improves the overall
+performance of query operations by up to 35 \% when $n = 10^7$.
 
 % One can consider the
 % first level of the compressed sparse table $T_S[0]$ as a small cache,
