@@ -42,10 +42,16 @@ generated {\em randomly} from the alphabet $\{A, T, C, G\}$.
 Figure~\ref{fig:fig-parallel} shows the execution time of all
 combinations under different lengths of input.  We note that the
 compressed sparse table implementation outperforms the theoretically
-better $O(1)$ sparse table implementation.  That is, {\em
-  parallel-COST} outperforms all other parallel implementations.
-  
+better $O(1)$ sparse table implementation.  That is, {\em   parallel-
+COST} outperforms all other parallel implementations.
+
 % Why is compressed sparse table the best?
+
+There are two main reasons to lead the theoretically $O(1)$ sparse table
+slow. The first reason is that the encoding Cartesian tree needs more
+instruction cycles.  The second reason is that the block size is limited
+by the theorem, which would bright more cache miss with large lookup
+table.
 
 Figure~\ref{fig:fig-parallel-scala} shows the scalability of the best
 parallel combination {\em parallel-COST}.  It achieves a speedup of
@@ -63,7 +69,7 @@ hyper-threading.
     \label{fig:fig-parallel-scala}
   }
   \caption{The execution time and scalability results of our parallel
-    implementations on an E5-2620 server with six cores and
+    implementations on an E5-2620 server with 6 cores and
     hyper-threading}
 \end{figure}
 
@@ -108,25 +114,20 @@ $1.8$ times faster than the disjoint set.
 
 % I have no idea what the following sentences try to say.
 
-We observe that the sparse table implementation, with a supposedly
-better $O(1)$ amortized time, actually runs slower than the
-compressed sparse table implementation.
+We conduct other experiment about more complex scenario.  That is, in
+the dynamic programming, the tendency of insertion value will inflict
+the performance of data structure, so we consider the different
+probability for each data structure.
 
-In the dynamic programming, the tendency of insertion value will
-inflict the performance of data structure, so we experiment the
-different probability for each data structure.
-
-The number of the query is ten times of the number of insertions.
-
-The result is shown on table~\ref{tlb:ISMQcmp}.
+The number of the query is ten times of the number of insertions.  There
+are two strategies for each $(p, q, L)$, implemented by compressed
+sparse table and theoretically better $O(1)$ sparse table.  The result
+is shown on table~\ref{tlb:ISMQcmp}.
 
 Table~\ref{tlb:ISMQcmp} show the performance of the ISMQ when we set
 the number of data $N$ to $10^7$, and we vary the maximum interval
 sizes $L$, the probability $p$ of having an larger next element, and
 the probability $q$ of an element being zero.
-
-There are two strategies for each $(p, q, L)$, implemented by
-compressed sparse table and amortized $O(1)$ sparse table.
 
 The amortized $O(1)$ sparse table run $1.5 \times$ faster than the
 compressed table in above situation.
