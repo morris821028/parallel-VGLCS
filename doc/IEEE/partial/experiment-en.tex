@@ -8,22 +8,23 @@ system is Ubuntu 14.04.  We implemented all algorithms in C++ and
 OpenMP and compiled them using gcc with {\tt -O2} and {\tt -fopenmp}
 flag.
 
-We implement {\em disjoint set} and {\em sparse table} in our
-experiments and evaluate their performance.  The disjoint set has an
-amortized time $O(\alpha(n))$ for each query.  Its variant, {\em
-  incremental tree set union}~\cite{Gabow1983ALA}, has an amortized
-time $O(1)$ for each query.  On the other hand, the sparse table
-requires $O(\log n)$ time to append a new value and $O(1)$ time to
-answer a query.
-
-We conduct experiments under two scenarios.  The first set of
-experiments evaluate various data structures for supporting different
-queries of VGLCS problem.  The second set of experiments purely
-evaluate the performance of incremental suffix maximum query using
-various data structures.  The third set evaluate the performance of
-parallel range query.
+We conduct three sets of experiments.  The first set evaluates various
+data structures for supporting different queries of VGLCS problem.
+The second set purely evaluates the performance of incremental suffix
+maximum query using various data structures.  The third set evaluates
+the performance of parallel range query.
 
 \subsection{Variable Gapped Longest Common Subsequence}
+
+We implement {\em disjoint set} and {\em sparse table} in our
+experiments and evaluate their performance on VGLCS.  For disjoint set
+we implemented path compression and rank strategies so that the
+amortized time $o(\alpha(n))$.  Its variant, {\em incremental tree set
+  union}~\cite{Gabow1983ALA}, has an amortized time $O(1)$ for each
+query.  The sparse table has insertion time $O(\log n)$, and query
+time $O(1)$.  The table is allocated in row-major to reduce cache
+miss.  Please refer to Algorithm~\ref{alg:parallel-VGLCS} and
+Figure~\ref{fig:interval-decomposition} for details.
 
 We implemented four combinations of data structures in solving the
 VGLCS problem and evaluated their performance.  The first combination
@@ -42,20 +43,20 @@ generated {\em randomly} from the alphabet $\{A, T, C, G\}$.
 Figure~\ref{fig:fig-parallel} shows the execution time of all
 combinations under different lengths of input.  We note that the
 compressed sparse table implementation outperforms the theoretically
-better $O(1)$ sparse table implementation.  That is, {\em   parallel-
-COST} outperforms all other parallel implementations.
+better $O(1)$ sparse table implementation.  That is, {\em
+  parallel-COST} outperforms all other parallel implementations.  We
+believe that there are two reasons for the theoretically better $O(1)$
+sparse table implementation actually runs slower.  First, the encoding
+Cartesian tree needs more instruction cycles to complete.
 
-% Why is compressed sparse table the best?
+% not clear
 
-There are two main reasons to lead the theoretically $O(1)$ sparse table
-slow. The first reason is that the encoding Cartesian tree needs more
-instruction cycles.  The second reason is that the block size is limited
-by the theorem, which would bright more cache miss with large lookup
-table.
+Second, the block size is limited by the theorem, which would bright
+more cache miss with large lookup table.
 
 Figure~\ref{fig:fig-parallel-scala} shows the scalability of the best
-parallel combination {\em parallel-COST}.  It achieves a speedup of
-$8$ than the serial implementation on our server with 6 cores and
+parallel combination {\em parallel-COST}.  It is {\em eight} times
+faster than a serial implementation on our server with 6 cores and
 hyper-threading.
 
 \begin{figure}
@@ -77,32 +78,27 @@ hyper-threading.
 \subsection{Incremental Suffix Maximum Query}
 
 We now compare the performance of {\em four} data structures for
-supporting incremental suffix maximum query only.  The experiments
-alternate between appending a data and issuing a range query.  Both
-the length and the position of the range query are uniformly
-distributed among all possibilities.
+supporting incremental suffix maximum query only.  In addition to
+disjoint set and sparse table described earlier, we also implemented
+{\em compressed sparse table} and {\em amortized sparse table}.  The
+compressed sparse table has an amortized insertion time $O(1)$ and
+query time $O(s)$, where $s$ is the size of the block and is set to
+$16$ in the experiments.  Please refer to
+Section~\ref{sec:parallelRMQ} for details.  The amortized sparse table
+has $O(1)$ for both amortized insertion time and the query time.  In
+our implementation we set the block size $s$ to $8$, and apply other
+similar optimization as in compressed sparse table.
 
-The first data structure is {\em disjoint set}.  We implemented path
-compression and rank strategies so that the amortized time
-$o(\alpha(n))$.  The second data structure is {\em sparse table}.  The
-insertion time is $O(\log n)$, and the query time is $O(1)$.  The
-sparse table is allocated in row-major to reduce cache miss.  Please
-refer to Algorithm~\ref{alg:parallel-VGLCS} and
-Figure~\ref{fig:interval-decomposition} for details.  The third data
-structure is {\em compressed sparse table}.  The amortized insertion
-time is $O(1)$ and the query time is $O(s)$, where $s$ is the size of
-the block and is set to $16$ in the experiments.  Please refer to
-Section~\ref{sec:parallelRMQ} for details.  The final data stricture
-is {\em amortized sparse table}.  Both the amortized insertion time
-and the query time are $O(1)$.  In our implementation we set the block
-size $s$ to $8$, and apply other similar optimization as in compressed
-sparse table.
-
-Figure~\ref{fig:fig-ISMQcmp} indicates that our compressed sparse
-table implementation runs faster than the disjoint set implementation
-when the number of data $n$ is greater than $10^6$.  In particular
-when $n$ is greater than $10^7$, the compressed sparse table runs
-$1.8$ times faster than the disjoint set.
+We first tried a simple scenario in which we {\em alternate} between
+appending a data and issuing a range query.  Both the length and the
+position of the range query are uniformly distributed among all
+possibilities.  Figure~\ref{fig:fig-ISMQcmp} shows the performance of
+the four data structures for supporting incremental suffix maximum
+queries under this simple scenario.  We note that our compressed
+sparse table implementation runs faster than the disjoint set
+implementation when the number of data $n$ reaches $10^6$.  In
+particular when $n$ is greater than $10^7$, the compressed sparse
+table runs $1.8$ times faster than the disjoint set.
 
 \begin{figure}[!thb]
   \centering
@@ -112,36 +108,49 @@ $1.8$ times faster than the disjoint set.
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
-% I have no idea what the following sentences try to say.
+Now we conduct experiments on a more complex scenario.  For example,
+in dynamic programming many factors affect the performance.  These
+factors include the distribution of values being inserted the maximum
+interval being queried.  Here we use $p$ to denote the probability of
+having an larger next element to insert, $q$ for the probability of
+inserting a zero, and $L$ for the maximum interval being queried.  In
+addition we the number of the queries to be ten times of the number of
+insertions.
 
-We conduct other experiment about more complex scenario.  That is, in
-the dynamic programming, the tendency of insertion value will inflict
-the performance of data structure, so we consider the different
-probability for each data structure.
+Table~\ref{tlb:ISMQcmp} compares timing of compressed sparse table and
+the theoretically better $O(1)$ sparse table to answer incremental
+suffix maximum query.  The number of data $N$ is $10^7$, and we vary
+the maximum interval sizes $L$ from 4 to 16, both $p$ and $q$ from 0
+to 100\%.  We observe that the sparse table runs $1.5$ times faster
+than the compressed table.
 
-The number of the query is ten times of the number of insertions.  There
-are two strategies for each $(p, q, L)$, implemented by compressed
-sparse table and theoretically better $O(1)$ sparse table.  The result
-is shown on table~\ref{tlb:ISMQcmp}.
+% answer the questions.
 
-Table~\ref{tlb:ISMQcmp} show the performance of the ISMQ when we set
-the number of data $N$ to $10^7$, and we vary the maximum interval
-sizes $L$, the probability $p$ of having an larger next element, and
-the probability $q$ of an element being zero.
+What is the effect of $p$ and $q$?
 
-The amortized $O(1)$ sparse table run $1.5 \times$ faster than the
-compressed table in above situation.
+What is the effect of $L$?
+
+You need to give a reason here.  Is this because sparse table is
+$O(1)$?
 
 \input{\TablePath/tlb-ISMQcmp.tex}
 
 \subsection{Parallel Range Maximum Query}
 
-Each stage will have $n$ number of elements and the $n$ number of the
-query.  In this special cases, we run the compressed sparse table to
-improve the performance compared to the origin.  If we preprocess all
-range size and mark the necessary compressed blocks before building, we
-get the optimized version which run $2.35$ faster than origin sparse
-table. The Table~\ref{tlb:CORMQ} is shown the result of the strategy of
-the parallel range query.
+We now compare the performance of {\em three} data structures for
+supporting parallel range maximum query only.  Since the disjoint set
+only supports suffix query so we will not consider it here.  Instead
+we will consider {\em sparse table}, {\em compressed sparse table},
+and an {\em optimized compressed sparse table}.  The optimized
+compressed sparse table implementation preprocesses all query range
+sizes, and mark only the necessary compressed blocks to build.
+
+Table~\ref{tlb:CORMQ} compares the timing results of the three data
+structures for supporting parallel range query.  We set the number of
+elements $N$ to be the same as the number of range queries.  We
+observe that the optimized compressed sparse table is $2.35$ times
+faster than sparse table when $N$ reaches $100000$.
+
+Make more observation on $L$ and $N$.
 
 \input{\TablePath/tlb-CORMQ.tex}
