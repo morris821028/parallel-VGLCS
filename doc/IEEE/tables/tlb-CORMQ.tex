@@ -2,27 +2,14 @@
   %\tiny
   \caption{Total running time (ms) for finding RMQ of different sizes $N$ and maximum interval sizes $L$.}
   \label{tlb:CORMQ}
-  \begin{minipage}{\columnwidth}
-  \begin{center}
-  \begin{tabular}{l c c c c}
-    \toprule
-      & \multicolumn{4}{c}{$N$} \\
-      \cline{2-5}
-        & \multicolumn{2}{c}{$30000$} & $50000$ & $100000$ \\
-      $L$ & $2^{10}$ & $2^{15}$ & $2^{15}$ & $2^{15}$ \\
-      \hline
-      Sparse table     & $903$ & $1516$ & $1874$ & $4116$ \\
-      Compressed sparse table & $995$ & $1475$ & $1689$ & $2594$ \\
-      Optimized compressed sparse table & $843$ & $1373$ & $1136$ & $1745$ \\
-      \hline
-      Speedup & $1.07\times$ & $1.10\times$ & $1.64\times$ & $2.35\times$\\
-    \bottomrule
+  \begin{tabular}{|l|r|r|r|r|}
+   \hline
+      & \multicolumn{2}{c|}{$N = 30000$} & $N = 50000$ & $N = 100000$ \\ \hline
+    \diagbox{method}{$L$}
+      & $2^{10}$ & $2^{15}$ & $2^{15}$ & $2^{15}$ \\ \hline
+      Naive      & 903 & 1516 & 1874 & 4116 \\ \hline
+      Compressed & 995 & 1475 & 1689 & 2594 \\ \hline
+      Optimized  & 843 & 1373 & 1136 & 1745 \\ \hline
+      speedup    & 1.07 & 1.10 & 1.64 & 2.35\\ \hline
   \end{tabular}
-  \end{center}
-  %\bigskip\centering
-  %\footnotesize\emph{Source:} This is a table
-  %sourcenote. This is a table sourcenote. This is a table
-  %sourcenote.
-  %\emph{Note:} This is a table footnote.
-  \end{minipage}
 \end{table}
