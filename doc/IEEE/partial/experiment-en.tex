@@ -44,19 +44,15 @@ Figure~\ref{fig:fig-parallel} shows the execution time of all
 combinations under different lengths of input.  We note that the
 compressed sparse table implementation outperforms the theoretically
 better amortized $O(1)$ sparse table implementation.  That is, {\em
-parallel-COST} outperforms all other parallel implementations.  We
+  parallel-COST} outperforms all other parallel implementations.  We
 believe that there are two reasons for the theoretically better $O(1)$
 sparse table implementation actually runs slower.  First, the encoding
-Cartesian tree needs more instruction cycles to complete.
-
-% not clear
-
-Second, the block size is limited by the theorem.  If the block size is
-large, we need a large lookup table, and then have low usage of this.
-Lower usage implies that the probability of contiguous memory access is
-small because of distributed storage, which would bright more cache
-miss. Oppositely, if the block size is small, the theoretical time
-complexity increases when we build sparse table.
+Cartesian tree needs more instruction cycles to complete.  Second,
+despite that in theory~\cite{XXX} the optimal block size is ${\log
+  n}\over{4}$, this block size is usually too large for implemnetaion.
+That is, we will need to build a very large LCA lookup table, but we
+will {\em not} access all of it, which means it is very unlikely that
+we will access contiguous memory, which causes serious cache misses.
 
 Figure~\ref{fig:fig-parallel-scala} shows the scalability of the best
 parallel combination {\em parallel-COST}.  It is {\em eight} times
@@ -127,19 +123,21 @@ we vary the maximum interval sizes $L$ from 4 to 16, both $p$ and $q$
 from 0 to 100\%.  We observe that the sparse table runs $1.5$ times
 faster than the compressed table.
 
-% answer the questions.
-
 % What is the effect of $p$ and $q$?
 
-The probability $p$ effects the ``peeking'' performance.  The extreme
-probability $p$ will achieve excellent ``peeking'' operations.  However,
-the ``peeking'' operation depends the block size, which is different
-size between amortized $O(1)$ and compressed sparse table.  The
-probability $q$ effects the performance of pushed/popped operation in
-the stack of Cartesian tree building algorithm.  The theoretical $O(1)$
-sparse table use extra computation for the Cartesian index compare to
-compressed sparse table, so high probability $q$ achieve more
-predictable memory access of computation.
+The probability $p$ affects the performance gain of``peeking''.  When
+the probability $p$ is close to 0 or 1 the peeking achieves excellent
+perfromance gain. % why?
+
+The performance gain of the peeking operation depends the block size.
+In addition, the block size best for LCA sparse table is different
+from the best block size for bit-compressed sparse table. % why?
+
+The probability $q$ effects the performance of pushed/popped operation
+in the stack of Cartesian tree building algorithm.  The theoretical
+$O(1)$ sparse table use extra computation for the Cartesian index
+compare to compressed sparse table, so high probability $q$ achieve
+more predictable memory access of computation.
 
 % What is the effect of $L$?
 
