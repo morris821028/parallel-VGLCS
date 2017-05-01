@@ -43,16 +43,20 @@ generated {\em randomly} from the alphabet $\{A, T, C, G\}$.
 Figure~\ref{fig:fig-parallel} shows the execution time of all
 combinations under different lengths of input.  We note that the
 compressed sparse table implementation outperforms the theoretically
-better $O(1)$ sparse table implementation.  That is, {\em
-  parallel-COST} outperforms all other parallel implementations.  We
+better amortized $O(1)$ sparse table implementation.  That is, {\em
+parallel-COST} outperforms all other parallel implementations.  We
 believe that there are two reasons for the theoretically better $O(1)$
 sparse table implementation actually runs slower.  First, the encoding
 Cartesian tree needs more instruction cycles to complete.
 
 % not clear
 
-Second, the block size is limited by the theorem, which would bright
-more cache miss with large lookup table.
+Second, the block size is limited by the theorem.  If the block size is
+large, we need a large lookup table, and then have low usage of this.
+Lower usage implies that the probability of contiguous memory access is
+small because of distributed storage, which would bright more cache
+miss. Oppositely, if the block size is small, the theoretical time
+complexity increases when we build sparse table.
 
 Figure~\ref{fig:fig-parallel-scala} shows the scalability of the best
 parallel combination {\em parallel-COST}.  It is {\em eight} times
@@ -108,30 +112,48 @@ table runs $1.8$ times faster than the disjoint set.
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
-Now we conduct experiments on a more complex scenario.  For example,
-in dynamic programming many factors affect the performance.  These
-factors include the distribution of values being inserted the maximum
-interval being queried.  Here we use $p$ to denote the probability of
-having an larger next element to insert, $q$ for the probability of
-inserting a zero, and $L$ for the maximum interval being queried.  In
-addition we the number of the queries to be ten times of the number of
-insertions.
+Now we conduct experiments on a more complex scenario.  For example, in
+dynamic programming many factors affect the performance. These factors
+include the distribution of values being inserted the maximum interval
+being queried.  Here we use $p$ to denote the probability of having an
+larger next element to insert, $q$ for the probability of inserting a
+zero, and $L$ for the maximum interval being queried.  In addition we
+the number of the queries to be ten times of the number of insertions.
 
 Table~\ref{tlb:ISMQcmp} compares timing of compressed sparse table and
-the theoretically better $O(1)$ sparse table to answer incremental
-suffix maximum query.  The number of data $N$ is $10^7$, and we vary
-the maximum interval sizes $L$ from 4 to 16, both $p$ and $q$ from 0
-to 100\%.  We observe that the sparse table runs $1.5$ times faster
-than the compressed table.
+the theoretically better amortized $O(1)$ sparse table to answer
+incremental suffix maximum query.  The number of data $N$ is $10^7$, and
+we vary the maximum interval sizes $L$ from 4 to 16, both $p$ and $q$
+from 0 to 100\%.  We observe that the sparse table runs $1.5$ times
+faster than the compressed table.
 
 % answer the questions.
 
-What is the effect of $p$ and $q$?
+% What is the effect of $p$ and $q$?
 
-What is the effect of $L$?
+The probability $p$ effects the ``peeking'' performance.  The extreme
+probability $p$ will achieve excellent ``peeking'' operations.  However,
+the ``peeking'' operation depends the block size, which is different
+size between amortized $O(1)$ and compressed sparse table.  The
+probability $q$ effects the performance of pushed/popped operation in
+the stack of Cartesian tree building algorithm.  The theoretical $O(1)$
+sparse table use extra computation for the Cartesian index compare to
+compressed sparse table, so high probability $q$ achieve more
+predictable memory access of computation.
 
-You need to give a reason here.  Is this because sparse table is
-$O(1)$?
+% What is the effect of $L$?
+
+The maximum length $L$ of interval query effects the performance of
+interval query in a compressed sparse table.   That is, the block size
+$s$ is 16 in our implementation, which the maximum number of instruction
+for a query.  Simultaneously, the number of instructions is exactly
+equal to the number of filled elements in current block.
+
+% You need to give a reason here.  Is this because sparse table is $O(1)$?
+
+The computation of Cartesian index maybe can be implemented well.  In
+order to hide the optimized detail in implementation, we conduct this
+experiment.
 
 \input{\TablePath/tlb-ISMQcmp.tex}
 
