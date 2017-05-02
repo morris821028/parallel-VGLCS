@@ -108,44 +108,46 @@ table runs $1.8$ times faster than the disjoint set.
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
-Now we conduct experiments on a more complex scenario.  For example, in
-dynamic programming many factors affect the performance. These factors
-include the distribution of values being inserted the maximum interval
-being queried.  Here we use $p$ to denote the probability of having an
-larger next element to insert, $q$ for the probability of inserting a
-zero, and $L$ for the maximum interval being queried.  In addition we
-the number of the queries to be ten times of the number of insertions.
+Now we conduct experiments in a more complex scenario.  For example,
+in dynamic programming many factors affect the performance. These
+factors include the distribution of values being inserted the maximum
+interval being queried.  Here we use $p$ to denote the probability of
+having an larger next element to insert, $q$ for the probability of
+inserting a zero, and $L$ for the maximum interval being queried.  In
+addition we the number of the queries to be ten times of the number of
+insertions.
 
-Table~\ref{tlb:ISMQcmp} compares timing of compressed sparse table and
-the theoretically better amortized $O(1)$ sparse table to answer
-incremental suffix maximum query.  The number of data $N$ is $10^7$, and
-we vary the maximum interval sizes $L$ from 4 to 16, both $p$ and $q$
-from 0 to 100\%.  We observe that the sparse table runs $1.5$ times
-faster than the compressed table.
+\input{\TablePath/tlb-ISMQcmp-new.tex}
 
-% What is the effect of $p$ and $q$?
+Table~\ref{tlb:ISMQcmp} compares timing of answering incremental
+suffix maximum query using compressed sparse table and the
+theoretically better amortized $O(1)$ sparse table.  The number of
+data $N$ is $10^7$, and we vary the maximum interval sizes $L$ from 4
+to 16.  We also vary $p$ and $q$ from 0 to 100\%.  We observe that the
+sparse table runs $1.5$ times faster than the compressed table.
 
-The probability $p$ affects the performance gain of``peeking''.  When
-the probability $p$ is close to 0 or 1 the peeking achieves excellent
-perfromance gain. % why?
-
-The performance gain of the peeking operation depends the block size.
-In addition, the block size best for LCA sparse table is different
-from the best block size for bit-compressed sparse table. % why?
+We also observe that the probability $p$ affects the performance gain
+of our ``peeking'' technique.  When the probability $p$ is close to 0
+or 1 the peeking achieves excellent perfromance gain.  The performance
+gain of the peeking operation also depends the block size.  In
+addition, the block size best for LCA sparse table is different from
+the best block size for bit-compressed sparse table.
 
 The probability $q$ effects the performance of pushed/popped operation
 in the stack of Cartesian tree building algorithm.  The theoretical
-$O(1)$ sparse table use extra computation for the Cartesian index
-compare to compressed sparse table, so high probability $q$ achieve
-more predictable memory access of computation.
+$O(1)$ sparse table requires extra computation for the Cartesian index
+compare to compressed the sparse table, so a large $q$ achieves more
+predictable memory access of computation. %??? predictable?
 
-% What is the effect of $L$?
+The maximum length of interval query ($L$ in Table~\ref{tlb:ISMQcmp})
+affects the performance of interval query in a compressed sparse
+table.
 
-The maximum length $L$ of interval query effects the performance of
-interval query in a compressed sparse table.   That is, the block size
-$s$ is 16 in our implementation, which the maximum number of instruction
-for a query.  Simultaneously, the number of instructions is exactly
-equal to the number of filled elements in current block.
+Note that in our implementation the block size $s$ is set to 16.
+
+which is also the maximum number of instruction for a query.
+Simultaneously, the number of instructions is exactly equal to the
+number of filled elements in current block.
 
 % You need to give a reason here.  Is this because sparse table is $O(1)$?
 
@@ -153,7 +155,7 @@ The computation of Cartesian index maybe can be implemented well.  In
 order to hide the optimized detail in implementation, we conduct this
 experiment.
 
-\input{\TablePath/tlb-ISMQcmp-new.tex}
+
 
 \subsection{Parallel Range Maximum Query}
 
