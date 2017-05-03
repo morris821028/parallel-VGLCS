@@ -108,24 +108,32 @@ table runs $1.8$ times faster than the disjoint set.
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
-Now we conduct experiments in a more complex scenario.  For example,
-in dynamic programming many factors affect the performance. These
-factors include the distribution of values being inserted the maximum
-interval being queried.  Here we use $p$ to denote the probability of
-having an larger next element to insert, $q$ for the probability of
-inserting a zero, and $L$ for the maximum interval being queried.  In
-addition we the number of the queries to be ten times of the number of
-insertions.
-
-\input{\TablePath/tlb-ISMQcmp-new.tex}
+Now we conduct experiments in a more complex scenario.  In a dynamic
+programming various factors affect performance.  These factors include
+the distribution of values being inserted, the maximum interval being
+queried, and the ratio between the numbers of insertion and queries.
+For ease of notation we use $p$ to denote the probability of having an
+larger next element to insert, $q$ for the probability of inserting a
+zero, and $L$ for the maximum interval being queried.  In our
+experiments we set the number of data $N$ to be $10^7$, and vary the
+maximum interval sizes $L$ from 4 to 16, and vary $p$ and $q$ from 0
+to 100\%.  We also set the number of the queries to be ten times of
+the number of insertions.
 
 Table~\ref{tlb:ISMQcmp} compares timing of answering incremental
 suffix maximum query using compressed sparse table and the
-theoretically better amortized $O(1)$ sparse table.  The number of
-data $N$ is $10^7$, and we vary the maximum interval sizes $L$ from 4
-to 16.  We also vary $p$ and $q$ from 0 to 100\%.  We observe that the
-sparse table runs $1.5$ times faster than the compressed table.
+theoretically better amortized $O(1)$ sparse table.  We observe that
+the sparse table runs up to $1.5$ times faster than the compressed
+table.
 
+\input{\TablePath/tlb-ISMQcmp-new.tex}
+
+We also observe that the probability $p$ affects the performance gain
+of our ``peeking'' technique.  When the probability $p$ is close to 0
+or 1 the peeking achieves excellent performance gain.  The performance
+gain of the peeking operation also depends the block size.  In
+addition, the block size best for LCA sparse table is different from
+the best block size for bit-compressed sparse table.
 We also observe that the probability $p$ affects the performance gain of
 our ``peeking'' technique.  When the probability $p$ is close to 0 or 1,
 the peeking achieves excellent performance gain.  The performance gain
@@ -133,32 +141,27 @@ of the peeking operation also depends the block size.  In addition, the
 block size best for LCA sparse table is different from the best block
 size for bit-compressed sparse table.
 
-The probability $q$ effects the performance of pushed/popped operation
-in the stack of Cartesian tree building algorithm.  The theoretical
-$O(1)$ sparse table requires extra computation for the Cartesian index
-compare to compressed the sparse table.  When the probability $q$ is
-close to 1, it will use less instruction cycle on computing Cartesian
-index.
-
-%??? predictable?
+We also observe that the performance of the compressed sparse table is
+better than that of $O(1)$ sparse table, but the performance advantage
+disappears when $q$ is close to 1.  $O(1)$ sparse table requires the
+Cartesian index computation, which the compressed sparse table does
+not.  When the probability $q$ is close to 1, $O(1)$ sparse table will
+require less instructions on computing Cartesian index, so its
+performance will be close to that of the the compressed sparse table.
 
 The maximum length of interval query ($L$ in Table~\ref{tlb:ISMQcmp})
 affects the performance of interval query in a compressed sparse
-table.
+table, but not of $O(1)$ sparse table.  Note that in
+Algorithm~\ref{XXX} the block size $s$ is set to 16, which is the
+maximum number of times the loop in Algorithm~\ref{XXX} will iterate
+for an query.  Therefore the query time will increase when $L$
+increases.  On the other hand, the $O(1)$ sparse table answer a query
+by a single lookup into the LCA table, so its performance is not
+affected by $L$.
 
-Note that in our implementation the block size $s$ is set to 16.
-
-which is also the maximum number of instruction for a query.
-Simultaneously, the number of instructions is exactly equal to the
-number of filled elements in current block.
-
-% You need to give a reason here.  Is this because sparse table is $O(1)$?
-
-The computation of Cartesian index maybe can be implemented well.  In
-order to hide the optimized detail in implementation, we conduct this
-experiment.
-
-
+%% The computation of Cartesian index maybe can be implemented well.
+%% In order to hide the optimized detail in implementation, we conduct
+%% this experiment.
 
 \subsection{Parallel Range Maximum Query}
 
