@@ -14,7 +14,7 @@
 				tick label style={/pgf/number format/fixed},
 				xtick={20000, 1000000, 5000000, 1000000, 2500000, 5000000, 10000000},
 				ytick={0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000},
-				legend pos=north east,
+				legend pos=north west,
 				legend cell align=left,
 				ymajorgrids=true,
 				grid style=dashed,
@@ -28,7 +28,7 @@
 			% \addplot [mark=diamond*, mark options={fill=white}] file{./data/ismq-bit.dat};
 			\addplot [mark=triangle*, mark options={fill=white}] file{./data/ismq-cost.dat};
 			\addplot [mark=triangle*, mark options={fill=black}] file{./data/ismq-onest.dat};
-			\legend{Disjoint Set, Sparse Table, Compressed Sparse Table, O(1) Sparse Table}
+			\legend{Disjoint Set, Sparse Table, Compressed Sparse Table, Amortized O(1) Sparse Table}
 		\end{axis}
 	\end{tikzpicture}
 \end{document}

@@ -14,7 +14,7 @@
 				tick label style={/pgf/number format/fixed},
 				xtick={0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000},
 				ytick={0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5},
-				legend pos=north east,
+				legend pos=north west,
 				legend cell align=left,
 				ymajorgrids=true,
 				grid style=dashed,
@@ -26,7 +26,7 @@
 			\addplot [mark=square*, mark options={fill=white}] file{./data/VGLCS-ST-disjoint.dat};
 			\addplot [mark=diamond*, mark options={fill=white}] file{./data/VGLCS-coST-disjoint.dat};
 			\addplot [mark=triangle*, mark options={fill=white}] file{./data/VGLCS-coST.dat};
-			\legend{serial-Peng's algorithm, parallel-ST-disjoint-set, parallel-COST-disjoint-set, parallel-COST}
+			\legend{serial-Peng's algorithm, {\sc Para-ST-DS}, {\sc Para-CoST-DS}, {\sc Para-CoST}}
 		\end{axis}
 	\end{tikzpicture}
 \end{document}

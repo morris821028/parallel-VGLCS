@@ -14,7 +14,7 @@
 				tick label style={/pgf/number format/fixed},
 				xtick={1, 2, 4, 8, 16, 20},
 				ytick={0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5},
-				legend pos=north east,
+				legend pos=north west,
 				legend cell align=left,
 				ymajorgrids=true,
 				grid style=dashed,
@@ -23,7 +23,7 @@
 				height=10cm,width=15cm,
 			]
 			\addplot [mark=square*, mark options={fill=white}] file{./data/VGLCS-scalability.dat};
-			\legend{parallel-COST}
+			\legend{{\sc Para-CoST}}
 		\end{axis}
 	\end{tikzpicture}
 \end{document}
