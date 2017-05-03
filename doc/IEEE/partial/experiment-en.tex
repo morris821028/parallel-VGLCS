@@ -49,7 +49,7 @@ believe that there are two reasons for the theoretically better $O(1)$
 sparse table implementation actually runs slower.  First, the encoding
 Cartesian tree needs more instruction cycles to complete.  Second,
 despite that in theory~\cite{XXX} the optimal block size is ${\log
-  n}\over{4}$, this block size is usually too large for implemnetaion.
+  n}\over{4}$, this block size is usually too large for implementations.
 That is, we will need to build a very large LCA lookup table, but we
 will {\em not} access all of it, which means it is very unlikely that
 we will access contiguous memory, which causes serious cache misses.
@@ -126,18 +126,21 @@ data $N$ is $10^7$, and we vary the maximum interval sizes $L$ from 4
 to 16.  We also vary $p$ and $q$ from 0 to 100\%.  We observe that the
 sparse table runs $1.5$ times faster than the compressed table.
 
-We also observe that the probability $p$ affects the performance gain
-of our ``peeking'' technique.  When the probability $p$ is close to 0
-or 1 the peeking achieves excellent perfromance gain.  The performance
-gain of the peeking operation also depends the block size.  In
-addition, the block size best for LCA sparse table is different from
-the best block size for bit-compressed sparse table.
+We also observe that the probability $p$ affects the performance gain of
+our ``peeking'' technique.  When the probability $p$ is close to 0 or 1,
+the peeking achieves excellent performance gain.  The performance gain
+of the peeking operation also depends the block size.  In addition, the
+block size best for LCA sparse table is different from the best block
+size for bit-compressed sparse table.
 
 The probability $q$ effects the performance of pushed/popped operation
 in the stack of Cartesian tree building algorithm.  The theoretical
 $O(1)$ sparse table requires extra computation for the Cartesian index
-compare to compressed the sparse table, so a large $q$ achieves more
-predictable memory access of computation. %??? predictable?
+compare to compressed the sparse table.  When the probability $q$ is
+close to 1, it will use less instruction cycle on computing Cartesian
+index.
+
+%??? predictable?
 
 The maximum length of interval query ($L$ in Table~\ref{tlb:ISMQcmp})
 affects the performance of interval query in a compressed sparse
