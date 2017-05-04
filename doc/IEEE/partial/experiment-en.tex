@@ -165,19 +165,17 @@ LCA table, so its performance is not affected by $L$.
 
 \subsection{Parallel Range Maximum Query}
 
-We now compare the performance of {\em three} data structures for
+We now compare the performance of {\em two} data structures for
 supporting parallel range maximum query only.  Since the disjoint set
 only supports suffix query so we will not consider it here.  Instead we
-will consider {\em sparse table} ({\sc ST}), {\em compressed sparse
-table} ({\sc CoST}), and an {\em optimized compressed sparse table}
-({\sc Opt-CoST}). The optimized compressed sparse table implementation
-computes all query range sizes, and mark only the necessary compressed
-blocks to build before querying.
+will consider {\em sparse table} ({\sc ST}) and {\em compressed sparse
+table} ({\sc CoST}). The implementation computes all query range sizes,
+and mark only the necessary compressed blocks to build before querying.
 
 Table~\ref{tlb:CORMQ} compares the timing results of the three data
 structures for supporting parallel range query.  We set the number of
 elements $N$ to be the same as the number of range queries.  We observe
-that the optimized compressed sparse table is $2.35$ times faster than
+that the optimized compressed sparse table is $1.4$ times faster than
 sparse table when $N$ reaches $100000$.
 
 % Make more observation on $L$ and $N$.
