@@ -182,4 +182,16 @@ sparse table when $N$ reaches $100000$.
 
 % Make more observation on $L$ and $N$.
 
+The number of input elements ($N$ in Table~\ref{tlb:CORMQ}) verify the
+scalability of Algorithm~\ref{alg:parallel-sparse-table}.  The maximum
+length of interval query ($L$ in Table~\ref{tlb:CORMQ}) affects the
+performance of the access different level in sparse table. The number of
+level in the compressed sparse table is small than in the native sparse
+table.  Therefore, when $L$ is small, there is a high probability that
+the interval query can be processed in the same level, and also affects
+performance of cache temporal locality for compressed sparse table
+because multiple data store in compressed block. Oppositely, when $L$ is
+large, data sharing decreases the efficiency during integrating the
+maximum value by the definition of recursion.
+
 \input{\TablePath/tlb-CORMQ.tex}
