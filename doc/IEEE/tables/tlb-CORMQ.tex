@@ -2,14 +2,13 @@
   %\tiny
   \caption{Total running time (ms) for finding RMQ of different sizes $N$ and maximum interval sizes $L$.}
   \label{tlb:CORMQ}
-  \begin{tabular}{|l|r|r|r|r|}
+  \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
    \hline
-      & \multicolumn{2}{c|}{$N = 30000$} & $N = 50000$ & $N = 100000$ \\ \hline
+      & \multicolumn{3}{c|}{$N = 30000$} & \multicolumn{3}{c|}{$N = 50000$} & \multicolumn{4}{c|}{$N = 100000$} \\ \hline
     \diagbox{Method}{$L$}
-      & $2^{10}$ & $2^{15}$ & $2^{15}$ & $2^{15}$ \\ \hline
-      {\sc ST}        & 903 & 1516 & 1874 & 4116 \\ \hline
-      {\sc CoST}      & 995 & 1475 & 1689 & 2594 \\ \hline
-      {\sc Opt-CoST}  & 843 & 1373 & 1136 & 1745 \\ \hline \hline
-      speedup    & 1.07 & 1.10 & 1.64 & 2.35\\ \hline
+      & $2^{10}$ & $2^{12}$ & $2^{14}$ & $2^{10}$ & $2^{12}$ & $2^{14}$ & $2^{10}$ & $2^{12}$ & $2^{14}$ & $2^{16}$ \\ \hline
+      {\sc ST}        & 10.0 & 11.7 & 12.9 & 13.7 & 15.7 & 17.5 & 23.0 & 26.1 & 30.1 & 35.1\\ \hline
+      {\sc CoST}      &  9.6 &  9.8 & 11.3 & 13.8 & 13.5 & 13.6 & 23.8 & 22.8 & 22.9 & 24.9\\ \hline\hline
+      speedup         & 1.01 & 1.19 & 1.14 & 0.99 & 1.16 & 1.28 & 0.96 & 1.14 & 1.31 & 1.40\\ \hline
   \end{tabular}
 \end{table}
