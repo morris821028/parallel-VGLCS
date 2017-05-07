@@ -144,20 +144,21 @@ size for bit-compressed sparse table.
 We also observe that the performance of the compressed sparse table is
 better than that of $O(1)$ sparse table, but the performance advantage
 disappears when $q$ is close to 1. $O(1)$ sparse table requires the
-Cartesian index computation, which the compressed sparse table does not.
-When the probability $q$ is close to 1, $O(1)$ sparse table will require
-less instructions on computing Cartesian index, so its performance will
-be close to that of the the compressed sparse table.
+Cartesian index computation, which is not required in the compressed
+sparse table implementation.  When the probability $q$ is close to 1,
+$O(1)$ sparse table will require less instructions on computing
+Cartesian index, so its performance will be close to that of the the
+compressed sparse table.
 
 The maximum length of interval query ($L$ in Table~\ref{tlb:ISMQcmp})
-affects the performance of interval query in a compressed sparse table,
-but not of $O(1)$ sparse table.  Note that in
-Algorithm~\ref{alg:cartesian64bits-query} the block size $s$ is set to
-16, which is the maximum number of times the loop in
+affects the performance of interval query in a compressed sparse
+table, but not the performance of the $O(1)$ sparse table.  Note that
+in Algorithm~\ref{alg:cartesian64bits-query} the block size $s$ is set
+to 16, which is the maximum number of times the loop in
 Algorithm~\ref{alg:cartesian64bits-query} will iterate for an query.
-Therefore the query time will increase when $L$ increases.  On the other
-hand, the $O(1)$ sparse table answer a query by a single lookup into the
-LCA table, so its performance is not affected by $L$.
+Therefore the query time will increase when $L$ increases.  On the
+other hand, the $O(1)$ sparse table answer a query by a single lookup
+into the LCA table, so its performance is not affected by $L$.
 
 %% The computation of Cartesian index maybe can be implemented well.
 %% In order to hide the optimized detail in implementation, we conduct
@@ -166,30 +167,40 @@ LCA table, so its performance is not affected by $L$.
 \subsection{Parallel Range Maximum Query}
 
 We now compare the performance of {\em two} data structures for
-supporting parallel range maximum query only.  Since the disjoint set
-only supports suffix query so we will not consider it here.  Instead we
-will consider {\em sparse table} ({\sc ST}) and {\em compressed sparse
-table} ({\sc CoST}). The implementation computes all query range sizes,
-and mark only the necessary compressed blocks to build before querying.
+supporting parallel range maximum query.  Since the disjoint set {\em
+  only} supports suffix query so we will not consider it here.
+Instead we will consider {\em sparse table} ({\sc ST}) and {\em
+  compressed sparse table} ({\sc CoST}).  The experiments test the
+cases of all possible query range sizes, and build only the necessary
+compressed blocks before answering the queries.
 
-Table~\ref{tlb:CORMQ} compares the timing results of the three data
-structures for supporting parallel range query.  We set the number of
-elements $N$ to be the same as the number of range queries.  We observe
-that the optimized compressed sparse table is $1.4$ times faster than
-sparse table when $N$ reaches $100000$.
+Table~\ref{tlb:CORMQ} compares the timing results of sparse table and
+compressed sparse table for supporting parallel range query.  We set
+the number of elements $N$ to be the same as the number of range
+queries.  We observe that the optimized compressed sparse table is
+$1.4$ times faster than sparse table when $N$ reaches $100000$.
 
 % Make more observation on $L$ and $N$.
 
-The number of input elements ($N$ in Table~\ref{tlb:CORMQ}) verify the
-scalability of Algorithm~\ref{alg:parallel-sparse-table}.  The maximum
-length of interval query ($L$ in Table~\ref{tlb:CORMQ}) affects the
-performance of the access different level in sparse table. The number of
-level in the compressed sparse table is small than in the native sparse
-table.  Therefore, when $L$ is small, there is a high probability that
-the interval query can be processed in the same level, and also affects
-performance of cache temporal locality for compressed sparse table
-because multiple data store in compressed block. Oppositely, when $L$ is
-large, data sharing decreases the efficiency during integrating the
-maximum value by the definition of recursion.
+We increase the number of input elements ($N$ in
+Table~\ref{tlb:CORMQ}) to verify the scalability of
+Algorithm~\ref{alg:parallel-sparse-table}.  % explain the scalability
+
+The maximum length of interval query ($L$ in Table~\ref{tlb:CORMQ})
+affects the performance of accessing different levels in the sparse
+table.
+
+The number of levels in the compressed sparse table is smaller than
+that of the sparse table.
+
+Therefore, when $L$ is small, it is very likely that the interval
+query can be processed in the same level of the sparse table.
+
+This improves performance of cache temporal locality for compressed
+sparse table because multiple data store in compressed block.
+
+
+Oppositely, when $L$ is large, data sharing decreases the efficiency
+during integrating the maximum value by the definition of recursion.
 
 \input{\TablePath/tlb-CORMQ.tex}
