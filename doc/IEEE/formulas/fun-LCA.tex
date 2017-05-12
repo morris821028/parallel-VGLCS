@@ -1,12 +1,8 @@
-\begin{eqnarray}  \label{fun:LCA1}
-  {\cal A}(n, t, p, q) = {\cal A}(s_r, t_r, p - s_l - 1, q - s_l - 1) + s_l + 1 
-\end{eqnarray}
-
-
-\begin{equation}  \label{fun:LCA2}
+\begin{equation}  \label{fun:LCA}
     {\cal A}(n, t, p, q) =
     \left\{
     \begin{array}{ll}
+      {\cal A}(s_r, t_r, p - s_l - 1, q - s_l - 1) + s_l + 1 & s_l \le p \le q < n\\
       {\cal A}(s_l, t_l, p, q) & p \le q < s_l\\
       s_l & 0 \le p \le s_l, s_l \le q \le i\\
       -1 & \mbox{otherwise} \\

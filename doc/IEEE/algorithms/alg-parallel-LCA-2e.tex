@@ -1,18 +1,19 @@
 \begin{algorithm}[!thb]
 \SetAlgoNoLine
-\KwIn{$s$: The maximum tree size}
+\KwIn{$s$: the maximum tree size}
 
 \For{$n \gets 1$ to $s$} {
   \ForPar{$t \gets 0$ to $C_n - 1$} {
     \ForPar{$p \gets 0$ to $n-1$} {
       Compute $s_l$, $t_l$, $s_r$, and $t_r$ \;
       \For{$q \gets p$ to $n-1$} {
-        Compute ${\cal A}[n][t][p][q]$ according to Equation~\ref{fun:LCA1} and \ref{fun:LCA2} \;
+        Compute ${\cal A}[n][t][p][q]$ according to Equation~\ref{fun:LCA} \;
       }
     }
   }
 }
 
-\caption{A parallel algorithm that computes the least common ancestor table}
+\caption{A parallel algorithm that computes the least common ancestor
+  table $\cal A$}
 \label{alg:parallel-LCA}
 \end{algorithm}

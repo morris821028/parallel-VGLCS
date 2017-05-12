@@ -1,24 +1,25 @@
 \begin{algorithm}
 \SetAlgoNoLine
-\KwIn{$A[1 .. 16]$: 16 integers store in array}
-\KwOut{$\textit{tmask}$: compress Cartesian tree into 64-bits integer}
+\KwIn{$A[1 .. 16]$: input data block}
+\KwOut{$t$: a 64 bit right-most-pops encoding of $A$}
 
 $\tt{LOGS} \gets 4$, $\tt{POWS} \gets 2^{\tt{LOGS}}$ \;
-Create an array $D[\tt{POWS}+1]$ with size $\tt{POWS}+1$. \;
-$\textit{Dp} \gets 0$, $D[0] \gets \infty$ \;
+Create an array $D$ of size $\tt{POWS}+1$ \;
+$p \gets 0$, $D[0] \gets \infty$ \;
 
-Unsigned 64-bit integer $\textit{tmask} \gets 0$ \;
+$t \gets 0$ \;
 \For{$i \gets 1$ to $\tt{POWS}$} {
-  $v \gets A[i], \; \textit{cnt} \gets 0$\;
-  \While{$D[\textit{Dp}] < v$} {
-    $\textit{Dp} \gets \textit{Dp}-1$, $\textit{cnt} \gets \textit{cnt} + 1$ \;
+  $v \gets A[i], \; c \gets 0$\;
+  \While{$D[p] < v$} {
+    $p \gets p - 1$, $c \gets c + 1$ \;
   }
-  $\textit{Dp} \gets \textit{Dp}+1$ \;
-  $D[\textit{Dp}] \gets v$ \;
-  $\textit{tmask} \gets \textit{tmask} \mathrel{|} (cnt \ll ((i-1) \ll 2))$ \;
+  $p \gets p + 1$ \;
+  $D[p] \gets v$ \;
+  $t \gets t \mathrel{|} (c \ll ((i-1) \ll 2))$ \;
 }
-return $tmask$ \;
+return $t$ \;
 
-  \caption{Transfer Cartesian Tree to 64-bits with 8 integers}
+  \caption{Encode a data block of sixteen data with right-most-pops
+    encoding into a 64-bits integer.}
   \label{alg:cartesian-to-64bits}
 \end{algorithm}

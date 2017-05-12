@@ -2,14 +2,16 @@
 
 \subsection{Basic Dynamic Programming}
 
-We first describe a basic dynamic programming for VGLCS.  Let $A$ and
-$B$ denote the two input strings of length $n$ and $m$ respectively,
-$G_A$ and $G_B$ be the arrays of the variable gap constraints, and
-$V[i, j]$ be the maximum length of the variable gapped longest common
-subsequence between substring $A[1, i]$ and $B[1, j]$.  A naive
-algorithm finds $V[i, j]$ by finding the {\em maximum} within the
-rectangle $V[i-G_A(i)-1 \cdots i-1, j-G_B(j)-1 \cdots j-1]$.  Please
-refer to Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
+We first describe a basic dynamic programming for VGLCS~\cite{XXX}.
+Let $A$ and $B$ denote two input strings of length $n$ and $m$
+respectively, and $G_A$ and $G_B$ be the arrays of the variable gap
+constraints.  We define $V[i, j]$ to be the {\em maximum} length of
+the variable gapped longest common subsequence between substring $A[1,
+  i]$ and $B[1, j]$.  It is easy to see that $V[i, j]$ is the {\em
+  maximum} among $V[k, l]$, where $k$ is between $i -1$ and
+$i-G_A(i)-1$, and $l$ is between $j -1 $ and $j-G_B(j)-1$, i.e., a
+rectangle within $V$ on the left and upper of $V[i,j]$.  Please refer
+to Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
 
 \begin{figure}[!thb]
   \centering \subfigure[How to compute $V$.] {
@@ -25,15 +27,26 @@ refer to Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
 \end{figure}
 
 The computation of $V$ can be optimized as follows.  Note that the
-computation of $V[i, j]$'s with the same $i$ has the same gap
-constraint $G_A(i)$, so the maximum within the rectangle can be
-computed by combining the results from several queries on the maximum
-of the {\em suffix} in the $i$-row of $V$.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp} for an illustration.  Note that these
-maximum queries on the suffix are {\em incremental} in a sense that
-the computation on the next $V[i, j + 1]$, if done carefully, can
-reuse most of the results from the computation of $V[i, j]$.  We will
-refer to this type of queries as {\em incremental suffix maximum
+computation of all $V[i, j]$'s with the same $i$ has the {\em same}
+gap constraint $G_A(i)$, so the maximum within the rectangle can be
+computed in two steps.  First we compute the maximum of {\em every
+  column} of this rectangle, and place them into another array $R$.
+Then we compute the maximum of the {\em suffix} of length $G_B$ on
+$R$, which is exactly $V[i, j]$.  Please refer to
+Figure~\ref{fig:fig-VGLCS-dp} for an illustration.
+
+We note that this optimization requires maximum queries on the suffix
+{\em incrementally} in the following sense.  Recall that in the first
+step of the optimization we need to compute the maximum of every
+column within the rectangle.  This is just like finding the maximum of
+the {\em suffix} of every column in that rectangle.  After we compute
+the $i$-th row of $V$ and go to the next row to compute $V[i + 1, *]$,
+we will then need the maximum of the suffix of every column of length
+$G_A(i + 1)$.  It will be beneficial if we put the $V$'s in each
+column into a data structure that supports suffix maximum query.
+Similarly, the computation within the same row, that is, from $V[i,j]$
+to $V[i, j + 1]$, also requires the maximum of the suffix on $R$.  We
+will refer to this type of queries as {\em incremental suffix maximum
   query}, i.e., we would like to maintain a data structure form which
 we can find the maximum of its suffix efficiently while we add data at
 its end.
@@ -48,9 +61,9 @@ its end.
 
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} applies the optimization and is shown as
-Algorithm~\ref{alg:serial-VGLCS} below.  The outer loop goes through
-every row, and the inner loop goes through every element of a row from
-left to right.  We use an array of $C$ to answer incremental maximum
+Algorithm~\ref{alg:serial-VGLCS}.  The outer loop goes through every
+row, and the inner loop goes through every element of a row from left
+to right.  We use an array of $C$ to answer incremental maximum
 queries on all columns.  That is, we can think of $C[j]$ as a data
 structure that supports incremental suffix maximum queries on the
 $j$-th column of $V$.  From the previous observation that all
@@ -86,46 +99,47 @@ that supports incremental suffix maximum queries should support the
 three operations.  First, a {\sc Make} operation creates an empty
 array $A$. Second, an {\sc Append(V)} operation appends a value $V$ to
 array $A$. Finally an ISMQ {\sc Query(x)} finds the {\em maximum}
-value among the $x$-th value to the end of an array $A$.
+value among those from $x$ to the end of an array $A$.
 
 Peng uses a {\em disjoint-set} data structure to answer incremental
 suffix maximum queries in his VGLCS algorithm.  The disjoint-set data
 structure was proposed by Gabow~\cite{Gabow1983ALA} and
 Tarjan~\cite{Tarjan1975EfficiencyOA} to solves the {\em union-and-find
   problem}.  The set of data are stored in a sequence of disjoint
-sets, and maintain the property that the {\em maximum} of disjoint
-sets are at the root and in {\em decreasing} order.  When we add a
-value $x$ into the data structure, we put it at the end as a set of
-itself.  Then we start joining (with union operation) from the last
-set to its previous set until the maximum of the previous set is {\em
-  larger}.  It is easy to see that the {\sc Query(x)} operation is
-simply a {\em find} operation that finds the root, which has the {\em
-  maximum}, of the tree that $x$ belongs to.  The amortized time per
-union/find operation is $O(\alpha(n))$.
+sets, and the {\em maximum} of each disjoint set is at the root of the
+tree, and these maximum are in {\em decreasing} order.  When we add a
+value $x$, we make it as a disjoint set with a single element by
+itself, and as the {\em last} disjoint set in the sequence.  Then we
+start joining (with union operation) from the last set to its previous
+set until the maximum of the previous set is {\em larger} than $x$.
+It is easy to see that the {\sc Query(x)} operation is simply a {\em
+  find} operation that finds the root, which has the {\em maximum}, of
+the tree that $x$ belongs to.  The amortized time per union/find
+operation is $O(\alpha(n))$.
 
 \subsection{A Parallel VGLCS Algorithm with Sparse Table}
 
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
-parallelize.  These algorithms use several states to determine a new
-state with a dynamic programming.  This construction requires {\em heavy
-data dependency}, and is difficult to parallelize in a naive row- by-row
-manner because an element of the dynamic table needs the values of
-elements in the same row to compute its value.  On the other hand, if we
-parallelize Peng's algorithm with the wavefront method, it will require
-{\em extra space} to record all row status, which is not required in the
-the sequential algorithm.  The Figure~\ref{fig:fig-VGLCS-dp-wavefront}
-shows the record data on all rows which is expressed with solid line, and
-append the new elements to the rows by corresponding columns in the
-wavefront.
+parallelize in a row-by-row manner.  These algorithms use several
+states to determine a new state with a dynamic programming.  This
+construction requires {\em heavy data dependency}, and is difficult to
+parallelize in a naive row-by-row manner because an element of the
+dynamic table needs the values of elements in the {\em same} row to
+compute its value.
 
-We propose a parallel VGLCS algorithm with an optimized row-by-row,
-which maintains only one row data structure which collects the suffix
-maximum values from all columns.  Compare to the wavefront method, it
-improves the constant of the space complexity, the workload balanced,
-and the thread synchronized efficiency.
-
-% what status?? which is not
+It is also difficult to parallelize Peng's algorithm with the
+wavefront method because it requires {\em extra space} to keep track
+of row status, which is not required in a sequential algorithm.
+Recall that VGLCS requires a rectangle of data in $V$ to compute a new
+$V$ element.  If those $V$'s want to compute are on a diagonal wave
+front, those rectangles of data will require extra bookkeeping since
+the gap constraints of those elements on the wavefront could be very
+different.  Please refer to Figure~\ref{fig:fig-VGLCS-dp-wavefront}
+for an illustration of those data that must be present (in solid
+line).  Also the new elements computed must be appended to the data
+strictures according to the wavefront, which incurs more book keeping
+and overheads.
 
 \begin{figure}[!thb]
   \centering \subfigure[The first stage]{
@@ -133,47 +147,63 @@ and the thread synchronized efficiency.
   } \subfigure[The second stage]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront-first.pdf}
   }
-  \caption{The record data of the VGLCS algorithm in the wavefront method}
+  \caption{The book keeping data of the wavefront method}
   \label{fig:fig-VGLCS-dp-wavefront}
 \end{figure}
 
+We propose a parallel VGLCS algorithm with an optimized row-by-row
+approach, which maintains only {\em one} row data structure that
+collects suffix maximum values from all columns.  That is, our
+optimized row-by-row approach removes the data dependency among
+elements {\em within the same row}.
+
+Our optimized row-by-row approach uses less space, has a more balanced
+workload, and a smaller thread synchronization overhead, than the
+wavefront method.  We observe that the length of the critical path of
+a wavefront method is greater than that of a row-by-row method.  In
+addition, if we can removes the data dependency among elements within
+the same row, then the computation on the elements of the same row can
+be {\em fully} and {\em evenly} parallelized.  The result is a much
+more balanced workload distribution and a much easier synchronization
+among threads.
+
+
 % On the other hand, if we use the
-% Maleki's~\cite{Maleki2016EfficientPU} technique, % need to explain this technique
-% it also uses extra
-% space to maintain state translation, and spends more time to merge
-% data.  Therefore, it is crucial that our parallelization conserves
-% {\em both} memory and time.
+% Maleki's~\cite{Maleki2016EfficientPU} technique, % need to explain
+% this technique it also uses extra space to maintain state
+% translation, and spends more time to merge data.  Therefore, it is
+% crucial that our parallelization conserves {\em both} memory and
+% time.
 
 % It seems that you should use the new figures to explain these???
 % Morris: how to make it to row-by-row manner
 
-We propose a parallel VGLCS algorithm with an optimized row-by-row
-approach that removes the data dependency among elements {\em within
-  the same row}.  We adopt the row-by-row approach for two reasons.
-First, we observe that the length of the critical path of a wavefront
-method is greater than that of a row-by-row method.  Second, if we can
-removes the data dependency among elements within the same row, then
-the computation on the elements of the same row can be fully
-parallelized.
 
-A sketch of our algorithm is as follows.  The algorithm will compute
-$V$ one row at a time.  The computation of each row has two stages.
-In the first stage, the algorithm queries the $C$'s {\em in parallel}
-to obtain the maximums of suffix of length $G_A + 1$ and place them
-into an array $A$.  Recall from Algorithm~\ref{alg:serial-VGLCS} that
-$C$ is the data structure in every column that supports incremental
+A sketch of our algorithm is as follows.  Our algorithm computes $V$
+one row at a time.  The computation of each row has two stages.  In
+the first stage, the algorithm queries each 0$C$ for every column
+within the rectangle {\em in parallel}, so as to obtain the maximums
+of suffix of length $G_A + 1$ of every column, and place them into an
+array $R$.  Recall from Algorithm~\ref{alg:serial-VGLCS} that every
+column of $V$ has a data structure $C$ that supports incremental
 suffix maximum on $V$.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Then in the
-second stage, the algorithm uses {\em range maximum query} on $A$ to
-compute the all elements in the $i$-th row of $V$ {\em in parallel}.
-Note that since we compute all elements in the $i$-th row of $V$ in
-parallel, we cannot query the suffix of $A$, and instead we need to
-query a range of $A$ for the maximum.  Please refer to
+Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.
+
+In the second stage, our algorithm issues $m$ {\em range maximum
+  queries}, one for each column, on $R$ to compute all $m$ elements of
+the $i$-th row of $V$ {\em in parallel}.  Note that unlike the
+sequential algorithm, we compute all elements in the $i$-th row of $V$
+in parallel, so we cannot query the {\em suffix} of $R$.  Instead we
+need to query a {\em range} of $R$ for the maximum, where the range is
+the gap constraint on that column.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Note that we
-need to update $C$'s {\em incrementally} so that they contain the
-information of the $i$-th row of $V$ we just computed.  Also since the
-algorithm iterates in rows, so $C$ only needs to support suffix
-maximum query.
+need to add the newly computed $V[i, j]$ into the $C$ of the $j$-th
+column {\em incrementally}, so that they will contain the correct
+information for the computation of the $i+1$-th row.  Also since the
+algorithm iterates in rows, these $C$'s only need to support suffix
+maximum query.  No range query on them is required.  In contrast we do
+need to support range maximum query on $R$, and these queries will be
+in parallel.
 
 \begin{figure}
   \centering \subfigure[The first stage]{
@@ -189,35 +219,38 @@ To resolve the data dependency we need to consider a good data
 structure that can handle incremental suffix/range maximum query {\em
   in parallel}.  We note that it is {\em not} feasible to parallelize
 the disjoint set implementation for three reasons.  First, a query for
-disjoint set will change the data structure because the lookup will
-{\em compress} the path to the root.  It is difficult to maintain a
-consistent view of the data structure when multiple processing units
-are compressing the path {\em simultaneously}.  Second, when multiple
-processors are compressing different paths, the load among them could
-be very different, and this will incur load imbalance. Third, there
-will be a large number of threads working on different part of the
-disjoint-set, therefore it will be difficult to synchronize them
+disjoint set will change the data structure because a lookup will {\em
+  compress} the path to the root.  It is difficult to maintain a
+consistent view of the data structure when multiple threads are
+compressing the path {\em simultaneously}.  Second, when multiple
+threads are compressing different paths, the load among them could be
+very different, and this will incur load imbalance.  Third, there will
+be a large number of threads working on different parts of the
+disjoint set, therefore it will be difficult to synchronize them
 efficiently.
 
-\subsubsection{Sparse Table}
+\subsubsection{Sparse Table} \label{sec:sparse-table}
 
 Since the disjoint set cannot be implemented efficiently in parallel,
-we use the sparse table to support incremental suffix/range maximum
-queries.  Sparse table~\cite{Berkman1993RecursiveSP} requires a $O(n
-\log n)$ preprocessing, and can support range maximum query in $O(1)$
-time on one dimensional data.  A sparse table is a two dimensional
-array.  The element of a sparse table in the $j$-th row and $i$-th
-column is the maximum among the $i$-th elements and its $2^j - 1$
-predecessors in the input array.
+we use {\em sparse table}~\cite{Berkman1993RecursiveSP} to support
+incremental suffix/range maximum queries in our VGLCS algorithm.
+Sparse table~\cite{Berkman1993RecursiveSP} requires a $O(n \log n)$
+preprocessing, and can support range maximum query in $O(1)$ time on
+one dimensional data.  A sparse table is a two dimensional array.  The
+element of a sparse table in the $j$-th row and $i$-th column is the
+maximum among the $i$-th elements and its $2^j - 1$ predecessors in
+the input array.
 
 We give an example of the sparse table
 (Figure~\ref{fig:interval-decomposition}).  The input is in array
 $A$. We split array $A$ into five blocks so that each block has four
-elements.  The we build a sparse table $ST$ on $A$ as described
+elements.  The we build a sparse table $T$ on $A$ as described
 earlier.  Now a ranged maximum query on $A$ can be answered by at most
 {\em two} queries into the sparse table.  For example, if the query is
-of the range from 2 to 13, then the answer is the maximum of the two
-answers -- one from 2 to 9, and one from 6 to 13.
+from 2 to 13, then the answer is the maximum of from 2 to 9
+($T[3][9]$), and from 6 to 13 ($T[3]13]$).  Both are from the third
+  level of the table since each has the maximum of $2^3 = 8$ elements
+  in the input.
 
 \begin{figure}[!thb]
   \centering \subfigure[Array]{
@@ -233,21 +266,15 @@ answers -- one from 2 to 9, and one from 6 to 13.
 
 It is easy to see that one can build a sparse table in parallel
 efficiently.  Please refer to
-Algorithm~\ref{alg:parallel-sparse-table} for details.  Our parallel
-sparse table implementation in
-Algorithm~\ref{alg:parallel-sparse-table} runs in only $O(n \log n / p
-+ \log n)$, where $n$ is the number of elements and $p$ is the number
-of processors, and is very easy to parallelize and to implement.
+Algorithm~\ref{alg:parallel-sparse-table} for details.
+Algorithm~\ref{alg:parallel-sparse-table} builds sparse table in
+parallel and in $O(n \log n / p + \log n)$ time, where $n$ is the
+number of elements and $p$ is the number of processors.  This
+algorithm is very easy to parallelize and implement.
 
 \input{\AlgoPath/alg-parallel-sparse-table-2e}
 
 \subsubsection{A Parallel VGLCS with Sparse Table}
-
-%% We now present our parallel VGLCS algorithm with sparse table.
-%% The time complexity is $O(n^2 \log n / p + n \log n)$, where $p$ is
-%% the number of processors.  In Section~\ref{sec:parallelIRMQ}, we will
-%% present a more complicated version that uses a variant of the sparse
-%% table, and runs in $O(n^2 / p + n \log n)$.
 
 The operations on a sparse table are much easily to parallelize than
 those on a disjoint set, which is used within the inner loop of Peng's
@@ -257,29 +284,29 @@ to Algorithm~\ref{alg:serial-VGLCS} for details.  This alternation
 between appending and querying incurs heavy data dependency.  In
 addition, the parallelism of operations on a disjoint tree is limited
 by the length of path under compression.  The length is usually very
-short and provide very limited parallelism.
+short and provides very limited parallelism.
 
 The pseudo code of our parallel VGLCS algorithm with sparse table is
 given in Algorithm~\ref{alg:parallel-VGLCS}.  The algorithm computes
 $V$ one row at a time.  The computation of each row has two stages.
 In the first stage, the algorithm queries the $C$'s {\em in parallel}
 to obtain the maximums of suffix of length $G_A + 1$ and place them
-into an array $M$, and build a sparse table $T$ with the data of $M$.
-Then in the second stage, the algorithm query $T$ to find the range
-maximum in $M$ to compute the all elements in the $i$-th row of $V$
+into an array $R$.  Then we build a sparse table $T$ with the data of
+$R$.  Then in the second stage, the algorithm queries $T$ to find the
+range maximum in $R$ to compute all elements in the $i$-th row of $V$
 {\em in parallel}.
 
 \input{\AlgoPath/alg-parallel-VGLCS-2e}
 
 The implementation of the two stages have different challenges.  The
 first stage is easier to parallelize because the operations on
-individual columns are independent.  However, it will insert new data
-into $C$, and still needs to answer suffix queries efficiently in
-order to build the $M$ array.  The second stage does {\em not}
+individual columns are {\em independent}.  However, it will insert new
+data into $C$, and still needs to answer suffix queries efficiently in
+order to build the $R$ array.  The second stage does {\em not}
 requires insertion so it is more static.  However, since we compute
-all $V$ in the same row in parallel, it requires {\em ranged queries},
-instead of suffix queries, on the sparse table $T$.  The next two
-sections will describe our approaches to address the challenges in the
-these two stages.  For ease of presentation we will describe our
-approach for the second stage in Section~\ref{sec:parallelRMQ} first.
-Then we describe the first stage in Section~\ref{sec:QIUD}.
+all $V$'s in the same row in parallel, it requires {\em ranged
+  queries}, instead of suffix queries, on the sparse table $T$.  The
+next two sections will describe our approaches to address these
+challenges of two stages.  For ease of presentation we will describe
+our approach for the second stage in Section~\ref{sec:parallelRMQ}
+first.  Then we address the first stage in Section~\ref{sec:QIUD}.

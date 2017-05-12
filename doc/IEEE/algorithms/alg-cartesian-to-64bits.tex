@@ -1,14 +1,15 @@
 \begin{algorithm}[!thb]
-  \caption{Transfer Cartesian Tree to 64-bits with 8 integers}
+  \caption{Encode a Cartesian Tree of sixteen data with
+    right-most-pops encoding into a 64-bits integer.}
   \label{alg:cartesian-to-64bits}
   \begin{algorithmic}[1]
     \Require
-      $A[1 \cdots 16]$: 16 integers store in array
+      $A[1 \cdots 16]$: input data block
     \Ensure 
-      $\textit{tmask}$: compress Cartesian tree into 64-bits integer
+      $t$: a 64 bit right-most-pops encoding of $A$
       \State $\tt{LOGS} \gets 4$
       \State $\tt{POWS} \gets 2^{\tt{LOGS}}$
-      \State Create an array $D[\tt{POWS}+1]$ with size $\tt{POWS}+1$.
+      \State Create an array $D$ of size $\tt{POWS}+1$.
       \State $\textit{Dp} \gets 0$;
       \State Unsigned 64-bit integer $\textit{tmask} \gets 0$
       \State $D[0] \gets \infty$
