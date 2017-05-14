@@ -67,7 +67,7 @@ answer to an in-block range maximum query from the $i$-th to the
 $j$-th element of a block is located at their {\em least common
   ancestor} in the Cartesian tree.  For example, the maximum from the
 fourth (with data 3) to the six elements (with data 2) is located at
-the fifth elelment (with data 7).
+the fifth element (with data 7).
 
 \begin{figure}[htbp]   
   \centering
@@ -77,16 +77,16 @@ the fifth elelment (with data 7).
 \end{figure}
 
 To answer in-block queries Fischer's algorithm computes a {\em least
-  common ancestor table} for every block.  After scanning the data in
-a block, Fischer's algorithm builds a Cartesian tree and its least
-common ancesstor (LCA) table.  An LCA table stores all $((i, j), k)$'s
-where the $k$-th data is the common ancesstor for the $i$-th and
-$j$-th data in a block.  Please refer to
-Figure~\ref{fig:ancesstor-cartesian} for an illustration.  Now we can
-answer an in-block range maximum query from the $i$-th to the $j$-th
-element simply by look into the LCA table and return $k$.  least
-common ancestor table of this block.  One can think of the LCA table
-as a mapping table from an in-block query $(i, j)$ to its answer $k$.
+common ancestor table} for every block.  After scanning the data in a
+block, Fischer's algorithm builds a Cartesian tree and its least common
+ancestor (LCA) table.  An LCA table stores all $((i, j), k)$'s where the
+$k$-th data is the common ancestor for the $i$-th and $j$-th data in a
+block.  Please refer to Figure~\ref{fig:ancesstor-cartesian} for an
+illustration.  Now we can answer an in-block range maximum query from
+the $i$-th to the $j$-th element simply by look into the LCA table and
+return $k$,  least common ancestor table of this block.  One can think
+of the LCA table as a mapping table from an in-block query $(i, j)$ to
+its answer $k$.
 
 Note that the algorithm does {\em not} maintain the value the $k$-th
 element.  Instead it stores the {\em index}, i.e., $k$, of the least
@@ -110,7 +110,7 @@ Please refer to Figure~\ref{fig:ancesstor-cartesian} for an
 illustration.
 
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} builds ancestor
-tables by choosing $s = \frac{1}{4} \log n$ as the block size for
+tables by choosing $s = \frac{\log n}{4}$ as the block size for
 performance reason.  Recall that $C_s = \frac{1}{s+1}\binom{2s}{s} =
 O(\frac{4^s}{s^{1.5}})$.  As a result the time to scan data and to
 build Cartesian tree and LCA tables is $O(n)$, and the space
