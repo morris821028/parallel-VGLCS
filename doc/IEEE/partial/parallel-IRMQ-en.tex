@@ -15,10 +15,10 @@ queries on an interval.
 
 Recall from the discussion of Cartesian tree in
 Section~\ref{sec:parallelRMQ} that finding the {\em least common
-  ancestor} is important for answering range maximum queries.  Here we
+ancestor} is important for answering range maximum queries.  Here we
 need to address two issues -- how to label a binary tree into its {\em
-  Catalan index} and how to find the least common ancestor of two
-nodes in a given Cartesian tree.
+Catalan index} and how to find the least common ancestor of two nodes in
+a given Cartesian tree.
 
 \subsubsection{Cartesian Tree Labeling}
 
@@ -78,7 +78,7 @@ the least common ancestor of {\em every} pair of nodes into the table,
 so the size of the table is $O(m^2)$.  Therefore, the space complexity
 is $O(s \times \frac{1}{s+1}\binom{2s}{s} \times s^2)$, where $s$ is
 the number of elements in a block.  When we set $s$ to $\frac{\log
-  n}{4}$, the space complexity is $O(\sqrt{n} \log ^{1.5} n)$.  Note
+  n}{4}$, the space complexity is $O(\sqrt{n} \; \log ^{1.5} n)$.  Note
 that the size of range query is up to tree size $s$.  However, we do
 need the space for tables of {\em smaller} tree sizes as intermediate
 data to compute the table of tree size $s$.
@@ -88,19 +88,22 @@ Algorithm~\ref{alg:parallel-LCA}.  The time complexity of a sequential
 version of Algorithm~\ref{alg:parallel-LCA} is $O(\frac{s^3}{s+1}
 \binom{2s}{s})$ because the number of operations in
 Equation~\ref{fun:LCA} is $O(1)$.  The time complexity hence becomes
-$O(\sqrt{n} \log ^{1.5} n)$ when we set $s$ to $\frac{\log n}{4}$.
+$O(\sqrt{n} \; \log ^{1.5} n)$ when we set $s$ to $\frac{\log n}{4}$.
 
 Now for the parallel version, we observe that the computation of the
 $C_m$ trees of size $m$ are {\em independent}, hence can be done in
 parallel.  However, the time to find the sizes and Catalan indices of
-subtrees (in line 4) is $O(m)$ for a tree of size $m$.  Since both
-line 4 and 5 are in the same loop body, it is not necessary to
-parallelize line 4 because the loop starting at line 5 will dominate
-the time.  As a result we only parallelize the double loops in line 2
-and 3 in Algorithm~\ref{alg:parallel-LCA}, and the time complexity of
-our parallel algorithm is $O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2)
-= O(\sqrt{n} (\log ^{1.5} n) / p + \log^2 n )$, where $p$ is the
-number of processors.
+subtrees (in line \ref{alg:parallel-LCA-compute}) is $O(m)$ for a tree
+of size $m$.  Since both line \ref{alg:parallel-LCA-compute} and
+\ref{alg:parallel-LCA-loop} are in the same loop body, it is not
+necessary to parallelize line~\ref{alg:parallel-LCA-compute} because the
+loop starting at line~\ref{alg:parallel-LCA-loop} will dominate the
+time.  As a result we only parallelize the double loops in
+line~\label{alg:parallel-LCA-for-2} and \label{alg:parallel-LCA-for-3}
+in Algorithm~\ref{alg:parallel-LCA}, and the time complexity of our
+parallel algorithm is $O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2) =
+O(\sqrt{n} \; (\log^{1.5} n) / p + \log^2 n )$, where $p$ is the number
+of processors.
 
 %% % how to compute subtree information from t
 
@@ -137,7 +140,7 @@ that ${\cal C}_i$ denotes the Catalan number of tree of size $i$.
 
 \input{\FormulaPath/fun-tid}
 
-We can further optimize Equation~\ref{fun:tid} by pre-computing the
+We can further optimize Equation~\ref{fun:tid} by precomputing the
 {\em prefix sum} of the Catalan number products.  Then we store these
 sums in memory, so that we can use them directly, instead of
 recomputing them as in Equation~\ref{fun:tid}.  
@@ -157,8 +160,8 @@ and Equation~\ref{fun:tid}.
 
 We compute the Catalan index $t$ efficiently by the maintaining its
 {\em rightmost path} in a {\em stack}.  That is, we will {\em not}
-build these left subtrees along the rigth most path.  Instaed we keep
-their Catalan indices and sizes in the stack (denited by $D$).  That
+build these left subtrees along the right most path.  Instead we keep
+their Catalan indices and sizes in the stack (denoted by $D$).  That
 is, the stack $D$ has the Catalan {\em indices} and {\em sizes} of
 every {\em left subtree} along the right most path.  Please refer to
 Algorithm~\ref{alg:cartesian-encode-offline} for the details on the
@@ -274,11 +277,11 @@ we we can compute the Catalan index of the current tree, which has $i$
 nodes, and use it to answer a range maximum query.
 
 For ease of notation we use we use $t$ and $s$ to denote the index and
-the size of the tree {\em without} the virtual path.  This is similar
-to Algorithm~\ref{alg:cartesian-encode-offline}.  We also use $t'$ and
-$s'$ to maintain the index and size of the tree {\em with} the virtual
-path, as indicated by the part enclosed by the red dotted line in the
-middle of Figure~\ref{fig:cartesianEncoding}.
+the size of the tree {\em without} the virtual path.  This is similar to
+Algorithm~\ref{alg:cartesian-encode-offline}.  We also use $t'$ and $s'$
+to maintain the index and size of the tree {\em with} the virtual path,
+as indicated by the part enclosed by the red dotted line in
+Figure~\ref{fig:cartesianEncoding}.
 
 Algorithm~\ref{alg:cartesian-encode-online} first initializes $s$ and
 $t$ as in Algorithm~\ref{alg:cartesian-encode-offline}, since it will
@@ -306,20 +309,21 @@ and Figure~\ref{fig:cartesianEncoding}.
 
 Now we are ready to update the stack and the Catalan index $t^*$.  The
 new top of stack is now $x$, with left subtree of size $s$ and index
-$t$, so we push them into the stack.  Please refer to the right
-figures of Figure~\ref{fig:cartesianEncoding}.  Next we update the
-overall Catalan index $t^*$.  After we popped all elements smaller
-than $x$, they should be inserted to the left of the $x$.  Please
-compare the middle and right figures in
-Figure~\ref{fig:cartesianEncoding}.  The only difference between the
-the middle and right figures of Figure~\ref{fig:cartesianEncoding} is
-the area enclosed by the red dotted line.  If we compute the
-difference between the index of the two dotted line area, we can {\em
-  patch} the overall $t^*$ into the correct value, since our encoding
-considers left subtree {\em before} right subtree.  Since the
-difference is $t' - {\cal T}(s, t, s - i, {\cal C}_{s-i} - 1)$, the
-new $t^*$ is the old value of $t^*$, plus $t' - {\cal T}(s, t, s - i,
-{\cal C}_{s-i} - 1)$.
+$t$, so we push them into the stack.  Please refer to
+Figure~\ref{fig:cartesianEncoding-after}.  Next we update the overall
+Catalan index $t^*$.  After we popped all elements smaller than $x$,
+they should be inserted to the left of the $x$.  Please compare
+Figure~\ref{fig:cartesianEncoding-before} and
+Figure~\ref{fig:cartesianEncoding-after}.  The only difference between
+Figure~\ref{fig:cartesianEncoding-before} and
+Figure~\ref{fig:cartesianEncoding-after} is the area enclosed by the red
+dotted line.  If we compute the difference between the index of the two
+dotted line area, we can {\em patch} the overall $t^*$ into the correct
+value, since our encoding considers left subtree {\em before} right
+subtree.  Since the difference is $t' - {\cal T}(s, t, s - i, {\cal
+C}_{s-i} - 1)$, the new $t^*$ is the old value of $t^*$, plus $t' -
+{\cal T}(s, t, s - i, {\cal C}_{s-i}
+- 1)$.
 
 Note that Algorithm~\ref{alg:cartesian-encode-online} does {\em not}
 increase the amortized time complexity to compute the Catalan index,
@@ -331,8 +335,3 @@ Algorithm~\ref{alg:cartesian-encode-online} $n$ times is also $O(n)$,
 since each operation within the loop is $O(1)$.  As a result the
 amortized cost for an in-block query, including the computation of
 tree index, is also $O(1)$.
-
-\iffalse
-最後，我們不改變原本的建立笛卡爾樹算法，便能在過程中擭得樹的編號，
-每一次的 in-block 詢問只需要一次記憶體存取，得到任一操作攤銷複雜度 $\theta(1)$。
-\fi

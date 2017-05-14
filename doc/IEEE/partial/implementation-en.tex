@@ -30,8 +30,10 @@ Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 \begin{figure}[!thb]
   \centering \subfigure[An algorithm with a lower time complexity] {
     \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-long-jump.pdf}
+    \label{fig:long-short-jump-disjoint-long}
   } \subfigure[An algorithm with a higher time complexity] {
     \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-short-jump.pdf}
+    \label{fig:long-short-jump-disjoint-short}
   }
   \caption{The parent jump in disjoint set}
   \label{fig:long-short-jump-disjoint}
@@ -41,14 +43,14 @@ Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 
 The Rem's algorithm ({\sc Rem})~\cite{dijkstra1976a} achieves better
 cache performance by a {\em merge-by-index} technique.  Traditional
-disjoint set merging techniques are {\em merge-by-rank}\cite{XXX} and
-{\em merge-by-size}\cite{XXX}, which determine the root of new tree by
-the ranks and the sizes of the two trees respectively.  Despite that
-they do have asymptotically better time complexity, put their better
-time complexity here.  However, their performance in practice is not
-so impressive due to the previously mentioned cache issue.  In
-contrast Rem's algorithm assigns an {\em index} to each node, and
-merge two disjoint sets according the index of the roots of the two
+disjoint set merging techniques are {\em merge-by-rank} and {\em
+merge-by-size}~\cite{Tarjan1975EfficiencyOA}, which determine the root of
+new tree by the ranks and the sizes of the two trees respectively.
+Despite that they do have asymptotically better time complexity, put
+their better time complexity here.  However, their performance in
+practice is not so impressive due to the previously mentioned cache
+issue.  In contrast Rem's algorithm assigns an {\em index} to each node,
+and merge two disjoint sets according the index of the roots of the two
 trees being merged.  That is, the root of the new merged tree will be
 the root with the ``larger'' index.
 

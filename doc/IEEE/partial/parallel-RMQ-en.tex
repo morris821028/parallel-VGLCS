@@ -188,7 +188,7 @@ $t_i$'s to represent a Cartesian tree.
 \end{figure}
 
 
-The key idea of might-most-pops encoding is that we can use $t_i$'s to
+The key idea of right-most-pops encoding is that we can use $t_i$'s to
 {\em implicitly identify} the Cartesian tree of this block of data,
 and that we can answer in-block range queries simply by examining
 these $t_i$'s.  Suppose we want to answer an in-block maximum query
@@ -251,14 +251,13 @@ one-dimension range maximum query for up to $n = 2^{64}$ data.
 
 Note that our right-most-pops encoding does improve cache performance,
 but will increase the time complexity.
-Algorithm~\ref{alg:cartesian64bits-query} access data in a very
-regular manner and has a better data locality than Fischer's
-algorithm.  The preprocessing time is $O(n)$, as same as in Fischer's
-algorithm.  However, a single query now needs $O(s)$ time, where $s$
-is the block size ${{\frac{\log n}{4}}}$.  This is acceptable in
-practice since we set the block size $s$ to $16$ for $n$ up to
-$2^{64}$, so $s$ is a small constant.  The space complexity is $O(n)$
-as in Fischer's algorithm.  The overall time complexity of the
-parallel version of our VGLCS algorithm becomes $O(n^2 \log{n} / p + n
-\log n)$.  Note that the $\log n$ comes from the block size $s =
-O(\log n)$
+Algorithm~\ref{alg:cartesian64bits-query} accesses data in a very
+regular manner and has a better data locality than Fischer's algorithm.
+The preprocessing time is $O(n)$, as same as in Fischer's algorithm.
+However, a single query now needs $O(s)$ time, where $s$ is the block
+size ${{\frac{\log n}{4}}}$.  This is acceptable in practice since we
+set the block size $s$ to $16$ for $n$ up to $2^{64}$, so $s$ is a small
+constant.  The space complexity is $O(n)$ as in Fischer's algorithm. The
+overall time complexity of the parallel version of our VGLCS algorithm
+becomes $O(n^2 \log{n} / p + n \log n)$.  Note that the $\log n$ comes
+from the block size $s = O(\log n)$
