@@ -210,28 +210,28 @@ pushed/popped at most {\em once}.
 Several encoding methods were proposed for indexing Cartesian search
 trees.  Fischer~\cite{Fischer2006TheoreticalAP} introduced the first
 encoding method and Masud~\cite{Hasan2010CacheOA} presents a new
-encoding method to reduce the number of instructions.  Unfortunately
-all these algorithm work in an off-line model, i.e., they assume all
-data are given in advance, and cannot cope with incrementally added
-data.  In addition, they require a preprocessing of time $O(n)$, where
-$n$ is the number of data.  The preprocessing need more memory
-transfer to find the information of the block of an input array, or
-read external files from disk.
+encoding method that reduces the number of instructions.
+Unfortunately all these algorithms are {\em off-line}, i.e., they
+assume all data are given in advance, as a result they cannot cope
+with incrementally added data.  In addition, they require a
+preprocessing of time $O(n)$, where $n$ is the number of data.  The
+preprocessing requires extra memory to process the input data block,
+or reads external files from disk.
 
-We can generalize our Catalan index computation technique for
-incrementally added data by {\em normalization}.  Suppose we want to
-encode a series of Cartesian search trees of increasing sizes up to
-$n$, we can append a path of $n-i$ {\em right-child-only} nodes to the
-right most path of the existing tree of size $i$, so that the total
-number remains $n$.  That is, when the computation starts whiteout any
-existing tree nodes we will use a path of $n$ right-child-only nodes.
-Please refer to the figure on the left of
-Figure~\ref{fig:cartesianEncoding} for an illustration.  After we have
-added $i$ nodes, we will have a a path of $n - i$ right-child-only
-nodes attached to the right most path, as illustrated by the figure in
-the left of Figure~\ref{fig:cartesianEncoding}.  For ease of
-explanation we will refer to this added path as the {\em virtual
-  path}.
+We generalize our Catalan tree labeling technique for incrementally
+added data by a {\em normalization}, which keeps the size of tree as a
+constant $n$.  That is, suppose we want to encode a series of
+Cartesian search trees of {\em increasing} sizes up to $n$, we can
+append a path of $n-i$ {\em right-child-only} nodes to the right most
+path of the existing tree of size $i$, so that the total number of
+node is {\em always} $n$.  That is, when the computation starts
+without any existing tree nodes, we will start with a path of $n$
+right-child-only nodes.  Please refer to
+Figure~\ref{fig:cartesianEncoding}(a) for an illustration.  After we
+have added $i$ nodes, we will have a path of $n - i$ right-child-only
+nodes attached to the right most path, as illustrated by
+Figure~\ref{fig:cartesianEncoding}(b).  For ease of explanation we
+will refer to this added path as the {\em virtual path}.
 
 \begin{figure*}[!thb]
   \centering \subfigure[Initiation $t_{{\it root}_0}= C_n - 1$]{
@@ -244,19 +244,20 @@ explanation we will refer to this added path as the {\em virtual
     \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding-after.pdf}
     \label{fig:cartesianEncoding-after}
   }
-  \caption{An example for difference algorithm to encode Cartesian tree.}
+  \caption{Normalization of Cartiesan trees of increasing sizes by
+    adding a virtual path.}
   \label{fig:cartesianEncoding}
 \end{figure*}
 
-There are two advantages of this tree normalization.  First, this tree
-normalization simplifies the computation of Catalan index, as we will
-explain later.  That is, we can update the Catalan index with ease
-whenever we insert a new data.  Second, one can image this
-normalization as adding increasing larger data to the end of a data
-block, so that the interval maximum on any existing tree in the series
-will not be affected.  That is, we can {\em dynamically} maintain a
-lookup table to obtain the maximum value in a range, so as to answer a
-range query by this Cartesian tree encoding.
+There are two advantages of this tree normalization.  First, this
+normalization simplifies the computation of Catalan index.  That is,
+we can update the Catalan index with ease whenever we insert a new
+data.  Second, one can image this normalization as adding increasing
+larger data to the end of a data block, so that the interval maximum
+on any existing tree in the series will {\em not} be affected.  As a
+result we can {\em dynamically} maintain a lookup table to obtain the
+maximum value in a range, so as to answer a range query by this
+Cartesian tree encoding.
 
 %% Now, we provide the dynamic encoding method so that each operation is
 %% amortized $O(1)$ time.
