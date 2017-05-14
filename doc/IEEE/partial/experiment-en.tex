@@ -182,25 +182,25 @@ $1.4$ times faster than sparse table when $N$ reaches $100000$.
 
 % Make more observation on $L$ and $N$.
 
-We increase the number of input elements ($N$ in
-Table~\ref{tlb:CORMQ}) to verify the scalability of
-Algorithm~\ref{alg:parallel-sparse-table}.  % explain the scalability
+We increase the number of input elements ($N$ in Table~\ref{tlb:CORMQ})
+to verify the efficiency of Algorithm~\ref{alg:parallel-sparse-table}.
+
+% explain the scalability
+% Morris: scalability -> efficiency
 
 The maximum length of interval query ($L$ in Table~\ref{tlb:CORMQ})
-affects the performance of accessing different levels in the sparse
-table.
+affects the performance of accessing different rows ($T_S[i][*]$) in the
+sparse table.
 
-The number of levels in the compressed sparse table is smaller than
-that of the sparse table.
+The number of rows in the compressed sparse table is
+smaller than that of the sparse table.  Therefore, this improves
+performance of cache temporal locality for compressed sparse table
+because multiple data store in compressed block.
 
-Therefore, when $L$ is small, it is very likely that the interval
-query can be processed in the same level of the sparse table.
+When $L$ is small, it is very likely that the interval query can be
+processed in the same row of the sparse table.
 
-This improves performance of cache temporal locality for compressed
-sparse table because multiple data store in compressed block.
-
-
-Oppositely, when $L$ is large, data sharing decreases the efficiency
-during integrating the maximum value by the definition of recursion.
+Oppositely, when $L$ is large, the efficiency of integrating the maximum
+value decreases because of the data sharing between multi-processors.
 
 \input{\TablePath/tlb-CORMQ.tex}

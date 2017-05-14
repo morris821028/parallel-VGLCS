@@ -12,16 +12,16 @@ identifies the region of similarity between the sequences of DNA, RND,
 or protein.
 
 Iliopoulos and Rahman~\cite{Rahman2006AlgorithmsFC} introduced many
-constrained versions of LCS.  For example, a {\em fixed gap LCS}
-(FGLCS) requires that the distance between consecutive characters in
-the LCS is {\em at most} $k + 1$ characters away.  A fixed gap LCS can
-be found in time $O(nm)$, where $n$ and $m$ are the lengths of the two
-input strings~\cite{citation}.  On the other hand, a {\em variable gap
-  LCS} (VGLCS) requires that each character has a {\em gap} value and
-two consecutive characters in LCS must be with distance of the gap of
-the {\em latter} character {\em plus} 1.  One can think of the fixed
-gap LCS as a special case of variable gap LCS in which the gap values
-of all characters are $k$.
+constrained versions of LCS.  For example, a {\em fixed gap LCS} (FGLCS)
+requires that the distance between consecutive characters in the LCS is
+{\em at most} $k + 1$ characters away.  A fixed gap LCS can be found in
+time $O(nm)$, where $n$ and $m$ are the lengths of the two input
+strings~\cite{Rahman2006AlgorithmsFC}.  On the other hand, a {\em
+variable gap LCS} (VGLCS) requires that each character has a {\em gap}
+value and two consecutive characters in LCS must be with distance of the
+gap of the {\em latter} character {\em plus} 1.  One can think of the
+fixed gap LCS as a special case of variable gap LCS in which the gap
+values of all characters are $k$.
 
 \begin{figure}[!thb]
   \centering

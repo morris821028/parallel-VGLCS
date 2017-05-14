@@ -179,31 +179,31 @@ among threads.
 % Morris: how to make it to row-by-row manner
 
 
-A sketch of our algorithm is as follows.  Our algorithm computes $V$
-one row at a time.  The computation of each row has two stages.  In
-the first stage, the algorithm queries each 0$C$ for every column
-within the rectangle {\em in parallel}, so as to obtain the maximums
-of suffix of length $G_A + 1$ of every column, and place them into an
-array $R$.  Recall from Algorithm~\ref{alg:serial-VGLCS} that every
-column of $V$ has a data structure $C$ that supports incremental
+A sketch of our algorithm is as follows.  Our algorithm computes $V$ one
+row at a time.  The computation of each row has two stages.  In the
+first stage, the algorithm queries each data structure $C$ for every
+column within the rectangle {\em in parallel}, so as to obtain the
+maximums of suffix of length $G_A + 1$ of every column, and place them
+into an array $R$. Recall from Algorithm~\ref{alg:serial-VGLCS} that
+every column of $V$ has a data structure $C$ that supports incremental
 suffix maximum on $V$.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.
 
 In the second stage, our algorithm issues $m$ {\em range maximum
-  queries}, one for each column, on $R$ to compute all $m$ elements of
-the $i$-th row of $V$ {\em in parallel}.  Note that unlike the
-sequential algorithm, we compute all elements in the $i$-th row of $V$
-in parallel, so we cannot query the {\em suffix} of $R$.  Instead we
-need to query a {\em range} of $R$ for the maximum, where the range is
-the gap constraint on that column.  Please refer to
+queries}, one for each column, on $R$ to compute all $m$ elements of the
+$i$-th row of $V$ {\em in parallel}.  Note that unlike the sequential
+algorithm, we compute all elements in the $i$-th row of $V$ in parallel,
+so we cannot query the {\em suffix} of $R$.  Instead we need to query a
+{\em range} of $R$ for the maximum, where the range is the gap
+constraint on that column.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Note that we
 need to add the newly computed $V[i, j]$ into the $C$ of the $j$-th
 column {\em incrementally}, so that they will contain the correct
-information for the computation of the $i+1$-th row.  Also since the
+information for the computation of the $(i+1)$-th row.  Also since the
 algorithm iterates in rows, these $C$'s only need to support suffix
 maximum query.  No range query on them is required.  In contrast we do
-need to support range maximum query on $R$, and these queries will be
-in parallel.
+need to support range maximum query on $R$, and these queries will be in
+parallel.
 
 \begin{figure}
   \centering \subfigure[The first stage]{
