@@ -2,16 +2,16 @@
 
 \subsection{Basic Dynamic Programming}
 
-We first describe a basic dynamic programming for VGLCS~\cite{XXX}.
-Let $A$ and $B$ denote two input strings of length $n$ and $m$
-respectively, and $G_A$ and $G_B$ be the arrays of the variable gap
-constraints.  We define $V[i, j]$ to be the {\em maximum} length of
-the variable gapped longest common subsequence between substring $A[1,
-  i]$ and $B[1, j]$.  It is easy to see that $V[i, j]$ is the {\em
-  maximum} among $V[k, l]$, where $k$ is between $i -1$ and
-$i-G_A(i)-1$, and $l$ is between $j -1 $ and $j-G_B(j)-1$, i.e., a
-rectangle within $V$ on the left and upper of $V[i,j]$.  Please refer
-to Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
+We first describe a basic dynamic programming for
+VGLCS~\cite{Peng2011TheLC}. Let $A$ and $B$ denote two input strings of
+length $n$ and $m$ respectively, and $G_A$ and $G_B$ be the arrays of
+the variable gap constraints.  We define $V[i, j]$ to be the {\em
+maximum} length of the variable gapped longest common subsequence
+between substring $A[1, i]$ and $B[1, j]$.  It is easy to see that $V[i,
+j]$ is the {\em maximum} among $V[k, l]$, where $k$ is between $i -1$
+and $i-G_A(i)-1$, and $l$ is between $j -1 $ and $j-G_B(j)-1$, i.e., a
+rectangle within $V$ on the left and upper of $V[i,j]$.  Please refer to
+Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
 
 \begin{figure}[!thb]
   \centering \subfigure[How to compute $V$.] {
