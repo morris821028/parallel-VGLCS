@@ -250,14 +250,14 @@ usage and improve cache performance, it can also efficiently answer
 one-dimension range maximum query for up to $n = 2^{64}$ data.
 
 Note that our right-most-pops encoding does improve cache performance,
-but will increase the time complexity.
+but will increase the time complexity in answering queries.
 Algorithm~\ref{alg:cartesian64bits-query} accesses data in a very
-regular manner and has a better data locality than Fischer's algorithm.
-The preprocessing time is $O(n)$, as same as in Fischer's algorithm.
-However, a single query now needs $O(s)$ time, where $s$ is the block
-size ${{\frac{\log n}{4}}}$.  This is acceptable in practice since we
-set the block size $s$ to $16$ for $n$ up to $2^{64}$, so $s$ is a small
-constant.  The space complexity is $O(n)$ as in Fischer's algorithm. The
-overall time complexity of the parallel version of our VGLCS algorithm
-becomes $O(n^2 \log{n} / p + n \log n)$.  Note that the $\log n$ comes
-from the block size $s = O(\log n)$
+regular manner and has a better data locality than Fischer's
+algorithm.  The preprocessing time is $O(n)$, as same as in Fischer's
+algorithm.  However, a single query now needs $O(s)$ time, where $s$
+is the block size ${{\frac{\log n}{4}}}$.  This is acceptable in
+practice since we set the block size $s$ to $16$ for $n$ up to
+$2^{64}$, so $s$ is a small constant.  The space complexity is $O(n)$
+as in Fischer's algorithm. The overall time complexity of the parallel
+version of our VGLCS algorithm becomes $O(n^2 \log{n} / p + n \log
+n)$.  Note that the $\log n$ comes from the block size $s = O(\log n)$
