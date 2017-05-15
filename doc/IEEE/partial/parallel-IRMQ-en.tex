@@ -1,4 +1,9 @@
-\section{Maximum Interval Query on Incremental Data} \label{sec:QIUD}
+\ifdefined\MasterThesis
+\chapter{Maximum Interval Query on Incremental Data}
+\else
+\section{Maximum Interval Query on Incremental Data}
+\fi
+\label{sec:QIUD}
 
 This section describes our approach to address the challenges in the
 first stage of Algorithm~\ref{alg:parallel-VGLCS}, where we compute
@@ -11,7 +16,11 @@ queries on an interval.
 % not here, somewhere else
 %\input{./tables/tlb-cmp-complexity.tex}
 
+\ifdefined\MasterThesis
+\section{Build Least Common Ancestor Table}
+\else
 \subsection{Build Least Common Ancestor Table}
+\fi
 
 Recall from the discussion of Cartesian tree in
 Section~\ref{sec:parallelRMQ} that finding the {\em least common
@@ -20,7 +29,11 @@ need to address two issues -- how to label a binary tree into its {\em
 Catalan index} and how to find the least common ancestor of two nodes in
 a given Cartesian tree.
 
+\ifdefined\MasterThesis
+\subsection{Cartesian Tree Labeling}
+\else
 \subsubsection{Cartesian Tree Labeling}
+\fi
 
 Our Cartesian tree labeling will enumerate all binary search trees in
 {\em lexicographical order} from $0$ to the $n$-th Catalan number
@@ -47,7 +60,12 @@ shows our lexicographical labeling of binary search trees of sizes 1,
   \label{fig:labelingBST}
 \end{figure}
 
+
+\ifdefined\MasterThesis
+\subsection{Least Common Ancestor}
+\else
 \subsubsection{Least Common Ancestor}
+\fi
 
 We also need to determine the {\em least common ancestor} efficiently
 for answering range maximum queries when data are incrementally added.
@@ -112,7 +130,11 @@ of processors.
 %% right subtrees in our encoding.  We can do this in $O(n)$ time, where
 %% $n$ is the number of tree nodes.
 
+\ifdefined\MasterThesis
+\section{Catalan Index Computation}
+\else
 \subsection{Catalan Index Computation}
+\fi
 
 Note that Algorithm~\ref{alg:parallel-LCA} requires Catalan index $t$,
 so we need to determine $t$ efficiently when given a block of data.
@@ -121,7 +143,11 @@ rightmost path.
 
 % how to compute t from tree data structure
 
+\ifdefined\MasterThesis
+\subsection{Build the Tree}
+\else
 \subsubsection{Build the Tree}
+\fi
 
 In order to find the Catalan index of a block of data, we can build a
 Cartesian tree corresponding to the data of the block, and then find
@@ -147,7 +173,11 @@ recomputing them as in Equation~\ref{fun:tid}.
 
 % how to compute t with rightmost path of the tree
 
+\ifdefined\MasterThesis
+\subsection{Keep the Rightmost Path}
+\else
 \subsubsection{Keep the Rightmost Path}
+\fi
 
 The previous computation of Catalan index requires building the tree
 to obtain subtree information, and may not be efficient.  We propose a
@@ -206,7 +236,11 @@ index for Cartesian trees with the entire block of data and the block
 size.  The algorithm runs in $O(s)$ time since an element is
 pushed/popped at most {\em once}.
 
+\ifdefined\MasterThesis
+\section{Dynamic Catalan Index Computation}
+\else
 \subsection{Dynamic Catalan Index Computation}
+\fi
 
 Several encoding methods were proposed for indexing Cartesian search
 trees.  Fischer~\cite{Fischer2006TheoreticalAP} introduced the first

@@ -1,4 +1,9 @@
-\section{Range Maximum Query} \label{sec:parallelRMQ}
+\ifdefined\MasterThesis
+\chapter{Range Maximum Query} 
+\else
+\section{Range Maximum Query} 
+\fi
+\label{sec:parallelRMQ}
 
 In this section we will describe our approach to address the
 challenges in the second stage of Algorithm~\ref{alg:parallel-VGLCS},
@@ -20,7 +25,12 @@ array $A$.
 %% query.  On the other hand, it is difficult to efficiently parallelize
 %% the querying on tree-like data structures, e.g., disjoint sets.
 
-\subsection{Blocked Sparse Table} \label{sec:blocked-sparse-table}
+\ifdefined\MasterThesis
+\section{Blocked Sparse Table} 
+\else
+\subsection{Blocked Sparse Table} 
+\fi
+\label{sec:blocked-sparse-table}
 
 \begin{figure}[!thb]
   \centering \subfigure[Array] {
@@ -149,7 +159,12 @@ computer.
 % operation because the access pattern is almost one by one in our VGLCS
 % algorithm.
 
-\subsection{Right-most-pops Encoding} \label{sec:cct}
+\ifdefined\MasterThesis
+\section{Right-most-pops Encoding}
+\else
+\subsection{Right-most-pops Encoding}
+\fi
+\label{sec:cct}
 
 We propose a new encoding for blocks, called {\em right-most-pops},
 instead of the binary string by Demaine~\cite{Demaine2009OnCT}, in

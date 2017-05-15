@@ -1,4 +1,8 @@
+\ifdefined\MasterThesis
+\begin{abstractEN}
+\else
 \begin{abstract}
+\fi
 
 The longest common subsequence problem with variable gapped
 constraints (VGLCS) is widely used in genes and molecular biology.  An
@@ -24,10 +28,17 @@ solved by sparse table within $O(n)$ -- $O(1)$.
 同樣地，可解決遞增任意區間最大值詢問 (incremental RMQ) 藉由稀疏表於 $O(n)$ -- $O(1)$。
 \fi
 
+\ifdefined\MasterThesis
+\paragraph{Keywords} range minimum query,
+incremental range maximum query, incremental suffix maximum query,
+longest common sequence, parallel, Cartesian tree
+\end{abstractEN}
+\else
 \end{abstract}
+\fi
 
 %\begin{IEEEkeywords}
 %range minimum query,
 %incremental range maximum query, incremental suffix maximum query,
-%longest common sequence, parallel, cartesian tree
+%longest common sequence, parallel, Cartesian tree
 %\end{IEEEkeywords}
