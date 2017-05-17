@@ -247,7 +247,7 @@ will refer to this added path as the {\em virtual path}.
     \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding-after.pdf}
     \label{fig:cartesianEncoding-after}
   }
-  \caption{Normalization of Cartiesan trees of increasing sizes by
+  \caption{Normalization of Cartesian trees of increasing sizes by
     adding a virtual path.}
   \label{fig:cartesianEncoding}
 \end{figure*}
@@ -255,55 +255,59 @@ will refer to this added path as the {\em virtual path}.
 There are two advantages of this tree normalization.  First, this
 normalization simplifies the computation of Catalan index.  That is,
 we can update the Catalan index with ease whenever we insert a new
-data.  Second, one can image this normalization as adding increasing
-larger data to the end of a data block, so that the interval maximum
-on any existing tree in the series will {\em not} be affected.  As a
+data. Second, this normalization simply adds increasingly {\em
+  larger} data to the end of a data block, so that the answers to the
+interval maximum queries on actual data are {\em not} affected.  As a
 result we can {\em dynamically} maintain a lookup table to obtain the
-maximum value in a range, so as to answer a range query by this
-Cartesian tree encoding.
+maximum value within a range, so as to answer a range query from this
+dynamic Cartesian tree encoding.
 
 %% Now, we provide the dynamic encoding method so that each operation is
 %% amortized $O(1)$ time.
 
+ 
 The dynamic Catalan index computation with tree normalization works as
-follows.  We will remember the current index of the tree (as $t^*$),
-and a stack of the right most path of the current tree, as $D$ in
-Algorithm~\ref{alg:cartesian-encode-offline}.  Then we will {\em
-  update} these information once we add a new data $x$ into the tree,
-by calling Algorithm~\ref{alg:cartesian-encode-online}, which is based
-on Algorithm~\ref{alg:parallel-LCA} and Equation~\ref{fun:tid}.  At
-any given time, i.e., for any $i$ where $i$ is the index of the data,
-we we can compute the Catalan index of the current tree, which has $i$
-nodes, and use it to answer a range maximum query.
+follows.  We will maintain the Catalan index of the current Cartesian
+tree (as $t^*$), and a stack of the right most path of the current tree
+(as $D$).  Then we will {\em update} these information every time we add
+a new data $x$ into the tree, by calling
+Algorithm~\ref{alg:cartesian-encode-online}, which is based on
+Algorithm~\ref{alg:parallel-LCA} and Equation~\ref{fun:tid}.  At any
+given time $i$, where $i$ is the index of the data, we can compute the
+Catalan index of the current tree, which has $i$ nodes, and use it to
+answer a range maximum query.
 
-For ease of notation we use we use $t$ and $s$ to denote the index and
-the size of the tree {\em without} the virtual path.  This is similar to
+For ease of notation we use we use $t$ and $s$ to denote the Catalan
+index and the size of the Cartesian tree {\em without} the virtual path.
+These notations are similar to those in
 Algorithm~\ref{alg:cartesian-encode-offline}.  We also use $t'$ and $s'$
-to maintain the index and size of the tree {\em with} the virtual path,
-as indicated by the part enclosed by the red dotted line in
-Figure~\ref{fig:cartesianEncoding}.
+to maintain the index and size of the tree {\em with} the virtual path.
+Please refer to Figure~\ref{fig:cartesianEncoding} for an illustration,
+where the tree enclosed by the red dotted line does include the virtual
+path.
 
 Algorithm~\ref{alg:cartesian-encode-online} first initializes $s$ and
-$t$ as in Algorithm~\ref{alg:cartesian-encode-offline}, since it will
-work from the end of the rightmost path and start with an empty tree.
-Then the algorithm initializes $s'$ to $n - i$ since we will append
-the a virtual path of length $n - i$ to the end of the rightmost path.
-Consequently $t'$ is the ${\cal C}_{s'} - 1$ since it has the largest
-Catalan index.
+$t$ as Algorithm~\ref{alg:cartesian-encode-offline} does, since it
+will also work from the end of the rightmost path and start with an
+empty tree.  Then Algorithm~\ref{alg:cartesian-encode-online}
+initializes $s'$ to $n - i$ since we will append the a virtual path of
+length $n - i$ to the end of the rightmost path.  Consequently $t'$ is
+${\cal C}_{s'} - 1$ since it has the largest Catalan index of that
+size.
 
 Algorithm~\ref{alg:cartesian-encode-online} then inserts the $i$-th
-element, $x$, in two stages.  The first stage is to pop the elements
-smaller than $x$ from the stack $D$.  Recall that we maintain the
-index of the current tree as $t$ and the rightmost path of the
-Cartesian tree as two variables -- stack pointer $p$ and a stack $D$.
-Note that $t$ and $s$ are the index and size of the last subtree {\em
-  without} the virtual path.  Consequently as we popped smaller
-elements from the stack and update $s$ and $t$ just as in
-Algorithm~\ref{alg:cartesian-encode-online}.  The update on $s'$ and
-$t'$ is similar, but it assumes that there is a virtual path of $n -
-s'$ right-child-only nodes to the right of the rightmost path.  Please
-refer to the inner loop of Algorithm~\ref{alg:cartesian-encode-online}
-and Figure~\ref{fig:cartesianEncoding}.
+element $x$ in two stages.  In line 1 and 2 of the loop
+Algorithm~\ref{alg:cartesian-encode-online} pops the elements smaller
+than $x$ from the stack $D$, using $p$ as the stack pointer of $D$. Note
+that $t$ and $s$ are the index and size of the last subtree {\em
+without} the virtual path.  Consequently as we popped smaller elements
+from the stack and update $s$ and $t$ just as in
+Algorithm~\ref{alg:cartesian-encode-online}.  In line 3 and 4 of the
+loop Algorithm~\ref{alg:cartesian-encode-online} updates $s'$ and $t'$
+similarly.  However it must maintain a virtual path of $n - s'$
+right-child-only nodes to the right of the rightmost path.  Please
+refer to the Algorithm~\ref{alg:cartesian-encode-online} and
+Figure~\ref{fig:cartesianEncoding} for details.
 
 \input{\AlgoPath/alg-cartesian-encode-online-2e}
 

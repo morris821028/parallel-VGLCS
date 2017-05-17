@@ -250,7 +250,7 @@ usage and improve cache performance, it can also efficiently answer
 one-dimension range maximum query for up to $n = 2^{64}$ data.
 
 Note that our right-most-pops encoding does improve cache performance,
-but will increase the time complexity.
+but will increase the time complexity in answering queries.
 Algorithm~\ref{alg:cartesian64bits-query} accesses data in a very
 regular manner and has a better data locality than Fischer's algorithm.
 The preprocessing time is $O(n)$, as same as in Fischer's algorithm.
