@@ -5,13 +5,13 @@
 We first describe a basic dynamic programming for
 VGLCS~\cite{Peng2011TheLC}. Let $A$ and $B$ denote two input strings of
 length $n$ and $m$ respectively, and $G_A$ and $G_B$ be the arrays of
-the variable gap constraints.  We define $V[i, j]$ to be the {\em
+the variable gap constraints.  We define $V[i][j]$ to be the {\em
 maximum} length of the variable gapped longest common subsequence
-between substring $A[1, i]$ and $B[1, j]$.  It is easy to see that $V[i,
-j]$ is the {\em maximum} among $V[k, l]$, where $k$ is between $i -1$
-and $i-G_A(i)-1$, and $l$ is between $j -1 $ and $j-G_B(j)-1$, i.e., a
-rectangle within $V$ on the left and upper of $V[i,j]$.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
+between substring $A[1, i]$ and $B[1, j]$.  It is easy to see that
+$V[i][j]$ is the {\em maximum} among $V[k][l]$, where $k$ is between
+$i-1$ and $i-G_A(i)-1$, and $l$ is between $j-1$ and $j-G_B(j)-1$, i.e.,
+a rectangle within $V$ on the left and upper of $V[i][j]$.  Please refer
+to Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
 
 \begin{figure}[!thb]
   \centering \subfigure[How to compute $V$.] {
@@ -27,29 +27,28 @@ Figure~\ref{fig:fig-VGLCS-dp-naive} for an illustration.
 \end{figure}
 
 The computation of $V$ can be optimized as follows.  Note that the
-computation of all $V[i, j]$'s with the same $i$ has the {\em same}
-gap constraint $G_A(i)$, so the maximum within the rectangle can be
-computed in two steps.  First we compute the maximum of {\em every
-  column} of this rectangle, and place them into another array $R$.
-Then we compute the maximum of the {\em suffix} of length $G_B$ on
-$R$, which is exactly $V[i, j]$.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp} for an illustration.
+computation of all $V[i][j]$'s with the same $i$ has the {\em same} gap
+constraint $G_A(i)$, so the maximum within the rectangle can be computed
+in two steps.  First we compute the maximum of {\em every column} of
+this rectangle, and place them into another array $R$. Then we compute
+the maximum of the {\em suffix} of length $G_B$ on $R$, which is exactly
+$V[i][j]$.  Please refer to Figure~\ref{fig:fig-VGLCS-dp} for an
+illustration.
 
 We note that this optimization requires maximum queries on the suffix
 {\em incrementally} in the following sense.  Recall that in the first
-step of the optimization we need to compute the maximum of every
-column within the rectangle.  This is just like finding the maximum of
-the {\em suffix} of every column in that rectangle.  After we compute
-the $i$-th row of $V$ and go to the next row to compute $V[i + 1, *]$,
-we will then need the maximum of the suffix of every column of length
-$G_A(i + 1)$.  It will be beneficial if we put the $V$'s in each
-column into a data structure that supports suffix maximum query.
-Similarly, the computation within the same row, that is, from $V[i,j]$
-to $V[i, j + 1]$, also requires the maximum of the suffix on $R$.  We
-will refer to this type of queries as {\em incremental suffix maximum
-  query}, i.e., we would like to maintain a data structure form which
-we can find the maximum of its suffix efficiently while we add data at
-its end.
+step of the optimization we need to compute the maximum of every column
+within the rectangle.  This is just like finding the maximum of the {\em
+suffix} of every column in that rectangle.  After we compute the $i$-th
+row of $V$ and go to the next row to compute $V[i+1][*]$, we will then
+need the maximum of the suffix of every column of length $G_A(i+1)$. It
+will be beneficial if we put the $V$'s in each column into a data
+structure that supports suffix maximum query. Similarly, the computation
+within the same row, that is, from $V[i][j]$ to $V[i][j+1]$, also
+requires the maximum of the suffix on $R$.  We will refer to this type
+of queries as {\em incremental suffix maximum query}, i.e., we would
+like to maintain a data structure form which we can find the maximum of
+its suffix efficiently while we add data at its end.
 
 % \begin{figure}[!thb]
 %   \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
@@ -62,31 +61,32 @@ its end.
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} applies the optimization and is shown as
 Algorithm~\ref{alg:serial-VGLCS}.  The outer loop goes through every
-row, and the inner loop goes through every element of a row from left
-to right.  We use an array of $C$ to answer incremental maximum
-queries on all columns.  That is, we can think of $C[j]$ as a data
-structure that supports incremental suffix maximum queries on the
-$j$-th column of $V$.  From the previous observation that all
-computation of elements in the $i$-th row of $V$ share the same gap
-$G_A$, we will query each $C$ for the maximum in the suffix that ends
-at row $i-1$ with length $G_A + 1$, and place these maximums in
-another data structure $R$ that also supports incremental suffix
-maximum queries.  It is easy to see that the value of $V[i][j]$ can be
-obtained by querying $R$ with a suffix maximum query of length $G_B +
-1$ as shown in Figure~\ref{fig:fig-VGLCS-dp}.
+row, and the inner loop goes through every element of a row from left to
+right.  We use an array of $C$ to answer incremental maximum queries on
+all columns.  That is, we can think of $C[j]$ as a data structure that
+supports incremental suffix maximum queries on the $j$-th column of $V$.
+From the previous observation that all computation of elements in the
+$i$-th row of $V$ share the same gap $G_A(i)$, we will query each $C$
+for the maximum in the suffix that ends at row $i-1$ with length
+$G_A(i)+1$, and place these maximums in another data structure $R$ that
+also supports incremental suffix maximum queries.  It is easy to see
+that the value of $V[i][j]$ can be obtained by querying $R$ with a
+suffix maximum query of length $G_B(j)+1$ as shown in
+Figure~\ref{fig:fig-VGLCS-dp}.
 
-We update $V$, $C$, and $R$ as follows.  If the $i$-th character of
-$A$ matches the $j$-th character of $B$ then $V[i][j]$ is the maximum
-among the rectangle plus 1, as shown in Figure~\ref{fig:fig-VGLCS-dp}.
-This maximum can be found by querying $R$ for the maximum among the
-last $G_B[j]$ elements in it.  Note that $R$ contains the information
-of the previous row, up to the element of the $j-1$ element.  After
-that we add the maximum of last $G_B + 1$ in the $j$-the column into
-$R$, and the newly computed $V[i][j]$ into $C[j]$, which supports ISMQ
-on the $j$-the column, before going to column $j + 1$.  If the $i$-th
-character of $A$ does {\em not} match the $j$-th character of $B$ then
-we simply set $V$ to 0 since it does not affect the answer, then again
-update $R$ accordingly.
+We update $V$, $C$, and $R$ as follows.  If the $i$-th character of $A$
+matches the $j$-th character of $B$ then $V[i][j]$ is the maximum among
+the rectangle plus 1, as shown in Figure~\ref{fig:fig-VGLCS-dp}. This
+maximum can be found by querying $R$ for the maximum among the last
+$G_B(j)$ elements in it.  Note that $R$ contains the information of the
+previous row, up to the element of the $j-1$ element.  After that we add
+the maximum of last $G_B(j)+1$ in the $j$-the column into $R$, and the
+newly computed $V[i][j]$ into $C[j]$, which supports ISMQ on the $j$-the
+column, before going to column $j+1$.  If the $i$-th character of $A$
+does {\em not} match the $j$-th character of $B$ then we simply set $V$
+to 0 since it does not affect the answer, then again update $R$
+accordingly.
+ 
  
 \input{\AlgoPath/alg-serial-VGLCS-2e}
 
@@ -183,10 +183,10 @@ A sketch of our algorithm is as follows.  Our algorithm computes $V$ one
 row at a time.  The computation of each row has two stages.  In the
 first stage, the algorithm queries each data structure $C$ for every
 column within the rectangle {\em in parallel}, so as to obtain the
-maximums of suffix of length $G_A + 1$ of every column, and place them
-into an array $R$. Recall from Algorithm~\ref{alg:serial-VGLCS} that
-every column of $V$ has a data structure $C$ that supports incremental
-suffix maximum on $V$.  Please refer to
+maximums of suffix of length $G_A(i) + 1$ of every column, and place
+them into an array $R$. Recall from Algorithm~\ref{alg:serial-VGLCS}
+that every column of $V$ has a data structure $C$ that supports
+incremental suffix maximum on $V$.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.
 
 In the second stage, our algorithm issues $m$ {\em range maximum
@@ -197,7 +197,7 @@ so we cannot query the {\em suffix} of $R$.  Instead we need to query a
 {\em range} of $R$ for the maximum, where the range is the gap
 constraint on that column.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Note that we
-need to add the newly computed $V[i, j]$ into the $C$ of the $j$-th
+need to add the newly computed $V[i][j]$ into the $C$ of the $j$-th
 column {\em incrementally}, so that they will contain the correct
 information for the computation of the $(i+1)$-th row.  Also since the
 algorithm iterates in rows, these $C$'s only need to support suffix
@@ -215,19 +215,18 @@ parallel.
   \label{fig:fig-VGLCS-dp-rmq}
 \end{figure}
 
-To resolve the data dependency we need to consider a good data
-structure that can handle incremental suffix/range maximum query {\em
-  in parallel}.  We note that it is {\em not} feasible to parallelize
-the disjoint set implementation for three reasons.  First, a query for
+To resolve the data dependency we need to consider a good data structure
+that can handle incremental suffix/range maximum query {\em in
+parallel}.  We note that it is {\em not} feasible to parallelize the
+disjoint set implementation for three reasons.  First, a query for
 disjoint set will change the data structure because a lookup will {\em
-  compress} the path to the root.  It is difficult to maintain a
+compress} the path to the root.  It is difficult to maintain a
 consistent view of the data structure when multiple threads are
 compressing the path {\em simultaneously}.  Second, when multiple
 threads are compressing different paths, the load among them could be
 very different, and this will incur load imbalance.  Third, there will
-be a large number of threads working on different parts of the
-disjoint set, therefore it will be difficult to synchronize them
-efficiently.
+be a large number of threads working on different parts of the disjoint
+set, therefore it will be difficult to synchronize them efficiently.
 
 \subsubsection{Sparse Table} \label{sec:sparse-table}
 
@@ -248,7 +247,7 @@ elements.  The we build a sparse table $T$ on $A$ as described
 earlier.  Now a ranged maximum query on $A$ can be answered by at most
 {\em two} queries into the sparse table.  For example, if the query is
 from 2 to 13, then the answer is the maximum of from 2 to 9
-($T[3][9]$), and from 6 to 13 ($T[3]13]$).  Both are from the third
+($T[3][9]$), and from 6 to 13 ($T[3][13]$).  Both are from the third
   level of the table since each has the maximum of $2^3 = 8$ elements
   in the input.
 
@@ -290,7 +289,7 @@ The pseudo code of our parallel VGLCS algorithm with sparse table is
 given in Algorithm~\ref{alg:parallel-VGLCS}.  The algorithm computes
 $V$ one row at a time.  The computation of each row has two stages.
 In the first stage, the algorithm queries the $C$'s {\em in parallel}
-to obtain the maximums of suffix of length $G_A + 1$ and place them
+to obtain the maximums of suffix of length $G_A+1$ and place them
 into an array $R$.  Then we build a sparse table $T$ with the data of
 $R$.  Then in the second stage, the algorithm queries $T$ to find the
 range maximum in $R$ to compute all elements in the $i$-th row of $V$

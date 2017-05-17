@@ -11,7 +11,7 @@ TEXFLAG = --pool-size=5000000 --save-size=80000
 all: ${PDF}
 
 %.pdf: %.tex
-#	cd ../graphics && make
+	cd ../graphics && make
 	cd ../partial && ./ntu.sh
 	xelatex $(TEXFLAG) $<
 	- bibtex $*

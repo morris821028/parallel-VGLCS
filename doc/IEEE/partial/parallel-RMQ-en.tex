@@ -100,14 +100,13 @@ these three blocks will return the {\em same} answer $2$.
 The main idea of Fischer's algorithm is to compute an LCA table for
 every block, and answer an in-block query directly by looking into its
 LCA table.  It is easy to see that there are $C_s$ different Cartesian
-trees, where $C_s$ is number of different binary trees of $s$ nodes.
-It is also easy to see that each block can be identified by the shape
-of its Cartesian tree, so it can be represented by an index.  For ease
-of notation we will refer to this index as its {\em Catalan index}.
-By knowing the Catalan index of a block, we can answer a in-block
-range maximum query by looking into its corresponding LCA table.
-Please refer to Figure~\ref{fig:ancesstor-cartesian} for an
-illustration.
+trees, where $C_s$ is number of different binary trees of $s$ nodes. It
+is also easy to see that each block can be identified by the shape of
+its Cartesian tree, so it can be represented by an index.  For ease of
+notation we will refer to this index as its {\em Catalan index}. By
+knowing the Catalan index of a block, we can answer an in-block range
+maximum query by looking into its corresponding LCA table. Please refer
+to Figure~\ref{fig:ancesstor-cartesian} for an illustration.
 
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} builds ancestor
 tables by choosing $s = \frac{\log n}{4}$ as the block size for
