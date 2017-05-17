@@ -1,9 +1,4 @@
-\ifdefined\MasterThesis
-\chapter{Range Maximum Query} 
-\else
-\section{Range Maximum Query} 
-\fi
-\label{sec:parallelRMQ}
+\section{Range Maximum Query} \label{sec:parallelRMQ}
 
 In this section we will describe our approach to address the
 challenges in the second stage of Algorithm~\ref{alg:parallel-VGLCS},
@@ -25,12 +20,7 @@ array $A$.
 %% query.  On the other hand, it is difficult to efficiently parallelize
 %% the querying on tree-like data structures, e.g., disjoint sets.
 
-\ifdefined\MasterThesis
-\section{Blocked Sparse Table} 
-\else
-\subsection{Blocked Sparse Table} 
-\fi
-\label{sec:blocked-sparse-table}
+\subsection{Blocked Sparse Table} \label{sec:blocked-sparse-table}
 
 \begin{figure}[!thb]
   \centering \subfigure[Array] {
@@ -159,12 +149,7 @@ computer.
 % operation because the access pattern is almost one by one in our VGLCS
 % algorithm.
 
-\ifdefined\MasterThesis
-\section{Right-most-pops Encoding}
-\else
-\subsection{Right-most-pops Encoding}
-\fi
-\label{sec:cct}
+\subsection{Right-most-pops Encoding} \label{sec:cct}
 
 We propose a new encoding for blocks, called {\em right-most-pops},
 instead of the binary string by Demaine~\cite{Demaine2009OnCT}, in
@@ -265,14 +250,14 @@ usage and improve cache performance, it can also efficiently answer
 one-dimension range maximum query for up to $n = 2^{64}$ data.
 
 Note that our right-most-pops encoding does improve cache performance,
-but will increase the time complexity in answering queries.
+but will increase the time complexity.
 Algorithm~\ref{alg:cartesian64bits-query} accesses data in a very
-regular manner and has a better data locality than Fischer's
-algorithm.  The preprocessing time is $O(n)$, as same as in Fischer's
-algorithm.  However, a single query now needs $O(s)$ time, where $s$
-is the block size ${{\frac{\log n}{4}}}$.  This is acceptable in
-practice since we set the block size $s$ to $16$ for $n$ up to
-$2^{64}$, so $s$ is a small constant.  The space complexity is $O(n)$
-as in Fischer's algorithm. The overall time complexity of the parallel
-version of our VGLCS algorithm becomes $O(n^2 \log{n} / p + n \log
-n)$.  Note that the $\log n$ comes from the block size $s = O(\log n)$
+regular manner and has a better data locality than Fischer's algorithm.
+The preprocessing time is $O(n)$, as same as in Fischer's algorithm.
+However, a single query now needs $O(s)$ time, where $s$ is the block
+size ${{\frac{\log n}{4}}}$.  This is acceptable in practice since we
+set the block size $s$ to $16$ for $n$ up to $2^{64}$, so $s$ is a small
+constant.  The space complexity is $O(n)$ as in Fischer's algorithm. The
+overall time complexity of the parallel version of our VGLCS algorithm
+becomes $O(n^2 \log{n} / p + n \log n)$.  Note that the $\log n$ comes
+from the block size $s = O(\log n)$

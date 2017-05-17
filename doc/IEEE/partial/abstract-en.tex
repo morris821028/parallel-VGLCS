@@ -1,8 +1,4 @@
-\ifdefined\MasterThesis
-\begin{abstractEN}
-\else
 \begin{abstract}
-\fi
 
 The longest common subsequence problem with variable gapped
 constraints (VGLCS) is widely used in genes and molecular biology.  An
@@ -18,27 +14,10 @@ querying and appending.  The VGLCS problem can be solved in $O(nm / p
 And also, the incremental range maximum query problem can be
 solved by sparse table within $O(n)$ -- $O(1)$.
 
-\iffalse
-可變的間隙限制最長同子序列應用於基因、分子生物學中。
-在之前的研究已提出理論在 $O(nm)$ 的算法，
-其使用特殊的 incremental tree set union 完成 $O(1)$ 的操作，
-否則必須使用傳統并查集操作 $O(\alpha(n))$。
-原先的序列算法無法以直觀的方式平行，我們修改了原本算法的資料結構，
-可以在 $O(1)$ 時間內支援所有操作，其平行的運行時間為 $O(nm / p + n \log n)$。
-同樣地，可解決遞增任意區間最大值詢問 (incremental RMQ) 藉由稀疏表於 $O(n)$ -- $O(1)$。
-\fi
-
-\ifdefined\MasterThesis
-\paragraph{Keywords} range minimum query,
-incremental range maximum query, incremental suffix maximum query,
-longest common sequence, parallel, Cartesian tree
-\end{abstractEN}
-\else
 \end{abstract}
-\fi
 
 %\begin{IEEEkeywords}
 %range minimum query,
 %incremental range maximum query, incremental suffix maximum query,
-%longest common sequence, parallel, Cartesian tree
+%longest common sequence, parallel, cartesian tree
 %\end{IEEEkeywords}

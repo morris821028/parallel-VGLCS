@@ -1,16 +1,6 @@
-\ifdefined\MasterThesis
-\chapter{Parallel VGLCS Algorithm}
-\else
-\section{Parallel VGLCS Algorithm}
-\fi
-\label{sec:parallelVGLCS}
+\section{Parallel VGLCS Algorithm} \label{sec:parallelVGLCS}
 
-
-\ifdefined\MasterThesis
-\section{Basic Dynamic Programming}
-\else
 \subsection{Basic Dynamic Programming}
-\fi
 
 We first describe a basic dynamic programming for
 VGLCS~\cite{Peng2011TheLC}. Let $A$ and $B$ denote two input strings of
@@ -67,11 +57,7 @@ its end.
 %   \label{fig:fig-VGLCS-dp}
 % \end{figure}
 
-\ifdefined\MasterThesis
-\section{Peng's Algorithm}
-\else
 \subsection{Peng's Algorithm}
-\fi
 
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
 Peng~\cite{Peng2011TheLC} applies the optimization and is shown as
@@ -104,11 +90,7 @@ update $R$ accordingly.
  
 \input{\AlgoPath/alg-serial-VGLCS-2e}
 
-\ifdefined\MasterThesis
-\section{Incremental Suffix Maximum Query}
-\else
 \subsection{Incremental Suffix Maximum Query}
-\fi
 
 From the previous discussion of Peng's algorithm, we note that in
 order to find VGLCS efficiently, we need to address the {\em
@@ -247,12 +229,7 @@ be a large number of threads working on different parts of the
 disjoint set, therefore it will be difficult to synchronize them
 efficiently.
 
-\ifdefined\MasterThesis
-\subsection{Sparse Table}
-\else
-\subsubsection{Sparse Table}
-\fi
-\label{sec:sparse-table}
+\subsubsection{Sparse Table} \label{sec:sparse-table}
 
 Since the disjoint set cannot be implemented efficiently in parallel,
 we use {\em sparse table}~\cite{Berkman1993RecursiveSP} to support
@@ -297,11 +274,7 @@ algorithm is very easy to parallelize and implement.
 
 \input{\AlgoPath/alg-parallel-sparse-table-2e}
 
-\ifdefined\MasterThesis
-\subsection{A Parallel VGLCS with Sparse Table}
-\else
 \subsubsection{A Parallel VGLCS with Sparse Table}
-\fi
 
 The operations on a sparse table are much easily to parallelize than
 those on a disjoint set, which is used within the inner loop of Peng's

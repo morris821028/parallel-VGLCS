@@ -1,20 +1,11 @@
-\ifdefined\MasterThesis
-\chapter{Implementation Optimization}
-\else
-\section{Implementation Optimization}
-\fi
-\label{sec:Implementation}
+\section{Implementation Optimization} \label{sec:Implementation}
 
 This section describes the optimization in our implementations of VGLCS
 algorithms, both in sequential and parallel environments.  Note that
 some of these techniques address hardware characteristics, e.g., cache
 behavior, and are not confined to asymptotically analysis only.
 
-\ifdefined\MasterThesis
-\section{The Strategy of Disjoint Set Implementation}
-\else
 \subsection{The Strategy of Disjoint Set Implementation}
-\fi
 
 We now describe the optimization in the implementations of disjoint
 sets, whose applications include VGLCS.
@@ -22,11 +13,7 @@ sets, whose applications include VGLCS.
 %% There two techniques to efficiently merge two disjoint sets -- {\em
 %%   path compression}, and {\em rank strategy}.
 
-\ifdefined\MasterThesis
-\subsection{Cache Performance}
-\else
 \subsubsection{Cache Performance}
-\fi
 
 The cache is essential to efficient implementation of disjoint sets.
 Patwary, Blair, and Manne~\cite{Patwary2010ExperimentsOU} conducted
@@ -73,11 +60,7 @@ trees to merge, we will apply the {\em merge-by-index} technique to
 break the tie, so as to improve cache performance.  Experiments show
 that the merge-by-index technique improves by up to 3 \%.
 
-\ifdefined\MasterThesis
-\subsection{Application on VGLCS}
-\else
 \subsubsection{Application on VGLCS}
-\fi
 
 % VGLCS
 
@@ -109,11 +92,7 @@ lazy insertion, which can ignore this dependency in a sequential
 environment, is not beneficial, and is not adopted in our parallel
 implementation.
 
-\ifdefined\MasterThesis
-\section{Parallel Range Query in VGLCS}
-\else
 \subsection{Parallel Range Query in VGLCS}
-\fi
 
 %% %???
 

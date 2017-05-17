@@ -1,9 +1,4 @@
-\ifdefined\MasterThesis
-\chapter{Experiment} 
-\else
-\section{Experiment} 
-\fi
-\label{sec:Experiment}
+\section{Experiment} \label{sec:Experiment}
 
 We conduct experiments on an Intel Xeon E5-2620 2.4 Ghz processor with
 384K bytes of level 1 cache, 1536K bytes of level 2 cache, and 15M
@@ -19,11 +14,7 @@ The second set purely evaluates the performance of incremental suffix
 maximum query using various data structures.  The third set evaluates
 the performance of parallel range query.
 
-\ifdefined\MasterThesis
-\section{Variable Gapped Longest Common Subsequence}
-\else
 \subsection{Variable Gapped Longest Common Subsequence}
-\fi
 
 We implement {\em disjoint set} and {\em sparse table} in our
 experiments and evaluate their performance on VGLCS.  For disjoint set
@@ -83,11 +74,8 @@ hyper-threading.
     hyper-threading}
 \end{figure}
 
-\ifdefined\MasterThesis
-\section{Incremental Suffix Maximum Query}
-\else
+
 \subsection{Incremental Suffix Maximum Query}
-\fi
 
 We now compare the performance of {\em four} data structures for
 supporting incremental suffix maximum query only.  In addition to
@@ -176,11 +164,7 @@ into the LCA table, so its performance is not affected by $L$.
 %% In order to hide the optimized detail in implementation, we conduct
 %% this experiment.
 
-\ifdefined\MasterThesis
-\section{Parallel Range Maximum Query}
-\else
 \subsection{Parallel Range Maximum Query}
-\fi
 
 We now compare the performance of {\em two} data structures for
 supporting parallel range maximum query.  Since the disjoint set {\em
