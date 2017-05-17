@@ -7,3 +7,8 @@
 __MACOSX
 .DS_Store
 *.pdf
+
+## Auto-generated files ##
+
+partial/ntu
+partial/ntu/*.tex

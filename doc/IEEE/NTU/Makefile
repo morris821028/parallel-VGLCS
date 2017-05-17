@@ -12,6 +12,7 @@ all: ${PDF}
 
 %.pdf: %.tex
 #	cd ../graphics && make
+	cd ../partial && ./ntu.sh
 	xelatex $(TEXFLAG) $<
 	- bibtex $*
 	xelatex $(TEXFLAG) $<
