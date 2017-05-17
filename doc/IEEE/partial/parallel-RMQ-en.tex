@@ -88,14 +88,14 @@ return $k$,  least common ancestor table of this block.  One can think
 of the LCA table as a mapping table from an in-block query $(i, j)$ to
 its answer $k$.
 
-Note that the algorithm does {\em not} maintain the value the $k$-th
+Note that the algorithm does {\em not} maintain the value of the $k$-th
 element.  Instead it stores the {\em index}, i.e., $k$, of the least
 common ancestor so that two blocks with the {\em same relative key
-  order} can {\em share} a least common ancestor table.  For example,
-the first three blocks in Figure~\ref{fig:ancesstor-cartesian} can
-share the same LCA table because they have the same Cartesian tree.
-Consequently an in-block range maximum query $(1, 3)$ to {\em any} of
-these three blocks will return the {\em same} answer $2$.
+order} can {\em share} a least common ancestor table.  For example, the
+first three blocks in Figure~\ref{fig:ancesstor-cartesian} can share the
+same LCA table because they have the same Cartesian tree. Consequently
+an in-block range maximum query $(1, 3)$ to {\em any} of these three
+blocks will return the {\em same} answer $2$.
 
 The main idea of Fischer's algorithm is to compute an LCA table for
 every block, and answer an in-block query directly by looking into its
@@ -241,12 +241,12 @@ instructions and are straightforward to implement.
 We choose the block size as $s = {{\frac{\log n}{4}}} = 16$ for
 performance reason.  Modern CPUs support 64 bit register and fast
 operation on them.  When we pack 16 $t_i$ in to a 64 integer, we can
-leverage fast 64 bit instructions and improve performance.  In
-addition, we do {\em not} build least common ancestor tables {\em
-  explicitly} since we implicitly maintain the Cartesian tree
-information within these 64 bit $t_i$.  This approach reduces memory
-usage and improve cache performance, it can also efficiently answer
-one-dimension range maximum query for up to $n = 2^{64}$ data.
+leverage fast 64 bit instructions and improve performance.  In addition,
+we do {\em not} build least common ancestor tables {\em explicitly}
+since we implicitly maintain the Cartesian tree information within these
+64 bit $t_i$.  This approach reduces memory usage and improves cache
+performance, it can also efficiently answer one-dimension range maximum
+query for up to $n = 2^{64}$ data.
 
 Note that our right-most-pops encoding does improve cache performance,
 but will increase the time complexity in answering queries.

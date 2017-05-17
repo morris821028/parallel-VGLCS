@@ -127,7 +127,7 @@ In order to find the Catalan index of a block of data, we can build a
 Cartesian tree corresponding to the data of the block, and then find
 the index of the Cartesian tree.  That is, we build the tree and
 compute it from the the sizes and indices of the left and right
-subtrees.  This require a recursive traversal on the tree and has a
+subtrees.  This requires a recursive traversal on the tree and has a
 $O(n)$ time complexity, where $n$ is the number of tree nodes.  Let
 $\cal T$ denote the Catalan index.  After knowing these information we
 can compute the Catalan index $\cal T$ by Equation~\ref{fun:tid}.
@@ -311,23 +311,29 @@ Figure~\ref{fig:cartesianEncoding} for details.
 
 \input{\AlgoPath/alg-cartesian-encode-online-2e}
 
-Now we are ready to update the stack and the Catalan index $t^*$.  The
-new top of stack is now $x$, with left subtree of size $s$ and index
-$t$, so we push them into the stack.  Please refer to
-Figure~\ref{fig:cartesianEncoding-after}.  Next we update the overall
-Catalan index $t^*$.  After we popped all elements smaller than $x$,
-they should be inserted to the left of the $x$.  Please compare
-Figure~\ref{fig:cartesianEncoding-before} and
-Figure~\ref{fig:cartesianEncoding-after}.  The only difference between
+Now we are ready to update the stack $D$ and return the overall Catalan
+index $t^*$.  The new top of stack is now $x$, with left subtree of size
+$s$ and index $t$, so we push them into the stack. Please refer to
+Figure~\ref{fig:cartesianEncoding-after} for an illustration.  Next we
+update the overall Catalan index $t^*$.  After we popped all elements
+smaller than $x$, the original subtree of these popped nodes on the
+right most path, should be inserted as the left subtree of $x$.  Please
+compare Figure~\ref{fig:cartesianEncoding-before} (before) and
+Figure~\ref{fig:cartesianEncoding-after} (after).
+
+We observe that the only difference between
 Figure~\ref{fig:cartesianEncoding-before} and
 Figure~\ref{fig:cartesianEncoding-after} is the area enclosed by the red
-dotted line.  If we compute the difference between the index of the two
-dotted line area, we can {\em patch} the overall $t^*$ into the correct
-value, since our encoding considers left subtree {\em before} right
-subtree.  Since the difference is $t' - {\cal T}(s, t, s - i, {\cal
-C}_{s-i} - 1)$, the new $t^*$ is the old value of $t^*$, plus $t' -
-{\cal T}(s, t, s - i, {\cal C}_{s-i}
-- 1)$.
+dotted line.  If we compute the {\em difference} between the Catalan
+indices of these two red dotted line area, we can compute the final
+$t^*$ (Figure~\ref{fig:cartesianEncoding-after}) by {\em patching} the
+Catalan index in Figure~\ref{fig:cartesianEncoding-before} with this
+difference. Fortunately our tree lexicographical ordering considers left
+subtree {\em before} right subtree, so the difference of the Catalan
+indices between Figure~\ref{fig:cartesianEncoding-before} and
+Figure~\ref{fig:cartesianEncoding-after} is $t' - {\cal T}(s, t, s - i,
+{\cal C}_{s-i} - 1)$.  As a result the new $t^*$ is the old value of
+$t^*$, plus $t' - {\cal T}(s, t, s - i, {\cal C}_{s-i} - 1)$.
 
 Note that Algorithm~\ref{alg:cartesian-encode-online} does {\em not}
 increase the amortized time complexity to compute the Catalan index,
