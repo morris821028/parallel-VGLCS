@@ -1,9 +1,10 @@
 \section{Implementation Optimization} \label{sec:Implementation}
 
-This section describes the optimization in our implementations of VGLCS
+This section describes optimization in our implementations of VGLCS
 algorithms, both in sequential and parallel environments.  Note that
-some of these techniques address hardware characteristics, e.g., cache
-behavior, and are not confined to asymptotically analysis only.
+some of these techniques address hardware characteristics, e.g.,
+memory cache behavior, and are not confined to asymptotically analysis
+only.
 
 \subsection{The Strategy of Disjoint Set Implementation}
 
@@ -15,16 +16,16 @@ sets, whose applications include VGLCS.
 
 \subsubsection{Cache Performance}
 
-The cache is essential to efficient implementation of disjoint sets.
-Patwary, Blair, and Manne~\cite{Patwary2010ExperimentsOU} conducted
-experiments on disjoint-set and showed that different implementations
-have different impact on different levels of caches misses.  In
-practice the cache miss is strongly related to how we go from a child
-to its ancestors through pointer chasing during path compression.
-Usually, an algorithm with a lower time complexity, e.g.,  will have more
-``long jumps'' than an algorithm with a higher time complexity.  Here
-the long jump means the pointer chasing will go from a memory address
-to a far away memory address.  Please refer to
+Memory cache is essential to efficient implementation of disjoint
+sets.  Patwary, Blair, and Manne~\cite{Patwary2010ExperimentsOU}
+conducted experiments on disjoint-set and showed that different
+implementations have different impact on different levels of caches
+misses.  In practice the cache miss is strongly related to how we go
+from a child to its ancestors through pointer chasing during path
+compression.  Usually, an algorithm with a lower time complexity,
+e.g., will have more ``long jumps'' than an algorithm with a higher
+time complexity.  Here the long jump means the pointer chasing will go
+from a memory address to a far away memory address.  Please refer to
 Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 
 \begin{figure}[!thb]
@@ -44,21 +45,22 @@ Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 The Rem's algorithm ({\sc Rem})~\cite{dijkstra1976a} achieves better
 cache performance by a {\em merge-by-index} technique.  Traditional
 disjoint set merging techniques are {\em merge-by-rank} and {\em
-merge-by-size}~\cite{Tarjan1975EfficiencyOA}, which determine the root of
-new tree by the ranks and the sizes of the two trees respectively.
-Despite that they do have asymptotically better time complexity, put
-their better time complexity here.  However, their performance in
-practice is not so impressive due to the previously mentioned cache
-issue.  In contrast Rem's algorithm assigns an {\em index} to each node,
-and merge two disjoint sets according the index of the roots of the two
-trees being merged.  That is, the root of the new merged tree will be
-the root with the ``larger'' index.
+  merge-by-size}~\cite{Tarjan1975EfficiencyOA}, which determine the
+root of new tree by the ranks and the sizes of the two trees
+respectively.  Despite that they do have asymptotically better time
+complexity, their performance in practice is not so impressive due to
+the previously mentioned cache issue.  In contrast Rem's algorithm
+assigns an {\em index} to each node, and merge two disjoint sets
+according the index of the roots of the two trees being merged.  That
+is, the root of the new merged tree will be the root with the
+``larger'' index.
 
 In our experiments we still use merge-by-rank to merge disjoint set
 trees.  However, when we have two {\em equally ranked} disjoint set
 trees to merge, we will apply the {\em merge-by-index} technique to
 break the tie, so as to improve cache performance.  Experiments show
-that the merge-by-index technique improves by up to 3 \%.
+that the merge-by-index tie-breaking technique improves by 3\% over
+the approach that breaks the tie randomly.
 
 \subsubsection{Application on VGLCS}
 
@@ -67,30 +69,31 @@ that the merge-by-index technique improves by up to 3 \%.
 It is possible to further optimize the implementation of Peng's
 sequential algorithm (Algorithm~\ref{alg:serial-VGLCS}) by a {\em lazy
   insertion} technique.  Recall that in
-Algorithm~\ref{alg:serial-VGLCS} when the $i$-th characters from one
-input string does not match the $j$-th character of the other input
-string, we need to place a zero into the dynamic programming table at
-position $V[i][j]$.  In practice this this mismatch will happen very
-frequently, and causing frequent insertions of zeros into the disjoint
-sets.  Each insertion then links the newly inserted singleton node of
-zero the previous node of zero that was inserted one iteration ago. 
+Algorithm~\ref{alg:serial-VGLCS} when the $i$-th character from the
+first first input string does not match the $j$-th character of the
+second input string, we need to place a zero into the dynamic
+programming table at position $V[i][j]$.  In practice this this
+mismatch will happen {\em very frequently}, and will cause frequent
+insertions of zeros into the disjoint sets.  Each insertion then links
+the newly inserted singleton node of zero to the node of zero inserted
+one iteration ago.
 
 We implemented an optimization that resolves this repeated insertion,
 and linking, of zeros.  Our implementation will scan through a series
 of zeros, and locate the next non-zero $V$ element (denoted as $v$) in
 the same column, and insert them as a batch.  Since all values in $V$
-are non-negative, and hence larger than zero, we can link all zeros to
+are non-negative, we can link all zeros we have seen {\em directly} to
 $v$.  From the experiments we observe that this technique causes less
 pointer chasing and updates and does improve performance.
 
 Note that we do {\em not} apply the lazy insertion optimization in our
-parallel implementation.  For a multi-core platform, the efficiency of
-thread synchronization is essential to the performance.  Since the
-threads of a parallel VGLCS algorithm needs to synchronize at every
-column of the dynamic programming table in order to process a row, the
-lazy insertion, which can ignore this dependency in a sequential
-environment, is not beneficial, and is not adopted in our parallel
-implementation.
+{\em parallel} implementation.  For a multi-core platform, the
+efficiency of thread synchronization is essential to the performance.
+Since the threads of a parallel VGLCS algorithm needs to synchronize
+at every column of the dynamic programming table in order to process a
+row, the lazy insertion, which can ignore this dependency in a
+sequential environment, is not beneficial, and is not adopted in our
+parallel implementation.
 
 \subsection{Parallel Range Query in VGLCS}
 
@@ -115,24 +118,26 @@ implementation.
 
 %% \input{\AlgoPath/alg-reduce-boundary-2e}
 
-We further improve the performance of range query by maintaining
-several tables in the blocked sparse table approach described in
-Section~\ref{sec:blocked-sparse-table}.  There are three tables --
-block maximum $T_S$, prefix maximum $P$, and suffix maximum $S$.  Each
-entry in the block maximum table is the maximum within that block.  As
-described in Section~\ref{sec:blocked-sparse-table}, we also maintain
-a sparse table on $T_S$ so that we can easily answer ranged query on
-$B$, which is equal to the maximum within several {\em consecutive}
-blocks from the input data.  The prefix maximum table $P$ maintains
-the maximum of the prefix within a block, and the suffix maximum table
-$S$ maintains the maximum for prefix.  It is easy to see that any
-range query can be answered by two queries into the sparse table on
-$B$, and one query into prefix $P$, and one into $S$.  For example, in
-Figure~\ref{fig:compressed-sp-opt}, the query from index 2 to 18 can
-be broken into two queries into the sparse table for $T_S$ -- one from
-block 1 to block 2, and one from 2 to 3, and one query for the suffix
-of length 2 into the first block , and one query for the prefix of
-length 3 into the last block.  Please refer to
+We further improve the performance of range query by maintaining two
+extra tables in the blocked sparse table approach described in
+Section~\ref{sec:blocked-sparse-table}.  There are now three tables --
+a sparse table on the block maximum $T_S$, a {\em prefix maximum
+  table} $P$, and a {\em suffix maximum table} $S$.  As described in
+Section~\ref{sec:blocked-sparse-table}, The sparse table $T_S$ can
+easily answer range query of consecutive blocks on the input $A$.  The
+prefix maximum table $P$ maintains the maximum of the prefix {\em
+  within} a block, and similarly the suffix maximum table $S$
+maintains the maximum for prefix.  Please refer to
+Figure~\ref{fig:compressed-sp-opt} for an illustration.
+
+It is easy to see that any range query can be answered by {\em two}
+queries into sparse table $T_S$, {\em one} query into prefix maximum
+table $P$, and {\em one} into suffix maximum table $S$.  For example,
+in Figure~\ref{fig:compressed-sp-opt}, the query from index 2 to 18
+can answered by two queries into the sparse table $T_S$ -- one from
+block 1 to block 2, and one from 2 to 3, a query for the suffix of
+length 2 into the first block of $S$, and a query for the prefix of
+length 3 into the last block of $P$.  Please refer to
 Figure~\ref{fig:compressed-sp-opt} for an illustration.
 
 %% The in-block query is a very small probability event due to small $s =
@@ -152,36 +157,38 @@ Figure~\ref{fig:compressed-sp-opt} for an illustration.
 \end{figure}
 
 We argue that the {\em order} to access these maximum tables is
-important.  Our implementation accesses the block maximum {\em first},
-then the prefix maximum {\em second}, then the suffix maximum {\em
-last}.  The reasoning for this order is as follows.  Since we need to
-access two elements in the sparse table for $T_S$ in {\em the same
-level}, it is very likely they will be in the same cache line, so access
-the first will bring in the other automatically by hardware cache.  For
-example, in Figure~\ref{fig:compressed-sp-opt}, we will access both
-$T_{S}[1][2]$ and $T_{S}[1][3]$ in order to find the maximum from block
-1 to 3.
+important.  Our implementation accesses the block maximum $T_S$ {\em
+  first}, then the prefix maximum $P$ {\em second}, then the suffix
+maximum $S$ {\em last}.  The reasoning for this order is as follows.
+Since we need to access two elements in the sparse table $T_S$ in {\em
+  the same level}, it is very likely they will be in the same cache
+line, so access the first will bring in the other automatically by the
+hardware caching mechanism.  For example, in
+Figure~\ref{fig:compressed-sp-opt}, we will access both $T_{S}[1][2]$
+and $T_{S}[1][3]$ in order to find the maximum from block 1 to 3.
 
 Our implementation improves performance by ``peeking'' into two
-neighboring elements in the $T_{S}$ tables.  To be more specific, we
-peek the element before the first element, and the one after the
-second element we just accesses from the sparse table $T_S$.  That is, we 
+neighboring elements in the $T_{S}$ table.  To be more specific, we
+peek the element {\em before} the first element, and the one {\em
+  after} the second element, which we just accessed from $T_S$.
 
-will peek into $T_{S}[1][1]$ and $T_{S}[1][4]$, which are very likely
-also present in cache because they are in the same level of the sparse
-table.  The idea is that if the maximum from the block maximum, i.e.,
-the maximum of $T_{S}[1][2]$ and $T_{S}[1][3]$, is already {\em
-  larger} than the overall block maximum where the prefix belongs,
-i.e., in $T_{S}[1][4]$, then we do {\em not} need to check the $P$
-table.  Similarly, if the maximum from the block maximum {\em and} the
-prefix maximum is larger than the block maximum where the suffix
-belongs, i.e., in $T_{S}[1][1]$, then we do not need to check the $S$
-table either.  This peeking is efficient since the data are most
-likely in the same cache line, and can save unnecessary access to $P$
-and $S$ tables.
+For example, in Figure~\ref{fig:compressed-sp-opt}, we will peek into
+$T_{S}[1][1]$ and $T_{S}[1][4]$, which are very likely also present in
+cache because they are in the same level of the sparse table as the
+previously accessed elements $T_{S}[1][2]$ and $T_{S}[1][3]$.  The idea
+is that if the maximum from the block maximum, i.e., the maximum of
+$T_{S}[1][2]$ and $T_{S}[1][3]$, is already {\em larger} than the
+overall block maximum where the prefix belongs, i.e., in
+$T_{S}[1][4]$, then we do {\em not} need to check the $P$ table.
+Similarly, if the maximum from the block maximum {\em and} the prefix
+maximum is larger than the block maximum where the suffix belongs,
+i.e., in $T_{S}[1][1]$, then we do not need to check the $S$ table
+either.  This peeking is efficient since the data being peeked are
+most likely in the same cache line, and can save unnecessary access to
+$P$ and $S$ tables.
 
 Algorithm~\ref{alg:rmq-access-order-2e} shows the access order for the
-ranged maximum query to reduce the cache miss.  Note that we check the
+range maximum query to reduce the cache miss.  Note that we check the
 prefix maximum $P$ {\em before} the suffix maximum $S$ since the value
 of the dynamic programming table in the same row is {\em increasing},
 so it is more likely that a prefix maximum, which has a larger column
@@ -189,9 +196,9 @@ index, can save a check into the suffix table, which has a smaller row
 index.
 
 Our experiments show that despite that these maximum arrays require
-additional $O(n)$ memory, the ``peek'' technique improves overall
-performance by up to 8 \% when $n = 10^4$, and it improves the overall
-performance of query operations by up to 35 \% when $n = 10^7$.
+additional $O(n)$ memory, the peeking technique improves overall
+performance by up to 8\% when $n = 10^4$, and it improves the overall
+performance of query operations by up to 35\% when $n = 10^7$.
 
 % One can consider the
 % first level of the compressed sparse table $T_S[0]$ as a small cache,
