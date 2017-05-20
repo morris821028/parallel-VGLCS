@@ -1,0 +1,101 @@
+\documentclass{beamer}
+\mode<presentation>
+\usetheme{Warsaw}
+\usefonttheme{professionalfonts}
+\usefonttheme{serif}
+%\usecolortheme{beaver}
+
+% Add frame number and total frame number in footline
+%\setbeamertemplate{headline}{}
+\defbeamertemplate*{footline}{shadow theme}{%
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=.87\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshortinstitute
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.13\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+            \usebeamerfont{date in head/foot}{}\hspace*{2em}
+            \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+    \end{beamercolorbox}}%
+    \vskip0pt%
+}
+
+% Tikz related
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{plotmarks}
+\usepackage{subfigure}
+
+% Use pfgplots to generate plots and labeled axes
+\usepackage{pgfplots}
+
+% Number the figures
+\setbeamertemplate{caption}[numbered]
+
+% Tables
+\usepackage{array} 
+\usepackage{algorithm2e}
+
+% Add outline page at begining of each section
+\AtBeginSection[]
+{
+    \begin{frame}<beamer>
+        \frametitle{Outline}
+        \tableofcontents[currentsection, hideallsubsections]
+    \end{frame}
+}
+
+% Mathematics
+\usepackage{amsmath}
+\usepackage{mathtools}
+
+% Appendix
+\usepackage{appendixnumberbeamer}
+
+% Table
+\usepackage{array}
+
+% ========= Variable ===================================================
+\title{Parallel Variable Gapped Longest Common Sequence and Incremental Range Maximum Query}
+\author{Shiang-Yun Yang}
+\institute{Department of Computer Science \& Information Engineering\\
+National Taiwan University}
+%\date{Master's Thesis Defense\\\today}
+\date{Master's Thesis Defense, June 5, 2017}
+
+% ========= Variable ===================================================
+
+\newcommand*{\PartialPath}{../partial}
+\newcommand*{\GraphicPath}{../graphics}
+\newcommand*{\AlgoPath}{../algorithms}
+\newcommand*{\FormulaPath}{../formulas}
+\newcommand*{\CodePath}{../codes}
+\newcommand*{\TablePath}{../tables}
+
+%=====================================================================
+
+
+\begin{document}
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Outline}
+    \tableofcontents[hideallsubsections]
+\end{frame}
+
+\input{./partial/introduction.tex}
+%\input{./partial/parallel-VGLCS.tex}
+%\input{./partial/range-maximum-query.tex}
+%\input{./partial/incremental-range-maximum-query.tex}
+%\input{./partial/optimization.tex}
+%\input{./partial/experiment.tex}
+%\input{./partial/conclusion.tex}
+
+%\appendix
+%\input{partial/progress.tex}
+
+\end{document}

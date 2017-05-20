@@ -1,0 +1,97 @@
+\section{Introduction}
+
+\subsection{Longest Common Subsequence}
+
+\begin{frame}
+    \frametitle{Longest Common Subsequence}
+    \begin{itemize}
+        \setlength\itemsep{1em}
+        \item 
+            The {\em longest common subsequence} (LCS) is a famous
+            problem in string processing.
+        \item 
+            For example, 
+            \begin{itemize}
+                \setlength\itemsep{1em}
+                \item 
+                    Revision control systems like SVN and Git.
+                \item 
+                    The sequence alignment in bioinformatics.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Definition of Longest Common Subsequence}
+    %\setlength\itemsep{1em}
+    Given two strings $A = a_1 \; a_2 \cdots a_n$ and $B = b_1 \; b_2
+    \cdots b_m$.
+    \begin{definition}
+        Subsequence $S = s_1 \; s_2 \cdots s_r$ of $A$, we define a
+        \emph{correspondence sequence} of $A$ and $S$, $C(A, S) = c_1 \;
+        c_2 \cdots c_r$ to be a strictly increasing sequence of integers
+        such that $s_i = a_{c_i}$ $1 \le i \le r$
+	\end{definition}
+	\begin{definition}
+        A common subsequence $S$ of $A$ and $B$, if there exists
+        correspondence sequence $C(A, S)$ and $C(B, S)$.
+	\end{definition}
+\end{frame}
+
+
+
+\subsection{Variable Gapped LCS}
+\begin{frame}
+    \frametitle{Definition of Variable Gapped LCS}
+    Given two strings $A$, $B$, and two gap values $G_{A}$, $G_{B}$
+    \begin{definition}
+        It is a LCS and satisfy the constraints as below:
+        \begin{align*}
+            C(A, S)[i] - C(X, S)[i-1] \le G_{A}(c_i) \\
+            C(B, S)[i] - C(Y, S)[i-1] \le G_{B}(c_i)
+        \end{align*}
+    \end{definition}
+\end{frame}
+
+\begin{frame}
+    \frametitle{An Example for Variable Gapped LCS}
+    \begin{figure}[!thb]
+      \centering
+      \includegraphics[width=0.5\linewidth]{\GraphicPath/fig-VGLCSex.pdf}
+      \includegraphics[width=0.5\linewidth]{\GraphicPath/fig-VGLCSex2.pdf}
+      \caption{A VGLCS example} \label{fig:VGLCSex}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Efficient Serial Algorithm}
+    \begin{itemize}
+        \setlength\itemsep{1em}
+        \item 
+            Peng gives a $O(n m \alpha(n))$ algorithm \footnote{$\alpha$
+            is the inverse of Ackermainn's function.}, and
+        \item
+            An asymptotically better $O(n m)$ algorithm.
+        \item 
+            Both of algorithms uses disjoint-set data structure.
+    \end{itemize}
+\end{frame}
+
+\subsection{Contribution}
+\begin{frame}
+    \frametitle{Contribution}
+    \begin{itemize}
+        \setlength\itemsep{1em}
+        \item
+            In this paper, we propose our $O(nm)$ algorithm which is {\em
+            easy} to implement and runs {\em efficiently} in a {\em
+            parallel} environment.
+        \item
+            Our parallel algorithm uses a more powerful {\em sparse table}
+            instead of the disjoint set.
+        \item
+            For sparse table algorithm, we propose the parallel building
+            LCA table algorithm and its dynamic Catalan index computing
+            algorithm.
+    \end{itemize}
+\end{frame}
