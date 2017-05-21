@@ -3,14 +3,203 @@
 \subsection{Range Maximum Query}
 \begin{frame}
     \frametitle{Range Maximum Query}
+    \begin{itemize}
+    	\setlength\itemsep{1em}
+    	\item 
+    		The suffix maximum query is a special case of the range
+			maximum query.
+		\item
+			Our approach to address the challenges in the second stage
+			of Algorithm~\ref{alg:parallel-VGLCS}, i.e., an efficient
+			{\em range maximum query}.
+    \end{itemize}
 \end{frame}
 
 \subsection{Blocked Range Maximum Query}
 \begin{frame}
     \frametitle{Blocked Range Maximum Query}
+	%We improve the efficiency of our parallel VGLCS algorithm with a
+	%{\em blocked} sparse table proposed by Fischer.
+	Fischer proposed {\em blocked} sparse table as follows:
+	\begin{enumerate}
+		\setlength\itemsep{1em}
+		\item
+			Partitions the data into blocks of size $s$, then
+		\item
+			Computes the maximum of each block, then
+		\item
+			Compute a sparse table $T_s$ for these maximums.
+	\end{enumerate}
+
+	\vspace{1cm}
+	It answers a range maximum query as two types of queries 
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			{\em super block} query
+		\item
+			{\em in-block} query.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{An Super Block Query Example}
+	\begin{figure}[!thb]
+		\centering \subfigure[Array] {
+	    	\includegraphics[width=0.85\linewidth]{\GraphicPath/fig-interval-decomposition.pdf}
+	  	} \subfigure[Blocked sparse table] {
+	    	\includegraphics[width=0.4\linewidth]{\GraphicPath/fig-sparse-table.pdf}
+	  	}
+	  	\caption{A Sparse Table}
+	  	\label{fig:block-interval-decomposition}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Answer In-Block Query with Least Common Ancestor}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			Fischer's algorithm scans through the data within a block
+			and places them into a {\em Cartesian tree}.
+		\item
+			Cartesian tree as a {\em heap} where the data are in heap
+			order, and the indexes of the data are in {\em sorted binary
+			search tree order}.
+		\item 
+			As a result, the answer to an in-block range maximum query
+			from the $i$-th to the $j$-th element of a block is located
+			at their {\em least common ancestor} in the Cartesian tree.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{An In-Block Query Example}
+	\begin{figure}[htbp]   
+	  \centering
+	  \includegraphics[width=0.9\linewidth]{\GraphicPath/fig-interval-cartesian.pdf}
+	  \caption{Least common ancestor tables}
+	  \label{fig:ancesstor-cartesian}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Fischer's Build Least Common Ancestor Table}
+	Fischer's algorithm chooses block size $s=\frac{\log n}{4}$.
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			Catalan number $C_s$ is the number of different Cartesian
+			trees, where $C_s$ is number of different binary trees of
+			$s$ nodes.
+		\item
+			Space requirement is
+			$O(s^2C_s)=O(s^2\frac{1}{s+1}\binom{2s}{s})=O(n)$
+		\item
+			Construct LCA tables for blocks {\em on-demand}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Least Common Ancestor Table in Parallel VGLCS}
+	There are two performance issues:
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			Building process repeats for as many times as the number of
+			blocks, and may cause serious cache misses.
+		\item
+			The LCA table will be cached and this may {\em evict} other
+			LCA tables from cache.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Static Least Common Ancestor Table}
+	Demaine's algorithm does not check if an LCA table is in memory --
+	instead it builds LCA table for {\em every possible} block.
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			Use a binary string of length $2s$ to identify a block and
+			its Cartesian tree.
+		\item
+			The binary string is encoded in such a way that one can
+			answer an in-block query by examining this binary string.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	There are two issues on examining this binary string:
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			This requires counting the number of 1's {\em between} the
+			last two 0's, which is {\em hard} to implement efficiently
+			in a modern computer.
+		\item
+			Converting binary string to LCA table is a serial algorithm,
+			and is also the overhead of VGLCS algorithm.
+	\end{itemize}
 \end{frame}
 
 \subsection{Right-most-pops Encoding}
 \begin{frame}
     \frametitle{Right-most-pops Encoding}
+    We propose a new encoding for blocks, called {\em right-most-pops},
+	instead of the binary string by Demaine, in order to improve the
+	performance of range maximum query.
+	\\~\\
+	When we add the $i$-th data $a_i$ into the Cartesian tree, 
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			Keep popping data until the top of stack is no less than
+			$a_i$.
+		\item 
+			$t_i$ be the number of nodes that need to be popped.
+		\item
+			$0 \le t_i < s$, where $s$ is the block size.
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{An Example for Right-most-pops Encoding}
+	\begin{figure}[!thb]
+	  \centering
+	  \includegraphics[width=\linewidth]{\GraphicPath/fig-cartesian-encoding-stack.pdf}
+	  \caption{Right most path in stack}
+	  \label{fig:interval-cartesian}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Implementation of Right-most-pops Encoding}
+	We choose the block size $s = {{\frac{\log n}{4}}} = 16$.
+
+	\begin{itemize}	
+		\setlength\itemsep{1em}
+		\item
+			$t_i$'s are small than 16.
+		\item
+			Represent each of $t_i$ as a 4-bit integer.
+		\item
+			Concatenate sixteen of these 4-bit integers into a 64-bit
+			integer to present a Cartesian tree for a block.
+	\end{itemize}
+	\vspace{1cm}
+	It can answer range maximum query for up to $n = 2^{64}$ data.  The
+	time complexity of the parallel version of our VGLCS algorithm
+	becomes $O(n^2 \log{n} / p + n \log n)$.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Pseudocode for Right-most-pops Encoding}
+	\begin{center}
+		\scalebox{1} { \begin{minipage}{1\textwidth}
+			\input{\AlgoPath/alg-cartesian64bits-query-2e}
+			\end{minipage}
+		}
+	\end{center}
 \end{frame}

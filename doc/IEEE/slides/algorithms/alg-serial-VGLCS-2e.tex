@@ -1,0 +1,29 @@
+\begin{algorithm}[H]
+\KwIn{$A, B$: the input string; $G_A, G_B$: the array of variable gapped constraints;}
+\KwOut{Find the LCS with variable gap constraints.}
+
+Create an array of $m$ data structures $C[m]$ that support ISMQ\;
+Create an empty table $V[n][m]$\;
+
+\For{$i \gets 1$ to $n$} {
+  Create a data structure $R$ that supports ISMQ\;
+  \For{$j \gets 1$ to $m$} {
+    \uIf{$A[i] = B[j]$} {
+        $t \gets$ Query $R$ for the maximum among the last $G_B(j)+1$ elements \;
+        $V[i][j] \gets t + 1$\; 
+        $t \gets$ Query $C[j]$ for the maximum among the last $G_A(i)+1$ elements \;
+        Append $t$ to $R$ \;
+    }
+    \Else {
+        $V[i][j] \gets 0$ \;
+        $t \gets$ Query $C[j]$ for the maximum among the last $G_A(i)+1$ elements \;
+        Append $t$ to $R$ \;
+    }
+    Append $V[i][j]$ into $C[j]$ \;
+  }
+}
+Retrieve the VGLCS by tracing $V[n][m]$\;
+
+  \caption{Peng's algorithm for finding VGLCS}
+  \label{alg:serial-VGLCS}
+\end{algorithm}

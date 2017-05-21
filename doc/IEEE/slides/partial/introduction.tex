@@ -47,8 +47,8 @@
     \begin{definition}
         It is a LCS and satisfy the constraints as below:
         \begin{align*}
-            C(A, S)[i] - C(X, S)[i-1] \le G_{A}(c_i) \\
-            C(B, S)[i] - C(Y, S)[i-1] \le G_{B}(c_i)
+            C(A, S)[i] - C(A, S)[i-1] \le G_{A}(c_i) \\
+            C(B, S)[i] - C(B, S)[i-1] \le G_{B}(c_i)
         \end{align*}
     \end{definition}
 \end{frame}
@@ -90,8 +90,8 @@
             Our parallel algorithm uses a more powerful {\em sparse table}
             instead of the disjoint set.
         \item
-            For sparse table algorithm, we propose the parallel building
-            LCA table algorithm and its dynamic Catalan index computing
-            algorithm.
+            For sparse table algorithm, we propose the {\em parallel}
+            building LCA table algorithm and its {\em dynamic} Catalan
+            index computing algorithm.
     \end{itemize}
 \end{frame}

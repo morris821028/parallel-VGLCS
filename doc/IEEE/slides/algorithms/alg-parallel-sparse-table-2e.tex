@@ -1,0 +1,15 @@
+\begin{algorithm}[H]
+\SetAlgoNoLine
+\KwIn{$A[0 .. N-1]$: the input array}
+\KwOut{$T$: a sparse table for the input array $A$}
+
+Create a two-dimensional array $T[\log N][N]$ \;
+Copy $A$ to $T[0]$ \;
+\For{$j \gets 0$ to $\log N$} {
+  \ForPar{$i \gets 2^j$ to $N$} {
+    $T[j][i] \gets \max(T[j-1][i-2^{j}], T[j-1][i])$ \;
+  }
+}
+  \caption{A Parallel Sparse Table Building Algorithm}
+  \label{alg:parallel-sparse-table}
+\end{algorithm}

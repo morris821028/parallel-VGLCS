@@ -1,25 +1,249 @@
-\section{Parallel Variable Algorithm}
+\section{Parallel VGLCS Algorithm}
 
 \subsection{Dynamic Programming}
 \begin{frame}
     \frametitle{Basic Dynamic Programming}
+	Given two strings $A$, $B$, and two gap values $G_{A}$, $G_{B}$
+	\begin{align*}
+        C(A, S)[i] - C(A, S)[i-1] \le G_{A}(c_i) \\
+        C(B, S)[i] - C(B, S)[i-1] \le G_{B}(c_i)
+    \end{align*}	
+
+    Recursive formula as below:
+
+    \begin{align*}
+    	V[i][j] = \left\{\begin{matrix}
+ 			\max\limits_{
+ 				\substack{i - G_A(i) \le x \le i-1 \\ 
+ 						  j - G_B(j) \le y \le j-1}} 
+ 				V[x][y] 
+ 				& \text{, if } 
+ 					\substack{1 \le i \le n, \\ 
+ 							  1 \le	j \le m} \\
+ 				0 & \text{, otherwise}\\
+			\end{matrix}\right.
+    \end{align*}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Illustration for Basic Dynamic Programming}
+	\begin{figure}[!thb]
+		\includegraphics[width=0.5\linewidth]{\GraphicPath/fig-VGLCS-dp-naive.pdf}
+		\caption{How to compute $V$.}
+		\label{fig:basic-dp-VGLCS}
+	\end{figure}
 \end{frame}
 
 \subsection{Peng's Algorithm}
 \begin{frame}
     \frametitle{Peng's Algorithm}
+   	Computation of all $V[i][j]$'s with the same $i$ has the {\em same}
+	gap constraint $G_A(i)$, so the maximum within the rectangle can be
+	computed in two steps.
+
+    \begin{enumerate}
+    	\setlength\itemsep{1em}
+    	\item 
+    		First, we compute the maximum of {\em every column} of this
+			rectangle, and place them into another array $R$.
+		\item 
+			Second, we compute the maximum of the {\em suffix} of length
+			$G_B$ on $R$, which is exactly $V[i][j]$.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Illustration for Peng's Algorithm}
+    \begin{figure}[!thb]
+		\includegraphics[width=0.5\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
+		\caption{Compute $V$ with incremental suffix maximum queries.}
+		\label{fig:basic-dp-VGLCS}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Pseudocode for Peng's Algorithm}
+	\begin{center}
+		\scalebox{.7} { \begin{minipage}{1.4\textwidth}
+			\input{\AlgoPath/alg-serial-VGLCS-2e}
+			\end{minipage}
+		}
+	\end{center}
 \end{frame}
 
 \subsection{Incremental Suffix Maximum Query}
 \begin{frame}
     \frametitle{Incremental Suffix Maximum Query}
+
+    We need to address the {\em incremental suffix maximum query} (ISMQ)
+    problem to solve VGLCS problem efficiently.
+    \\~\\
+    It supports the three operations as belows:
+    \begin{description}[align=right]
+    	\setlength\itemsep{1em}
+    	\item[{\sc Make}]
+			creates an empty array $A$.
+		\item[{\sc Append(V)}]
+			appends a value $V$ to array $A$. 
+		\item[{\sc Query(x)}]
+			finds the {\em maximum} value among those from $x$ to the
+			end of an array $A$.
+    \end{description}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Incremental Suffix Maximum Query with Disjoint Set}
+
+    Peng uses a {\em disjoint-set} data structure to answer incremental
+	suffix maximum queries in his VGLCS algorithm.
+
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			The set of data are stored in a sequence of disjoint sets,
+			and the {\em maximum} of each disjoint set is at the root of
+			the tree, and these maximum are in {\em decreasing} order.
+		\item
+			The amortized time per union/find operation is
+			$O(\alpha(n))$.
+		\item
+			Union/find operation of {\em incremental tree set union}
+			runs in amortized time $O(1)$ by constructing the answer
+			table.
+	\end{itemize}
 \end{frame}
 
 \subsection{Parallel VGLCS Algorithm}
 \begin{frame}
     \frametitle{Parallel VGLCS Algorithm}
+	Wavefront method is easy to parallel VGLCS algorithm, but row-by-row
+	approach provides
+
+    \begin{itemize}
+    	\setlength\itemsep{1em}
+		\item 
+			Less space
+		\item 
+			Smaller the length of the critical path
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
+	\frametitle{Wavefront Method for Parallel VGLCS Algorithm}
+	\begin{figure}[!thb]
+	  \centering \subfigure[The first stage]{
+	    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront-second.pdf}
+	  } \subfigure[The second stage]{
+	    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront-first.pdf}
+	  }
+	  \caption{The book keeping data of the wavefront method}
+	  \label{fig:fig-VGLCS-dp-wavefront}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Advantage of Our Algorithm}
+	Our optimized row-by-row approach
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			Less space
+		\item 
+			Smaller the length of the critical path
+		\item 
+			More balanced workload
+		\item 
+			Smaller thread synchronization overhead
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{A Sketch of Our Algorithm}
+	Our algorithm computes $V$ one row at a time.  The computation of
+	each row has two stages.
+	\begin{figure}
+	  \centering \subfigure[The first stage]{
+	    \includegraphics[width=0.4\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-first.pdf}
+	  } \subfigure[The second stage]{
+	    \includegraphics[width=0.4\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-second.pdf}
+	  }
+	  \caption{Two stages of the computation of one row of $V$.}
+	  \label{fig:fig-VGLCS-dp-rmq}
+	\end{figure}	
+\end{frame}
+
+\subsection{Data Structure of Parallel VGLCS Algorithm}
+\subsubsection{Disjoint Set}
+\begin{frame}
+    \frametitle{Disjoint Set}
+    It is {\em not} feasible to parallelize the disjoint set
+	implementation for three reasons when a large number of threads work
+	together.
+
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			{\sc Query} will change the data structure because it will
+			{\em compress} the path to the root and lead {\em
+			inconsistent} view of the data structure.
+		\item 
+			The load of compressing different paths among threads could
+			be very different, and this will incur {\em load imbalance}.
+		\item 
+			Different parts of the disjoint set will lead to synchronize
+			them {\em inefficiently}.
+	\end{itemize}
+\end{frame}
+
+\subsubsection{Sparse Table}
+\begin{frame}
     \frametitle{Sparse Table}
+	We use {\em sparse table} to support incremental suffix/range
+	maximum queries in our VGLCS algorithm.
+
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			$O(n \log n)$ preprocessing, and 
+		\item 
+			$O(1)$ time to answer queries on one dimensional data.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{An Example for Sparse Table}
+	\begin{figure}[!thb]
+	  \centering \subfigure[Array]{
+	    \includegraphics[width=0.8\linewidth]{\GraphicPath/fig-interval-decomposition-origin.pdf}
+	    \label{fig:fig-interval-decomposition}
+	  } \subfigure[Sparse table]{
+	    \includegraphics[width=0.8\linewidth]{\GraphicPath/fig-sparse-table-origin.pdf}
+	    \label{fig:fig-sparse-table}
+	  }
+	  \caption{A sparse table example}
+	  \label{fig:interval-decomposition}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Parallel Sparse Table Building Algorithm}
+	Algorithm~\ref{alg:parallel-sparse-table} runs in $O(n \log n / p
+	+ \log n)$ time, where $p$ is the number of processors.
+	\\~\\
+	\input{\AlgoPath/alg-parallel-sparse-table-2e}
+\end{frame}
+
+
+\subsection{Parallel VGLCS Algorithm with Sparse Table}
+\begin{frame}
+	\frametitle{Parallel VGLCS Algorithm with Sparse Table}
+	Algorithm~\ref{alg:parallel-VGLCS} runs in $O(n m (\log n + \log m)
+	/ p + n \log m)$ time, where $p$ is the number of processors.
+	\\~\\
+	\begin{center}
+		\scalebox{.7} { \begin{minipage}{1.4\textwidth}
+			\input{\AlgoPath/alg-parallel-VGLCS-2e}
+			\end{minipage}
+		}
+	\end{center}
 \end{frame}

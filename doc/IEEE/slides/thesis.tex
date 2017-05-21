@@ -6,7 +6,7 @@
 %\usecolortheme{beaver}
 
 % Add frame number and total frame number in footline
-%\setbeamertemplate{headline}{}
+\setbeamertemplate{headline}{}
 \defbeamertemplate*{footline}{shadow theme}{%
     \leavevmode%
     \hbox{%
@@ -36,14 +36,21 @@
 
 % Tables
 \usepackage{array} 
-\usepackage{algorithm2e}
+\usepackage[ruled]{../patch/algorithm2e}[2015/10/18] % For algorithms
+\renewcommand{\algorithmcfname}{ALGORITHM}
+\SetAlFnt{\small}
+\SetAlCapFnt{\small}
+\SetAlCapNameFnt{\small}
+\SetAlCapHSkip{0pt}
+\IncMargin{-\parindent}
 
 % Add outline page at begining of each section
 \AtBeginSection[]
 {
     \begin{frame}<beamer>
         \frametitle{Outline}
-        \tableofcontents[currentsection, hideallsubsections]
+        %\tableofcontents[currentsection, hideallsubsections]
+        \tableofcontents[currentsection]
     \end{frame}
 }
 
@@ -58,7 +65,9 @@
 \usepackage{array}
 
 % ========= Variable ===================================================
-\title{Parallel Variable Gapped Longest Common Sequence and Incremental Range Maximum Query}
+\title{Parallel \\
+Variable Gapped Longest Common Sequence \\ and \\ 
+Incremental Range Maximum Query}
 \author{Shiang-Yun Yang}
 \institute{Department of Computer Science \& Information Engineering\\
 National Taiwan University}
@@ -69,7 +78,7 @@ National Taiwan University}
 
 \newcommand*{\PartialPath}{../partial}
 \newcommand*{\GraphicPath}{../graphics}
-\newcommand*{\AlgoPath}{../algorithms}
+\newcommand*{\AlgoPath}{./algorithms}
 \newcommand*{\FormulaPath}{../formulas}
 \newcommand*{\CodePath}{../codes}
 \newcommand*{\TablePath}{../tables}
@@ -82,14 +91,9 @@ National Taiwan University}
     \titlepage
 \end{frame}
 
-\begin{frame}
-    \frametitle{Outline}
-    \tableofcontents[hideallsubsections]
-\end{frame}
-
 \input{./partial/introduction.tex}
-%\input{./partial/parallel-VGLCS.tex}
-%\input{./partial/range-maximum-query.tex}
+\input{./partial/parallel-VGLCS.tex}
+\input{./partial/range-maximum-query.tex}
 %\input{./partial/incremental-range-maximum-query.tex}
 %\input{./partial/optimization.tex}
 %\input{./partial/experiment.tex}
