@@ -1,8 +1,8 @@
-\section{Maximum Range Maximum Query on Incremental Data}
+\section{RMQ on Incremental Data}
 
-\subsection{Maximum Range Maximum Query on Incremental Data}
+\subsection{Range Maximum Query on Incremental Data}
 \begin{frame}
-    \frametitle{Maximum Range Maximum Query on Incremental Data}
+    \frametitle{Range Maximum Query on Incremental Data}
     \begin{itemize}
     	\setlength\itemsep{1em}
     	\item
@@ -10,7 +10,7 @@
 			incrementally added data.
     	\item
     		This section describes our approach to address the
-			challenges in the first stage of
+			challenges in the {\em first} stage of
 			Algorithm~\ref{alg:parallel-VGLCS}.
     \end{itemize}
 \end{frame}
@@ -147,7 +147,7 @@
 			Equation~\ref{fun:tid}.
 	\end{itemize}
 	\begin{center}
-		\scalebox{1} { \begin{minipage}{\textwidth}
+		\scalebox{0.8} { \begin{minipage}{0.8\textwidth}
 			\begin{figure}[!thb]
 			  \centering
 			  \includegraphics[width=0.5\linewidth]{\GraphicPath/fig-cartesian-encoding-static.pdf}
@@ -160,6 +160,7 @@
 	\end{center}
 \end{frame}
 
+\begin{withoutheadline}
 \begin{frame}
 	\frametitle{Pseudocode of Catalan Index Computation}
 	\begin{center}
@@ -169,6 +170,7 @@
 		}
 	\end{center}
 \end{frame}
+\end{withoutheadline}
 
 \subsection{Dynamic Catalan Index Computation}
 \begin{frame}

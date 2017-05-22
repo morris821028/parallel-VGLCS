@@ -1,7 +1,6 @@
 \section{Introduction}
 
 \subsection{Longest Common Subsequence}
-
 \begin{frame}
     \frametitle{Longest Common Subsequence}
     \begin{itemize}
@@ -38,14 +37,12 @@
 	\end{definition}
 \end{frame}
 
-
-
 \subsection{Variable Gapped LCS}
 \begin{frame}
     \frametitle{Definition of Variable Gapped LCS}
     Given two strings $A$, $B$, and two gap values $G_{A}$, $G_{B}$
     \begin{definition}
-        It is a LCS and satisfy the constraints as below:
+        It is a LCS and satisfy the constraints as follows:
         \begin{align*}
             C(A, S)[i] - C(A, S)[i-1] \le G_{A}(c_i) \\
             C(B, S)[i] - C(B, S)[i-1] \le G_{B}(c_i)

@@ -6,7 +6,7 @@
 %\usecolortheme{beaver}
 
 % Add frame number and total frame number in footline
-\setbeamertemplate{headline}{}
+%\setbeamertemplate{headline}{}
 \defbeamertemplate*{footline}{shadow theme}{%
     \leavevmode%
     \hbox{%
@@ -19,6 +19,34 @@
     \end{beamercolorbox}}%
     \vskip0pt%
 }
+
+\makeatletter
+\setbeamertemplate{headline}
+{%
+  \leavevmode%
+  \@tempdimb=2.4375ex%
+  \ifnum\beamer@subsectionmax<\beamer@sectionmax%
+    \multiply\@tempdimb by\beamer@sectionmax%
+  \else%
+    \multiply\@tempdimb by\beamer@subsectionmax%
+  \fi%
+  \ifdim\@tempdimb>0pt%
+    \advance\@tempdimb by 1.825ex%
+    \begin{beamercolorbox}[wd=.4\paperwidth,ht=\@tempdimb]{section in head/foot}%
+      \vbox to\@tempdimb{\vfil\insertsectionnavigation{.4\paperwidth}\vfil}%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.6\paperwidth,ht=\@tempdimb]{subsection in head/foot}%
+      \vbox to\@tempdimb{\vfil\insertsubsectionnavigation{.3\paperwidth}\vfil}%
+    \end{beamercolorbox}%
+  \fi%
+}
+% define the page without headline 
+\makeatletter
+    \newenvironment{withoutheadline}{
+        \setbeamertemplate{headline}[default]
+        \def\beamer@entrycode{\vspace*{-\headheight}}
+    }{}
+\makeatother
 
 % Tikz related
 \usepackage{tikz}
@@ -45,12 +73,14 @@
 \IncMargin{-\parindent}
 
 % Add outline page at begining of each section
+\usepackage{multicol}
 \AtBeginSection[]
 {
     \begin{frame}<beamer>
         \frametitle{Outline}
-        \tableofcontents[currentsection, hideallsubsections]
-        %\tableofcontents[currentsection]
+        \begin{multicols}{2}
+            \tableofcontents[currentsection,hideothersubsections]
+        \end{multicols}
     \end{frame}
 }
 
@@ -90,6 +120,12 @@ National Taiwan University}
 \begin{document}
 \begin{frame}
     \titlepage
+\end{frame}
+
+\begin{frame}<beamer>
+    \frametitle{Outline}
+    \setcounter{tocdepth}{1}
+    \tableofcontents
 \end{frame}
 
 \input{./partial/introduction.tex}

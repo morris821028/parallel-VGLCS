@@ -13,13 +13,11 @@
 
     \begin{align*}
     	V[i][j] = \left\{\begin{matrix}
- 			\max\limits_{
- 				\substack{i - G_A(i) \le x \le i-1 \\ 
- 						  j - G_B(j) \le y \le j-1}} 
- 				V[x][y] 
- 				& \text{, if } 
- 					\substack{1 \le i \le n, \\ 
- 							  1 \le	j \le m} \\
+ 			(\max\limits_{
+ 				\substack{i-G_A(i)-1 \le x \le i-1 \\ 
+ 						  j-G_B(j)-1 \le y \le j-1}} 
+ 				V[x][y])+1
+ 				& \text{, if } A[i] = B[j] \\
  				0 & \text{, otherwise}\\
 			\end{matrix}\right.
     \end{align*}
@@ -61,15 +59,17 @@
 	\end{figure}
 \end{frame}
 
+\begin{withoutheadline}
 \begin{frame}
 	\frametitle{Pseudocode for Peng's Algorithm}
 	\begin{center}
-		\scalebox{.7} { \begin{minipage}{1.4\textwidth}
+		\scalebox{.7} { \begin{minipage}{1.2\textwidth}
 			\input{\AlgoPath/alg-serial-VGLCS-2e}
 			\end{minipage}
 		}
 	\end{center}
 \end{frame}
+\end{withoutheadline}
 
 \subsection{Incremental Suffix Maximum Query}
 \begin{frame}
@@ -161,15 +161,20 @@
 	\frametitle{A Sketch of Our Algorithm}
 	Our algorithm computes $V$ one row at a time.  The computation of
 	each row has two stages.
-	\begin{figure}
-	  \centering \subfigure[The first stage]{
-	    \includegraphics[width=0.4\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-first.pdf}
-	  } \subfigure[The second stage]{
-	    \includegraphics[width=0.4\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-second.pdf}
-	  }
-	  \caption{Two stages of the computation of one row of $V$.}
-	  \label{fig:fig-VGLCS-dp-rmq}
-	\end{figure}	
+	\begin{center}
+		\scalebox{.7} { \begin{minipage}{1.2\textwidth}
+			\begin{figure}
+			  \centering \subfigure[The first stage]{
+			    \includegraphics[width=0.4\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-first.pdf}
+			  } \subfigure[The second stage]{
+			    \includegraphics[width=0.4\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-second.pdf}
+			  }
+			  \caption{Two stages of the computation of one row of $V$.}
+			  \label{fig:fig-VGLCS-dp-rmq}
+			\end{figure}
+			\end{minipage}
+		}
+	\end{center}
 \end{frame}
 
 \subsection{Data Structure of Parallel VGLCS Algorithm}
@@ -210,6 +215,7 @@
 	\end{itemize}
 \end{frame}
 
+\begin{withoutheadline}
 \begin{frame}
 	\frametitle{An Example for Sparse Table}
 	\begin{figure}[!thb]
@@ -224,7 +230,9 @@
 	  \label{fig:interval-decomposition}
 	\end{figure}
 \end{frame}
+\end{withoutheadline}
 
+\begin{withoutheadline}
 \begin{frame}
 	\frametitle{Parallel Sparse Table Building Algorithm}
 	Algorithm~\ref{alg:parallel-sparse-table} runs in $O(n \log n / p
@@ -232,9 +240,11 @@
 	\\~\\
 	\input{\AlgoPath/alg-parallel-sparse-table-2e}
 \end{frame}
+\end{withoutheadline}
 
 
 \subsection{Parallel VGLCS Algorithm with Sparse Table}
+\begin{withoutheadline}
 \begin{frame}
 	\frametitle{Parallel VGLCS Algorithm with Sparse Table}
 	Algorithm~\ref{alg:parallel-VGLCS} runs in $O(n m (\log n + \log m)
@@ -247,3 +257,4 @@
 		}
 	\end{center}
 \end{frame}
+\end{withoutheadline}

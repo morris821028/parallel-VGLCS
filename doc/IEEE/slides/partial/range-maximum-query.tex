@@ -14,7 +14,7 @@
 			{\em range maximum query}.
 		\item
 			In this section, we will describe our approach to address
-			the challenges in the second stage of
+			the challenges in the {\em second} stage of
 			Algorithm~\ref{alg:parallel-VGLCS}.
     \end{itemize}
 \end{frame}
@@ -34,8 +34,7 @@
 		\item
 			Compute a sparse table $T_s$ for these maximums.
 	\end{enumerate}
-
-	\vspace{1cm}
+	\vspace{1em}
 	It answers a range maximum query as two types of queries 
 	\begin{itemize}
 		\setlength\itemsep{1em}
@@ -46,6 +45,7 @@
 	\end{itemize}
 \end{frame}
 
+\begin{withoutheadline}
 \begin{frame}
     \frametitle{An Super Block Query Example}
 	\begin{figure}[!thb]
@@ -58,6 +58,7 @@
 	  	\label{fig:block-interval-decomposition}
 	\end{figure}
 \end{frame}
+\end{withoutheadline}
 
 \begin{frame}
 	\frametitle{Answer In-Block Query with Least Common Ancestor}
@@ -94,7 +95,7 @@
 		\setlength\itemsep{1em}
 		\item 
 			Catalan number $C_s$ is the number of different Cartesian
-			trees, where $C_s$ is number of different binary trees of
+			trees, and also is the number of different binary trees of
 			$s$ nodes.
 		\item
 			Space requirement is
@@ -142,8 +143,8 @@
 			last two 0's, which is {\em hard} to implement efficiently
 			in a modern computer.
 		\item
-			Converting binary string to LCA table is a serial algorithm,
-			and is also the overhead of VGLCS algorithm.
+			Converting binary string to LCA table must be processed
+			sequentially, and also is the overhead of RMQ.
 	\end{itemize}
 \end{frame}
 
@@ -192,10 +193,10 @@
 			Concatenate sixteen of these 4-bit integers into a 64-bit
 			integer to present a Cartesian tree for a block.
 	\end{itemize}
-	\vspace{1cm}
+	\vspace{1em}
 	It can answer range maximum query for up to $n = 2^{64}$ data.  The
-	time complexity of the parallel version of our VGLCS algorithm
-	becomes $O(n^2 \log{n} / p + n \log n)$.
+	time complexity of our parallel VGLCS algorithm becomes $O(n^2
+	\log{n} / p + n \log n)$.
 \end{frame}
 
 \begin{frame}
