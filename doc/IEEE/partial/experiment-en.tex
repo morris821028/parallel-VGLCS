@@ -1,5 +1,11 @@
 \section{Experiment} \label{sec:Experiment}
 
+We conduct three sets of experiments.  The first set evaluates various
+data structures for supporting different queries of VGLCS problem.
+The second set evaluates the performance of incremental suffix maximum
+query using various data structures.  The third set evaluates the
+performance of parallel range query.
+
 We conduct experiments on an Intel Xeon E5-2620 2.4 Ghz processor with
 384K bytes of level 1 cache, 1536K bytes of level 2 cache, and 15M
 bytes of shared level 3 cache.  The Intel CPU supports
@@ -8,64 +14,67 @@ system is Ubuntu 14.04.  We implemented all algorithms in C++ and
 OpenMP and compiled them using gcc with {\tt -O2} and {\tt -fopenmp}
 flag.
 
-We conduct three sets of experiments.  The first set evaluates various
-data structures for supporting different queries of VGLCS problem.
-The second set purely evaluates the performance of incremental suffix
-maximum query using various data structures.  The third set evaluates
-the performance of parallel range query.
-
 \subsection{Variable Gapped Longest Common Subsequence}
 
-We implement {\em disjoint set} and {\em sparse table} in our
-experiments and evaluate their performance on VGLCS.  For disjoint set
-we implemented path compression and rank strategies so that the
-amortized time $o(\alpha(n))$.  Its variant, {\em incremental tree set
-  union}~\cite{Gabow1983ALA}, has an amortized time $O(1)$ for each
-query.  The sparse table has insertion time $O(\log n)$, and query
-time $O(1)$.  The table is allocated in row-major to reduce cache
+We implement {\em disjoint set} and {\em sparse table} in our first
+set of experiments and evaluate their performance on VGLCS.  For
+disjoint set we implemented both {\em path compression} and {\em
+  merge-by-rank} strategies so that the amortized time $o(\alpha(n))$.
+Its variant, {\em incremental tree set union}~\cite{Gabow1983ALA}, has
+an amortized time $O(1)$ for each query.  In contrast our sparse table
+implementation has insertion time $O(\log n)$, and query time $O(1)$.
+The table is allocated in memory in a row-major manner to reduce cache
 miss.  Please refer to Algorithm~\ref{alg:parallel-VGLCS} and
 Figure~\ref{fig:interval-decomposition} for details.
 
-We implemented four combinations of data structures in solving the VGLCS
-problem and evaluated their performance.  The first combination is a
-{\em sequential} implementation of Peng's algorithm using disjoint set
-on {\em both} the first stage and second stage.  The other three
-combinations are implemented in parallel environment.  The {\sc
-Para-ST-DS} combination uses disjoint set in the first stage and sparse
-table in the second stage.  The {\sc Para-CoST-DS} combination uses
-disjoint set in the first stage and compressed sparse table in the
-second stage. Finally the {\sc Para-CoST} combination uses compressed
-sparse table in both first and second stage.
+We observe that the blocked sparse table with right-most-pop encoding
+implementation outperforms the theoretically better amortized $O(1)$
+LCA table implementation.  We believe that there are two reasons for
+this.  First, the LCA table implementation requires more instruction
+to compute the Catalan index.  In contrast the right-most-pops
+encoding does not require teh computation for tree index.  Instead it
+uses the stored number of pops to answer the query directly.  Second,
+despite that in Theory~\cite{Fischer2006TheoreticalAP} the optimal
+block size is ${\log n}\over{4}$, this block size is usually too large
+for LCA table implementations.  That is, we will need to build a very
+large LCA lookup table.  Even worse, we will {\em not} access all of
+it, which means it is very unlikely that we will access contiguous
+memory, which causes serious cache misses.
 
-We compare the performance of the four combinations on input strings
-generated {\em randomly} from the alphabet $\{A, T, C, G\}$.
-Figure~\ref{fig:fig-parallel} shows the execution time of all
-combinations under different lengths of input.  We note that the
-compressed sparse table implementation outperforms the theoretically
-better amortized $O(1)$ sparse table implementation.  That is, {\em
-parallel-COST} outperforms all other parallel implementations.  We
-believe that there are two reasons for the theoretically better $O(1)$
-sparse table implementation actually runs slower.  First, the encoding
-Cartesian tree needs more instruction cycles to complete.  Second,
-despite that in theory~\cite{Fischer2006TheoreticalAP} the optimal block
-size is ${\log n}\over{4}$, this block size is usually too large for
-implementations. That is, we will need to build a very large LCA lookup
-table, but we will {\em not} access all of it, which means it is very
-unlikely that we will access contiguous memory, which causes serious
-cache misses.
+We implemented {\em four} combinations of data structures in solving
+the VGLCS problem and evaluated their performance.  The first
+combination is a {\em sequential} implementation of Peng's algorithm
+using disjoint set on {\em both} the first stage and second stage.
+Noth that since the disjoint-set only supports suffix query, so the
+implementation must by sequential if the second stage uses the
+disjoint set.  On the other hand, the other three combinations are all
+implemented in parallel.  The {\em DS-ST} combination uses disjoint
+set in the first stage and the standard {\em unblocked} sparse table
+in the second stage.  The {\em DS-BST} combination uses disjoint set
+in the first stage and {\em blocked} sparse table with right-most-pops
+encoding in the second stage.  The reason we use right-most-pops
+encoding, instead of LCA tables, was describe earlier.  Finally the
+{\em BST2} combination uses blocked sparse table with right-most-pops
+encoding in both stages.
+
+Figure~\ref{fig:fig-parallel} compares the execution time of all four
+data structure combinations under different lengths of inputs.  The
+input strings are generated {\em randomly} from the alphabet $\{A, T,
+C, G\}$, as this alphabet is most popular in bioinformatics.  We note
+that, {\em BST2} outperforms all other parallel implementations. % why
 
 Figure~\ref{fig:fig-parallel-scala} shows the scalability of the best
-parallel combination {\em parallel-COST}.  It is {\em eight} times
-faster than a serial implementation on our server with 6 cores and
+parallel combination {\em BST2}.  It is {\em eight} times faster than
+a serial implementation on our server with 6 cores and
 hyper-threading.
 
 \begin{figure}
   \centering
-  \subfigure[Runtime]{
+  \subfigure[Execution time of four data structure combinations]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-n.pdf}
     \label{fig:fig-parallel}
   }
-  \subfigure[Scalability]{
+  \subfigure[Scalability of the sparse table with right-most-pops encoding]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-p.pdf}
     \label{fig:fig-parallel-scala}
   }
