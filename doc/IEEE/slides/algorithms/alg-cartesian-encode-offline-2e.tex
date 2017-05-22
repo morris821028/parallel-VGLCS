@@ -1,0 +1,33 @@
+\begin{algorithm}[H]
+\SetAlgoNoLine
+\LinesNumbered
+\KwIn{
+  $A[1 .. n]$: input data block; $n$: the number of elements\;
+}
+\KwOut{
+  $t$: The Catalan index of the input data block
+}
+Create a stack $D$ of $n+1$ elements.  Every element has $s$, $t$, and $v$ \;
+$p \gets 0$, $D[0] \gets \langle 0,0,\infty \rangle$ \;
+\For{$i \gets 1$ to $n$} {
+  $v \gets A[i]$ \; $s \gets 0$ \; $t \gets 0$ \;
+  \While{$D[p].{v} < v$} {
+    $t \gets {\cal T}(D[p].s, D[p].t, s, t)$ \;
+    $s \gets s + D[p].s + 1$ \;
+    $p \gets p - 1$ \;
+  }
+  $p \gets p + 1$ \;
+  $D[p] \gets \langle s,t,{v}\rangle$ \;
+}
+
+$s \gets 0$, $t \gets 0$ \;
+\While{$p > 0$} {
+  $t \gets {\cal T}(D[p].s, D[p].t, s, t)$ \;
+  $s \gets s + D[p].s + 1$ \;
+  $p \gets p - 1$ \;
+}
+return $t$ \;
+
+\caption{Catalan index computation for a data block}
+\label{alg:cartesian-encode-offline}
+\end{algorithm}

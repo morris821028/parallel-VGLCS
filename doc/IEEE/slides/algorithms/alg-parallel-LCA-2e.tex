@@ -1,0 +1,20 @@
+\begin{algorithm}[H]
+\SetAlgoNoLine
+\LinesNumbered
+\KwIn{$s$: the maximum tree size}
+
+\For{$n \gets 1$ to $s$} {
+  \ForPar{$t \gets 0$ to $C_n - 1$ \label{alg:parallel-LCA-for-2}} {
+    \ForPar{$p \gets 0$ to $n-1$ \label{alg:parallel-LCA-for-3}} {
+      Compute $s_l$, $t_l$, $s_r$, and $t_r$ \; \label{alg:parallel-LCA-compute}
+      \For{$q \gets p$ to $n-1$ \label{alg:parallel-LCA-loop}} {
+        Compute ${\cal A}[n][t][p][q]$ according to Equation~\ref{fun:LCA} \;
+      }
+    }
+  }
+}
+
+\caption{A parallel algorithm that computes the least common ancestor
+  table $\cal A$}
+\label{alg:parallel-LCA}
+\end{algorithm}

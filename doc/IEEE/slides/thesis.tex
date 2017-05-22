@@ -49,8 +49,8 @@
 {
     \begin{frame}<beamer>
         \frametitle{Outline}
-        %\tableofcontents[currentsection, hideallsubsections]
-        \tableofcontents[currentsection]
+        \tableofcontents[currentsection, hideallsubsections]
+        %\tableofcontents[currentsection]
     \end{frame}
 }
 
@@ -63,6 +63,7 @@
 
 % Table
 \usepackage{array}
+\usepackage{diagbox}[2011/11/22]
 
 % ========= Variable ===================================================
 \title{Parallel \\
@@ -94,10 +95,10 @@ National Taiwan University}
 \input{./partial/introduction.tex}
 \input{./partial/parallel-VGLCS.tex}
 \input{./partial/range-maximum-query.tex}
-%\input{./partial/incremental-range-maximum-query.tex}
-%\input{./partial/optimization.tex}
-%\input{./partial/experiment.tex}
-%\input{./partial/conclusion.tex}
+\input{./partial/incremental-range-maximum-query.tex}
+\input{./partial/optimization.tex}
+\input{./partial/experiment.tex}
+\input{./partial/conclusion.tex}
 
 %\appendix
 %\input{partial/progress.tex}

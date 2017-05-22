@@ -1,0 +1,40 @@
+\begin{algorithm}[H]
+\SetAlgoNoLine
+\LinesNumbered
+\KwIn{
+  $A$: the input array\; 
+  $P, \; S$: the prefix/suffix maximum arrays for each block \;
+  ${\cal T}$: the Catalan index array for each block \;
+  $T_s$: the compressed sparse table \; 
+  $[l, r]$: the bounds of the ranged query \;
+}
+\KwOut{
+  $v$: the maximum value in $A[l .. r]$ \;
+}
+
+\If{$l$ and $r$ are in the same block $b$} {
+  $i \gets$ Query the ranged maximum query $[l, r]$ on ${\cal T}_{k}$, where $k$ is the Catalan index of the $b$  \;
+  return $A[i]$ \;
+}
+$v \gets - \infty$ \;
+$l' \gets$ The starting index of the next block from the position $l$ \;
+$r' \gets$ The ending index of the previous block from the position $r$ \;
+$t \gets \lfloor \log_2 (r' - l' + 1) \rfloor$ \;
+\If{$l' \le r'$} {
+  $v \gets \max(T_s[t][l' + 2^t - 1], T_s[t][r'])$ \;
+}
+
+\If(\tcc*[f]{Access $P$ only when necessary}){$T_s[t][l' + 2^t - 2] > v$} {
+  $v \gets \max(v, P[r])$ \;
+}
+
+\If(\tcc*[f]{Access $S$ only when necessary}){$T_s[t][r' + 1] > v$} {
+  $v \gets \max(v, S[l])$ \;
+}
+
+return $v$ \;
+
+\caption{The process of answering a range query. Note that it accesses
+  $T_S$, then $P$, then $S$.}
+\label{alg:rmq-access-order-2e}
+\end{algorithm}

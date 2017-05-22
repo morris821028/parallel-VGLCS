@@ -1,0 +1,32 @@
+\begin{algorithm}[H]
+\SetAlgoNoLine
+\LinesNumbered
+\KwIn{
+  $x$: the added data \;
+  $t^*$: The Catalan index of the tree before adding $x$ \;
+  $i$: the index of $x$ \;
+  $D$: A stack where an element has $s$ and $t$ \;
+}
+\KwOut{
+  $t^*$: The Catalan index of the tree after adding $x$ \;
+  $D$: A updated stack where an element has $s$ and $t$
+}
+
+$s \gets 0$, $t \gets 0$ \;
+$s' \gets n - i + 1$, $t' \gets {\cal C}_{s'} - 1$ \;
+
+\While{$D[p].v < x$} {
+  $t \gets {\cal T}(D[p].s, D[p].t, s, t)$ \;
+  $s \gets s + D[p].s+1$ \;
+  $t' \gets {\cal T}(D[p].s, D[p].t, s', t')$ \;
+  $s' \gets s' + D[p].s+1$ \;
+  $p \gets p - 1$ \;
+}
+$p \gets p + 1$ \;
+$D[p] \gets \left \langle s, t, x \right \rangle$ \;
+$t^* \gets t^* + t' - {\cal T}(s, t, s - i, {\cal C}_{s-i} - 1)$ \;
+return $t^*$ \;
+
+  \caption{Online Type of Cartesian Tree}
+  \label{alg:cartesian-encode-online}
+\end{algorithm}

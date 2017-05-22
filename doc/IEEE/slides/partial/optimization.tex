@@ -1,11 +1,114 @@
-\section{Optimization}
+\section{Implementation}
 
 \subsection{The Strategy of Disjoint Set}
+
 \begin{frame}
-    \frametitle{The Strategy of Disjoint Set}
+	\frametitle{Cache Performance}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			Traditional disjoint set merging techniques are {\em merge-by-rank}
+			and {\em merge-by-size}. 
+		\item
+			Usually, an algorithm with a lower time complexity, e.g.,
+			will have more ``long jumps'' than an algorithm with a
+			higher time complexity.
+	\end{itemize}
+	\begin{center}
+	\scalebox{0.7} { \begin{minipage}{1.5\textwidth}
+				\begin{figure}[!thb]
+			  \centering \subfigure[Lower time complexity] {
+			    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-long-jump.pdf}
+			    \label{fig:long-short-jump-disjoint-long}
+			  } \subfigure[Higher time complexity] {
+			    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-short-jump.pdf}
+			    \label{fig:long-short-jump-disjoint-short}
+			  }
+			  \caption{The parent jump in disjoint set}
+			  \label{fig:long-short-jump-disjoint}
+			\end{figure}
+			\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			The Rem's algorithm ({\sc Rem}) achieves better cache
+			performance by a {\em merge-by-index} technique.
+		\item
+			Experiments show that the merge-by-index tie-breaking
+			technique improves by 3\% over the approach that breaks the
+			tie randomly.
+	\end{itemize}
 \end{frame}
 
 \subsection{Parallel Range Maximum Query}
 \begin{frame}
     \frametitle{Parallel Range Maximum Query}
+    We further improve the performance of range query by maintaining two
+	extra tables in the blocked sparse table approach.  
+	\\~\\
+	There are now three tables as follows:
+
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			A sparse table on the block maximum $T_S$, 
+		\item
+			A {\em prefix maximum table} $P$, and 
+		\item
+			A {\em suffix maximum table} $S$.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Order to Access these Tables}
+	The {\em order} to access these maximum tables is important.
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			Our implementation improves performance by ``peeking'' into
+			two neighboring elements in the $T_{S}$ table.
+		\item 
+			We access two elements in the sparse table $T_S$ in {\em the
+  			same level} because accessing the first will bring in the
+  			other by the hardware caching mechanism.
+  		\item
+  			Because of intermediate maximum value and neighboring
+			elements, it can save unnecessary access to $P$ and $S$
+			tables.
+		\item
+			It improves the overall performance of query operations by
+			up to 35\% when $n = 10^7$.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\begin{center}
+	\scalebox{0.7} { \begin{minipage}{1.5\textwidth}
+				\begin{figure}[!thb]
+				  \centering \subfigure[The prefix/suffix maximum tables for blocks] {
+				    \includegraphics[width=0.9\linewidth]{\GraphicPath/fig-compressed-sp-prefix-suffix.pdf}
+				  } \subfigure[A Sparse Table for $T_S$] {
+				    \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-sparse-table-opt.pdf}
+				  } \caption{Block maximum $T_S$, prefix maximum $P$, and suffix
+				    maximum $S$.}
+				  \label{fig:compressed-sp-opt}
+				\end{figure}
+				\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Pseudocode for Order to Access these Tables}
+	\begin{center}
+	\scalebox{0.65} { \begin{minipage}{1.5\textwidth}
+				\input{\AlgoPath/alg-rmq-access-order-2e}
+				\end{minipage}
+		}
+	\end{center}
 \end{frame}

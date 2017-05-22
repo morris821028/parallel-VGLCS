@@ -3,19 +3,236 @@
 \subsection{Maximum Range Maximum Query on Incremental Data}
 \begin{frame}
     \frametitle{Maximum Range Maximum Query on Incremental Data}
+    \begin{itemize}
+    	\setlength\itemsep{1em}
+    	\item
+    		Answer incremental {\em range} maximum queries on
+			incrementally added data.
+    	\item
+    		This section describes our approach to address the
+			challenges in the first stage of
+			Algorithm~\ref{alg:parallel-VGLCS}.
+    \end{itemize}
 \end{frame}
 
-\subsection{Common Ancestor Table}
+\subsection{Parallel Building Least Common Ancestor Table}
 \begin{frame}
-    \frametitle{Common Ancestor Table}
+    \frametitle{Parallel Building Least Common Ancestor Table}
+    We need to address two issues in parallel environment:
+    \begin{itemize}
+    	\setlength\itemsep{1em}
+    	\item 
+    		How to label a binary tree into its {\em Catalan index}
+		\item 
+			How to find the least common ancestor of two nodes in a
+			given Cartesian tree
+	\end{itemize}
 \end{frame}
 
-\subsection{Catalan Index}
+\subsection{Catalan Tree Labeling}
 \begin{frame}
-    \frametitle{Catalan Index}
+    \frametitle{Catalan Tree Labeling}
+    Our Cartesian tree labeling will enumerate all binary search trees
+	in {\em lexicographical order} from $0$ to the $C_n-1$.
+	\\~\\
+	A binary tree $x$ appears {\em before} another binary tree $y$ if
+	any of the the following condition is true.
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			$x$ has more nodes than $y$ in the left subtree.
+		\item 
+			$x$ and $y$ have the same number of nodes in the left
+  			subtree, and $x$'s left subtree appears before $y$'s left
+  			subtree in lexicographical order.
+		\item 
+			$x$ and $y$ has the same left subtree, and $x$'s right
+	  		subtree appears before $y$'s right subtree in
+	  		lexicographical order.
+	\end{itemize}
 \end{frame}
 
-\subsection{Dynamic Catalan Index}
 \begin{frame}
-    \frametitle{Dynamic Catalan Index}
+	\frametitle{An Example for Catalan Tree Labeling}
+	\begin{figure}[!thb]
+	  \centering
+	  \includegraphics[width=\linewidth]{\GraphicPath/fig-bst-encoding.pdf}
+	  \caption{The labeling of binary search trees of sizes 1, 2, and 3.}
+	  \label{fig:labelingBST}
+	\end{figure}
+\end{frame}
+
+\subsection{Least Common Ancestor}
+\begin{frame}
+	\frametitle{Recursive Formula of Least Common Ancestor}
+	Let ${\cal A}(s, t, p, q)$ denote the least common ancestor of the
+	node $p$ and $q$ within a binary search tree of size $s$ that has a
+	Catalan index $t$.
+	\begin{center}
+		\scalebox{.7} { \begin{minipage}{1.4\textwidth}
+			\input{\FormulaPath/fun-LCA.tex}
+			\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Parallel Building LCA Algorithm}
+	The time complexity of Algorithm~\ref{alg:parallel-LCA} is
+	$O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2)$.
+	\\~\\
+	We choose the block size $s = {{\frac{\log n}{4}}}$, so time
+	complexity is $O(\sqrt{n} \; (\log^{1.5} n) / p + \log^2 n )$, where
+	$p$ is the number of processors.
+	\begin{center}
+		\scalebox{.7} { \begin{minipage}{1.4\textwidth}
+			\input{\AlgoPath/alg-parallel-LCA-2e}
+			\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+\subsection{Catalan Index Computation}
+
+\begin{frame}
+	\frametitle{Catalan Index Computation}
+	Determine Catalan index $t$ efficiently when given a block of data.
+	There are two possible approaches
+
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item Build the tree
+		\item Keep the rightmost path
+	\end{itemize}
+\end{frame}
+
+\subsubsection{Build the Tree}
+\begin{frame}
+    \frametitle{Build the Tree}
+    \begin{enumerate}
+    	\setlength\itemsep{1em}
+    	\item 
+    		Build the tree from the data of block.
+    	\item
+    		Compute Catalan index from the the sizes and indices of the
+			left and right subtrees.  
+		\item 
+			This requires a recursive traversal on the tree and has a
+			$O(n)$ time complexity.\footnote{precomputing the {\em
+			prefix sum} of the Catalan number products.}
+	\end{enumerate}
+
+    \begin{center}
+		\scalebox{1} { \begin{minipage}{\textwidth}
+			\input{\FormulaPath/fun-tid}
+			\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+\subsubsection{Keep the Rightmost Path}
+\begin{frame}
+	\frametitle{Keep the Rightmost Path}
+	We propose a more efficient method than the previous computation of
+	building the tree.
+
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			Determines the Catalan index by keeps only the {\em
+			rightmost path} in a {\em stack} $D$.
+		\item
+			After knowing the Catalan index $t$ we can compute LCA and
+			answer queries with Algorithm~\ref{alg:parallel-LCA} and
+			Equation~\ref{fun:tid}.
+	\end{itemize}
+	\begin{center}
+		\scalebox{1} { \begin{minipage}{\textwidth}
+			\begin{figure}[!thb]
+			  \centering
+			  \includegraphics[width=0.5\linewidth]{\GraphicPath/fig-cartesian-encoding-static.pdf}
+			  \caption{Compute Catalan index for a tree.  $A_l$ and $B_l$ denote
+			    the left subtrees of $A$ and $B$ respectively.}
+			  \label{fig:fig-cartesian-encoding-static}
+			\end{figure}
+			\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Pseudocode of Catalan Index Computation}
+	\begin{center}
+		\scalebox{0.7} { \begin{minipage}{\textwidth}
+			\input{\AlgoPath/alg-cartesian-encode-offline-2e}
+			\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+\subsection{Dynamic Catalan Index Computation}
+\begin{frame}
+	\frametitle{Background -- Dynamic Catalan Index Computation}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+	 	\item 
+	 		Fischer introduced the first encoding method.
+		\item
+			Masud presents a new encoding method that reduces the number
+			of instructions.
+		\item 
+			Unfortunately all these algorithms are {\em off-line}, or
+			could not use the encoding, which is presented by parallel
+			building algorithm.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Dynamic Catalan Index Computation}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+	 	\item 
+	 		Keeps the size of tree as a constant $n$.
+	 	\item
+	 		Append a path of $n-i$ {\em right-child-only} nodes to the
+			right most path of the existing tree of size $i$.
+		\item
+			Compute the {\em difference} between the Catalan indices of
+			these two different parts, we can compute the final $t^*$ by
+			{\em patching} the Catalan index with this difference.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Illustration for Dynamic Catalan Index Computation}
+	\begin{center}
+		\scalebox{0.8} { \begin{minipage}{1.3\textwidth}
+			\begin{figure}[!thb]
+			  \centering \subfigure[$t_{{\it root}_0}= C_n - 1$]{
+			    \includegraphics[width=0.26\linewidth]{\GraphicPath/fig-cartesian-encoding.pdf}
+			    \label{fig:cartesianEncoding-init}
+			  } \subfigure[$t_{{\it root}_i}$]{
+			    \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding-before.pdf}
+			    \label{fig:cartesianEncoding-before}
+			  } \subfigure[$t_{{\it root}_{i+1}} = t_{{\it root}_i} + t_x - t_A$]{
+			    \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding-after.pdf}
+			    \label{fig:cartesianEncoding-after}
+			  }
+			  \caption{Normalization of Cartesian trees of increasing sizes by
+			    adding a virtual path.}
+			  \label{fig:cartesianEncoding}
+			\end{figure}
+			\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Pseudocode of Dynamic Catalan Index Computation}
+	\begin{center}
+		\scalebox{0.7} { \begin{minipage}{\textwidth}
+			\input{\AlgoPath/alg-cartesian-encode-online-2e}
+			\end{minipage}
+		}
+	\end{center}
 \end{frame}
