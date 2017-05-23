@@ -1,10 +1,13 @@
 \section{Experiment} \label{sec:Experiment}
 
-We conduct three sets of experiments.  The first set evaluates various
-data structures for supporting different queries of VGLCS problem.
+We conduct three sets of experiments.  The first set compares the
+perfromance of blocked and unblocked spare tables in supporting
+parallel range maximum query.
+
 The second set evaluates the performance of incremental suffix maximum
-query using various data structures.  The third set evaluates the
-performance of parallel range query.
+query using various data structures.
+
+The third set evaluates the performance of parallel range query.
 
 We conduct experiments on an Intel Xeon E5-2620 2.4 Ghz processor with
 384K bytes of level 1 cache, 1536K bytes of level 2 cache, and 15M
@@ -14,89 +17,56 @@ system is Ubuntu 14.04.  We implemented all algorithms in C++ and
 OpenMP and compiled them using gcc with {\tt -O2} and {\tt -fopenmp}
 flag.
 
-\subsection{Variable Gapped Longest Common Subsequence}
+\subsection{Blocked and Unblocked Sparse Table}
 
-We implement {\em disjoint set} and {\em sparse table} in our first
-set of experiments and evaluate their performance on VGLCS.  For
-disjoint set we implemented both {\em path compression} and {\em
-  merge-by-rank} strategies so that the amortized time $o(\alpha(n))$.
-Its variant, {\em incremental tree set union}~\cite{Gabow1983ALA}, has
-an amortized time $O(1)$ for each query.  In contrast our sparse table
-implementation has insertion time $O(\log n)$, and query time $O(1)$.
-The table is allocated in memory in a row-major manner to reduce cache
-miss.  Please refer to Algorithm~\ref{alg:parallel-VGLCS} and
-Figure~\ref{fig:interval-decomposition} for details.
+We first compare the performance of {\em unblocked} and {\em blocked}
+sparse tables for supporting parallel range maximum query.  For the
+blocked sparse table we use the right-most-pops encoding instead of
+the LCA tables, since we will show that the right-most-pops encoding
+is more efficient than LCA table.  The experiments test the cases of
+all possible query range sizes and the number of elements $N$ is the
+same as the number of range queries.
 
-We observe that the blocked sparse table with right-most-pop encoding
-implementation outperforms the theoretically better amortized $O(1)$
-LCA table implementation.  We believe that there are two reasons for
-this.  First, the LCA table implementation requires more instruction
-to compute the Catalan index.  In contrast the right-most-pops
-encoding does not require teh computation for tree index.  Instead it
-uses the stored number of pops to answer the query directly.  Second,
-despite that in Theory~\cite{Fischer2006TheoreticalAP} the optimal
-block size is ${\log n}\over{4}$, this block size is usually too large
-for LCA table implementations.  That is, we will need to build a very
-large LCA lookup table.  Even worse, we will {\em not} access all of
-it, which means it is very unlikely that we will access contiguous
-memory, which causes serious cache misses.
+Table~\ref{tlb:CORMQ} compares the parallel range query time of
+unblocked sparse table and blocked sparse table, and we observe that
+the blocked sparse table using right-most-pops sparse table is more
+efficient than the unblocked sparse table when $N$ increases.  For
+example, the blocked sparse table is $1.4$ times faster than the
+unblocked sparse table when $N$ reaches $100000$.
 
-We implemented {\em four} combinations of data structures in solving
-the VGLCS problem and evaluated their performance.  The first
-combination is a {\em sequential} implementation of Peng's algorithm
-using disjoint set on {\em both} the first stage and second stage.
-Noth that since the disjoint-set only supports suffix query, so the
-implementation must by sequential if the second stage uses the
-disjoint set.  On the other hand, the other three combinations are all
-implemented in parallel.  The {\em DS-ST} combination uses disjoint
-set in the first stage and the standard {\em unblocked} sparse table
-in the second stage.  The {\em DS-BST} combination uses disjoint set
-in the first stage and {\em blocked} sparse table with right-most-pops
-encoding in the second stage.  The reason we use right-most-pops
-encoding, instead of LCA tables, was describe earlier.  Finally the
-{\em BST2} combination uses blocked sparse table with right-most-pops
-encoding in both stages.
+We believe that the maximum length of interval query ($L$ in
+Table~\ref{tlb:CORMQ}) affects the cache performance of accessing a
+sparse table.  For example, even with a very large query length, a
+blocked sparse table will only need to acces a limited range of
+memory.  For example, the rightmost-pops encoding only needs to access
+two elements that are $\log {N/s}$ apart in memory (the sparse table
+for the block maximums) for super-block query, and $O(s)$ $t_i$ (the
+number of pops) in consecutive memory.  In contrast the unblocked
+sparse table can have up to $\log N$ levels, and different queries of
+different sizes will need to access different levels of the sparse
+table.  This does not help cache locality because consecutive queries
+will unlikely to access consevutive memory.  When $N$ is small this
+will not be problem for unblocked sprase table since its size will be
+small.  When $N$ increases the cache locality of blocked sparse table
+becomes more significant.
 
-Figure~\ref{fig:fig-parallel} compares the execution time of all four
-data structure combinations under different lengths of inputs.  The
-input strings are generated {\em randomly} from the alphabet $\{A, T,
-C, G\}$, as this alphabet is most popular in bioinformatics.  We note
-that, {\em BST2} outperforms all other parallel implementations. % why
-
-Figure~\ref{fig:fig-parallel-scala} shows the scalability of the best
-parallel combination {\em BST2}.  It is {\em eight} times faster than
-a serial implementation on our server with 6 cores and
-hyper-threading.
-
-\begin{figure}
-  \centering
-  \subfigure[Execution time of four data structure combinations]{
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-n.pdf}
-    \label{fig:fig-parallel}
-  }
-  \subfigure[Scalability of the sparse table with right-most-pops encoding]{
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-p.pdf}
-    \label{fig:fig-parallel-scala}
-  }
-  \caption{The execution time and scalability results of our parallel
-    implementations on an E5-2620 server with 6 cores and
-    hyper-threading}
-\end{figure}
+\input{\TablePath/tlb-CORMQ.tex}
 
 
-\subsection{Incremental Suffix Maximum Query}
+
+\subsection{Right-most-pops and LCA Tables}
 
 We now compare the performance of {\em four} data structures for
 supporting incremental suffix maximum query only.  In addition to
 disjoint set and sparse table described earlier, we also implemented
 {\em compressed sparse table} and {\em amortized $O(1)$ sparse table}.
 The compressed sparse table has an amortized insertion time $O(1)$ and
-query time $O(s)$, where $s$ is the size of the block and is set to $16$
-in the experiments.  Please refer to Section~\ref{sec:parallelRMQ} for
-details.  The amortized sparse table has $O(1)$ for both amortized
-insertion time and the query time.  In our implementation we set the
-block size $s$ to $8$, and apply other similar optimization as in
-compressed sparse table.
+query time $O(s)$, where $s$ is the size of the block and is set to
+$16$ in the experiments.  Please refer to
+Section~\ref{sec:parallelRMQ} for details.  The amortized sparse table
+has $O(1)$ for both amortized insertion time and the query time.  In
+our implementation we set the block size $s$ to $8$, and apply other
+similar optimization as in compressed sparse table.
 
 We first tried a simple scenario in which we {\em alternate} between
 appending a data and issuing a range query.  Both the length and the
@@ -173,43 +143,73 @@ into the LCA table, so its performance is not affected by $L$.
 %% In order to hide the optimized detail in implementation, we conduct
 %% this experiment.
 
-\subsection{Parallel Range Maximum Query}
 
-We now compare the performance of {\em two} data structures for
-supporting parallel range maximum query.  Since the disjoint set {\em
-  only} supports suffix query so we will not consider it here.
-Instead we will consider {\em sparse table} ({\sc ST}) and {\em
-  compressed sparse table} ({\sc CoST}).  The experiments test the
-cases of all possible query range sizes, and build only the necessary
-compressed blocks before answering the queries.
 
-Table~\ref{tlb:CORMQ} compares the timing results of sparse table and
-compressed sparse table for supporting parallel range query.  We set
-the number of elements $N$ to be the same as the number of range
-queries.  We observe that the optimized compressed sparse table is
-$1.4$ times faster than sparse table when $N$ reaches $100000$.
+\subsection{Variable Gapped Longest Common Subsequence}
 
-% Make more observation on $L$ and $N$.
+We implement {\em disjoint set} and {\em sparse table} in our first
+set of experiments and evaluate their performance on VGLCS.  For
+disjoint set we implemented both {\em path compression} and {\em
+  merge-by-rank} strategies so that the amortized time $o(\alpha(n))$.
+Its variant, {\em incremental tree set union}~\cite{Gabow1983ALA}, has
+an amortized time $O(1)$ for each query.  In contrast our sparse table
+implementation has insertion time $O(\log n)$, and query time $O(1)$.
+The table is allocated in memory in a row-major manner to reduce cache
+miss.  Please refer to Algorithm~\ref{alg:parallel-VGLCS} and
+Figure~\ref{fig:interval-decomposition} for details.
 
-We increase the number of input elements ($N$ in Table~\ref{tlb:CORMQ})
-to verify the efficiency of Algorithm~\ref{alg:parallel-sparse-table}.
+We observe that the blocked sparse table with right-most-pop encoding
+implementation outperforms the theoretically better amortized $O(1)$
+LCA table implementation.  We believe that there are two reasons for
+this.  First, the LCA table implementation requires more instruction
+to compute the Catalan index.  In contrast the right-most-pops
+encoding does not require teh computation for tree index.  Instead it
+uses the stored number of pops to answer the query directly.  Second,
+despite that in Theory~\cite{Fischer2006TheoreticalAP} the optimal
+block size is ${\log n}\over{4}$, this block size is usually too large
+for LCA table implementations.  That is, we will need to build a very
+large LCA lookup table.  Even worse, we will {\em not} access all of
+it, which means it is very unlikely that we will access contiguous
+memory, which causes serious cache misses.
 
-% explain the scalability
-% Morris: scalability -> efficiency
+We implemented {\em four} combinations of data structures in solving
+the VGLCS problem and evaluated their performance.  The first
+combination is a {\em sequential} implementation of Peng's algorithm
+using disjoint set on {\em both} the first stage and second stage.
+Noth that since the disjoint-set only supports suffix query, so the
+implementation must by sequential if the second stage uses the
+disjoint set.  On the other hand, the other three combinations are all
+implemented in parallel.  The {\em DS-ST} combination uses disjoint
+set in the first stage and the standard {\em unblocked} sparse table
+in the second stage.  The {\em DS-BST} combination uses disjoint set
+in the first stage and {\em blocked} sparse table with right-most-pops
+encoding in the second stage.  The reason we use right-most-pops
+encoding, instead of LCA tables, was describe earlier.  Finally the
+{\em BST2} combination uses blocked sparse table with right-most-pops
+encoding in both stages.
 
-The maximum length of interval query ($L$ in Table~\ref{tlb:CORMQ})
-affects the performance of accessing different rows ($T_S[i][*]$) in the
-sparse table.
+Figure~\ref{fig:fig-parallel} compares the execution time of all four
+data structure combinations under different lengths of inputs.  The
+input strings are generated {\em randomly} from the alphabet $\{A, T,
+C, G\}$, as this alphabet is most popular in bioinformatics.  We note
+that, {\em BST2} outperforms all other parallel implementations. % why
 
-The number of rows in the compressed sparse table is
-smaller than that of the sparse table.  Therefore, this improves
-performance of cache temporal locality for compressed sparse table
-because multiple data store in compressed block.
+Figure~\ref{fig:fig-parallel-scala} shows the scalability of the best
+parallel combination {\em BST2}.  It is {\em eight} times faster than
+a serial implementation on our server with 6 cores and
+hyper-threading.
 
-When $L$ is small, it is very likely that the interval query can be
-processed in the same row of the sparse table.
-
-Oppositely, when $L$ is large, the efficiency of integrating the maximum
-value decreases because of the data sharing between multi-processors.
-
-\input{\TablePath/tlb-CORMQ.tex}
+\begin{figure}
+  \centering
+  \subfigure[Execution time of four data structure combinations]{
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-n.pdf}
+    \label{fig:fig-parallel}
+  }
+  \subfigure[Scalability of the sparse table with right-most-pops encoding]{
+    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-p.pdf}
+    \label{fig:fig-parallel-scala}
+  }
+  \caption{The execution time and scalability results of our parallel
+    implementations on an E5-2620 server with 6 cores and
+    hyper-threading}
+\end{figure}
