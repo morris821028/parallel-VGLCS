@@ -148,10 +148,10 @@
 	\end{itemize}
 \end{frame}
 
-\subsection{Right-most-pops Encoding}
+\subsection{Rightmost-pops Encoding}
 \begin{frame}
-    \frametitle{Right-most-pops Encoding}
-    We propose a new encoding for blocks, called {\em right-most-pops},
+    \frametitle{Rightmost-pops Encoding}
+    We propose a new encoding for blocks, called {\em rightmost-pops},
 	instead of the binary string by Demaine, in order to improve the
 	performance of range maximum query.
 	\\~\\
@@ -170,17 +170,17 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{An Example for Right-most-pops Encoding}
+	\frametitle{An Example for Rightmost-pops Encoding}
 	\begin{figure}[!thb]
 	  \centering
 	  \includegraphics[width=\linewidth]{\GraphicPath/fig-cartesian-encoding-stack.pdf}
-	  \caption{Right most path in stack}
+	  \caption{Rightmost path in stack}
 	  \label{fig:interval-cartesian}
 	\end{figure}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Implementation of Right-most-pops Encoding}
+	\frametitle{Implementation of Rightmost-pops Encoding}
 	We choose the block size $s = {{\frac{\log n}{4}}} = 16$.
 
 	\begin{itemize}	
@@ -200,7 +200,7 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Pseudocode for Right-most-pops Encoding}
+	\frametitle{Pseudocode for Rightmost-pops Encoding}
 	\begin{center}
 		\scalebox{1} { \begin{minipage}{1\textwidth}
 			\input{\AlgoPath/alg-cartesian64bits-query-2e}

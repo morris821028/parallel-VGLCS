@@ -73,13 +73,12 @@
 			Our implementation improves performance by ``peeking'' into
 			two neighboring elements in the $T_{S}$ table.
 		\item 
-			We access two elements in the sparse table $T_S$ in {\em the
+			Access two elements in the sparse table $T_S$ in {\em the
   			same level} because accessing the first will bring in the
   			other by the hardware caching mechanism.
   		\item
-  			Because of intermediate maximum value and neighboring
-			elements, it can save unnecessary access to $P$ and $S$
-			tables.
+  			Intermediate maximum value and neighboring elements can save
+			unnecessary access to $P$ and $S$ tables.
 		\item
 			It improves the overall performance of query operations by
 			up to 35\% when $n = 10^7$.

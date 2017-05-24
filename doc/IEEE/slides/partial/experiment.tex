@@ -24,50 +24,37 @@
 	\end{itemize}
 \end{frame}
 
-\subsection{VGLCS}
+\subsection{Blocked and Unblocked Sparse Table}
 \begin{frame}
-    \frametitle{Variable Gapped Longest Common Subsequence}
-	Four combinations of data structures in solving the VGLCS problem
-	and evaluated their performance.
+    \frametitle{Blocked and Unblocked Sparse Table}
+    Compare the performance of {\em two} data structures for supporting
+	parallel range maximum query.
 
-	\begin{description}
-		\setlength\itemsep{1em}
-		\item[Peng's algorithm] \hfill \\
-			uses disjoint set on {\em both} the first stage and second stage.
-		\item[{\sc Para-ST-DS}] \hfill \\
-			uses disjoint set in the first stage and sparse table in the
-			second stage.
-		\item[{\sc Para-CoST-DS}] \hfill \\
-			uses disjoint set in the first stage and compressed sparse
-			table in the second stage.
-		\item[{\sc Para-CoST}] \hfill \\
-			uses compressed sparse table in both first and second stage.
-	\end{description}
+	\begin{itemize}
+		\item 
+			{\em Unblocked} sparse table ({\sc ST})
+		\item 
+			{\em Blocked} sparse table ({\sc BST})
+	\end{itemize}
+	\vspace{1em}
+	The experiments test the cases of all possible query range sizes,
+	and build only the {\em necessary} blocks before answering the
+	queries.
 \end{frame}
 
 \begin{frame}
+	Compressed sparse table is $1.4$ times faster than sparse table when
+	$N$ reaches $100000$.
 	\begin{center}
-		\scalebox{0.8} { \begin{minipage}{1.3\textwidth}
-			\begin{figure}
-			  \centering
-			  \subfigure[Runtime]{
-			    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-n.pdf}
-			    \label{fig:fig-parallel}
-			  }
-			  \subfigure[Scalability]{
-			    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-p.pdf}
-			    \label{fig:fig-parallel-scala}
-			  }
-			  \caption{The execution time and scalability results of our parallel
-			    implementations on an E5-2620 server with 6 cores and
-			    hyper-threading}
-			\end{figure}
+	\scalebox{0.65} { \begin{minipage}{1.53\textwidth}
+			\input{\TablePath/tlb-CORMQ.tex}
 			\end{minipage}
 		}
 	\end{center}
 \end{frame}
 
 \subsection{Incremental Suffix Maximum Query}
+\begin{withoutheadline}
 \begin{frame}
     \frametitle{Incremental Suffix Maximum Query}
     Compare the performance of {\em four} data structures for supporting
@@ -75,28 +62,29 @@
 
     \begin{description}
     	\setlength\itemsep{1em}
-    	\item[{\sc Disjoint Set}] \hfill \\
+    	\item[{Disjoint set}] \hfill \\
     		described earlier
-    	\item[{\sc Sparse Table}] \hfill \\
+    	\item[{Sparse table}] \hfill \\
     		described earlier
-    	\item[{\sc Encoding Sparse Table}] \hfill \\
+    	\item[{Rightmost-pops} encoding sparse table] \hfill \\
     		It has an amortized insertion time $O(1)$ and query time
 			$O(s)$, where $s$ is the size of the block and is set to
 			$16$ in the experiments.
-    	\item[{\sc LCA Blocked Sparse Table}]  \hfill \\
+    	\item[{LCA} table sparse table]  \hfill \\
     		It has $O(1)$ for both amortized insertion time and the
 			query time.
     \end{description}
 \end{frame}
+\end{withoutheadline}
 
 \begin{frame}
-	When $n$ is greater than $10^7$, the {\sc Encoding Sparse Table}
-	runs $1.8$ times faster than the {\sc Disjoint Set}.
+	When $n$ is greater than $10^7$, the rightmost-pops encoding sparse
+	table runs $1.8$ times faster than the disjoint set.
 	\begin{center}
 	\scalebox{0.7} { \begin{minipage}{1.3\textwidth}
 			\begin{figure}
 			  \centering
-			  \includegraphics[width=0.85\linewidth]{\GraphicPath/fig-ISMQ.pdf}
+			  \includegraphics[width=\linewidth]{\GraphicPath/fig-ISMQ.pdf}
 			  \caption{The performance of the different data structures for
 			    supporting incremental suffix maximum query on an E5-2620 server}
 			  \label{fig:fig-ISMQcmp}
@@ -106,8 +94,10 @@
 	\end{center}
 \end{frame}
 
+\begin{withoutheadline}
 \begin{frame}
 	\frametitle{More Complex Scenario}
+	The Rightmost-pops runs up to $1.5$ times faster than the LCA table.
 	\begin{description}
 		\item[$p$]
 			the probability of inserting a larger next element,
@@ -122,34 +112,63 @@
 			\end{minipage}
 		}
 	\end{center}
-	{\sc LCA Blocked Sparse Table} runs up to $1.5$ times faster than
-	{\sc Encoding Sparse Table}.
 \end{frame}
+\end{withoutheadline}
 
-\subsection{Parallel Range Maximum Query}
+\subsection{Variable Gapped Longest Common Subsequence}
+
+\begin{withoutheadline}
 \begin{frame}
-    \frametitle{Parallel Range Maximum Query}
-    Compare the performance of {\em two} data structures for supporting
-	parallel range maximum query.
+    \frametitle{Variable Gapped Longest Common Subsequence}
+	Four combinations of data structures in solving the VGLCS problem
+	and evaluated their performance.
 
-	\begin{itemize}
-		\item 
-			{\em Sparse table} ({\sc ST})
-		\item 
-			{\em Compressed sparse table} ({\sc CoST})
-	\end{itemize}
-	\vspace{1em}
-	The experiments test the cases of all possible query range sizes,
-	and build only the {\em necessary} blocks before answering the
-	queries.
+	\begin{description}
+		\setlength\itemsep{0.5em}
+		\item[Peng's algorithm] \hfill \\
+			uses disjoint set on {\em both} the first stage and second stage.
+		\item[{\sc DS-ST}] \hfill \\
+			uses disjoint set in the first stage and standard sparse table in the
+			second stage.
+		\item[{\sc DS-BST}] \hfill \\
+			uses disjoint set in the first stage and rightmost-pops
+			encoding sparse table in the second stage.
+		\item[{\sc BST2}] \hfill \\
+			uses rightmost-pops encoding sparse table in both first and
+			second stage.
+	\end{description}
 \end{frame}
+\end{withoutheadline}
 
 \begin{frame}
-	Compressed sparse table is $1.4$ times faster than sparse table when
-	$N$ reaches $100000$.
 	\begin{center}
-	\scalebox{0.65} { \begin{minipage}{1.53\textwidth}
-			\input{\TablePath/tlb-CORMQ.tex}
+		\scalebox{0.9} { \begin{minipage}{\textwidth}
+			\begin{figure}
+			  \centering
+			  \includegraphics[width=0.9\linewidth]{\GraphicPath/fig-parallel-n.pdf}
+			  \label{fig:fig-parallel}
+			  \caption{
+			  	The execution time result of our parallel
+			    implementations on an E5-2620 server with 6 cores and
+			    hyper-threading}
+			\end{figure}
+			\end{minipage}
+		}
+	\end{center}
+\end{frame}
+
+
+\begin{frame}
+	\begin{center}
+		\scalebox{0.9} { \begin{minipage}{\textwidth}
+			\begin{figure}
+			  \centering
+			  \includegraphics[width=0.9\linewidth]{\GraphicPath/fig-parallel-p.pdf}
+			  \label{fig:fig-parallel-scala}
+			  \caption{
+			  	The scalability result of our parallel implementations
+			    on an E5-2620 server with 6 cores and hyper-threading}
+			\end{figure}
 			\end{minipage}
 		}
 	\end{center}
