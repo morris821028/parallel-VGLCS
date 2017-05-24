@@ -1,13 +1,12 @@
 \section{Experiment} \label{sec:Experiment}
 
 We conduct three sets of experiments.  The first set compares the
-perfromance of blocked and unblocked spare tables in supporting
-parallel range maximum query.
-
-The second set evaluates the performance of incremental suffix maximum
-query using various data structures.
-
-The third set evaluates the performance of parallel range query.
+performance of blocked and unblocked spare tables in supporting
+parallel range maximum query.  The second set evaluates the
+performance of incremental suffix maximum query using various data
+structures, especially the blocked sparse tables.  Finally the third
+experiment evaluates the effects of different data structures on the
+overall performance of VGLCS computation.
 
 We conduct experiments on an Intel Xeon E5-2620 2.4 Ghz processor with
 384K bytes of level 1 cache, 1536K bytes of level 2 cache, and 15M
@@ -23,61 +22,67 @@ We first compare the performance of {\em unblocked} and {\em blocked}
 sparse tables for supporting parallel range maximum query.  For the
 blocked sparse table we use the right-most-pops encoding instead of
 the LCA tables, since we will show that the right-most-pops encoding
-is more efficient than LCA table.  The experiments test the cases of
-all possible query range sizes and the number of elements $N$ is the
-same as the number of range queries.
+is more efficient than LCA table in the next set of experiments.  We
+test all possible query range sizes and the number of the number of
+range queries is set to be the number of elements $N$.
 
 Table~\ref{tlb:CORMQ} compares the parallel range query time of
 unblocked sparse table and blocked sparse table, and we observe that
 the blocked sparse table using right-most-pops sparse table is more
 efficient than the unblocked sparse table when $N$ increases.  For
 example, the blocked sparse table is $1.4$ times faster than the
-unblocked sparse table when $N$ reaches $100000$.
+unblocked sparse table when $N$ reaches $100000$. 
 
 We believe that the maximum length of interval query ($L$ in
 Table~\ref{tlb:CORMQ}) affects the cache performance of accessing a
-sparse table.  For example, even with a very large query length, a
-blocked sparse table will only need to acces a limited range of
-memory.  For example, the rightmost-pops encoding only needs to access
-two elements that are $\log {N/s}$ apart in memory (the sparse table
-for the block maximums) for super-block query, and $O(s)$ $t_i$ (the
-number of pops) in consecutive memory.  In contrast the unblocked
-sparse table can have up to $\log N$ levels, and different queries of
-different sizes will need to access different levels of the sparse
-table.  This does not help cache locality because consecutive queries
-will unlikely to access consevutive memory.  When $N$ is small this
-will not be problem for unblocked sprase table since its size will be
-small.  When $N$ increases the cache locality of blocked sparse table
-becomes more significant.
+sparse table.  In addition, even when we fix the number of data $N$,
+the speedup of blocked sparse table over unblocked one does increase
+as $L$ increases.  We believe that the reason of this speedup is as
+follows.  Even with a very large query length, a blocked sparse table
+will only need to access a limited range of memory.  For example, the
+rightmost-pops encoding only needs to access two elements that are
+$\log {N/s}$ apart in memory (the sparse table for the block maximums)
+for super-block query, and $O(s)$ $t_i$ (the number of pops) in
+consecutive memory.  In contrast the unblocked sparse table can have
+up to $\log N$ levels, and different queries of different sizes will
+need to access different levels of the sparse table.  This does not
+help cache locality because consecutive queries will unlikely to
+access consecutive memory.  When $N$ is small this will not be problem
+for unblocked sparse table since its size will be small.  When $N$
+increases the cache locality of blocked sparse table becomes more
+significant.
 
 \input{\TablePath/tlb-CORMQ.tex}
-
-
 
 \subsection{Right-most-pops and LCA Tables}
 
 We now compare the performance of {\em four} data structures for
-supporting incremental suffix maximum query only.  In addition to
-disjoint set and sparse table described earlier, we also implemented
-{\em compressed sparse table} and {\em amortized $O(1)$ sparse table}.
-The compressed sparse table has an amortized insertion time $O(1)$ and
-query time $O(s)$, where $s$ is the size of the block and is set to
-$16$ in the experiments.  Please refer to
-Section~\ref{sec:parallelRMQ} for details.  The amortized sparse table
-has $O(1)$ for both amortized insertion time and the query time.  In
-our implementation we set the block size $s$ to $8$, and apply other
-similar optimization as in compressed sparse table.
+supporting {\em incremental suffix} query.  The four data structures
+are {\em disjoint set}, {\em unblocked} sparse table, blocked table
+with {\em rightmost-pops encoding}, and blocked sparse table with LCA.
+Note that since we are testing suffix queries so we can use disjoint
+table.  Please refer to Section~\ref{sec:parallelRMQ} for details.
+For disjoint set we implemented both {\em path compression} and {\em
+  merge-by-rank} strategies so that the amortized time $O(\alpha(n))$.
+In our implementation we set the block size $s$ to $8$.  All sparse
+tables are allocated in memory in a row-major manner to reduce cache
+miss.  Please refer to Algorithm~\ref{alg:parallel-VGLCS} and
+Figure~\ref{fig:interval-decomposition} for details.
 
-We first tried a simple scenario in which we {\em alternate} between
-appending a data and issuing a range query.  Both the length and the
-position of the range query are uniformly distributed among all
+% Here we need a table of all complexity.
+
+We first tried a simple scenario in which we alternate between {\em
+  appending} a data and {\em querying} a range.  Both the length and
+the position of the range query are uniformly distributed among all
 possibilities.  Figure~\ref{fig:fig-ISMQcmp} shows the performance of
 the four data structures for supporting incremental suffix maximum
-queries under this simple scenario.  We note that our compressed sparse
-table implementation runs faster than the disjoint set implementation
-when the number of data $n$ reaches $10^6$.  In particular when $n$ is
-greater than $10^7$, the compressed sparse table runs $1.8$ times faster
-than the disjoint set.
+queries under this simple scenario.  We note that our rightmost-pops
+encoding implementation runs faster than all other implementations.
+For example, it runs faster than the disjoint set implementation when
+the number of data $n$ reaches $10^6$.  In particular when $n$ is
+greater than $10^7$, the rightmost-pops encoding runs $1.8$ times
+faster than the disjoint set.
+
 
 \begin{figure}[!thb]
   \centering
@@ -87,83 +92,33 @@ than the disjoint set.
   \label{fig:fig-ISMQcmp}
 \end{figure}
 
-Now we conduct experiments in a more complex scenario.  In a dynamic
-programming various factors affect performance.  These factors include
-the distribution of values being inserted, the maximum interval being
-queried, and the ratio between the numbers of insertion and queries.
-For ease of notation we use $p$ to denote the probability of having an
-larger next element to insert, $q$ for the probability of inserting a
-zero, and $L$ for the maximum interval being queried.  In our
-experiments we set the number of data $N$ to be $10^7$, and vary the
-maximum interval sizes $L$ from 4 to 16, and vary $p$ and $q$ from 0
-to 100\%.  We also set the number of the queries to be ten times of
-the number of insertions.
+Now we conduct another experiment in a more complex scenario.  In a
+dynamic programming various factors affect performance.  These factors
+include the distribution of values being inserted, the maximum
+interval being queried, and the ratio between the numbers of insertion
+and queries.  For ease of notation we use $p$ to denote the
+probability of insert a larger next element, $q$ for the probability
+of inserting a zero, and $L$ for the maximum interval length being
+queried.  In our experiments we set the number of data $N$ to be
+$10^7$, and vary the maximum interval sizes $L$ from 4 to 16, and vary
+$p$ and $q$ from 0 to 100\%.  We also set the number of the queries to
+be {\em ten} times of the number of insertions.
 
-Table~\ref{tlb:ISMQcmp} compares timing of answering incremental
-suffix maximum query using compressed sparse table and the
-theoretically better amortized $O(1)$ sparse table.  We observe that
-the sparse table runs up to $1.5$ times faster than the compressed
-table.
+From Figure~\ref{fig:fig-ISMQcmp} we observe that blocked sparse table
+implementations outperform disjoint set and unblocked sparse table, so
+we will focus on comparing the two implementations for blocked sparse
+table, i.e., rightmost-pops and LCA tables.  Note that it is easy to
+extend rightmost-pops encoding for incremental data since we only need
+to maintain the number of pops incrementally for the last block.
 
-\input{\TablePath/tlb-ISMQcmp-new.tex}
-
-We also observe that the probability $p$ affects the performance gain
-of our ``peeking'' technique.  When the probability $p$ is close to 0
-or 1 the peeking achieves excellent performance gain.  The performance
-gain of the peeking operation also depends the block size.  In
-addition, the block size best for LCA sparse table is different from
-the best block size for bit-compressed sparse table.
-We also observe that the probability $p$ affects the performance gain of
-our ``peeking'' technique.  When the probability $p$ is close to 0 or 1,
-the peeking achieves excellent performance gain.  The performance gain
-of the peeking operation also depends the block size.  In addition, the
-block size best for LCA sparse table is different from the best block
-size for bit-compressed sparse table.
-
-We also observe that the performance of the compressed sparse table is
-better than that of $O(1)$ sparse table, but the performance advantage
-disappears when $q$ is close to 1. $O(1)$ sparse table requires the
-Cartesian index computation, which is not required in the compressed
-sparse table implementation.  When the probability $q$ is close to 1,
-$O(1)$ sparse table will require less instructions on computing
-Cartesian index, so its performance will be close to that of the the
-compressed sparse table.
-
-The maximum length of interval query ($L$ in Table~\ref{tlb:ISMQcmp})
-affects the performance of interval query in a compressed sparse
-table, but not the performance of the $O(1)$ sparse table.  Note that
-in Algorithm~\ref{alg:cartesian64bits-query} the block size $s$ is set
-to 16, which is the maximum number of times the loop in
-Algorithm~\ref{alg:cartesian64bits-query} will iterate for an query.
-Therefore the query time will increase when $L$ increases.  On the
-other hand, the $O(1)$ sparse table answer a query by a single lookup
-into the LCA table, so its performance is not affected by $L$.
-
-%% The computation of Cartesian index maybe can be implemented well.
-%% In order to hide the optimized detail in implementation, we conduct
-%% this experiment.
-
-
-
-\subsection{Variable Gapped Longest Common Subsequence}
-
-We implement {\em disjoint set} and {\em sparse table} in our first
-set of experiments and evaluate their performance on VGLCS.  For
-disjoint set we implemented both {\em path compression} and {\em
-  merge-by-rank} strategies so that the amortized time $o(\alpha(n))$.
-Its variant, {\em incremental tree set union}~\cite{Gabow1983ALA}, has
-an amortized time $O(1)$ for each query.  In contrast our sparse table
-implementation has insertion time $O(\log n)$, and query time $O(1)$.
-The table is allocated in memory in a row-major manner to reduce cache
-miss.  Please refer to Algorithm~\ref{alg:parallel-VGLCS} and
-Figure~\ref{fig:interval-decomposition} for details.
-
-We observe that the blocked sparse table with right-most-pop encoding
-implementation outperforms the theoretically better amortized $O(1)$
-LCA table implementation.  We believe that there are two reasons for
-this.  First, the LCA table implementation requires more instruction
+Table~\ref{tlb:ISMQcmp} compares the time for answering incremental
+suffix maximum query using rightmost-pops and LCA tables.  Despite
+that the LCA table method has a theoretically better amortized $O(1)$
+query time, we observe that the rightmost-pops runs up to $1.5$ times
+faster than the LCA table.  We believe that there are two reasons for
+this.  First, the LCA table implementation requires more instructions
 to compute the Catalan index.  In contrast the right-most-pops
-encoding does not require teh computation for tree index.  Instead it
+encoding does not require the computation for tree index.  Instead it
 uses the stored number of pops to answer the query directly.  Second,
 despite that in Theory~\cite{Fischer2006TheoreticalAP} the optimal
 block size is ${\log n}\over{4}$, this block size is usually too large
@@ -172,21 +127,60 @@ large LCA lookup table.  Even worse, we will {\em not} access all of
 it, which means it is very unlikely that we will access contiguous
 memory, which causes serious cache misses.
 
-We implemented {\em four} combinations of data structures in solving
-the VGLCS problem and evaluated their performance.  The first
-combination is a {\em sequential} implementation of Peng's algorithm
-using disjoint set on {\em both} the first stage and second stage.
-Noth that since the disjoint-set only supports suffix query, so the
-implementation must by sequential if the second stage uses the
-disjoint set.  On the other hand, the other three combinations are all
-implemented in parallel.  The {\em DS-ST} combination uses disjoint
-set in the first stage and the standard {\em unblocked} sparse table
-in the second stage.  The {\em DS-BST} combination uses disjoint set
-in the first stage and {\em blocked} sparse table with right-most-pops
-encoding in the second stage.  The reason we use right-most-pops
-encoding, instead of LCA tables, was describe earlier.  Finally the
-{\em BST2} combination uses blocked sparse table with right-most-pops
-encoding in both stages.
+
+\input{\TablePath/tlb-ISMQcmp-new.tex}
+
+We also observe that the probability $p$ affects the performance gain
+of our ``peeking'' technique.  When the probability $p$ is close to 0
+or 1 the peeking achieves excellent performance gain.  The performance
+gain of the peeking operation also depends the block size.  In
+addition, the block size best for LCA sparse table is different from
+the best block size for the rightmost-pops sparse table.
+
+We also observe that the probability $p$ affects the performance gain
+of our ``peeking'' technique.  When the probability $p$ is close to 0
+or 1, the peeking achieves excellent performance gain.  The
+performance gain of the peeking operation also depends the block size.
+In addition, the block size best for LCA sparse table is different
+from the best block size for rightmost-pops sparse table.
+
+We observe that the performance of the rightmost-pops sparse table is
+better than that of LCA sparse table, but the performance gain
+decreases when $q$ is close to 1.  LCA sparse table requires the
+Cartesian index computation, which is not required in the
+rightmost-pops sparse table implementation.  When the probability $q$
+is close to 1, LCA sparse table will require less instructions on
+computing Cartesian index, so its performance will be close to that of
+the the rightmost-pops sparse table.
+
+The maximum length of interval query ($L$ in Table~\ref{tlb:ISMQcmp})
+affects the performance of interval query in a rightmost-pops sparse
+table, but not the performance of the LCA sparse table.  Note that in
+Algorithm~\ref{alg:cartesian64bits-query} the block size $s$ is set to
+16, which is the maximum number of times the loop in
+Algorithm~\ref{alg:cartesian64bits-query} will iterate for an query.
+Therefore the query time will increase when $L$ increases.  On the
+other hand, the LCA sparse table answers a query by a single lookup
+into the LCA table, so its performance is not affected by $L$.
+
+\subsection{Variable Gapped Longest Common Subsequence}
+
+We now compare all four data structures in the final experiments and
+evaluate their overall performance on VGLCS.  We implemented {\em
+  four} combinations of data structures in solving the VGLCS problem
+and evaluated their performance.  The first combination is a {\em
+  sequential} implementation of Peng's algorithm using disjoint set on
+{\em both} the first stage and second stage.  Note that since the
+disjoint-set only supports suffix query, so the implementation must by
+sequential if the second stage uses the disjoint set.  On the other
+hand, the other three combinations are all implemented in parallel.
+The {\em DS-ST} combination uses disjoint set in the first stage and
+the standard {\em unblocked} sparse table in the second stage.  The
+{\em DS-BST} combination uses disjoint set in the first stage and {\em
+  blocked} sparse table with right-most-pops encoding in the second
+stage.  The reason we use right-most-pops encoding, instead of LCA
+tables, was describe earlier.  Finally the {\em BST2} combination uses
+blocked sparse table with right-most-pops encoding in both stages.
 
 Figure~\ref{fig:fig-parallel} compares the execution time of all four
 data structure combinations under different lengths of inputs.  The
