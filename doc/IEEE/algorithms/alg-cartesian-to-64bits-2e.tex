@@ -1,7 +1,7 @@
 \begin{algorithm}
 \SetAlgoNoLine
 \KwIn{$A[1 .. 16]$: input data block}
-\KwOut{$t$: a 64 bit right-most-pops encoding of $A$}
+\KwOut{$t$: a 64 bit rightmost-pops encoding of $A$}
 
 $\tt{LOGS} \gets 4$, $\tt{POWS} \gets 2^{\tt{LOGS}}$ \;
 Create an array $D$ of size $\tt{POWS}+1$ \;
@@ -19,7 +19,7 @@ $t \gets 0$ \;
 }
 return $t$ \;
 
-  \caption{Encode a data block of sixteen data with right-most-pops
+  \caption{Encode a data block of sixteen data with rightmost-pops
     encoding into a 64-bits integer.}
   \label{alg:cartesian-to-64bits}
 \end{algorithm}

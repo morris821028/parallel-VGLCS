@@ -148,15 +148,15 @@ computer.
 % operation because the access pattern is almost one by one in our VGLCS
 % algorithm.
 
-\subsection{Right-most-pops Encoding} \label{sec:cct}
+\subsection{Rightmost-pops Encoding} \label{sec:cct}
 
-We propose a new encoding for blocks, called {\em right-most-pops},
+We propose a new encoding for blocks, called {\em rightmost-pops},
 instead of the binary string by Demaine~\cite{Demaine2009OnCT}, in
 order to improve the performance of range maximum query.  This
-right-most-pops encoding is inspired by Fischer's sparse table and
+rightmost-pops encoding is inspired by Fischer's sparse table and
 Cartesian tree.
 
-The right-most-pops encoding encodes a Cartesian tree by keeping only
+The rightmost-pops encoding encodes a Cartesian tree by keeping only
 the {\em rightmost} path of the Cartesian tree in a {\em stack}, and
 keeping track of the {\em number of pops} from the stack when we add
 data into the Cartesian tree.  Please refer to
@@ -187,7 +187,7 @@ $t_i$'s to represent a Cartesian tree.
 \end{figure}
 
 
-The key idea of right-most-pops encoding is that we can use $t_i$'s to
+The key idea of rightmost-pops encoding is that we can use $t_i$'s to
 {\em implicitly identify} the Cartesian tree of this block of data,
 and that we can answer in-block range queries simply by examining
 these $t_i$'s.  Suppose we want to answer an in-block maximum query
@@ -248,7 +248,7 @@ since we implicitly maintain the Cartesian tree information within these
 performance, it can also efficiently answer one-dimension range maximum
 query for up to $n = 2^{64}$ data.
 
-Note that our right-most-pops encoding does improve cache performance,
+Note that our rightmost-pops encoding does improve cache performance,
 but will increase the time complexity in answering queries.
 Algorithm~\ref{alg:cartesian64bits-query} accesses data in a very
 regular manner and has a better data locality than Fischer's algorithm.

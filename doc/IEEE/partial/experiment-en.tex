@@ -20,15 +20,15 @@ flag.
 
 We first compare the performance of {\em unblocked} and {\em blocked}
 sparse tables for supporting parallel range maximum query.  For the
-blocked sparse table we use the right-most-pops encoding instead of
-the LCA tables, since we will show that the right-most-pops encoding
+blocked sparse table we use the rightmost-pops encoding instead of
+the LCA tables, since we will show that the rightmost-pops encoding
 is more efficient than LCA table in the next set of experiments.  We
 test all possible query range sizes and the number of the number of
 range queries is set to be the number of elements $N$.
 
 Table~\ref{tlb:CORMQ} compares the parallel range query time of
 unblocked sparse table and blocked sparse table, and we observe that
-the blocked sparse table using right-most-pops sparse table is more
+the blocked sparse table using rightmost-pops sparse table is more
 efficient than the unblocked sparse table when $N$ increases.  For
 example, the blocked sparse table is $1.4$ times faster than the
 unblocked sparse table when $N$ reaches $100000$. 
@@ -54,7 +54,7 @@ significant.
 
 \input{\TablePath/tlb-CORMQ.tex}
 
-\subsection{Right-most-pops and LCA Tables}
+\subsection{Rightmost-pops and LCA Tables}
 
 We now compare the performance of {\em four} data structures for
 supporting {\em incremental suffix} query.  The four data structures
@@ -117,7 +117,7 @@ that the LCA table method has a theoretically better amortized $O(1)$
 query time, we observe that the rightmost-pops runs up to $1.5$ times
 faster than the LCA table.  We believe that there are two reasons for
 this.  First, the LCA table implementation requires more instructions
-to compute the Catalan index.  In contrast the right-most-pops
+to compute the Catalan index.  In contrast the rightmost-pops
 encoding does not require the computation for tree index.  Instead it
 uses the stored number of pops to answer the query directly.  Second,
 despite that in Theory~\cite{Fischer2006TheoreticalAP} the optimal
@@ -177,10 +177,10 @@ hand, the other three combinations are all implemented in parallel.
 The {\em DS-ST} combination uses disjoint set in the first stage and
 the standard {\em unblocked} sparse table in the second stage.  The
 {\em DS-BST} combination uses disjoint set in the first stage and {\em
-  blocked} sparse table with right-most-pops encoding in the second
-stage.  The reason we use right-most-pops encoding, instead of LCA
+  blocked} sparse table with rightmost-pops encoding in the second
+stage.  The reason we use rightmost-pops encoding, instead of LCA
 tables, was describe earlier.  Finally the {\em BST2} combination uses
-blocked sparse table with right-most-pops encoding in both stages.
+blocked sparse table with rightmost-pops encoding in both stages.
 
 Figure~\ref{fig:fig-parallel} compares the execution time of all four
 data structure combinations under different lengths of inputs.  The
@@ -199,7 +199,7 @@ hyper-threading.
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-n.pdf}
     \label{fig:fig-parallel}
   }
-  \subfigure[Scalability of the sparse table with right-most-pops encoding]{
+  \subfigure[Scalability of the sparse table with rightmost-pops encoding]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-parallel-p.pdf}
     \label{fig:fig-parallel-scala}
   }
