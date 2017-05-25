@@ -105,17 +105,16 @@ Peng uses a {\em disjoint-set} data structure to answer incremental
 suffix maximum queries in his VGLCS algorithm.  The disjoint-set data
 structure was proposed by Gabow~\cite{Gabow1983ALA} and
 Tarjan~\cite{Tarjan1975EfficiencyOA} to solves the {\em union-and-find
-  problem}.  The set of data are stored in a sequence of disjoint
-sets, and the {\em maximum} of each disjoint set is at the root of the
-tree, and these maximum are in {\em decreasing} order.  When we add a
-value $x$, we make it as a disjoint set with a single element by
-itself, and as the {\em last} disjoint set in the sequence.  Then we
-start joining (with union operation) from the last set to its previous
-set until the maximum of the previous set is {\em larger} than $x$.
-It is easy to see that the {\sc Query(x)} operation is simply a {\em
-  find} operation that finds the root, which has the {\em maximum}, of
-the tree that $x$ belongs to.  The amortized time per union/find
-operation is $O(\alpha(n))$.
+problem}.  The set of data is stored in a sequence of disjoint sets, and
+the {\em maximum} of each disjoint set is at the root of the tree, and
+these maximum are in {\em decreasing} order.  When we add a value $x$,
+we make it as a disjoint set with a single element by itself, and as the
+{\em last} disjoint set in the sequence.  Then we start joining (with
+union operation) from the last set to its previous set until the maximum
+of the previous set is {\em larger} than $x$. It is easy to see that the
+{\sc Query(x)} operation is simply a {\em find} operation that finds the
+root, which has the {\em maximum}, of the tree that $x$ belongs to.  The
+amortized time per union/find operation is $O(\alpha(n))$.
 
 \subsection{A Parallel VGLCS Algorithm with Sparse Table}
 
@@ -128,18 +127,17 @@ parallelize in a naive row-by-row manner because an element of the
 dynamic table needs the values of elements in the {\em same} row to
 compute its value.
 
-It is also difficult to parallelize Peng's algorithm with the
-wavefront method because it requires {\em extra space} to keep track
-of row status, which is not required in a sequential algorithm.
-Recall that VGLCS requires a rectangle of data in $V$ to compute a new
-$V$ element.  If those $V$'s want to compute are on a diagonal wave
-front, those rectangles of data will require extra bookkeeping since
-the gap constraints of those elements on the wavefront could be very
-different.  Please refer to Figure~\ref{fig:fig-VGLCS-dp-wavefront}
-for an illustration of those data that must be present (in solid
-line).  Also the new elements computed must be appended to the data
-strictures according to the wavefront, which incurs more book keeping
-and overheads.
+It is also difficult to parallelize Peng's algorithm with the wavefront
+method because it requires {\em extra space} to keep track of row
+status, which is not required in a sequential algorithm. Recall that
+VGLCS requires a rectangle of data in $V$ to compute a new element.  If
+those $V$'s want to compute on a diagonal wavefront, those rectangles
+of data will require extra bookkeeping since the gap constraints of
+those elements on the wavefront could be very different. Please refer to
+Figure~\ref{fig:fig-VGLCS-dp-wavefront} for an illustration of those
+data that must be present (in solid line).  Also the new elements
+computed must be appended to the data strictures according to the
+wavefront, which incurs more bookkeeping and overheads.
 
 \begin{figure}[!thb]
   \centering \subfigure[The first stage]{
@@ -147,7 +145,7 @@ and overheads.
   } \subfigure[The second stage]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront-first.pdf}
   }
-  \caption{The book keeping data of the wavefront method}
+  \caption{The bookkeeping data of the wavefront method}
   \label{fig:fig-VGLCS-dp-wavefront}
 \end{figure}
 
@@ -189,9 +187,9 @@ that every column of $V$ has a data structure $C$ that supports
 incremental suffix maximum on $V$.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.
 
-In the second stage, our algorithm issues $m$ {\em range maximum
-queries}, one for each column, on $R$ to compute all $m$ elements of the
-$i$-th row of $V$ {\em in parallel}.  Note that unlike the sequential
+In the second stage, our algorithm issues {\em range maximum queries},
+one for each column, on $R$ to compute all $m$ elements of the $i$-th
+row of $V$ {\em in parallel}.  Note that unlike the sequential
 algorithm, we compute all elements in the $i$-th row of $V$ in parallel,
 so we cannot query the {\em suffix} of $R$.  Instead we need to query a
 {\em range} of $R$ for the maximum, where the range is the gap

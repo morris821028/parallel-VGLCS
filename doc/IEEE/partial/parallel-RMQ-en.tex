@@ -1,14 +1,14 @@
 \section{Range Maximum Query} \label{sec:parallelRMQ}
 
-In this section we will describe our approach to address the
-challenges in the second stage of Algorithm~\ref{alg:parallel-VGLCS},
-i.e., an efficient {\em range maximum query}.  The range maximum
-query problem is more complicated than the previous incremental suffix
-maximum query problem, because the suffix maximum query is a special
-case of the range maximum query.
+In this section we will describe our approach to address the challenges
+in the second stage of Algorithm~\ref{alg:parallel-VGLCS}, i.e., an
+efficient {\em range maximum query}.  The range maximum query problem is
+more complicated than the previous incremental suffix maximum query
+problem because the suffix maximum query is a special case of the range
+maximum query.
 
 The operations to support range maximum query is similar to those for
-suffix maximum query.  A {\tt make} operation creates an empty array
+suffix maximum query.  A {\sc make} operation creates an empty array
 $A$, an {\sc Append(V)} operation appends a value $V$ to the end of an
 array $A$.  Finally, a {\sc Query(L, R)} operation finds the {\em
   maximum} value among the $L$-th value to the $R$-th value of an
@@ -69,7 +69,7 @@ $j$-th element of a block is located at their {\em least common
 fourth (with data 3) to the six elements (with data 2) is located at
 the fifth element (with data 7).
 
-\begin{figure}[htbp]   
+\begin{figure}[!thb]   
   \centering
   \includegraphics[width=0.9\linewidth]{\GraphicPath/fig-interval-cartesian.pdf}
   \caption{Least common ancestor tables}
@@ -151,10 +151,9 @@ computer.
 \subsection{Rightmost-pops Encoding} \label{sec:cct}
 
 We propose a new encoding for blocks, called {\em rightmost-pops},
-instead of the binary string by Demaine~\cite{Demaine2009OnCT}, in
-order to improve the performance of range maximum query.  This
-rightmost-pops encoding is inspired by Fischer's sparse table and
-Cartesian tree.
+instead of the binary string by Demaine~\cite{Demaine2009OnCT}, in order
+to improve the performance of range maximum query.  This rightmost-pops
+encoding is inspired by Demaine's algorithm and Cartesian tree.
 
 The rightmost-pops encoding encodes a Cartesian tree by keeping only
 the {\em rightmost} path of the Cartesian tree in a {\em stack}, and

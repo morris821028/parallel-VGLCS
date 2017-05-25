@@ -52,7 +52,7 @@ shows our lexicographical labeling of binary search trees of sizes 1,
 We also need to determine the {\em least common ancestor} efficiently
 for answering range maximum queries when data are incrementally added.
 Let $t$ be the Catalan index of the binary search tree from our
-lexicographical labeling, so $t$ is between 0 and $s - 1$, where $s$
+lexicographical labeling, so $t$ is between 0 and $C_s-1$, where $s$
 is the number of search trees.  Let ${\cal A}(s, t, p, q)$ denote the
 least common ancestor of the node $p$ and $q$ within a binary search
 tree of size $s$ that has a Catalan index $t$.  For example, ${\cal
@@ -70,18 +70,18 @@ $\cal A$ is given in Algorithm~\ref{alg:parallel-LCA}.
 
 We first analyze the space complexity of
 Algorithm~\ref{alg:parallel-LCA}.  The table $\cal A$ keeps all LCA
-information for binary trees of sizes from 1 to $s$.  When tree size
-is $m$, the number of different binary trees is the $n$-th Catalan
-number $C_m$, which is $\frac{1}{m+1}\binom{2m}{m} =
-O(\frac{4^m}{m^{1.5}})$.  For each binary tree of size $m$, we store
-the least common ancestor of {\em every} pair of nodes into the table,
-so the size of the table is $O(m^2)$.  Therefore, the space complexity
-is $O(s \times \frac{1}{s+1}\binom{2s}{s} \times s^2)$, where $s$ is
-the number of elements in a block.  When we set $s$ to $\frac{\log
-  n}{4}$, the space complexity is $O(\sqrt{n} \; \log ^{1.5} n)$.  Note
-that the size of range query is up to tree size $s$.  However, we do
-need the space for tables of {\em smaller} tree sizes as intermediate
-data to compute the table of tree size $s$.
+information for binary trees of sizes from 1 to $s$.  When tree size is
+$m$, the number of different binary trees is the $m$-th Catalan number
+$C_m$, which is $\frac{1}{m+1}\binom{2m}{m}=O(\frac{4^m}{m^{1.5}})$.
+For each binary tree of size $m$, we store the least common ancestor of
+{\em every} pair of nodes into the table, so the size of the table is
+$O(m^2)$.  Therefore, the space complexity is $O(s \times
+\frac{1}{s+1}\binom{2s}{s} \times s^2)$, where $s$ is the number of
+elements in a block.  When we set $s$ to $\frac{\log n}{4}$, the space
+complexity is $O(\sqrt{n} \; \log ^{1.5} n)$.  Note that the size of
+range query is up to tree size $s$.  However, we do need the space for
+tables of {\em smaller} tree sizes as intermediate data to compute the
+table of tree size $s$.
 
 We now analyze the time complexity of the parallel version of
 Algorithm~\ref{alg:parallel-LCA}.  The time complexity of a sequential
@@ -160,10 +160,10 @@ and Equation~\ref{fun:tid}.
 
 We compute the Catalan index $t$ efficiently by the maintaining its
 {\em rightmost path} in a {\em stack}.  That is, we will {\em not}
-build these left subtrees along the right most path.  Instead we keep
+build these left subtrees along the rightmost path.  Instead we keep
 their Catalan indices and sizes in the stack (denoted by $D$).  That
 is, the stack $D$ has the Catalan {\em indices} and {\em sizes} of
-every {\em left subtree} along the right most path.  Please refer to
+every {\em left subtree} along the rightmost path.  Please refer to
 Algorithm~\ref{alg:cartesian-encode-offline} for the details on the
 stack.  In Algorithm~\ref{alg:cartesian-encode-offline} each node of
 the stack $D$ has three members -- $v$ as the data, $s$ as the size of
@@ -183,12 +183,12 @@ pointer $p$ to point to the top of the stack.
 Algorithm~\ref{alg:cartesian-encode-offline} computes the Catalan
 index for a given block of data with a stack $D$.  In the first double
 loop the outer loop goes through every input and the inner loop
-inserts a data at the {\em end} of the right most path, which is at
+inserts a data at the {\em end} of the rightmost path, which is at
 the top of the stack $D[p]$, and traverse towards the root by popping
 any {\em smaller} data out of the stack $D$.  When we rotate nodes
 along the rightmost path to update the Cartesian tree, we compute the
 new {\em index} $t$ and size $s$ of the new left subtree whenever the
-newly inserted data replaces a node on the right most path.  As a
+newly inserted data replaces a node on the rightmost path.  As a
 result the new Catalan index $t$ can be recomputed with
 Equation~\ref{fun:tid} by the indices and sizes of the left and right
 subtrees in the stack.  Please refer to the first while loop of
@@ -225,14 +225,14 @@ We generalize our Catalan tree labeling technique for incrementally
 added data by a {\em normalization}, which keeps the size of tree as a
 constant $n$.  That is, suppose we want to encode a series of
 Cartesian search trees of {\em increasing} sizes up to $n$, we can
-append a path of $n-i$ {\em right-child-only} nodes to the right most
+append a path of $n-i$ {\em right-child-only} nodes to the rightmost
 path of the existing tree of size $i$, so that the total number of
 node is {\em always} $n$.  That is, when the computation starts
 without any existing tree nodes, we will start with a path of $n$
 right-child-only nodes.  Please refer to
 Figure~\ref{fig:cartesianEncoding}(a) for an illustration.  After we
 have added $i$ nodes, we will have a path of $n - i$ right-child-only
-nodes attached to the right most path, as illustrated by
+nodes attached to the rightmost path, as illustrated by
 Figure~\ref{fig:cartesianEncoding}(b).  For ease of explanation we
 will refer to this added path as the {\em virtual path}.
 
@@ -268,7 +268,7 @@ dynamic Cartesian tree encoding.
  
 The dynamic Catalan index computation with tree normalization works as
 follows.  We will maintain the Catalan index of the current Cartesian
-tree (as $t^*$), and a stack of the right most path of the current tree
+tree (as $t^*$), and a stack of the rightmost path of the current tree
 (as $D$).  Then we will {\em update} these information every time we add
 a new data $x$ into the tree, by calling
 Algorithm~\ref{alg:cartesian-encode-online}, which is based on
@@ -317,7 +317,7 @@ $s$ and index $t$, so we push them into the stack. Please refer to
 Figure~\ref{fig:cartesianEncoding-after} for an illustration.  Next we
 update the overall Catalan index $t^*$.  After we popped all elements
 smaller than $x$, the original subtree of these popped nodes on the
-right most path, should be inserted as the left subtree of $x$.  Please
+rightmost path, should be inserted as the left subtree of $x$.  Please
 compare Figure~\ref{fig:cartesianEncoding-before} (before) and
 Figure~\ref{fig:cartesianEncoding-after} (after).
 
@@ -337,11 +337,11 @@ $t^*$, plus $t' - {\cal T}(s, t, s - i, {\cal C}_{s-i} - 1)$.
 
 Note that Algorithm~\ref{alg:cartesian-encode-online} does {\em not}
 increase the amortized time complexity to compute the Catalan index,
-even when we dynamically add data into the tree.  As described
-earlier, the time complexity of the static index computation
+even when we dynamically add data into the tree.  As described earlier,
+the time complexity of the static index computation
 (Algorithm~\ref{alg:cartesian-encode-online}) is $O(n)$ because each
 element is popped exactly once.  Similarly the total cost of calling
 Algorithm~\ref{alg:cartesian-encode-online} $n$ times is also $O(n)$,
 since each operation within the loop is $O(1)$.  As a result the
 amortized cost for an in-block query, including the computation of
-tree index, is also $O(1)$.
+Catalan index, is also $O(1)$.

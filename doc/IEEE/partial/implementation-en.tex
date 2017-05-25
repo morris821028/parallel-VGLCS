@@ -42,18 +42,17 @@ Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 
 % what is the full name for RemSP? What does it mean???
 
-The Rem's algorithm ({\sc Rem})~\cite{dijkstra1976a} achieves better
-cache performance by a {\em merge-by-index} technique.  Traditional
-disjoint set merging techniques are {\em merge-by-rank} and {\em
-  merge-by-size}~\cite{Tarjan1975EfficiencyOA}, which determine the
-root of new tree by the ranks and the sizes of the two trees
-respectively.  Despite that they do have asymptotically better time
-complexity, their performance in practice is not so impressive due to
-the previously mentioned cache issue.  In contrast Rem's algorithm
-assigns an {\em index} to each node, and merge two disjoint sets
-according the index of the roots of the two trees being merged.  That
-is, the root of the new merged tree will be the root with the
-``larger'' index.
+The Rem's algorithm~\cite{dijkstra1976a} achieves better cache
+performance by a {\em merge-by-index} technique.  Traditional disjoint
+set merging techniques are {\em merge-by-rank} and {\em
+merge-by-size}~\cite{Tarjan1975EfficiencyOA}, which determine the root
+of new tree by the ranks and the sizes of the two trees respectively.
+Despite that they do have asymptotically better time complexity, their
+performance in practice is not so impressive due to the previously
+mentioned cache issue.  In contrast Rem's algorithm assigns an {\em
+index} to each node, and merge two disjoint sets according the index of
+the roots of the two trees being merged.  That is, the root of the new
+merged tree will be the root with the ``larger'' index.
 
 In our experiments we still use merge-by-rank to merge disjoint set
 trees.  However, when we have two {\em equally ranked} disjoint set
