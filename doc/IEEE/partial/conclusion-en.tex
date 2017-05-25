@@ -1,15 +1,15 @@
 \section{Conclusion}
 \label{sec:Conclusion}
 
-In this paper, we propose two stages parallel algorithm instead of the
+In this paper, we propose two-stages parallel algorithm instead of the
 wavefront method, then it shrinks the length of the critical path of
 intuitive parallel algorithm.  In the two stages, we introduce the
 sparse table as the main data structure of the variable gapped longest
 common subsequence.  It can run efficiently because it improves the
 thread synchronize and workload imbalance compare to disjoint set
 version.  Simultaneously, we presented east-to-implements linear sparse
-table as compressed sparse table for our VGLCS problem which run in
-$O(n^2 s / p + n \times \max(\log n, s))$.
+table as rightmost-pops encoding sparse table for our VGLCS problem
+which run in $O(n^2 s / p + n \times \max(\log n, s))$.
 
 In the parallel environment, we provide the parallel building Catalan
 index algorithm for the linear time Fischer's sparse table algorithm.
@@ -21,6 +21,6 @@ operation.  Therefore, the VGLCS problem can be solved in theorem $O(n^2
 
 The incremental ranged maximum query run in amortized $O(1)$ by our
 sparse table, and it is more powerful than the incremental suffix
-maximum query. Therefore, the time complexity of the variable ranged
-gapped longest common subsequence problem is $O(n^2 / p + n \log n)$ as
-same as VGLCS problem.
+maximum query.  Therefore, the time complexity of our algorithm is
+$O(n^2 / p + n \log n)$ as same as Peng's algorithm for the VGLCS
+problem .

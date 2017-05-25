@@ -97,27 +97,6 @@ parallel implementation.
 
 \subsection{Parallel Range Query in VGLCS}
 
-%% %???
-
-%% In the VGLCS problem, the information of range query can be reused a
-%% lots of times.  We can reduce the amount of computation for our
-%% dynamic programming problem by remove duplicate computation and
-%% imposing a boundary limitation.  For example, the logarithm function
-%% is often used in the query of a sparse table, and we can preprocessing
-%% all the result of the requirements.  Therefore, the reduce-boundary
-%% Algorithm~\ref{alg:reduce-boundary} runs $O(n \log n)$ time, which $n$
-%% is the length of the input sequence.  It would not increase the time
-%% complexity because the VGLCS problem is solved in $O(n^2 / p + n \log
-%% n)$, which $p$ is the number of the processors.
-
-%% \iffalse
-%% 在 VGLCS 問題中，平行區間詢問的每個區間範圍都是已知的，每一個會重複使用好幾次，
-%% 由於已知詢問的區間資訊，我們可以藉由建表範圍縮小，
-%% 從算法 \ref{alg:reduce-boundary} 推導邊界來減少計算量。
-%% \fi
-
-%% \input{\AlgoPath/alg-reduce-boundary-2e}
-
 We further improve the performance of range query by maintaining two
 extra tables in the blocked sparse table approach described in
 Section~\ref{sec:blocked-sparse-table}.  There are now three tables --
