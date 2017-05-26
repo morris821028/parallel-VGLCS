@@ -10,14 +10,12 @@ TEXFLAG = --pool-size=5000000 --save-size=80000
 
 all: ${PDF}
 
-%.pdf: %.tex
+%.pdf: %.tex ntu.sty ntuvars.tex
 	cd ../graphics && make
 	cd ../partial && ./ntu.sh
 	xelatex $(TEXFLAG) $<
 	- bibtex $*
 	xelatex $(TEXFLAG) $<
-	- makeindex -s gind.ist -o $*.ind $*.idx
-	- makeindex -s gglo.ist -o $*.gls $*.glo
 	xelatex $(TEXFLAG) $<
 	while ( grep -q '^LaTeX Warning: Label(s) may have changed' $*.log) \
 	do xelatex $(TEXFLAG) $<; done

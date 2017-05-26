@@ -99,8 +99,8 @@ of size $m$.  Since both line \ref{alg:parallel-LCA-compute} and
 necessary to parallelize line~\ref{alg:parallel-LCA-compute} because the
 loop starting at line~\ref{alg:parallel-LCA-loop} will dominate the
 time.  As a result we only parallelize the double loops in
-line~\label{alg:parallel-LCA-for-2} and \label{alg:parallel-LCA-for-3}
-in Algorithm~\ref{alg:parallel-LCA}, and the time complexity of our
+line~\ref{alg:parallel-LCA-for-2} and \ref{alg:parallel-LCA-for-3} in
+Algorithm~\ref{alg:parallel-LCA}, and the time complexity of our
 parallel algorithm is $O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2) =
 O(\sqrt{n} \; (\log^{1.5} n) / p + \log^2 n )$, where $p$ is the number
 of processors.

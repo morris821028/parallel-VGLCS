@@ -113,20 +113,20 @@ extend rightmost-pops encoding for incremental data since we only need
 to maintain the number of pops incrementally for the last block.
 
 Table~\ref{tlb:ISMQcmp} compares the time for answering incremental
-suffix maximum query using rightmost-pops and LCA tables.  Despite
-that the LCA table method has a theoretically better amortized $O(1)$
-query time, we observe that the rightmost-pops runs up to $1.5$ times
-faster than the LCA table.  We believe that there are two reasons for
-this.  First, the LCA table implementation requires more instructions
-to compute the Catalan index.  In contrast the rightmost-pops
-encoding does not require the computation for tree index.  Instead it
-uses the stored number of pops to answer the query directly.  Second,
-despite that in Theory~\cite{Fischer2006TheoreticalAP} the optimal
-block size is ${\log n}\over{4}$, this block size is usually too large
-for LCA table implementations.  That is, we will need to build a very
-large LCA lookup table.  Even worse, we will {\em not} access all of
-it, which means it is very unlikely that we will access contiguous
-memory, which causes serious cache misses.
+suffix maximum query using rightmost-pops and LCA tables.  Despite that
+the LCA table method has a theoretically better amortized $O(1)$ query
+time, we observe that the rightmost-pops runs up to $1.5$ times faster
+than the LCA table.  We believe that there are two reasons for this.
+First, the LCA table implementation requires more instructions to
+compute the Catalan index.  In contrast the rightmost-pops encoding does
+not require the computation for tree index.  Instead it uses the stored
+number of pops to answer the query directly.  Second, despite that in
+Theory~\cite{Fischer2006TheoreticalAP} the optimal block size is
+$\frac{\log n}{4}$, this block size is usually too large for LCA table
+implementations.  That is, we will need to build a very large LCA lookup
+table.  Even worse, we will {\em not} access all of it, which means it
+is very unlikely that we will access contiguous memory, which causes
+serious cache misses.
 
 
 \input{\TablePath/tlb-ISMQcmp-new.tex}
