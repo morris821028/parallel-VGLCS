@@ -1,14 +1,13 @@
 \begin{algorithm}
 \SetAlgoNoLine
-\KwIn{$A[1 .. 16]$: input data block}
+\KwIn{$A[1 .. 16]$: input data block; $s$: the fixed block size as $\frac{\log n}{4} = 16$}
 \KwOut{$t$: a 64 bit rightmost-pops encoding of $A$}
 
-$\tt{LOGS} \gets 4$, $\tt{POWS} \gets 2^{\tt{LOGS}}$ \;
-Create an array $D$ of size $\tt{POWS}+1$ \;
+Create an array $D$ of size $s+1$ \;
 $p \gets 0$, $D[0] \gets \infty$ \;
 
 $t \gets 0$ \;
-\For{$i \gets 1$ to $\tt{POWS}$} {
+\For{$i \gets 1$ to $s$} {
   $v \gets A[i], \; c \gets 0$\;
   \While{$D[p] < v$} {
     $p \gets p - 1$, $c \gets c + 1$ \;

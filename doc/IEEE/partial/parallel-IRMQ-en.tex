@@ -296,17 +296,21 @@ ${\cal C}_{s'} - 1$ since it has the largest Catalan index of that
 size.
 
 Algorithm~\ref{alg:cartesian-encode-online} then inserts the $i$-th
-element $x$ in two stages.  In line 1 and 2 of the loop
+element $x$ in two stages.  The
+line~\ref{alg:cartesian-encode-online-pop-c1} and
+\ref{alg:cartesian-encode-online-pop-c2} of
 Algorithm~\ref{alg:cartesian-encode-online} pops the elements smaller
 than $x$ from the stack $D$, using $p$ as the stack pointer of $D$. Note
 that $t$ and $s$ are the index and size of the last subtree {\em
 without} the virtual path.  Consequently as we popped smaller elements
 from the stack and update $s$ and $t$ just as in
-Algorithm~\ref{alg:cartesian-encode-online}.  In line 3 and 4 of the
-loop Algorithm~\ref{alg:cartesian-encode-online} updates $s'$ and $t'$
+Algorithm~\ref{alg:cartesian-encode-online}.  In
+line~\ref{alg:cartesian-encode-online-pop-virtual-c1} and
+\ref{alg:cartesian-encode-online-pop-virtual-c2} of the loop
+Algorithm~\ref{alg:cartesian-encode-online} updates $s'$ and $t'$
 similarly.  However it must maintain a virtual path of $n - s'$
-right-child-only nodes to the right of the rightmost path.  Please
-refer to the Algorithm~\ref{alg:cartesian-encode-online} and
+right-child-only nodes to the right of the rightmost path.  Please refer
+to the Algorithm~\ref{alg:cartesian-encode-online} and
 Figure~\ref{fig:cartesianEncoding} for details.
 
 \input{\AlgoPath/alg-cartesian-encode-online-2e}

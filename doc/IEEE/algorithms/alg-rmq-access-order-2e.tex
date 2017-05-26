@@ -23,11 +23,11 @@ $t \gets \lfloor \log_2 (r' - l' + 1) \rfloor$ \;
   $v \gets \max(T_s[t][l' + 2^t - 1], T_s[t][r'])$ \;
 }
 
-\If(\tcc*[f]{Access $P$ only when necessary}){$T_s[t][l' + 2^t - 2] > v$} {
+\If(\tcp*[f]{Access $P$ only when necessary}){$T_s[t][l' + 2^t - 2] > v$} {
   $v \gets \max(v, P[r])$ \;
 }
 
-\If(\tcc*[f]{Access $S$ only when necessary}){$T_s[t][r' + 1] > v$} {
+\If(\tcp*[f]{Access $S$ only when necessary}){$T_s[t][r' + 1] > v$} {
   $v \gets \max(v, S[l])$ \;
 }
 

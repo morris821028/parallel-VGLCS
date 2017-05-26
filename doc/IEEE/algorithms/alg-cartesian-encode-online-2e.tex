@@ -1,5 +1,6 @@
 \begin{algorithm}[!thb]
 \SetAlgoNoLine
+\LinesNumbered
 \KwIn{
   $x$: the added data \;
   $t^*$: The Catalan index of the tree before adding $x$ \;
@@ -16,9 +17,13 @@ $s' \gets n - i + 1$, $t' \gets {\cal C}_{s'} - 1$ \;
 
 \While{$D[p].v < x$} {
   $t \gets {\cal T}(D[p].s, D[p].t, s, t)$ \;
-  $s \gets s + D[p].s+1$ \;
+    \label{alg:cartesian-encode-online-pop-c1}
+  $s \gets s + D[p].s+1$ \; 
+    \label{alg:cartesian-encode-online-pop-c2}
   $t' \gets {\cal T}(D[p].s, D[p].t, s', t')$ \;
+    \label{alg:cartesian-encode-online-pop-virtual-c1}
   $s' \gets s' + D[p].s+1$ \;
+    \label{alg:cartesian-encode-online-pop-virtual-c2}
   $p \gets p - 1$ \;
 }
 $p \gets p + 1$ \;
