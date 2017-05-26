@@ -2,11 +2,18 @@ TEX_FILE = $(wildcard *.tex)
 SPELL_CHECK_TARGETS=$(TEX_FILE)
 LATEX_ENGINE=pdflatex
 
-.PHONY: thesis clean spellcheck
+SAMPLES = \
+	slide.tex \
 
-thesis: thesis.tex
-	$(LATEX_ENGINE) thesis.tex
-	$(LATEX_ENGINE) thesis.tex
+PDF = ${SAMPLES:%.tex=%.pdf}
+
+.PHONY: all clean spellcheck
+
+all:  ${PDF}
+
+%.pdf: %.tex
+	$(LATEX_ENGINE) $<
+	$(LATEX_ENGINE) $<
 
 spellcheck: $(TEX_FILE)
 	@for f in $(TEX_FILE); do \
