@@ -1,15 +1,14 @@
 \section{Introduction} %Introduction
 \label{sec:Introduction}
 
-The {\em longest common subsequence} (LCS)~\cite{Hirschberg1975ALS} is
-a famous problem in string processing.  For example, the {\tt diff}
-utility show the difference between texts by finding their LCS.
-Revision control systems like SVN and Git use LCS to reconciling
-multiple changes.  In bioinformatics, the best-known application of
-the LCS problem is the sequence
-alignment~\cite{mount2001bioinformatics, Ann2010EfficientAF}, which
-identifies the region of similarity between the sequences of DNA, RND,
-or protein.
+The {\em longest common subsequence} (LCS)~\cite{Hirschberg1975ALS} is a
+famous problem in string processing.  For example, the {\tt diff}
+utility show the difference between texts by finding their LCS. Revision
+control systems like SVN and Git use LCS to reconciling multiple
+changes.  In bioinformatics, the best-known application of the LCS
+problem is the sequence alignment~\cite{mount2001bioinformatics,
+Ann2010EfficientAF}, which identifies the region of similarity between
+the sequences of DNA, RND, or protein.
 
 Iliopoulos and Rahman~\cite{Rahman2006AlgorithmsFC} introduced many
 constrained versions of LCS.  For example, a {\em fixed gap LCS} (FGLCS)
@@ -32,19 +31,19 @@ values of all characters are $k$.
 
 We use an example to illustrate the gap function and VGLCS.  Let string
 $A$ be {\tt GCGCAATG} with gap values $(3, 1, 1, 2, 0, 0, 2, 1)$, and
-let string $B$ be {\tt GCCCTAGCG} with gap values $(2, 0, 3, 2, 0, 1,
-2, 0, 1)$.  Please refer to Figure~\ref{fig:VGLCSex} for an
-illustration.  Now the LCS $GCCT$ is a VGLCS because every character
-in the LCS can find its predecessor in the LCS with distance at most
-its gap value plus 1.
+let string $B$ be {\tt GCCCTAGCG} with gap values $(2, 0, 3, 2, 0, 1, 2,
+0, 1)$.  Please refer to Figure~\ref{fig:VGLCSex} for an illustration.
+Now, the LCS $GCCT$ is a VGLCS because every character in the LCS can
+find its predecessor in the LCS with distance at most its gap value plus
+1.
 
 This paper focuses on {\em efficient parallel algorithms} that find
 VGLCS.  Peng~\cite{Peng2011TheLC} gives a $O(nm \alpha(n))$ algorithm
 that is easy to implement and an asymptotically better $O(nm)$
 algorithm, where $\alpha$ is the inverse of Ackermainn's
-function~\cite{Banachowski1980ACT}.  In this paper we propose our
+function~\cite{Banachowski1980ACT}.  In this paper, we propose our
 $O(nm)$ algorithm which is {\em easy} to implement and runs {\em
-  efficiently} in a {\em parallel} environment.
+efficiently} in a {\em parallel} environment.
 
 The parallelization of LCS on most multi-core platforms focuses on
 {\em wavefront} parallelism.  The wavefront parallelism is motivated
