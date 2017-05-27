@@ -21,6 +21,8 @@ all: fig-VGLCSex.pdf \
 	fig-parallel-n.pdf \
 	fig-parallel-p.pdf \
 	fig-ISMQ.pdf \
+	fig-ISMQ-DS.pdf \
+	fig-ISMQ-DS-after.pdf \
 	fig-LCS-dependency.pdf \
 	fig-LCS-dependency2.pdf \
 	fig-LCS-dependency-eff.pdf \

@@ -15,6 +15,9 @@ all:  ${PDF}
 	$(LATEX_ENGINE) $<
 	$(LATEX_ENGINE) $<
 
+slide.pdf: \
+	./partial/*.tex
+
 spellcheck: $(TEX_FILE)
 	@for f in $(TEX_FILE); do \
 		aspell --mode=tex --personal=./.aspell.en.pws check $$f; \
