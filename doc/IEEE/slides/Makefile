@@ -16,7 +16,8 @@ all:  ${PDF}
 	$(LATEX_ENGINE) $<
 
 slide.pdf: \
-	./partial/*.tex
+	./partial/*.tex \
+	./algorithms/*.tex
 
 spellcheck: $(TEX_FILE)
 	@for f in $(TEX_FILE); do \

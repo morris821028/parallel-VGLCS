@@ -7,11 +7,11 @@
 Create an array of $m$ data structure $C[m]$ to support ISMQ \;
 Create an empty table $V[n][m]$ \;
 \For{$i \gets 1$ to $n$} {
-  \ForPar{$j \gets 1$ to $m$} {
+  \ForPar(\tcp*[f]{The first stage}){$j \gets 1$ to $m$} {
     $M[j] \gets$ suffix maximum of length $G_A(i) + 1$ from $C[j]$ \;
   }
   Build a sparse table $T$ with data of $M$ in parallel with Algorithm~\ref{alg:parallel-sparse-table}\; 
-  \ForPar{$j \gets 1$ to $m$} {
+  \ForPar(\tcp*[f]{The second stage}){$j \gets 1$ to $m$} {
     \If{$A[i] = B[j]$} {
         $t \gets $ the range maximum among the $G_B(j) + 1$ elements before $M[j]$ by querying $T$ \;
         $V[i][j] \gets t + 1$ \;
