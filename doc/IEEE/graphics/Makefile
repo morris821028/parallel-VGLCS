@@ -17,7 +17,10 @@ all: fig-VGLCSex.pdf \
 	fig-cartesian-encoding-before.pdf \
 	fig-cartesian-encoding-after.pdf \
 	fig-cartesian-encoding-static.pdf \
+	fig-cartesian-encoding-buildtree.pdf \
 	fig-bst-encoding.pdf \
+	fig-bst-LCA-decomposition.pdf \
+	fig-bst-LCA-decomposition-rec.pdf \
 	fig-parallel-n.pdf \
 	fig-parallel-p.pdf \
 	fig-ISMQ.pdf \
@@ -37,6 +40,7 @@ all: fig-VGLCSex.pdf \
 	fig-remsp-before.pdf \
 	fig-remsp-after.pdf \
 	fig-compressed-sp-prefix-suffix.pdf \
+	fig-fischer-ondemand.pdf
 
 
 fig-bst-encoding.pdf: fig-bst-n1.tex \
