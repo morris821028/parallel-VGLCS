@@ -268,3 +268,21 @@
 		}
 	\end{center}
 \end{frame}
+
+\subsection{Parallel VGLCS Algorithm with Blocked Sparse Table}
+\begin{frame}
+	\frametitle{Parallel VGLCS Algorithm with Blocked Sparse Table}
+	The blocked sparse table solves range maximum query on incremental
+	data.  It supports amortized $O(1)$ insertion and $O(1)$ query.
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			The {\em first} stage of the VGLCS algorithm can be solved
+			in $O(n)$ for the suffix maximum of {\em every column}.
+		\item 
+			The {\em second} stage of the VGLCS algorithm can be solved
+			in $O(m/p + \log m)$ for the range maximum of the {\em row}.
+		\item
+			Consequently, the parallel VGLCS algorithm runs in $O(nm/p+n\log m)$
+	\end{itemize}
+\end{frame}

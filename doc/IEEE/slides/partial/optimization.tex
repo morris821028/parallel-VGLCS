@@ -66,12 +66,11 @@
 
 \begin{frame}
 	\frametitle{The Order to Access these Tables}
-	The {\em order} to access these maximum tables is important.
+	The {\em order} to access these maximum tables is important.  Our
+	implementation improves performance by ``peeking'' into two
+	neighboring elements in the $T_{S}$ table.
 	\begin{itemize}
 		\setlength\itemsep{1em}
-		\item
-			Our implementation improves performance by ``peeking'' into
-			two neighboring elements in the $T_{S}$ table.
 		\item 
 			Access two elements in the sparse table $T_S$ in {\em the
   			same level} because accessing the first will bring in the
