@@ -112,14 +112,14 @@ maximum query by looking into its corresponding LCA table. Please refer
 to Figure~\ref{fig:ancesstor-cartesian} for an illustration.
 
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} builds least
-ancestor tables by choosing $s = \frac{\log n}{4}$ as the block size
-for performance reason.  Recall that $C_s = \frac{1}{s+1}\binom{2s}{s}
-= O(\frac{4^s}{s^{1.5}})$.  As a result the time to scan data and to
-build Cartesian tree and LCA tables is $O(n)$, and the space
-requirement is $O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$.  That is, a
-sequential Fischer's algorithm requires $O(n)$ time in preprocessing,
-and $O(1)$ time to answer a query.  It is easy to see that both
-preprocessing time and query answering are optimal.
+ancestor tables by choosing $s = \frac{\log n}{4}$ as the block size for
+performance reason.  Recall that ${\cal C}_s =
+\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$.  As a result the
+time to scan data and to build Cartesian tree and LCA tables is $O(n)$,
+and the space requirement is $O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$.  That
+is, a sequential Fischer's algorithm requires $O(n)$ time in
+preprocessing, and $O(1)$ time to answer a query.  It is easy to see
+that both preprocessing time and query answering are optimal.
 
 One drawback of Fischer's algorithm is that it causes {\em serious
   cache miss} when the number of data is large.  Fischer's algorithm
