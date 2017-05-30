@@ -1,0 +1,109 @@
+\section{Math Tricks}
+
+\subsection{Catalan Number}
+\begin{frame}
+	\frametitle{Catalan Number}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			${\cal C}_0 = 1, \; {\cal C}_1 = 1$
+		\item 
+			${\cal C}_n = {\cal C}_0\;{\cal C}_{n-1} + {\cal
+			C}_{1}\;{\cal C}_{n-2} + \cdots + {\cal C}_{n-1}\;{\cal
+			C}_{0}$
+		\item
+			${\cal C}_n = \frac{1}{n \; + \;1} \binom{2n}{n} \sim \frac{4^n}{n^{\nicefrac{3}{2}} \sqrt{\pi}}$
+		\item 
+			${\cal C}_n = \frac{4n \;-\; 2}{\phantom{4} n \;+\; 1} {\cal C}_{n-1}$
+	\end{itemize}
+\end{frame}
+
+\subsection{Ackermann Function}
+\begin{frame}
+	\frametitle{Ackermann Function}
+	\begin{align*}
+		A(m, n) = \left\{\begin{matrix*}[l]
+			n+1 & \text{if } m = 0\\ 
+			A(m-1, 1) & \text{if } m > 0 \text{ and } n = 0\\ 
+			A(m-1, A(m, n-1)) & \text{if } m > 0 \text{ and } n > 0.
+			\end{matrix*}\right.
+	\end{align*}
+
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			$f(n) = A(n, n)$
+		\item 
+			$\alpha(n) = f^{-1}(n)$
+		\item
+			$A(4, 4) = 2^{2^{2^{2^{16}}}}$, $\alpha(2^{2^{2^{2^{16}}}}) = 4$
+	\end{itemize}
+\end{frame}
+
+\section{Code Tricks}
+
+\subsection{Intel SIMD}
+\begin{frame}
+	\frametitle{Intel Intrinsics}
+	\definecolor{links}{HTML}{2A1B81}
+	\hypersetup{colorlinks,linkcolor=blue,urlcolor=links}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			\href{https://software.intel.com/sites/landingpage/IntrinsicsGuide/}{Intel Intrinsics Guide} \\
+			\url{https://software.intel.com/sites/landingpage/IntrinsicsGuide/}
+		\item
+			C style functions that provide access to many Intel
+			instructions
+	\end{itemize}
+\end{frame}
+
+\subsection{Find the Horizontal Minimum/Maximum Value}
+\begin{frame}
+	\frametitle{Find the Horizontal Minimum/Maximum by SSE 2}
+	{\tt SSE} 2
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			Find the minimum value with reduction
+		\item
+			\texttt{\_\_m128i \_mm\_shufflehi\_epi16 (\_\_m128i a, int imm8)}
+		\item
+			\texttt{\_\_m128d \_mm\_cmple\_pd (\_\_m128d a, \_\_m128d b)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Find the Horizontal Minimum/Maximum by SSE 3}
+	{\tt SSE} 3
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item 
+			The short width type has be supported by SSE 3.
+		\item
+			\texttt{\_\_m128i \_mm\_shuffle\_epi8 (\_\_m128i a, \_\_m128i b)}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Find the Horizontal Minimum/Maximum by SSE 4.1}
+	{\tt SSE} 4.1
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			\texttt{\_\_m128i \_mm\_minpos\_epu16 (\_\_m128i a)}
+	\end{itemize}
+	\lstinputlisting{./codes/minpos.c}
+\end{frame}
+
+\subsection{Round Up/Down with Power of Two}
+\begin{frame}
+	\frametitle{Round Up/Down with Power of Two}
+	\lstinputlisting{./codes/roundwith2.c}
+\end{frame}
+
+\subsection{Exploit Register Allocation in RMQ Algorithm}
+\begin{frame}
+	\frametitle{Exploit Register Allocation in RMQ Algorithm}
+	\lstinputlisting{./codes/reginrmq.c}
+\end{frame}

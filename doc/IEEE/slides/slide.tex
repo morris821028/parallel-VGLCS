@@ -90,6 +90,7 @@
 % Mathematics
 \usepackage{amsmath}
 \usepackage{mathtools}
+\usepackage[nice]{nicefrac}
 
 % Appendix
 \usepackage{appendixnumberbeamer}
@@ -97,6 +98,16 @@
 % Table
 \usepackage{array}
 \usepackage{diagbox}[2011/11/22]
+
+% Code Block Setting
+\usepackage{listings}
+\lstset{language=C,
+numberstyle=\footnotesize,
+basicstyle=\ttfamily\footnotesize,
+numbers=left,
+stepnumber=1,
+frame=shadowbox,
+breaklines=true}
 
 % ========= Variable ===================================================
 \title{Parallel \\
@@ -139,7 +150,7 @@ National Taiwan University}
 \input{./partial/experiment.tex}
 \input{./partial/conclusion.tex}
 
-%\appendix
-%\input{partial/progress.tex}
+\appendix
+\input{partial/appendix.tex}
 
 \end{document}
