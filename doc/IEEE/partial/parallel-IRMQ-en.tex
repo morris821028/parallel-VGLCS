@@ -52,17 +52,17 @@ shows our lexicographical labeling of binary search trees of sizes 1,
 We also need to determine the {\em least common ancestor} efficiently
 for answering range maximum queries when data are incrementally added.
 Let $t$ be the Catalan index of the binary search tree from our
-lexicographical labeling, so $t$ is between 0 and $C_s-1$, where $s$
-is the number of search trees.  Let ${\cal A}(s, t, p, q)$ denote the
-least common ancestor of the node $p$ and $q$ within a binary search
+lexicographical labeling, so $t$ is between 0 and ${\cal C}_s-1$, where
+$s$ is the number of search trees.  Let ${\cal A}(s, t, p, q)$ denote
+the least common ancestor of the node $p$ and $q$ within a binary search
 tree of size $s$ that has a Catalan index $t$.  For example, ${\cal
-  A}(3, 2, 0, 2) = 1$ from Figure~\ref{fig:labelingBST}.  Now let
-$s_l$ denote the size of the left subtree, $s_r$ denote the size of
-the right subtree, $t_l$ be the Catalan index of its left subtree, and
-$t_r$ be the Catalan index of its right subtree.  With these notations
-we can define the least common ancestor $\cal A$ {\em recursively} as
-in Equation~\ref{fun:LCA}.  A Pseudo code for computing the LCA table
-$\cal A$ is given in Algorithm~\ref{alg:parallel-LCA}.
+A}(3, 2, 0, 2) = 1$ from Figure~\ref{fig:labelingBST}.  Now let $s_l$
+denote the size of the left subtree, $s_r$ denote the size of the right
+subtree, $t_l$ be the Catalan index of its left subtree, and $t_r$ be
+the Catalan index of its right subtree.  With these notations we can
+define the least common ancestor $\cal A$ {\em recursively} as in
+Equation~\ref{fun:LCA}.  A Pseudo code for computing the LCA table $\cal
+A$ is given in Algorithm~\ref{alg:parallel-LCA}.
 
 \input{\FormulaPath/fun-LCA.tex}
 
@@ -72,10 +72,11 @@ We first analyze the space complexity of
 Algorithm~\ref{alg:parallel-LCA}.  The table $\cal A$ keeps all LCA
 information for binary trees of sizes from 1 to $s$.  When tree size is
 $m$, the number of different binary trees is the $m$-th Catalan number
-$C_m$, which is $\frac{1}{m+1}\binom{2m}{m}=O(\frac{4^m}{m^{1.5}})$.
-For each binary tree of size $m$, we store the least common ancestor of
-{\em every} pair of nodes into the table, so the size of the table is
-$O(m^2)$.  Therefore, the space complexity is $O(s \times
+${\cal C}_m$, which is
+$\frac{1}{m+1}\binom{2m}{m}=O(\frac{4^m}{m^{1.5}})$. For each binary
+tree of size $m$, we store the least common ancestor of {\em every} pair
+of nodes into the table, so the size of the table is $O(m^2)$.
+Therefore, the space complexity is $O(s \times
 \frac{1}{s+1}\binom{2s}{s} \times s^2)$, where $s$ is the number of
 elements in a block.  When we set $s$ to $\frac{\log n}{4}$, the space
 complexity is $O(\sqrt{n} \; \log ^{1.5} n)$.  Note that the size of
@@ -91,8 +92,8 @@ Equation~\ref{fun:LCA} is $O(1)$.  The time complexity hence becomes
 $O(\sqrt{n} \; \log ^{1.5} n)$ when we set $s$ to $\frac{\log n}{4}$.
 
 Now for the parallel version, we observe that the computation of the
-$C_m$ trees of size $m$ are {\em independent}, hence can be done in
-parallel.  However, the time to find the sizes and Catalan indices of
+${\cal C}_m$ trees of size $m$ are {\em independent}, hence can be done
+in parallel.  However, the time to find the sizes and Catalan indices of
 subtrees (in line \ref{alg:parallel-LCA-compute}) is $O(m)$ for a tree
 of size $m$.  Since both line \ref{alg:parallel-LCA-compute} and
 \ref{alg:parallel-LCA-loop} are in the same loop body, it is not
@@ -128,13 +129,13 @@ Cartesian tree corresponding to the data of the block, and then find the
 index of the Cartesian tree.  That is, we build the tree and compute it
 from the the sizes and indices of the left and right subtrees.  This
 requires a recursive traversal on the tree and has a $O(n)$ time
-complexity, where $n$ is the number of tree nodes.  Let $\cal T$ denote
-the Catalan index.  After knowing these information, we can compute the
-Catalan index $\cal T$ by Equation~\ref{fun:tid}.  Recall that $s_l$
-denotes the size of the left subtree, $s_r$ denotes the size of the
-right subtree, $t_l$ is the Catalan index of the left subtree, and $t_r$
-is the Catalan index of the right subtree.  Recall that ${\cal C}_i$
-denotes the Catalan number of tree of size $i$.
+complexity, where $n$ is the number of tree nodes.  Let ${\cal T}$
+denote the Catalan index.  After knowing these information, we can
+compute the Catalan index ${\cal T}$ by Equation~\ref{fun:tid}.  Recall
+that $s_l$ denotes the size of the left subtree, $s_r$ denotes the size
+of the right subtree, $t_l$ is the Catalan index of the left subtree,
+and $t_r$ is the Catalan index of the right subtree.  Recall that ${\cal
+C}_i$ denotes the Catalan number of tree of size $i$.
 
 % \input{algorithms/alg-encode-tid}
 
@@ -235,7 +236,7 @@ Figure~\ref{fig:cartesianEncoding}(b).  For ease of explanation we
 will refer to this added path as the {\em virtual path}.
 
 \begin{figure*}[!thb]
-  \centering \subfigure[Initiation $t_{{\it root}_0}= C_n - 1$]{
+  \centering \subfigure[Initiation $t_{{\it root}_0}= {\cal C}_n - 1$]{
     \includegraphics[width=0.26\linewidth]{\GraphicPath/fig-cartesian-encoding.pdf}
     \label{fig:cartesianEncoding-init}
   } \subfigure[$t_{{\it root}_i}$]{
