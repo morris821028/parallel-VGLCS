@@ -16,15 +16,15 @@ $O(nm \alpha(n))$ VGLCS algorithm that is easy to implement and an
 asymptotically better $O(nm)$ algorithm, where $\alpha$ is the inverse
 of Ackermann's function~\cite{Banachowski1980ACT}.
 
-It is difficult to parallelize traditional row-by-row approach for
-VGLCS due to the difficulty in efficient suffix and range query in a
-parallel environment.  Peng's sequential VGLCS algorithm uses disjoint
-sets by Gabow~\cite{Gabow1983ALA} and
-Tarjan~\cite{Tarjan1975EfficiencyOA} for suffix maximum query.  We
-instead use {\em sparse table}~\cite{Berkman1993RecursiveSP} to
-support incremental suffix/range maximum queries in our VGLCS
-algorithm.  The sparse is simple to implement and provides sufficient
-parallelism for good performance in a parallel environment.
+It is difficult to parallelize traditional row-by-row approach for VGLCS
+due to the difficulty in efficient suffix and range query in a parallel
+environment.  Peng's sequential VGLCS algorithm uses disjoint sets by
+Gabow~\cite{Gabow1983ALA} and Tarjan~\cite{Tarjan1975EfficiencyOA} for
+suffix maximum query.  We instead use {\em sparse
+table}~\cite{Berkman1993RecursiveSP} to support incremental suffix/range
+maximum queries in our VGLCS algorithm.  The sparse table is simple to
+implement and provides sufficient parallelism for good performance in a
+parallel environment.
 
 Fischer~\cite{Fischer2006TheoreticalAP} proposed blocked sparse table
 for better performance than the unblocked sparse
@@ -32,21 +32,20 @@ table~\cite{Berkman1993RecursiveSP}.  We also adopted blocked sparse
 table and tested its implementation in our experiments.  Fischer's
 algorithm~\cite{Fischer2006TheoreticalAP} builds least ancestor tables
 for answering range maximum query.  We instead use a {\em
-  right-most-pops} encoding for Cartesian trees.
+rightmost-pops} encoding for Cartesian trees.
 
 Demaine~\cite{Demaine2009OnCT} also proposed {\em cache-aware}
 operations on Cartesian tree~\cite{Vuillemin1980AUL}, to address the
 cache miss issues in Fischer's least common ancestor table
-building~\cite{Fischer2006TheoreticalAP}.
-Masud~\cite{Hasan2010CacheOA} presents a new encoding method that
-reduces the number of instructions.  Our right-most-pops encoding for
-Cartesian trees also reduces cache misses, and with a much simpler
-implementation than Demaine's encoding.
+building~\cite{Fischer2006TheoreticalAP}.  Masud~\cite{Hasan2010CacheOA}
+presents a new encoding method that reduces the number of instructions.
+Our rightmost-pops encoding for Cartesian trees also reduces cache
+misses, and with a much simpler implementation than Demaine's encoding.
 
 Finally the authors would like to point out that to the best of our
-knowledge, we are not aware of any {\em dynamic} encoding for
-Cartesian trees.  All previous works are {\em off-line}, i.e., they
-assume all data are given in advance, as a result, they cannot cope
-with incrementally added data.  In contrast our dynamic Catalan Index
+knowledge, we are not aware of any {\em dynamic} encoding for Cartesian
+trees.  All previous works are {\em off-line}, i.e., they assume all
+data are given in advance, as a result, they cannot cope with
+incrementally added data.  In contrast, our dynamic Catalan index
 computation technique in Section~\ref{sec:dynamic} does support
 efficient range query on an incremental data sets.
