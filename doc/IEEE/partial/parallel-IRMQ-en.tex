@@ -206,19 +206,18 @@ index for Cartesian trees with the entire block of data and the block
 size.  The algorithm runs in $O(s)$ time since an element is
 pushed/popped at most {\em once}.
 
-
-
-\subsection{Dynamic Catalan Index Computation}
+\subsection{Dynamic Catalan Index Computation} \label{sec:dynamic}
 
 Several encoding methods were proposed for indexing Cartesian search
 trees.  Fischer~\cite{Fischer2006TheoreticalAP} introduced the first
 encoding method and Masud~\cite{Hasan2010CacheOA} presents a new
-encoding method that reduces the number of instructions. Unfortunately
-all these algorithms are {\em off-line}, i.e., they assume all data are
-given in advance, as a result, they cannot cope with incrementally added
-data.  In addition, they require a preprocessing of time $O(n)$, where
-$n$ is the number of data.  The preprocessing requires extra memory to
-process the input data block, or reads external files from disk.
+encoding method that reduces the number of instructions.
+Unfortunately all these algorithms are {\em off-line}, i.e., they
+assume all data are given in advance, as a result, they cannot cope
+with incrementally added data.  In addition, they require a
+preprocessing of time $O(n)$, where $n$ is the number of data.  The
+preprocessing requires extra memory to process the input data block,
+or reads external files from disk.
 
 We generalize our Catalan tree labeling technique for incrementally
 added data by a {\em normalization}, which keeps the size of tree as a
