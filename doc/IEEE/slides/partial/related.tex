@@ -1,0 +1,66 @@
+\section{Related Work}
+
+\subsection{Parallel Method}
+\begin{frame}
+	\frametitle{Parallel Method}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			The wavefront computation is {\em not} cache-friendly.
+			\begin{itemize}
+				\item 
+					To address this cache issue, Maleki et al. developed
+					a technique to exploit more parallelism in the
+					dynamic programming.
+			\end{itemize}
+		\item
+			The alternative to wavefront method is the traditional
+			row-by-row approach.
+	\end{itemize}
+\end{frame}
+
+\subsection{Variable Gapped Longest Common Subsequence}
+\begin{frame}
+	\frametitle{Suffix Maximum Query in the VGLCS Algorithm}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			Peng's sequential VGLCS algorithm uses disjoint sets for
+			suffix maximum query. 
+		\item
+			We instead use {\em sparse table} to support incremental
+			suffix/range maximum queries in our VGLCS algorithm.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Blocked Sparse Table}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			Fischer proposed blocked sparse table for better performance
+			than the unblocked sparse table, and Fischer's algorithm
+			builds least ancestor tables for answering range maximum
+			query.
+		\item
+			We instead use a {\em rightmost-pops} encoding for Cartesian
+			trees.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Cache Issues on Blocked Sparse Table}
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\item
+			Demaine proposed {\em cache-aware} operations on Cartesian
+			tree.
+		\item
+			Masud presents a new encoding method that reduces the number
+			of instructions.
+		\item 
+			Our rightmost-pops encoding for Cartesian trees also reduces
+			cache misses, and with a much simpler implementation than
+			Demaine's encoding.
+	\end{itemize}
+\end{frame}

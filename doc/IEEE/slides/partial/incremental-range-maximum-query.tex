@@ -38,7 +38,7 @@
 	A binary tree $x$ appears {\em before} another binary tree $y$ if
 	any of the the following condition is true.
 	\begin{itemize}
-		\setlength\itemsep{1em}
+		\setlength\itemsep{0.5em}
 		\item 
 			$x$ has more nodes than $y$ in the left subtree.
 		\item 
@@ -176,11 +176,16 @@
 			answer queries with Algorithm~\ref{alg:parallel-LCA} and
 			Equation~\ref{fun:tid}.
 	\end{itemize}
+\end{frame}
+
+\begin{withoutheadline}
+\begin{frame}
+	\frametitle{Illustration for Build the Tree}
 	\begin{center}
-		\scalebox{0.8} { \begin{minipage}{0.8\textwidth}
+		\scalebox{1} { \begin{minipage}{\textwidth}
 			\begin{figure}[!thb]
 			  \centering
-			  \includegraphics[width=0.5\linewidth]{\GraphicPath/fig-cartesian-encoding-static.pdf}
+			  \includegraphics[width=\linewidth]{\GraphicPath/fig-cartesian-encoding-static.pdf}
 			  \caption{Compute Catalan index for a tree.  $A_l$ and $B_l$ denote
 			    the left subtrees of $A$ and $B$ respectively.}
 			  \label{fig:fig-cartesian-encoding-static}
@@ -189,6 +194,7 @@
 		}
 	\end{center}
 \end{frame}
+\end{withoutheadline}
 
 \begin{withoutheadline}
 \begin{frame}
@@ -259,15 +265,17 @@
 	\end{center}
 \end{frame}
 
+\begin{withoutheadline}
 \begin{frame}
 	\frametitle{Pseudocode of Dynamic Catalan Index Computation}
 	\begin{center}
-		\scalebox{0.7} { \begin{minipage}{\textwidth}
+		\scalebox{.8} { \begin{minipage}{\textwidth}
 			\input{\AlgoPath/alg-cartesian-encode-online-2e}
 			\end{minipage}
 		}
 	\end{center}
 \end{frame}
+\end{withoutheadline}
 
 \subsection{Parallel VGLCS Algorithm with Blocked Sparse Table}
 \begin{frame}
