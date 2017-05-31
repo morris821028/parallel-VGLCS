@@ -101,7 +101,7 @@
 	$O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2)$.
 	\\~\\
 	We choose the block size $s = {{\frac{\log n}{4}}}$, so time
-	complexity is $O(\sqrt{n} \; (\log^{1.5} n) / p + \log^2 n )$, where
+	complexity is $O(\sqrt{n} \; (\log^{\nicefrac{3}{2}} n) / p + \log^2 n )$, where
 	$p$ is the number of processors.
 	\begin{center}
 		\scalebox{.7} { \begin{minipage}{1.4\textwidth}
@@ -180,7 +180,7 @@
 
 \begin{withoutheadline}
 \begin{frame}
-	\frametitle{Illustration for Build the Tree}
+	\frametitle{Illustration for Keep the Rightmost Path}
 	\begin{center}
 		\scalebox{1} { \begin{minipage}{\textwidth}
 			\begin{figure}[!thb]
@@ -221,7 +221,7 @@
 		\item 
 			Unfortunately all these algorithms are {\em off-line}, or
 			could not use the encoding, which is presented by parallel
-			building algorithm.
+			building LCA algorithm.
 	\end{itemize}
 \end{frame}
 

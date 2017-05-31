@@ -46,7 +46,7 @@
 			rectangle, and place them into another array $R$.
 		\item 
 			Second, we compute the maximum of the {\em suffix} of length
-			$G_B$ on $R$, which is exactly $V[i][j]$.
+			$G_B(j)$ on $R$, which is exactly $V[i][j]$.
     \end{enumerate}
 \end{frame}
 
@@ -55,7 +55,6 @@
     \begin{figure}[!thb]
 		\includegraphics[width=0.5\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
 		\caption{Compute $V$ with incremental suffix maximum queries.}
-		\label{fig:basic-dp-VGLCS}
 	\end{figure}
 \end{frame}
 
