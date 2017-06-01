@@ -73,23 +73,25 @@ Algorithm~\ref{alg:parallel-LCA}.  The table $\cal A$ keeps all LCA
 information for binary trees of sizes from 1 to $s$.  When tree size is
 $m$, the number of different binary trees is the $m$-th Catalan number
 ${\cal C}_m$, which is
-$\frac{1}{m+1}\binom{2m}{m}=O(\frac{4^m}{m^{1.5}})$. For each binary
-tree of size $m$, we store the least common ancestor of {\em every} pair
-of nodes into the table, so the size of the table is $O(m^2)$.
-Therefore, the space complexity is $O(s \times
-\frac{1}{s+1}\binom{2s}{s} \times s^2)$, where $s$ is the number of
-elements in a block.  When we set $s$ to $\frac{\log n}{4}$, the space
-complexity is $O(\sqrt{n} \; \log ^{1.5} n)$.  Note that the size of
-range query is up to tree size $s$.  However, we do need the space for
-tables of {\em smaller} tree sizes as intermediate data to compute the
-table of tree size $s$.
+$\frac{1}{m+1}\binom{2m}{m}=O(\frac{4^m}{m^{\nicefrac{3}{2}}})$. For
+each binary tree of size $m$, we store the least common ancestor of {\em
+every} pair of nodes into the table, so the size of the table is
+$O(m^2)$. Therefore, the space complexity is $O(s \;
+\frac{1}{s+1}\binom{2s}{s} \; s^2)$, where $s$ is the number of elements
+in a block.  When we set $s$ to $\frac{\log n}{4}$, the space complexity
+is $O(\sqrt{n} \;
+\log^{\nicefrac{3}{2}} n)$.  Note that the size of range query is up to
+tree size $s$.  However, we do need the space for tables of {\em
+smaller} tree sizes as intermediate data to compute the table of tree
+size $s$.
 
 We now analyze the time complexity of the parallel version of
 Algorithm~\ref{alg:parallel-LCA}.  The time complexity of a sequential
 version of Algorithm~\ref{alg:parallel-LCA} is $O(\frac{s^3}{s+1}
 \binom{2s}{s})$ because the number of operations in
 Equation~\ref{fun:LCA} is $O(1)$.  The time complexity hence becomes
-$O(\sqrt{n} \; \log ^{1.5} n)$ when we set $s$ to $\frac{\log n}{4}$.
+$O(\sqrt{n} \; \log^{\nicefrac{3}{2}} n)$ when we set $s$ to $\frac{\log
+n}{4}$.
 
 Now for the parallel version, we observe that the computation of the
 ${\cal C}_m$ trees of size $m$ are {\em independent}, hence can be done
@@ -103,8 +105,8 @@ time.  As a result, we only parallelize the double loops in
 line~\ref{alg:parallel-LCA-for-2} and \ref{alg:parallel-LCA-for-3} in
 Algorithm~\ref{alg:parallel-LCA}, and the time complexity of our
 parallel algorithm is $O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2) =
-O(\sqrt{n} \; (\log^{1.5} n) / p + \log^2 n )$, where $p$ is the number
-of processors.
+O(\sqrt{n} \; (\log^{\nicefrac{3}{2}} n) / p + \log^2 n )$, where $p$ is
+the number of processors.
 
 %% % how to compute subtree information from t
 

@@ -8,11 +8,11 @@ maximum query problem because the suffix maximum query is a special
 case of the range maximum query.
 
 The operations to support range maximum query is similar to those for
-suffix maximum query.  A {\sc make} operation creates an empty array
-$A$, an {\sc Append(V)} operation appends a value $V$ to the end of an
-array $A$.  Finally, a {\sc Query(L, R)} operation finds the {\em
-  maximum} value among the $L$-th value to the $R$-th value of an
-array $A$.
+suffix maximum query.  A {\sc Make} operation creates an empty array
+$A$, an {\sc Append}$(V)$ operation appends a value $V$ to the end of an
+array $A$.  Finally, a {\sc Query}$(L, R)$ operation finds the {\em
+maximum} value among the $L$-th value to the $R$-th value of an array
+$A$.
 
 %% We can use a parallel sparse table implementation to answer range
 %% maximum queries with $p$ processors, so that it requires $O(n \log n /
@@ -114,12 +114,13 @@ to Figure~\ref{fig:ancesstor-cartesian} for an illustration.
 Fischer's algorithm~\cite{Fischer2006TheoreticalAP} builds least
 ancestor tables by choosing $s = \frac{\log n}{4}$ as the block size for
 performance reason.  Recall that ${\cal C}_s =
-\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{1.5}})$.  As a result the
-time to scan data and to build Cartesian tree and LCA tables is $O(n)$,
-and the space requirement is $O(s^2 \frac{4^s}{s^{1.5}}) = O(n)$.  That
-is, a sequential Fischer's algorithm requires $O(n)$ time in
-preprocessing, and $O(1)$ time to answer a query.  It is easy to see
-that both preprocessing time and query answering are optimal.
+\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{\nicefrac{3}{2}}})$.  As a
+result the time to scan data and to build Cartesian tree and LCA tables
+is $O(n)$, and the space requirement is $O(s^2
+\frac{4^s}{s^{\nicefrac{3}{2}}}) = O(n)$.  That is, a sequential
+Fischer's algorithm requires $O(n)$ time in preprocessing, and $O(1)$
+time to answer a query.  It is easy to see that both preprocessing time
+and query answering are optimal.
 
 One drawback of Fischer's algorithm is that it causes {\em serious
   cache miss} when the number of data is large.  Fischer's algorithm

@@ -37,22 +37,21 @@ unblocked sparse table when $N$ reaches $100000$.
 
 We believe that the maximum length of interval query ($L$ in
 Table~\ref{tlb:CORMQ}) affects the cache performance of accessing a
-sparse table.  In addition, even when we fix the number of data $N$,
-the speedup of blocked sparse table over unblocked one does increase
-as $L$ increases.  We believe that the reason of this speedup is as
-follows.  Even with a very large query length, a blocked sparse table
-will only need to access a limited range of memory.  For example, the
+sparse table.  In addition, even when we fix the number of data $N$, the
+speedup of blocked sparse table over unblocked one does increase as $L$
+increases.  We believe that the reason of this speedup is as follows.
+Even with a very large query length, a blocked sparse table will only
+need to access a limited range of memory.  For example, the
 rightmost-pops encoding only needs to access two elements that are
-$\log {N/s}$ apart in memory (the sparse table for the block maximums)
-for super block query, and two in-block queries $O(s)$ in consecutive
-memory.  In contrast, the unblocked sparse table can have up to $\log
-N$ levels, and different queries of different sizes will need to
-access different levels of the sparse table.  This does not help cache
-locality because consecutive queries will unlikely to access
+$\log{\nicefrac{N}{s}}$ apart in memory (the sparse table for the block
+maximums) for super block query, and two in-block queries $O(s)$ in
+consecutive memory.  In contrast, the unblocked sparse table can have up
+to $\log N$ levels, and different queries of different sizes will need
+to access different levels of the sparse table.  This does not help
+cache locality because consecutive queries will unlikely to access
 consecutive memory.  When $N$ is small this will not be problem for
-unblocked sparse table since its size will be small.  When $N$
-increases the cache locality of blocked sparse table becomes more
-significant.
+unblocked sparse table since its size will be small.  When $N$ increases
+the cache locality of blocked sparse table becomes more significant.
 
 % ($t_i$ the number of pops) 
 
