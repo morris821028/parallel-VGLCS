@@ -8,11 +8,13 @@ PDF = thesis.pdf
 
 TEXFLAG = --pool-size=5000000 --save-size=80000 
 
-all: ${PDF}
+all: trans.log ${PDF}
+
+trans.log: ../partial/*.tex
+	cd ../partial && ./ntu.sh 2>&1 1>../NTU/trans.log
 
 %.pdf: %.tex ntu.sty ntuvars.tex
 	cd ../graphics && make
-	cd ../partial && ./ntu.sh
 	xelatex $(TEXFLAG) $<
 	- bibtex $*
 	xelatex $(TEXFLAG) $<
@@ -21,7 +23,7 @@ all: ${PDF}
 	do xelatex $(TEXFLAG) $<; done
 
 thesis.pdf: \
-	../partial/*.tex \
+	../partial/ntu/*.tex \
 	../algorithms/*.tex \
 	../codes/* \
 	../formulas/*.tex \

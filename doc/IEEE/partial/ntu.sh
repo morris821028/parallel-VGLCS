@@ -8,6 +8,7 @@
 
 set -x
 
+rm -rf ./ntu
 mkdir -p ./ntu
 
 PATTERN_RHS=("section" "subsection" "subsubsection" "subsubsubsection")
