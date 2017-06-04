@@ -143,13 +143,13 @@ In addition, the best block size for LCA sparse table is different
 from the best block size for the rightmost-pops sparse table.
 
 We observe that the performance of the rightmost-pops sparse table is
-better than that of LCA sparse table, but the performance gain
-decreases when $q$ is close to 1.  LCA sparse table requires the
-Cartesian index computation, which is not required in the
-rightmost-pops sparse table implementation.  When the probability $q$
-is close to 1, LCA sparse table will require less instructions on
-computing Cartesian index, so its performance will be close to that of
-the the rightmost-pops sparse table.
+better than that of LCA sparse table, but the performance gain decreases
+when $q$ is close to 1.  LCA sparse table requires the Cartesian index
+computation, which is not required in the rightmost-pops sparse table
+implementation.  When the probability $q$ is close to 1, LCA sparse
+table will require less instructions on computing Cartesian index, so
+its performance will be close to that of the rightmost-pops sparse
+table.
 
 The maximum length of interval query ($L$ in Table~\ref{tlb:ISMQcmp})
 affects the performance of interval query in a rightmost-pops sparse
