@@ -2,31 +2,16 @@
 
 \subsection{Conclusion}
 \begin{frame}
-    \frametitle{Conclusion}
-    \begin{itemize}
-    	\setlength\itemsep{1em}
-    	\item
-    		VGLCS problem
-    		\begin{itemize}
-    			\setlength\itemsep{1em}
-    			\item 
-                    East to implement linear sparse table as
-                    rightmost-pops encoding sparse table runs in $O(n^2
-                    s/p+n\;\max(\log n, s))$.
-				\item
-					It can be solved in theorem $O(n^2/p+n\log n)$
-		    		efficiently.
-    		\end{itemize}
-    	\item
-    		Incremental ranged maximum query
-    		\begin{itemize}
-    			\setlength\itemsep{1em}
-    			\item
-    				It is more powerful than the incremental suffix
-					maximum query.
-				\item
-					It can be solved in amortized $O(1)$ by our sparse
-					table.
-    		\end{itemize}
-    \end{itemize}
+  \frametitle{Conclusion}
+  \begin{itemize}
+    \item The rightmost-pops encoding is easy to implement and runs in
+      $O(n^2 s/p+n\;\max(\log n, s))$ with $p$ processors,
+    \item Consequently we can solve VGLCS with the rightmost-pops
+      encoding for blocked sparse table in $O(n^2/p+n\log n)$ time
+      with $p$ processors.
+    \item Our dynamic tree computation technique can answer
+      incremental ranged maximum query in amortized $O(1)$ time.
+    \item Asymtotically better solution is {\em not} necessarily the
+      better solution in practice.
+  \end{itemize}
 \end{frame}
