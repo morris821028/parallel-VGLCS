@@ -40,7 +40,8 @@ all: fig-VGLCSex.pdf \
 	fig-remsp-before.pdf \
 	fig-remsp-after.pdf \
 	fig-compressed-sp-prefix-suffix.pdf \
-	fig-fischer-ondemand.pdf
+	fig-fischer-ondemand.pdf \
+	fig-perf-cache-miss.pdf
 
 
 fig-bst-encoding.pdf: fig-bst-n1.tex \
