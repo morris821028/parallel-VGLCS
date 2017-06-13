@@ -57,7 +57,17 @@ trees.  However, when we have two {\em equally ranked} disjoint set
 trees to merge, we will apply the {\em merge-by-index} technique to
 break the tie, so as to improve cache performance.  Experiments show
 that the merge-by-index tie-breaking technique improves by 3\% over the
-approach that breaks the tie randomly.
+approach that breaks the tie randomly.  Please refer to
+Figure~\ref{fig:fig-perf-cache-miss-rem} for an illustration.
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{\GraphicPath/fig-perf-cache-miss-rem.pdf}
+  \caption{The performance of the {\em merge-by-index tie-breaking} for
+  the combination of different applications and merge technique in
+  disjoint set data structure on an E5-2620 server.}
+  \label{fig:fig-perf-cache-miss-rem}
+\end{figure}
 
 \subsubsection{Application on VGLCS}
 
@@ -174,7 +184,17 @@ index.
 Our experiments show that despite that these maximum arrays require
 additional $O(n)$ memory, the peeking technique improves overall
 performance by up to 8\% when $n = 10^4$, and it improves the overall
-performance of query operations by up to 35\% when $n = 10^7$.
+performance of query operations by up to 35\% when $n = 10^7$.  Please
+refer to Figure~\ref{fig:fig-perf-cache-miss-peek} for an illustration.
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{\GraphicPath/fig-perf-cache-miss-peek.pdf}
+  \caption{The performance of the ``peeking'' for
+  the combination of different applications and environments in blocked
+  sparse table on an E5-2620 server.}
+  \label{fig:fig-perf-cache-miss-peek}
+\end{figure}
 
 % One can consider the
 % first level of the compressed sparse table $T_S[0]$ as a small cache,
