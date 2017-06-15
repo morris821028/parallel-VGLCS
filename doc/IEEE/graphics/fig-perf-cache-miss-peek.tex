@@ -16,8 +16,8 @@
     legend style={at={(0.5,1.15)},
     anchor=north,legend columns=-2},
     ylabel={\#percentage of cache misses},
-    symbolic x coords={Serial BST2,Parallel BST2, ISMQ+BST, RMQ+BST},
-    xtick={Serial BST2,Parallel BST2, ISMQ+BST, RMQ+BST},
+    symbolic x coords={Serial BST2,Parallel BST2, ISMQ BST, RMQ BST},
+    xtick={Serial BST2,Parallel BST2, ISMQ BST, RMQ BST},
     height=8cm,width=12cm,
     nodes near coords,
     nodes near coords align={vertical},
@@ -28,18 +28,25 @@
     xticklabel style={
         inner sep=0pt,
         anchor=north east,
-        rotate=30,
-        font=\scshape,
+        rotate=25,
+        % font=\scshape,
+        text width=8em
     },
     enlarge y limits={upper,value=0.3},
+    xticklabels={
+        Serial-BST2 on \\VGLCS problem,
+        Parallel-BST2 on \\VGLCS problem,
+        BST on \\ISMQ problem,
+        BST on \\RMQ problem,
+    },
     ]
     \addplot[pattern=north east lines] coordinates 
         {(Serial BST2,15.546)  (Parallel BST2,9.218)
-         (ISMQ+BST,30.649) (RMQ+BST,39.652)
+         (ISMQ BST,30.649) (RMQ BST,39.652)
         };
     \addplot coordinates 
         {(Serial BST2,10.430)  (Parallel BST2,2.914)
-         (ISMQ+BST,13.936) (RMQ+BST,0.871)
+         (ISMQ BST,13.936) (RMQ BST,0.871)
         };
     \legend{Standard, Combine Peek tech.};
   \end{axis}
@@ -67,10 +74,17 @@
     xticklabel style={
         inner sep=0pt,
         anchor=north east,
-        rotate=30,
-        font=\scshape,
+        rotate=25,
+        % font=\scshape,
+        text width=8em
     },
     enlarge y limits={upper,value=0.3},
+    xticklabels={
+        Serial-BST2 on \\VGLCS problem,
+        Parallel-BST2 on \\VGLCS problem,
+        BST on \\ISMQ problem,
+        BST on \\RMQ problem,
+    },
     ]
     \addplot[pattern=north east lines] coordinates 
         {(Serial BST2,469079337)  (Parallel BST2,247734674)
