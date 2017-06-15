@@ -228,4 +228,20 @@ Co-Advisor: Jan-Jan Wu, Ph.D.
 	\quotation}
   {\endquotation\newpage} % }}}
 
+% Add DOI to every page after this command.
+\newcommand\doi[1]{\newcommand{\thedoi}{#1}}
+\newcommand{\startDOI}
+  {%
+	\AddToShipoutPictureBG{%
+	    \AtPageUpperLeft{%
+	        \makebox[\paperwidth][r]{ % Move over to right so right aligns with right of text block
+	            \raisebox{-\paperheight}{ % Drop down so top aligns with top of text block
+	                \put(\LenToUnit{-1cm},\LenToUnit{1cm}){%
+	                    \makebox[0pt][r]{\fontsize{12}{14}\href{http://dx.doi.org/\thedoi}{doi:\thedoi}}
+	                }
+	        }}
+	    }%
+	}
+}
+
 \input{ntuvars}
