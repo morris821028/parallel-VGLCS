@@ -1,7 +1,7 @@
 \section{介紹} %Introduction
 \label{sec:Introduction}
 
-最長共同子字串 ({\em Longest Common Subsequence}，簡稱 LCS)~
+最長共同子序列 ({\em Longest Common Subsequence}，簡稱 LCS)~
 \cite{Hirschberg1975ALS} 經常使用在字串處理中的經典問題。
 例如說，我們使用 {\tt diff} 工具來呈現兩段文字不同的差異，找到它們最長的共同子序列；
 在版本控制系統中，SVN 和 Git 也經常使用 LCS 來呈現變動情況；
@@ -19,40 +19,31 @@ Iliopoulos 和 Rahman~\cite{Rahman2006AlgorithmsFC} 介紹在 LCS 問題下各�
   \centering
   \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCSex.pdf}
   \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCSex2.pdf}
-  \caption{A VGLCS example} \label{fig:VGLCSex}
+  \caption{有限間距最長共同子序列的例子} \label{fig:VGLCSex}
 \end{figure}
 
-We use an example to illustrate the gap function and VGLCS.  Let string
-$A$ be {\tt GCGCAATG} with gap values $(3, 1, 1, 2, 0, 0, 2, 1)$, and
-let string $B$ be {\tt GCCCTAGCG} with gap values $(2, 0, 3, 2, 0, 1, 2,
-0, 1)$.  Please refer to Figure~\ref{fig:VGLCSex} for an illustration.
-Now, the LCS $GCCT$ is a VGLCS because every character in the LCS can
-find its predecessor in the LCS with distance at most its gap value plus
-1.
+這裡我們以一個例子說明 VGLCS 的間隔函數。
+假設字串 $A$ 為 {\tt GCGCAATG}，其 $A$ 相應的間隔約束為 $(3,1,1,2,0,0,2,1)$，
+字串 $B$ 為 {\tt GCCCTAGCG}，其 $B$ 相應的間隔約束為 $(2,0,3,2,0,1,2,0,1)$，
+參照圖~\ref{fig:VGLCSex} 的說明，找到其中一組 {\tt GCCT} 為此 VGLCS 的一組解，
+且滿足每一個的挑選位置與前繼者的位置之間最多為其位置約束值加一。
 
-This paper focuses on {\em efficient parallel algorithms} that find
-VGLCS.  Peng~\cite{Peng2011TheLC} gives a $O(nm \alpha(n))$ algorithm
-that is easy to implement and an asymptotically better $O(nm)$
-algorithm, where $\alpha$ is the inverse of Ackermann's
-function~\cite{Banachowski1980ACT}.  In this paper, we propose our
-$O(nm)$ algorithm which is {\em easy} to implement and runs {\em
-efficiently} in a {\em parallel} environment.
+這篇論文著重於解決 VGLCS 的「有效率的平行算法」。
+在先前的研究中，Peng~\cite{Peng2011TheLC} 的研究提供易於實作的 $O(nm \alpha(n))$ 
+的版本以及漸近 $O(nm)$ 的算法，其中 $\alpha$ 為阿克曼函數的反函數~\cite{Banachowski1980ACT}。
+接續，論文將提出我們的 $O(nm)$ 算法，其具有易於實作的特性，同時在平行環境下能運行相當有效率。
 
-The parallelization of LCS on most multi-core platforms focuses on
-{\em wavefront} parallelism.  The wavefront parallelism is motivated
-by the recursive solution of LCS.  For example,
-Yang~\cite{Yang2010AnEP} introduced a new formulation to exploit more
-cache performance.  Our algorithm uses a more powerful {\em sparse
-  table} instead of the disjoint set in the Peng's serial algorithm
-and achieves better cache performance.
 
-The remainder of the paper is organized as follows.  In
-Section~\ref{sec:parallelVGLCS}, we present previous parallel algorithms
-for finding VGLCS.  In Section~\ref{sec:parallelRMQ} and \ref{sec:QIUD},
-we present our algorithm that is easy to parallelize, and has a time
-complexity $O(nm)$, which is better than previous works.  In
-Section~\ref{sec:Implementation} and \ref{sec:Experiment}, we describe
-our optimized implementation and the results of our experiments.
-Section~\ref{sec:Conclusion} conclude this paper with lessons learned
-and possible future works.
+在多核心平台上，大部分 LCS 的平行方法都在「波前平行」(wavefront parallelism) 上，
+波前方法直接使用 LCS 的遞迴公式推導而成，故平行度與效能皆受限於遞迴公式，
+因此，有些研究致力於改善平行度與效能。
+如 Yang~\cite{Yang2010AnEP} 介紹新的轉換方法來拓展出更好快取效能。
+藉此纇的概念，我們使用類似的方式，將 Peng 序列算法中的並查集 (disjoint set) 
+替換成更有力的「稀疏表」(sparse table) 以提高更好的快取效能。
+
+這篇論文的架構如下述：在章節~\ref{sec:parallelVGLCS}，我們提出先前的 VGLCS 平行算法。
+接著，在章節~\ref{sec:parallelRMQ} 和 \ref{sec:QIUD}，提出我們的易實作的平行版本，
+其時間複雜度 $O(nm)$ 比先前的來得更好。章節~\ref{sec:Implementation} 和
+ \ref{sec:Experiment} 介紹相應的優化技巧與實驗結果。
+ 在最後章節~\ref{sec:Conclusion} 和 \ref{sec:Future} 總結先前提出的技術與後續可能發展的方向。
 

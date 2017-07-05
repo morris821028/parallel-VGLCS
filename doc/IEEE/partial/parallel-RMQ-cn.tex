@@ -51,6 +51,12 @@ type of queries as {\em incremental suffix maximum query}, i.e., we
 would like to maintain a data structure form which we can find the
 maximum of its suffix efficiently while we add data at its end.
 
+% \begin{figure}[!thb]
+%   \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
+%   \caption{Compute $V$ with incremental suffix maximum queries.}
+%   \label{fig:fig-VGLCS-dp}
+% \end{figure}
+
 \subsection{Peng's Algorithm}
 
 The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
@@ -79,8 +85,8 @@ add the maximum of last $G_B(j)+1$ in the $j$-the column into $R$, and
 the newly computed $V[i][j]$ into $C[j]$, which supports ISMQ on the
 $j$-the column, before going to column $j+1$.  If the $i$-th character
 of $A$ does {\em not} match the $j$-th character of $B$, we simply set
-$V[i][j]$ to 0 since it does not affect the answer, then again update
-$R$ accordingly.
+$V$ to 0 since it does not affect the answer, then again update $R$
+accordingly.
  
  
 \input{\AlgoPath/alg-serial-VGLCS-2e}
@@ -107,7 +113,7 @@ we make it as a disjoint set with a single element by itself, and as the
 {\em last} disjoint set in the sequence.  Then we start joining (with
 union operation) from the last set to its previous set until the maximum
 of the previous set is {\em larger} than $x$. It is easy to see that the
-{\sc Query}$(x)$ operation is simply a {\em find} operation that finds the
+{\sc Query(x)} operation is simply a {\em find} operation that finds the
 root, which has the {\em maximum}, of the tree that $x$ belongs to.  The
 amortized time per union/find operation is $O(\alpha(n))$.
 
@@ -131,7 +137,7 @@ data will require extra bookkeeping since the gap constraints of those
 elements on the wavefront could be very different.  Please refer to
 Figure~\ref{fig:fig-VGLCS-dp-wavefront} for an illustration of those
 data that must be present (in solid line).  Also, the new elements
-computed must be appended to the data structures according to the
+computed must be appended to the data strictures according to the
 wavefront, which incurs more bookkeeping and overheads.
 
 \begin{figure}[!thb]
