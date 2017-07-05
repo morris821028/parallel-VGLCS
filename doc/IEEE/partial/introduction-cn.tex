@@ -1,26 +1,19 @@
-\section{Introduction} %Introduction
+\section{介紹} %Introduction
 \label{sec:Introduction}
 
-The {\em longest common subsequence} (LCS)~\cite{Hirschberg1975ALS} is a
-famous problem in string processing.  For example, the {\tt diff}
-utility show the difference between texts by finding their LCS. Revision
-control systems like SVN and Git use LCS to reconciling multiple
-changes.  In bioinformatics, the best-known application of the LCS
-problem is the sequence alignment~\cite{mount2001bioinformatics,
-Ann2010EfficientAF}, which identifies the region of similarity between
-the sequences of DNA, RND, or protein.
+最長共同子字串 ({\em Longest Common Subsequence}，簡稱 LCS)~
+\cite{Hirschberg1975ALS} 經常使用在字串處理中的經典問題。
+例如說，我們使用 {\tt diff} 工具來呈現兩段文字不同的差異，找到它們最長的共同子序列；
+在版本控制系統中，SVN 和 Git 也經常使用 LCS 來呈現變動情況；
+在分子生物學中，生物序列對齊問題~\cite{mount2001bioinformatics,
+Ann2010EfficientAF} 的其中一種 DNA、RNA 和蛋白質相似度也經常使用 LCS 表示之。
 
-Iliopoulos and Rahman~\cite{Rahman2006AlgorithmsFC} introduced many
-constrained versions of LCS.  For example, a {\em fixed gap LCS} (FGLCS)
-requires that the distance between consecutive characters in the LCS is
-{\em at most} $k + 1$ characters away.  A fixed gap LCS can be found in
-time $O(nm)$, where $n$ and $m$ are the lengths of the two input
-strings~\cite{Rahman2006AlgorithmsFC}.  On the other hand, a {\em
-variable gap LCS} (VGLCS) requires that each character has a {\em gap}
-value and two consecutive characters in LCS must be with distance of the
-gap of the {\em latter} character {\em plus} 1.  One can think of the
-fixed gap LCS as a special case of variable gap LCS in which the gap
-values of all characters are $k$.
+Iliopoulos 和 Rahman~\cite{Rahman2006AlgorithmsFC} 介紹在 LCS 問題下各種不同的約束變形。
+例如固定間距的 LCS ({\em fixed gap LCS}，簡稱 FGLCS)，要求挑選位置之間最多間隔 $k+1$ 個字元。
+對於輸入長度分別為 $n$ 和 $m$ 的字串，我們已知 FGLCS 可以在 $O(nm)$ 內被解決~\cite{Rahman2006AlgorithmsFC}。
+在另一個問題可變間距 LCS ({\em variable gap LCS}，簡稱 VGLCS)
+，對於兩個相鄰的挑選位置，至多間隔後者提供的約束距離加一。
+因此，可以視 FGLCS 為 VGLCS 的特例，對於每一個位置提供的約束距離皆為 $k$。
 
 \begin{figure}[!thb]
   \centering
@@ -33,9 +26,9 @@ We use an example to illustrate the gap function and VGLCS.  Let string
 $A$ be {\tt GCGCAATG} with gap values $(3, 1, 1, 2, 0, 0, 2, 1)$, and
 let string $B$ be {\tt GCCCTAGCG} with gap values $(2, 0, 3, 2, 0, 1, 2,
 0, 1)$.  Please refer to Figure~\ref{fig:VGLCSex} for an illustration.
-Now, the LCS {\tt GCCT} is a VGLCS because every character in the LCS
-can find its predecessor in the LCS with distance at most its gap value
-plus 1.
+Now, the LCS $GCCT$ is a VGLCS because every character in the LCS can
+find its predecessor in the LCS with distance at most its gap value plus
+1.
 
 This paper focuses on {\em efficient parallel algorithms} that find
 VGLCS.  Peng~\cite{Peng2011TheLC} gives a $O(nm \alpha(n))$ algorithm
@@ -60,6 +53,6 @@ we present our algorithm that is easy to parallelize, and has a time
 complexity $O(nm)$, which is better than previous works.  In
 Section~\ref{sec:Implementation} and \ref{sec:Experiment}, we describe
 our optimized implementation and the results of our experiments.
-Section~\ref{sec:Conclusion} and \ref{sec:Future} conclude this paper
-with lessons learned and possible future works.
+Section~\ref{sec:Conclusion} conclude this paper with lessons learned
+and possible future works.
 
