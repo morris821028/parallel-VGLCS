@@ -235,14 +235,12 @@ the input array.
 
 We give an example of the sparse table
 (Figure~\ref{fig:interval-decomposition}).  The input is in array $A$.
-We split array $A$ into five blocks so that each block has four
-elements.  Then we build a sparse table $T$ on $A$ as described
-earlier.  Now a ranged maximum query on $A$ can be answered by at most
-{\em two} queries into the sparse table.  For example, if the query is
-from 2 to 13, then the answer is the maximum of from 2 to 9
-($T[3][9]$), and from 6 to 13 ($T[3][13]$).  Both are from the third
-level of the table since each has the maximum of $2^3 = 8$ elements in
-the input.
+Then we build a sparse table $T$ on $A$ as described earlier.  Now a
+ranged maximum query on $A$ can be answered by at most {\em two} queries
+into the sparse table.  For example, if the query is from 2 to 13, then
+the answer is the maximum of from 2 to 9 ($T[3][9]$), and from 6 to 13
+($T[3][13]$).  Both are from the third level of the table since each has
+the maximum of $2^3 = 8$ elements in the input.
 
 \begin{figure}[!thb]
   \centering \subfigure[Array]{

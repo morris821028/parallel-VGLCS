@@ -31,8 +31,8 @@
 請參照圖~\ref{fig:fig-VGLCS-dp} 的說明。
 
 上述的優化需要「增長」後綴最大值詢問，如在第一階段中，每一個列的最大值，
-當我們完成第 $i$ 行上的結果轉移到下一行 $V[i+1][*]$ 時，將會詢問每一列上，
-後綴長度 $G_A(i+1)$ 的元素最大值，故每一列將會各自維護資料結構。同樣地，
+當我們完成第 $i$ 行上的結果轉移到下一行 $V[i+1][*]$ 時，
+將會詢問每一列上後綴長度 $G_A(i+1)$ 的元素最大值，故每一列將會各自維護資料結構。同樣地，
 在同一行的計算中，從 $V[i][j]$ 移動到 $V[i][j+1]$ 時，將從陣列 $R$ 中提取後綴最大值，
 我們將這一系列的操作，稱呼為「增長後綴最大值詢問」(incremental suffix maximum query)，
 意即我們維護一個資料結構，允許插入一個新的元素至尾端，同時詢問任意位置到尾端的最大值。
@@ -109,133 +109,88 @@ Peng 算法需要使用波前平行方法，這使得需要「額外的」的空
 列接列方法的數倍。此外，我們移除掉同一行上的資料依賴性，將能「完全」和「均勻」地平行。
 其結果造成較平衡的工作負載分佈和較容易的執行緒同步。
 
-A sketch of our algorithm is as follows.  Our algorithm computes $V$ one
-row at a time.  The computation of each row has two stages.  In the
-first stage, the algorithm queries each data structure $C$ for every
-column within the rectangle {\em in parallel}, so as to obtain the
-maximums of suffix of length $G_A(i) + 1$ of every column, and place
-them into an array $R$. Recall from Algorithm~\ref{alg:serial-VGLCS}
-that every column of $V$ has a data structure $C$ that supports
-incremental suffix maximum on $V$.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.
+我們提出的算法框架如下所述：每一次計算 $V$ 的同一列，計算同一列時分兩個階段，
+第一階段從資料結構 $C$ 中平行詢問每一列的後綴長 $G_A(i)+1$ 最大值，並且儲存到陣列 $R$ 中，
+接著繼續使用算法~\ref{alg:serial-VGLCS}，將 $C$ 持續維護 $V$ 上的增長後綴最大值詢問。
+請參考圖~\ref{fig:fig-VGLCS-dp-rmq} 的說明。
 
-In the second stage, our algorithm issues {\em range maximum queries},
-one for each column, on $R$ to compute all $m$ elements of the $i$-th
-row of $V$ {\em in parallel}.  Note that unlike the sequential
-algorithm, we compute all elements in the $i$-th row of $V$ in parallel,
-so we cannot query the {\em suffix} of $R$.  Instead, we need to query a
-{\em range} of $R$ for the maximum, where the range is the gap
-constraint on that column.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Note that we
-need to add the newly computed $V[i][j]$ into the $C$ of the $j$-th
-column {\em incrementally}, so that they will contain the correct
-information for the computation of the $(i+1)$-th row.  Also, since the
-algorithm iterates in rows, these $C$'s only need to support suffix
-maximum query.  No range query on them is required.  In contrast, we do
-need to support range maximum query on $R$, and these queries will be in
-parallel.
+第二階段中，我們算法著重於「區間最大值詢問」(range maximum queries)，陣列 $R$ 上紀錄 $m$ 個列的後綴最大值，
+需要平行處理在第 $i$ 行上的 $m$ 的元素值。相較於循序算法，我們並不使用陣列 $R$ 的後綴詢問，
+取而代之，我們需要詢問 $R$ 上的區間詢問，每一個詢問區間長度為每個列位置的間隔約束，
+請參照圖~\ref{fig:fig-VGLCS-dp-rmq} 的說明。
+當我們計算出 $V[i][j]$ 時，仍然需要將其加入 $C$ 的第 $j$ 列進行增長操作，以應付第 $i+1$ 行的計算結果。
+然而，這 $C$ 只需要支持後綴詢問，並非區間詢問。相對地，我們對 $R$ 維護區間最大值詢問操作，
+這些操作皆可以平行地去處理。
 
 \begin{figure}[!thb]
-  \centering \subfigure[The first stage]{
+  \centering \subfigure[第一階段]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-first.pdf}
-  } \subfigure[The second stage]{
+  } \subfigure[第二階段]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-second.pdf}
   }
-  \caption{Two stages of the computation of one row of $V$.}
+  \caption{計算 $V$ 的同一行，將分成兩個階段}
   \label{fig:fig-VGLCS-dp-rmq}
 \end{figure}
 
-To resolve the data dependency, we need to consider a good data
-structure that can handle incremental suffix/range maximum query {\em in
-parallel}.  We note that it is {\em not} feasible to parallelize the
-disjoint set implementation for three reasons.  First, a query for
-disjoint set will change the data structure because a lookup will {\em
-compress} the path to the root.  It is difficult to maintain a
-consistent view of the data structure when multiple threads are
-compressing the path {\em simultaneously}.  Second, when multiple
-threads are compressing different paths, the load among them could be
-very different, and this will incur load imbalance.  Third, there will
-be a large number of threads working on different parts of the disjoint
-set, therefore it will be difficult to synchronize them efficiently.
+為了解決資料依賴性，我們需要好的資料結構去解決「平行環境」的增長後綴/區間最大值詢問。
+首先，我們發現並查集這一類的資料結構不易於平行，原因在於以下三點：
+第一點，每一次詢問將會改變資料結構，因為通常都伴隨著「壓縮路徑」(compress path) 的操作，
+同時壓縮路徑造成難以在執行緒之間得到一致的結構；第二點，由於執行緒各自壓縮不同路徑，
+由於壓縮路徑長短不同，導致工作負載不平行；第三點，當有許多執行緒同時運行，
+多次的同步操作將無法有效率地運行。
 
-\subsubsection{Sparse Table} \label{sec:sparse-table}
+\subsubsection{稀疏表} \label{sec:sparse-table}
 
-Since the disjoint set cannot be implemented efficiently in parallel,
-we use {\em sparse table}~\cite{Berkman1993RecursiveSP} to support
-incremental suffix/range maximum queries in our VGLCS algorithm.
-Sparse table~\cite{Berkman1993RecursiveSP} requires a $O(n \log n)$
-preprocessing, and can support range maximum query in $O(1)$ time on
-one dimensional data.  A sparse table is a two dimensional array.  The
-element of a sparse table in the $j$-th row and $i$-th column is the
-maximum among the $i$-th elements and its $2^j - 1$ predecessors in
-the input array.
+由於先前提到並查集在平行環境下的效能問題，我們使用「稀疏表」
+({\em sparse table}~\cite{Berkman1993RecursiveSP}) 來支援 VGLCS 算法中的增長後綴/區間詢問。
+稀疏表最原始的版本需要前處理，其花費 $O(n \log n)$ 時間，隨後對於任意一維的區間詢問只需要 $O(1)$ 時間。
+稀疏表的儲存架構採用二維陣列，對於第 $j$ 行上的第 $i$ 列元素，為原輸入陣列的第 $i$ 的元素往前 $2^j-1$ 個元素的最大值。
 
-We give an example of the sparse table
-(Figure~\ref{fig:interval-decomposition}).  The input is in array $A$.
-We split array $A$ into five blocks so that each block has four
-elements.  Then we build a sparse table $T$ on $A$ as described
-earlier.  Now a ranged maximum query on $A$ can be answered by at most
-{\em two} queries into the sparse table.  For example, if the query is
-from 2 to 13, then the answer is the maximum of from 2 to 9
-($T[3][9]$), and from 6 to 13 ($T[3][13]$).  Both are from the third
-level of the table since each has the maximum of $2^3 = 8$ elements in
-the input.
+我們以圖~\ref{fig:interval-decomposition} 簡單說明稀疏表如何運作。
+對於原輸入陣列 $A$，接著根據先前提到的算法建造稀疏表 $T$。
+當給定一個陣列 $A$ 上的區間詢問時，最多拆成 2 個稀疏表上的查找。
+例如，詢問區間從位置 2 到 13，我們將拆成詢問 2 到 9 ($T[3][9]$)以及 6 到 13 ($T[3][13]$)，
+這兩者都是從第三層的稀疏表中提取連續 $2^3 = 8$ 個元素的最大值。
+
 
 \begin{figure}[!thb]
-  \centering \subfigure[Array]{
+  \centering \subfigure[原輸入陣列]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-interval-decomposition-origin.pdf}
     \label{fig:fig-interval-decomposition}
-  } \subfigure[Sparse table]{
+  } \subfigure[稀疏表]{
     \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-sparse-table-origin.pdf}
     \label{fig:fig-sparse-table}
   }
-  \caption{A sparse table example}
+  \caption{稀疏表粒子}
   \label{fig:interval-decomposition}
 \end{figure}
 
-It is easy to see that one can build a sparse table in parallel
-efficiently.  Please refer to
-Algorithm~\ref{alg:parallel-sparse-table} for details.
-Algorithm~\ref{alg:parallel-sparse-table} builds sparse table in
-parallel and in $O(n \log n / p + \log n)$ time, where $n$ is the
-number of elements and $p$ is the number of processors.  This
-algorithm is very easy to parallelize and implement.
+平行建造稀疏表是相當容易的，請參照算法~\ref{alg:parallel-sparse-table} 的說明，
+算法~\ref{alg:parallel-sparse-table} 建造稀疏表時間為 $O(n \log n / p + \log n)$，
+其中 $n$ 為元素個數，而 $p$ 為處理器個數，這個算法相當容易實作。
+
 
 \input{\AlgoPath/alg-parallel-sparse-table-2e}
 
-\subsubsection{A Parallel VGLCS with Sparse Table}
+\subsubsection{基於稀疏表之平行 VGLCS}
 
-The operations on a sparse table are much easily to parallelize than
-those on a disjoint set, which is used within the inner loop of Peng's
-sequential VGLCS algorithm.  The inner loop of Peng's algorithm
-alternates between append and query operations on $R$.  Please refer
-to Algorithm~\ref{alg:serial-VGLCS} for details.  This alternation
-between appending and querying incurs heavy data dependency.  In
-addition, the parallelism of operations on a disjoint tree is limited
-by the length of path under compression.  The length is usually very
-short and provides very limited parallelism.
+相較於並查集，稀疏表上的任何操作都較容易平行。因此，在 Peng 的循序算法中，
+內層迴圈需要交替地附加和詢問操作於 $R$ 上，請參考算法~\ref{alg:serial-VGLCS} 提及的細節，
+這些交替操作存在嚴重的資料依賴性。此外，平行度受到並查集的路徑長度影響，
+而這些路徑長通常很短，故約束平行度的發展。
 
-The pseudo code of our parallel VGLCS algorithm with sparse table is
-given in Algorithm~\ref{alg:parallel-VGLCS}.  The algorithm computes
-$V$ one row at a time.  The computation of each row has two stages.
-In the first stage, the algorithm queries the $C$'s {\em in parallel}
-to obtain the maximums of suffix of length $G_A+1$ and place them
-into an array $R$.  Then we build a sparse table $T$ with the data of
-$R$.  Then in the second stage, the algorithm queries $T$ to find the
-range maximum in $R$ to compute all elements in the $i$-th row of $V$
-{\em in parallel}.
+若我們使用稀疏表於平行 VGLCS 算法中，請參考算法~\ref{alg:parallel-VGLCS} 的說明。
+算法中仍一次計算 $V$ 的每一行，計算單一行時分成兩個階段，
+第一階段平行詢問 $C$ 上的後綴長 $G_A+1$，並將結果收集到陣列 $R$ 中；
+接著根據陣列 $R$ 平行建造稀疏表 $T$。在第二階段使用 $T$ 平行詢問所有區間最大值。
+
 
 \input{\AlgoPath/alg-parallel-VGLCS-2e}
 
-The implementation of the two stages have different challenges.  The
-first stage is easier to parallelize because the operations on
-individual columns are {\em independent}.  However, it will insert new
-data into $C$, and still needs to answer suffix queries efficiently in
-order to build the $R$ array.  The second stage does {\em not}
-requires insertion so it is more static.  However, since we compute
-all $V$'s in the same row in parallel, it requires {\em ranged
-  queries}, instead of suffix queries, on the sparse table $T$.  The
-next two sections will describe our approaches to address these
-challenges of two stages.  For ease of presentation we will describe
-our approach for the second stage in Section~\ref{sec:parallelRMQ}
-first.  Then we address the first stage in Section~\ref{sec:QIUD}.
+實作兩階段的部分時，有著各自不同的挑戰。第一階中由於列彼此之間獨立詢問，
+故平行操作較為容易，然而，它仍需插入元素到 $C$ 的尾端，
+同時要有效率地找到後綴最大值放入陣列 $R$。第二階段「不存在」強制的插入操作，
+故可以靜態地處理之，因我們平行計算 $V$ 同一行上，需要的是區間詢問，而非後綴詢問於稀疏表 $T$ 上。
+在接續的兩個章節中，我們將介紹如何克服這些挑戰。
+章節~\ref{sec:parallelRMQ} 優先解決在第二階段的問題，
+接著我們在章節~\ref{sec:QIUD} 著重於第一階段的挑戰。
