@@ -1,0 +1,213 @@
+\section{增長區間最大值詢問} \label{sec:QIUD}
+
+在這一章節中，我們將著重於算法~\ref{alg:parallel-VGLCS} 第一階段的挑戰，
+這裡我們將計算 $V$ 每一列的後綴最大值，同時提供泛用性更高的「增長區間最大值詢問」，
+增長區間最大值詢問將逐漸地加入新的元素到陣列尾端，並且隨問任意區間的最大值，
+
+\subsection{建立最小共同祖先表}
+
+在章節~\ref{sec:parallelRMQ} 中，我們曾討論如何使用最小共同祖先來回答區間最大值詢問，
+這裡我們著重兩個議題如下：第一個問題－「如何給予一個二元搜尋樹相應的『卡塔蘭索引值』」，
+以及第二個問題－「如何找到任意兩個樹上節點的共同祖先」
+
+\subsubsection{標記笛卡爾樹}
+
+我們標記笛卡爾樹時，採用「字典順序」({\em lexicographical order})，
+從 $0$ 編號到卡塔蘭數的第 $n$ 個值減一。二元索引樹的字典順序參照乙下的遞迴定義：
+當一個樹 $x$ 出現在樹 $y$ 前需滿足下述的任意條件，
+請參照圖~\ref{fig:labelingBST} 說明節點大小為 1、2、3 的標記情況。
+
+\begin{itemize}
+\item $x$ 的左子樹節點個數比 $y$ 的左子數節點個數多
+\item $x$ 和 $y$ 的左子樹節點個數相同，且 $x$ 的左子樹字典順序小於 $y$ 的左子樹字典順序。
+\item $x$ 和 $y$ 的左子樹節點個數相同且 $x$ 和 $y$ 的左子樹字典順序相同，
+  且 $x$ 的右子樹字典順序小於 $y$ 的右子樹字典順序。
+\end{itemize}
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=0.8\linewidth]{\GraphicPath/fig-bst-encoding.pdf}
+  \caption{二元搜尋樹的標記情況，由左而右分別是節點個數為 1、2 和 3}
+  \label{fig:labelingBST}
+\end{figure}
+
+\subsubsection{最小共同祖先}
+
+隨著加入的資料，我們需要有效率地決定「最小共同祖先」以回答區間最大值。
+令 $t$ 為二元搜尋樹的卡塔蘭索引值，則 $t$ 介於 $0$ 到 ${\cal C}_s-1$ 之間，
+其中 $s$ 為二元搜尋樹的節點個數。定義 ${\cal A}(s, t, p, q)$ 為在節點個數為 $s$ 時，
+卡塔蘭索引值為 $t$ 的二元索引樹上的節點 $p$ 和 $q$ 的最小共同祖先。
+例如，從圖~\ref{fig:labelingBST} 中，得知 ${\cal A}(3, 2, 0, 2) = 1$。
+令 $s_l$ 為左子樹節點個數、$s_r$ 為右子樹節點個數，
+而 $t_l, \; t_r$ 分別為左、右子樹的的卡塔蘭索引值。
+藉由上述的定義，得到最小共同祖先 ${\cal A}$ 遞迴如公式~\ref{fun:LCA}，
+其相應的平行算法~\ref{alg:parallel-LCA}。
+
+\input{\FormulaPath/fun-LCA.tex}
+
+\input{\AlgoPath/alg-parallel-LCA-2e}
+
+分析算法~\ref{alg:parallel-LCA} 的空間複雜度，從表 ${\cal A}$ 維護所有節點大小 $1$ 到 $s$，
+當子樹節點個數為 $m$ 時，不同的二元搜尋樹個數為第 $m$ 個卡塔蘭數 ${\cal C}_m$，
+其 ${\cal C}_m$ 可表示成 $\frac{1}{m+1}\binom{2m}{m}=O(\frac{4^m}{m^{\nicefrac{3}{2}}})$，
+對於每一個節點個數 $m$ 的二元樹，我們儲存所有節點之間的最小共同祖先，故需要 $O(m^2)$。
+整體而言，空間複雜度為 $O(s \; \frac{1}{s+1}\binom{2s}{s} \; s^2)$，
+其中 $s$ 為塊大小，倘若挑選 $s$ 為 $\frac{\log n}{4}$，
+其空間複雜度為 $O(\sqrt{n} \; \log^{\nicefrac{3}{2}} n)$。
+然而，對於任意區間詢問只會在節點個數為 $s$ 上運行，我們仍需要個數小於 $s$ 的表來建立表 ${\cal A}$。
+
+分析算法~\ref{alg:parallel-LCA} 的時間複雜度，在算法~\ref{alg:parallel-LCA} 的循序版本，
+其時間複雜度為 $O(\frac{s^3}{s+1} \binom{2s}{s})$，因公式~\ref{fun:LCA} 相應的結果皆為 $O(1)$。
+當選用 $s$ 為 $\frac{\log n}{4}$ 時，時間複雜度為 $O(\sqrt{n} \; \log^{\nicefrac{3}{2}} n)$。
+
+對於算法~\ref{alg:parallel-LCA} 的平行版本，我們觀察計算不同個 ${\cal C}_m$ 的樹是「彼此獨立」的，
+故可以平行化處理之。然而，當節點個數為 $m$ 時，找到左右子樹的卡塔蘭索引值的複雜度為 $O(m)$ 
+(算法中的行~\ref{alg:parallel-LCA-compute} 所示)，
+同時行~\ref{alg:parallel-LCA-compute} 和行~\ref{alg:parallel-LCA-loop} 為同一層，故沒有平行的必要性。
+最後平行化最外層的兩個迴圈，得到平行算法~\ref{alg:parallel-LCA} 的時間複雜度為
+$O(\frac{s^3}{s+1} \binom{2s}{s} / p + s^2) = O(\sqrt{n} \; (\log^{\nicefrac{3}{2}} n) / p + \log^2 n)$
+，其 $p$ 為處理器個數。
+
+\subsection{計算卡塔蘭索引值}
+
+算法~\ref{alg:parallel-LCA} 中需要卡塔蘭索引值 $t$，所以我們需要從塊中的資料中高效地決定 $t$ 為何，
+這裡有兩種方法來計算－「建立樹」或者「維護右側路徑」
+
+% how to compute t from tree data structure
+
+\subsubsection{建立樹}
+
+根據塊中數個元素決定卡塔蘭索引值，我們可以建立笛卡爾樹後，再決定其索引值為何，
+意即我們確切地把樹建造後，利用左右子樹的索引值和節點個數組合出卡塔蘭索引值，
+這將會要求遞迴遍歷整棵樹於 $O(n)$ 時間，其 $n$ 為節點總數。
+令 ${\cal T}$ 為卡塔蘭索引值，根據公式~\ref{fun:tid} 的定義，
+從左右子樹的節點個數 $s_l, \; s_r$、左右子樹的卡塔蘭索引值 $t_l, \; t_r$，
+以及第 $i$ 個卡塔蘭數 ${\cal C}_i$ 得到。
+
+\input{\FormulaPath/fun-tid}
+
+更近一步優化等式~\ref{fun:tid} 的計算，我們預處理卡塔蘭數乘積的「前綴和」，
+並儲存這些結果於記憶體中，將可以直接地使用它們，而不用再次地在等式~\ref{fun:tid} 計算之。
+
+% how to compute t with rightmost path of the tree
+
+\subsubsection{維護右側路徑}
+
+先前計算卡塔蘭索引值的方法依賴完整的子樹資訊，這是較沒效率的做法。
+我們提出使用「棧」維護笛卡爾的「右側路徑」，不需要維護整棵樹的資訊，
+這一種方法類似章節~\ref{sec:cct} 提及的「右側棧出編碼」。
+在我們知道卡塔蘭索引值 $t$ 後，
+我們可解決算法~\ref{alg:parallel-LCA} 和公式~\ref{fun:tid} 中使用的 LCA 和索引值的需求。
+
+以棧維護右側路徑，將可以高效地計算卡塔蘭索引值 $t$，我們不再需要建立完整的樹才能得到結果，
+相應的代價是維護左子樹的節點個數與其卡塔蘭數索引值於棧 $D$ 中，
+棧 $D$ 的每一個元素皆包含其左子樹的卡塔蘭索引值和左子樹的節點個數，
+請參照算法~\ref{alg:cartesian-encode-offline} 的說明。
+在算法~\ref{alg:cartesian-encode-offline} 中，棧 $D$ 每一個元素帶有元素值 $v$、
+左子樹的節點個數 $s$、左子樹的卡塔蘭索引值 $t$，並且我們使用 $p$ 表示指向棧頂的指針。
+
+\input{\AlgoPath/alg-cartesian-encode-offline-2e}
+
+\begin{figure}[!thb]
+  \centering
+  \includegraphics[width=0.4\linewidth]{\GraphicPath/fig-cartesian-encoding-static.pdf}
+  \caption{計算樹的卡塔蘭索引值，令 $A_l$、$B_l$ 分別為 $A$、$B$ 的左子樹}
+  \label{fig:fig-cartesian-encoding-static}
+\end{figure}
+
+算法~\ref{alg:cartesian-encode-offline} 根據塊內元素和棧 $D$ 計算出卡塔蘭索引值。
+在第一個雙層迴圈中，外層迴圈依序加入元素到右側路徑的尾端，其中棧頂為 $D[p]$，
+每次將從 $D$ 中推出「較小」的元素，當我們推出時相當於翻轉笛卡爾樹的子樹，
+需要計算新的索引值 $t$ 以及節點個數 $s$，並且抽換掉右側路徑的狀態。
+最終，整個樹的卡塔蘭索引值 $t$ 將根據公式~\ref{fun:tid}，
+統合棧 $D$ 上的左右子樹的索引值和節點個數計算得到，
+請參照算法~\ref{alg:cartesian-encode-offline} 和圖~\ref{fig:fig-cartesian-encoding-static} 的說明。
+圖中 $A_l$、$B_l$ 分別為 $A$、$B$ 的左子樹，在運行完所有插入元素的推出操作後，
+我們需要從棧 $D$ 中推出所有元素得到整棵樹的卡塔蘭索引值，
+也就是算法~\ref{alg:cartesian-encode-offline} 最後一個迴圈所運行的內容。
+
+
+算法~\ref{alg:cartesian-encode-offline} 可以計算任何笛卡爾樹的卡塔蘭索引值，
+由於每一個元素「最多」進出棧一次，故只需 $O(s)$ 時間完成。
+
+\subsection{動態計算卡塔蘭索引值} \label{sec:dynamic}
+
+先前的研究中，已經有數種編碼笛卡爾樹的方法。
+如 Fischer~\cite{Fischer2006TheoreticalAP} 介紹了第一種方法，
+以及 Masud~\cite{Hasan2010CacheOA} 在其論文中也描述如何運用編碼方法降低運行指令次數。
+不幸地，這些算法的建造方案都是離線操作，意即它們需要給予完整塊才能計算出索引值，同時，
+這造成它們無法適應持續地附加新的資料。此外，它們要求前處理時間為 $O(n)$，其 $n$ 為元素個數。
+這些前處理需要額外的空間，或者需要從硬碟中提取資料。
+
+概括說明我們提出的笛卡爾樹標記方法，我們加入新的資料時，使用「正規化」的方式，
+將樹的節點個數統一為 $n$，意即對於任何的笛卡爾樹將會填充節點個數直到 $n$。
+當節點個數為 $i$ 時，我們將附加 $n-i$ 個「右傾節點」({\em right-child-only}) 於樹上。
+因此，當樹為空，我們添加 $n$ 個右傾節點，請參照圖~\ref{fig:cartesianEncoding-init} 的說明。
+當插入第 $i$ 節點時，添加 $n-i$ 個右傾節點於右側路徑上，如圖~\ref{fig:cartesianEncoding-before} 所示。
+為了說明這一加入的路徑，我們將其命名為「虛擬路徑」({\em virtual path})。
+
+\begin{figure*}[!thb]
+  \centering \subfigure[初始化 $t_{{\it root}_0}= {\cal C}_n - 1$]{
+    \includegraphics[width=0.26\linewidth]{\GraphicPath/fig-cartesian-encoding.pdf}
+    \label{fig:cartesianEncoding-init}
+  } \subfigure[$t_{{\it root}_i}$]{
+    \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding-before.pdf}
+    \label{fig:cartesianEncoding-before}
+  } \subfigure[$t_{{\it root}_{i+1}} = t_{{\it root}_i} + t_x - t_A$]{
+    \includegraphics[width=0.3\linewidth]{\GraphicPath/fig-cartesian-encoding-after.pdf}
+    \label{fig:cartesianEncoding-after}
+  }
+  \caption{正規化笛卡爾樹的過程，使用增加虛擬路徑來增加節點個數}
+  \label{fig:cartesianEncoding}
+\end{figure*}
+
+樹的正規化有兩項優點。其一，將可以減化卡塔蘭索引值的計算，
+意即插入新的元素時，更新卡塔蘭索引值較為容易。其二，正規化操作補齊最大元素到塊的尾端，
+對於現存的元素不受任何影響，可以運行相應的區間詢問，
+同時使得編碼算法可以「動態」維護相應的 LCA 表，便可支持增長區間詢問。
+
+動態卡塔蘭索引值的計算將使用樹的正規化操作，其使用方法如下：
+令當前笛卡爾樹的卡塔蘭索引值為 $t^*$，笛卡爾樹的右側路徑在棧 $D$ 上，
+隨著插入新的元素 $x$ 到樹上時，結合算法~\ref{alg:parallel-LCA} 和公式~\ref{fun:tid}，
+並且加入正規化操作得到在線版本的算法~\ref{alg:cartesian-encode-online}，
+在任意時刻 $i$，插入的第 $i$ 個散速，將可以得到當前的卡塔蘭索引值 $t^*$，
+接著拿 $t^*$ 解決區間最大值詢問。
+
+為方便表示，使用 $t$ 和 $s$ 表示卡塔蘭索引值和笛卡爾樹節點個數，
+這裡的笛卡爾樹並「不包含」虛擬路徑。這些變數命名類似算法~\ref{alg:cartesian-encode-offline} 使用的，
+額外使用 $t'$ 和 $s'$ 表示「包含」虛擬路徑的卡塔蘭索引值和笛卡爾樹節點個數。
+請參照圖~\ref{fig:cartesianEncoding}，紅色虛線為包含虛擬路徑的部分。
+
+在算法~\ref{alg:cartesian-encode-online} 初使化 $s$ 和 $t$ 的方法，
+接著如算法~\ref{alg:cartesian-encode-offline} 運行模式相當。然而，
+在算法~\ref{alg:cartesian-encode-online} 中，額外初使化 $s'$ 為 $n-i$、$t'$ 為 ${\cal C}_{s'}-1$，
+以應對「包含」虛擬路徑長 $n-i$ 的運行需求。
+
+算法~\ref{alg:cartesian-encode-online} 在插入第 $i$ 個元素 $x$ 時，分成兩個階段。
+在算法中的行~\ref{alg:cartesian-encode-online-pop-c1} 和 \ref{alg:cartesian-encode-online-pop-c2} 
+皆推出小於 $x$ 的元素出棧，並更新 $t,\; s$ 為最後一個子樹「不包含」虛擬路徑的値，
+同理，在算法中的行~\ref{alg:cartesian-encode-online-pop-virtual-c1} 和 \ref{alg:cartesian-encode-online-pop-virtual-c2} 
+更新 $t', \; s'$ 為「包含」虛擬路徑長 $n-s'$ 的結果。
+請參照算法~\ref{alg:cartesian-encode-online} 和圖~\ref{fig:cartesianEncoding} 的說明。
+
+\input{\AlgoPath/alg-cartesian-encode-online-2e}
+
+接著，更新棧 $D$ 且調整「整體的」卡塔蘭索引值 $t^*$，此時棧 $D$ 頂部必為元素 $x$ 的資訊，
+其包含左子樹的節點個數 $s$ 和左子樹的卡塔蘭索引值 $t$，
+請參照圖~\ref{fig:cartesianEncoding-after} 的說明。
+整體的卡塔蘭索引值 $t^*$ 將會在更新棧後，請參照圖~\ref{fig:cartesianEncoding-before} 
+和圖~\ref{fig:cartesianEncoding-after} 的說明。
+
+觀察圖~\ref{fig:cartesianEncoding-before} 
+和圖~\ref{fig:cartesianEncoding-after} 的紅色虛線框出的差異，
+我們只需要找到紅色虛線部分的卡塔蘭索引值的「差值」，使用「補丁」的方式，
+加上差值即可修正 $t^*$。所幸地，我們提供的字典順序採用左子樹先於右子樹，故圖~\ref{fig:cartesianEncoding-before} 
+和圖~\ref{fig:cartesianEncoding-after} 的紅色虛線區域的差值為 $t' - {\cal T}(s, t, s - i,
+{\cal C}_{s-i} - 1)$。最後，新的 $t^*$ 將會增加 $t' - {\cal T}(s, t, s - i, {\cal C}_{s-i} - 1)$。
+
+我們提出的算法~\ref{alg:cartesian-encode-online} 並不會增加原先的時間複雜度，
+儘管提供動態加入新的元素到樹上，複雜度仍同於先前提到的靜態索引值計算的算法~\ref{alg:cartesian-encode-offline}，
+其時間複雜度為 $O(n)$，因每個元素恰好被推出棧一次。相似地，
+運行 $n$ 次算法~\ref{alg:cartesian-encode-online}，
+又因在迴圈內的任何計算都屬於 $O(1)$ 操作，攤銷複雜度仍為 $O(n)$。
+最後，我們得知在塊內詢問與卡塔蘭索引值計算皆為攤銷 $O(1)$ 的操作。

@@ -52,7 +52,7 @@ shows our lexicographical labeling of binary search trees of sizes
 We also need to determine the {\em least common ancestor} efficiently
 for answering range maximum queries when data are incrementally added.
 Let $t$ be the Catalan index of the binary search tree from our
-lexicographical labeling, so $t$ is between 0 and ${\cal C}_s-1$, where
+lexicographical labeling, so $t$ is between $0$ and ${\cal C}_s-1$, where
 $s$ is the number of search trees.  Let ${\cal A}(s, t, p, q)$ denote
 the least common ancestor of the node $p$ and $q$ within a binary search
 tree of size $s$ that has a Catalan index $t$.  For example, ${\cal
@@ -152,14 +152,14 @@ recomputing them as in Equation~\ref{fun:tid}.
 
 \subsubsection{Keep the Rightmost Path}
 
-The previous computation of Catalan index requires building the tree
-to obtain subtree information, and may not be efficient.  We propose a
-more efficient method that determines the Catalan index by keeps only
-the {\em rightmost path} in a {\em stack}, without building the entire
-tree.  This technique is similar to the {\em rightmost-pops encoding}
-in Section~\ref{sec:cct}.  After knowing the Catalan index $t$ we can
-compute LCA and answer queries with Algorithm~\ref{alg:parallel-LCA}
-and Equation~\ref{fun:tid}.
+The previous computation of Catalan index requires building the tree to
+obtain subtree information, and may not be efficient.  We propose a more
+efficient method that determines the Catalan index by keeps only the
+{\em rightmost path} in a {\em stack}, without building the entire tree.
+This technique is similar to the {\em rightmost-pops encoding} in
+Section~\ref{sec:cct}.  After knowing the Catalan index $t$, we can
+compute LCA and answer queries with Algorithm~\ref{alg:parallel-LCA} and
+Equation~\ref{fun:tid}.
 
 We compute the Catalan index $t$ efficiently by the maintaining its {\em
 rightmost path} in a {\em stack}.  That is, we will {\em not} build
@@ -210,31 +210,29 @@ pushed/popped at most {\em once}.
 
 \subsection{Dynamic Catalan Index Computation} \label{sec:dynamic}
 
-Several encoding methods were proposed for indexing Cartesian search
-trees.  Fischer~\cite{Fischer2006TheoreticalAP} introduced the first
-encoding method and Masud~\cite{Hasan2010CacheOA} presents a new
-encoding method that reduces the number of instructions.
-Unfortunately all these algorithms are {\em off-line}, i.e., they
-assume all data are given in advance, as a result, they cannot cope
-with incrementally added data.  In addition, they require a
-preprocessing of time $O(n)$, where $n$ is the number of data.  The
-preprocessing requires extra memory to process the input data block,
-or reads external files from disk.
+Several encoding methods were proposed for indexing Cartesian trees.
+Fischer~\cite{Fischer2006TheoreticalAP} introduced the first encoding
+method and Masud~\cite{Hasan2010CacheOA} presents a new encoding method
+that reduces the number of instructions. Unfortunately all these
+algorithms are {\em off-line}, i.e., they assume all data are given in
+advance, as a result, they cannot cope with incrementally added data.
+In addition, they require a preprocessing of time $O(n)$, where $n$ is
+the number of data.  The preprocessing requires extra memory to process
+the input data block, or reads external files from disk.
 
-We generalize our Catalan tree labeling technique for incrementally
+We generalize our Cartesian tree labeling technique for incrementally
 added data by a {\em normalization}, which keeps the size of tree as a
-constant $n$.  That is, suppose we want to encode a series of
-Cartesian search trees of {\em increasing} sizes up to $n$, we can
-append a path of $n-i$ {\em right-child-only} nodes to the rightmost
-path of the existing tree of size $i$, so that the total number of
-node is {\em always} $n$.  That is, when the computation starts
-without any existing tree nodes, we will start with a path of $n$
-right-child-only nodes.  Please refer to
-Figure~\ref{fig:cartesianEncoding}(a) for an illustration.  After we
-have added $i$ nodes, we will have a path of $n - i$ right-child-only
-nodes attached to the rightmost path, as illustrated by
-Figure~\ref{fig:cartesianEncoding}(b).  For ease of explanation we
-will refer to this added path as the {\em virtual path}.
+constant $n$.  That is, suppose we want to encode a series of Cartesian
+trees of {\em increasing} sizes up to $n$, we can append a path of $n-i$
+{\em right-child-only} nodes to the rightmost path of the existing tree
+of size $i$, so that the total number of node is {\em always} $n$.  That
+is, when the computation starts without any existing tree nodes, we will
+start with a path of $n$ right-child-only nodes. Please refer to
+Figure~\ref{fig:cartesianEncoding-init} for an illustration.  After we
+have added $i$ nodes, we will have a path of $n
+- i$ right-child-only nodes attached to the rightmost path, as
+illustrated by Figure~\ref{fig:cartesianEncoding-before}.  For ease of
+explanation we will refer to this added path as the {\em virtual path}.
 
 \begin{figure*}[!thb]
   \centering \subfigure[Initiation $t_{{\it root}_0}= {\cal C}_n - 1$]{
@@ -342,8 +340,8 @@ Note that Algorithm~\ref{alg:cartesian-encode-online} does {\em not}
 increase the amortized time complexity to compute the Catalan index,
 even when we dynamically add data into the tree.  As described earlier,
 the time complexity of the static index computation
-(Algorithm~\ref{alg:cartesian-encode-online}) is $O(n)$ because each
-element is popped exactly once.  Similarly the total cost of calling
+(Algorithm~\ref{alg:cartesian-encode-offline}) is $O(n)$ because each
+element is popped exactly once.  Similarly, the total cost of calling
 Algorithm~\ref{alg:cartesian-encode-online} $n$ times is also $O(n)$,
 since each operation within the loop is $O(1)$.  As a result, the
 amortized cost for an in-block query, including the computation of
