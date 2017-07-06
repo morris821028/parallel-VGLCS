@@ -1,310 +1,157 @@
-\section{Parallel VGLCS Algorithm} \label{sec:parallelVGLCS}
+\section{區間最大值} \label{sec:parallelRMQ}
 
-\subsection{Basic Dynamic Programming}
+在這一章節中，我們將著重於算法~\ref{alg:parallel-VGLCS} 第二階段的挑戰，
+意即高效的「區間最大值詢問」，增長區間最大值詢問遠比增長後綴最大值詢問來得困難，
+原因在於後綴為區間的一種特例。
 
-We first describe a basic dynamic programming for
-VGLCS~\cite{Peng2011TheLC}. Let $A$ and $B$ denote two input strings
-of length $n$ and $m$ respectively, and $G_A$ and $G_B$ be the arrays
-of the variable gap constraints.  We define $V[i][j]$ to be the {\em
-  maximum} length of the variable gapped longest common subsequence
-between substring $A[1, i]$ and $B[1, j]$.  It is easy to see that
-$V[i][j]$ is the {\em maximum} among $V[k][l]$, where $k$ is between
-$i-1$ and $i-G_A(i)-1$, and $l$ is between $j-1$ and $j-G_B(j)-1$,
-i.e., a rectangle within $V$ on the left and upper of $V[i][j]$.
-Please refer to Figure~\ref{fig:fig-VGLCS-dp-naive} for an
-illustration.
+增長區間最大值詢問類似於後綴最大值詢問，分成三個操作：第一種 {\sc Make}，建立空陣列 $A$；
+第二種 {\sc Append}$(V)$ 操作，附加元素 $V$ 於陣列 $A$ 的尾端；
+第三種 {\sc Query}$(L, R)$，找到陣列 $A$ 位置 $L$ 到 $R$ 的元素最大值。
+
+\subsection{塊狀稀疏表} \label{sec:blocked-sparse-table}
+
+為了改善平行 VGLCS 算法，我們採用「塊狀稀疏表」(blocked sparse table)，
+其最早被 Fischer~\cite{Fischer2006TheoreticalAP} 提及。
+塊狀方法先將原輸入陣列拆成好幾個塊，每一塊有 $s$ 個元素，將每一塊的最大值建立成稀疏表 $T_s$。
+相較於章節~\ref{sec:sparse-table} 提到的稀疏表，未分塊的稀疏表單一元素為一塊，
+並且需建造 $\log n$ 層的區間最大值。
+
 
 \begin{figure}[!thb]
-  \centering \subfigure[How to compute $V$.] {
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-naive.pdf}
-    % \caption{How to compute $V$.}
-    \label{fig:fig-VGLCS-dp-naive}
-  } \subfigure[Compute $V$ with incremental suffix maximum queries.] {
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
-    \label{fig:fig-VGLCS-dp}
+  \centering \subfigure[原輸入陣列] {
+    \includegraphics[width=0.65\linewidth]{\GraphicPath/fig-interval-decomposition.pdf}
+  } \subfigure[塊狀稀疏表] {
+    \includegraphics[width=0.25\linewidth]{\GraphicPath/fig-sparse-table.pdf}
   }
-  \caption{The basic dynamic programming for VGLCS}
-  \label{fig:basic-dp-VGLCS}
+  \caption{塊狀稀疏表例子}
+  \label{fig:block-interval-decomposition}
 \end{figure}
 
-The computation of $V$ can be optimized as follows.  Note that the
-computation of all $V[i][j]$'s with the same $i$ has the {\em same} gap
-constraint $G_A(i)$, so the maximum within the rectangle can be computed
-in two steps.  First, we compute the maximum of {\em every column} of
-this rectangle, and place them into another array $R$. Then we compute
-the maximum of the {\em suffix} of length $G_B$ on $R$, which is exactly
-$V[i][j]$.  Please refer to Figure~\ref{fig:fig-VGLCS-dp} for an
-illustration.
+塊狀方法解決區間最大值的方法如下所述：首先，
+我們分成兩種詢問「超塊詢問」({\em super block} query) 以及「塊內詢問」({\em
+  in-block} query)，其中超塊詢問解決「連續完整」的塊狀最大值，
+而塊內詢問解決單一塊內的區間詢問。如先前章節~\ref{sec:sparse-table} 提及的稀疏表算法，
+超塊詢問最多拆成 2 個稀疏表上的查找。塊內詢問則需要「一次」查找，
+這個查找需在「最小共同祖先表」({\em least common ancestor} table) 上運作，
+關於這個表將在後續的章節中闡述細節。因此，任何區間詢問將會被拆成至多 2 次 $T_s$ 上的查找以及 2 次的塊內詢問，
+整體而言最多有 4 次記憶體存取。由於超塊詢問與先前的稀疏表相當，接著將探討塊內詢問如何被解決。
 
-We note that this optimization requires maximum queries on the suffix
-{\em incrementally} in the following sense.  Recall that in the first
-step of the optimization, we need to compute the maximum of every column
-within the rectangle.  This is just like finding the maximum of the {\em
-suffix} of every column in that rectangle.  After we compute the $i$-th
-row of $V$ and go to the next row to compute $V[i+1][*]$, we will then
-need the maximum of the suffix of every column of length $G_A(i+1)$. It
-will be beneficial if we put the $V$'s in each column into a data
-structure that supports suffix maximum query.  Similarly, the
-computation within the same row, that is, from $V[i][j]$ to $V[i][j+1]$,
-also requires the maximum of the suffix on $R$.  We will refer to this
-type of queries as {\em incremental suffix maximum query}, i.e., we
-would like to maintain a data structure form which we can find the
-maximum of its suffix efficiently while we add data at its end.
+Fischer 算法~\cite{Fischer2006TheoreticalAP} 掃描整個輸入陣列所產生的塊，
+接著將其轉換成「笛卡爾樹」(Cartersian tree)。笛卡爾樹的每個節點儲存兩個鍵值，分別為資料的索引值與值。
+我們可以將笛卡爾樹視為「堆」(heap)，按照資料值呈現最大/最小堆的特性；
+若只看資料的索引值，笛卡爾樹具有「二元搜尋樹」(binary search tree)的特性，
+請參照圖~\ref{fig:ancesstor-cartesian} 的說明。
+圖~\ref{fig:ancesstor-cartesian} 的每一個樹節點的水平位置反應出其原始位置的相對關係，
+而垂直位置反應數值大小關係。換而言之，若需要得知塊內詢問的第 $i$ 位置到 $j$ 位置上的最大值，
+找到相應的笛卡爾樹的「最小共同祖先」({\em least common ancestor})。
+例如詢問區間位置 4 到位置 6 之間的最大值，從表格中得知「最大值位置」為 5，最後得到最大值為 7。
 
-% \begin{figure}[!thb]
-%   \includegraphics[width=0.40\linewidth]{\GraphicPath/fig-VGLCS-dp.pdf}
-%   \caption{Compute $V$ with incremental suffix maximum queries.}
-%   \label{fig:fig-VGLCS-dp}
-% \end{figure}
+\begin{figure}[!thb]   
+  \centering
+  \includegraphics[width=0.9\linewidth]{\GraphicPath/fig-interval-cartesian.pdf}
+  \caption{最小共同祖先表}
+  \label{fig:ancesstor-cartesian}
+\end{figure}
 
-\subsection{Peng's Algorithm}
+為了解決塊內詢問，Fischer 算法需要計算每一塊相應的最小共同祖先表 (LCA table，簡稱「LCA 表」)，
+在掃描每一塊的資訊後，建造相應的 LCA 表，此一表儲存資訊為 $((i, j), k)$，
+對於任意位置 $i$ 到 $j$ 的最大值位置 $k$，請參照圖~\ref{fig:ancesstor-cartesian} 的說明。
+我們可以從 LCA 表中提取位置 $i$ 到位置 $j$ 的最大值位置 $k$，
+隨後映射回原輸入陣列得到區間 $(i, j)$ 的最大值。
 
-The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
-Peng~\cite{Peng2011TheLC} applies the optimization and is shown as
-Algorithm~\ref{alg:serial-VGLCS}.  The outer loop goes through every
-row, and the inner loop goes through every element of a row from left to
-right.  We use an array of $C$ to answer incremental maximum queries on
-all columns.  That is, we can think of $C[j]$ as a data structure that
-supports incremental suffix maximum queries on the $j$-th column of $V$.
-From the previous observation that all computation of elements in the
-$i$-th row of $V$ share the same gap $G_A(i)$, we will query each $C$
-for the maximum in the suffix that ends at row $i-1$ with length
-$G_A(i)+1$, and place these maximums in another data structure $R$ that
-also supports incremental suffix maximum queries.  It is easy to see
-that the value of $V[i][j]$ can be obtained by querying $R$ with a
-suffix maximum query of length $G_B(j)+1$ as shown in
-Figure~\ref{fig:fig-VGLCS-dp}.
+特別注意到算法中，沒有儲存第 $k$ 個元素的值，而是儲存其「索引值」，
+意即保留元素值的相對關係，因此兩個塊之間可以共用同一個 LCA 表。
+如圖~\ref{fig:ancesstor-cartesian} 所示，前三個區塊共用同一個 LCA 表，
+因此，無論在哪塊中詢問區間 $(1, 3)$ 最大值，任何塊內詢問皆回答 $2$。
 
-We update $V$, $C$, and $R$ as follows.  If the $i$-th character of $A$
-matches the $j$-th character of $B$ then $V[i][j]$ is the maximum among
-the rectangle plus 1, as shown in Figure~\ref{fig:fig-VGLCS-dp}. This
-maximum can be found by querying $R$ for the maximum among the last
-$G_B(j)$ elements in it.  Note that $R$ contains the information of the
-previous row, up to the element of the $j-1$ element.  After that, we
-add the maximum of last $G_B(j)+1$ in the $j$-the column into $R$, and
-the newly computed $V[i][j]$ into $C[j]$, which supports ISMQ on the
-$j$-the column, before going to column $j+1$.  If the $i$-th character
-of $A$ does {\em not} match the $j$-th character of $B$, we simply set
-$V$ to 0 since it does not affect the answer, then again update $R$
-accordingly.
- 
- 
-\input{\AlgoPath/alg-serial-VGLCS-2e}
+Fischer 算法的核心在於如何計算每一塊相應的 LCA 表，間接地應答所有塊內詢問。
+我們也可以發現將會有 ${\cal C}_s$ 種不同形的笛卡爾樹，
+其中 ${\cal C}_s$ 為節點個數為 $s$ 的二元搜尋樹的不同形狀個數。
+每一塊將對應一個笛卡爾樹，接著我們將使用「卡塔蘭索引值」({\em Catalan index}) 表示塊與笛卡爾樹的相應關係，
+這相應關係如圖~\ref{fig:ancesstor-cartesian} 所描述。
 
-\subsection{Incremental Suffix Maximum Query}
+Fischer 算法~\cite{Fischer2006TheoreticalAP} 建立 LCA 表前，
+基於效能考量而選用塊大小 $s = \frac{\log n}{4}$，因卡塔蘭數 ${\cal C}_s =
+\frac{1}{s+1}\binom{2s}{s} = O(\frac{4^s}{s^{\nicefrac{3}{2}}})$，
+故掃描和建立笛卡爾樹的時間皆為 $O(n)$。意即 Fischer 算法在前處理階段需要 $O(n)$ 時間，
+對於任意區間詢問需 $O(1)$ 時間，容易地明白前處理和詢問操作皆已經理論最佳的結果。
 
-From the previous discussion of Peng's algorithm, we note that in order
-to find VGLCS efficiently, we need to address the {\em incremental
-suffix maximum query} (ISMQ) problem.  A data structure that supports
-incremental suffix maximum queries should support the three operations.
-First, a {\sc Make} operation creates an empty array $A$. Second, an
-{\sc Append}$(V)$ operation appends a value $V$ to array $A$. Finally, an
-ISMQ {\sc Query}$(x)$ finds the {\em maximum} value among those from $x$
-to the end of an array $A$.
+然而，Fischer 算法在大量資料下意造成「快取未中」(cache miss)，
+而算法中採用「請求」 ({\em on-demand}) 式的建立所需要的 LCA 表，
+唯有在掃瞄過程中找到尚未建立的 LCA 表時，才進行新的 LCA 表建造。
+一旦使用 LCA 表，這意味著使用上隨著帶入 LCA 表至快取時，易將另一個 LCA 表逐出快取，
+反覆使用的次數一多，就容易造成嚴重的快取未中。
 
-Peng uses a {\em disjoint-set} data structure to answer incremental
-suffix maximum queries in his VGLCS algorithm.  The disjoint-set data
-structure was proposed by Gabow~\cite{Gabow1983ALA} and
-Tarjan~\cite{Tarjan1975EfficiencyOA} to solves the {\em union-and-find
-problem}.  The set of data is stored in a sequence of disjoint sets, and
-the {\em maximum} of each disjoint set is at the root of the tree, and
-these maximum are in {\em decreasing} order.  When we add a value $x$,
-we make it as a disjoint set with a single element by itself, and as the
-{\em last} disjoint set in the sequence.  Then we start joining (with
-union operation) from the last set to its previous set until the maximum
-of the previous set is {\em larger} than $x$. It is easy to see that the
-{\sc Query(x)} operation is simply a {\em find} operation that finds the
-root, which has the {\em maximum}, of the tree that $x$ belongs to.  The
-amortized time per union/find operation is $O(\alpha(n))$.
+為減少快取未中的次數，Demaine 算法~\cite{Demaine2009OnCT} 
+提出在笛卡爾數上的「快取適性」(cache-aware) 操作，
+Demaine 算法並不需要使用記憶體檢查是否需要建立 LCA 表，而是建立所有的可能笛卡爾樹的表。
+因此，Demaine 算法使用以長度為 $2s$ 的二元字串表示笛卡爾樹，
+這個二元字串上可回答塊內區間最大值。然而，檢測過程中將會需要計算兩個相鄰 1 的位元之間有多少個 0，
+這一操作難以在當代計算機架構上高效地運行。
 
-\subsection{A Parallel VGLCS Algorithm with Sparse Table}
+\subsection{右側棧出編碼} \label{sec:cct}
 
-The sequential VGLCS algorithm~\ref{alg:serial-VGLCS} by
-Peng~\cite{Peng2011TheLC} and other variants of LCS are difficult to
-parallelize in a row-by-row manner.  These algorithms use several
-states to determine a new state with a dynamic programming.  This
-construction requires {\em heavy data dependency}, and is difficult to
-parallelize in a naive row-by-row manner because an element of the
-dynamic table needs the values of elements in the {\em same} row to
-compute its value.
+我們提出另一種塊的編碼方法－名為「右側棧出」({\em rightmost-pops})，
+有別於 Demaine~\cite{Demaine2009OnCT} 提出的二元字串，其為了改善查詢區間極值查找的效能。
+然而，右側棧出主要仍來自 Demaine 和笛卡爾樹的想法。
 
-It is also difficult to parallelize Peng's algorithm with the wavefront
-method because it requires {\em extra space} to keep track of row
-status, which is not required in a sequential algorithm. Recall that
-VGLCS requires a rectangle of data in $V$ to compute a new element, if
-those $V$'s want to compute on a diagonal wavefront, those rectangles of
-data will require extra bookkeeping since the gap constraints of those
-elements on the wavefront could be very different.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp-wavefront} for an illustration of those
-data that must be present (in solid line).  Also, the new elements
-computed must be appended to the data strictures according to the
-wavefront, which incurs more bookkeeping and overheads.
+
+右側棧出編碼主要維護笛卡爾樹的「右側路徑」({\em rightmost path}) 於棧 (stack)，
+同時，當加入新的元素到笛卡爾樹實，保留在棧上的推出 (pop) 次數，
+請參照圖~\ref{fig:interval-cartesian} 的說明。
+為了維護加入第 $i$ 的元素 $a_i$ 滿足笛卡爾樹的堆性質，
+將會把樹上右側較小的元素翻轉到 $a_i$ 的左子樹，也就是將棧上小於等於 $a_i$ 的元素推出，
+其推出的次數令為 $t_i$，在過程中滿足 $0 \le t_i < s$，其中 $s$ 為塊大小。
+接著，這些 $t_i$ 將會是編碼笛卡爾樹的主要素材。
+
+請參照圖~\ref{fig:interval-cartesian}，當我們插入元素 $a_1 = 0$ 時，將不會有任何元素被推出棧，
+接著插入元素 $a_2 = 4$ 時，將會把 $a_0$ 和 $a_1$ 推出棧，此時得到 $t_2$ 為 $2$，
+從先前的定義中，我們可以明確地將棧表示為笛卡爾樹的最右側結構，接著將這些 $t_i$ 組合來表示笛卡爾樹的狀態。
 
 \begin{figure}[!thb]
-  \centering \subfigure[The first stage]{
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront-second.pdf}
-  } \subfigure[The second stage]{
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-wavefront-first.pdf}
-  }
-  \caption{The bookkeeping data of the wavefront method}
-  \label{fig:fig-VGLCS-dp-wavefront}
+  \centering
+  \includegraphics[width=\linewidth]{\GraphicPath/fig-cartesian-encoding-stack.pdf}
+  \caption{表示右側路徑於棧}
+  \label{fig:interval-cartesian}
 \end{figure}
 
-We propose a parallel VGLCS algorithm with an optimized row-by-row
-approach, which maintains only {\em one} row data structure that
-collects suffix maximum values from all columns.  That is, our
-optimized row-by-row approach removes the data dependency among
-elements {\em within the same row}.
+「右側棧出編碼」主要藉由數個 $t_i$ 「隱式辨識」(implicitly identify) 出個別的笛卡爾樹。
+對於任意的塊內詢問，只需要在數個 $t_i$ 上測試即可。
+假設回答塊狀詢問區間 $l$ 到 $r$ 於這些 $t_i$ 上的最大值，我們維護棧上的推出次數 $x$，
+初始值令 $x$ 為 0，接著依序檢測 $t_l$ 到 $t_r$，令迴圈索引 $j$ 依序從 $l$ 到 $r$，
+每經過一次迴圈，將 $x$ 扣除 $t_j - 1$，我們只需要紀錄最後一次發生 $x$ 小於等於 0 的索引值 $j$ 為何，
+則「最後的」索引值 $j$ 即是需要的「最大值位置」，請參照算法~\ref{alg:cartesian64bits-query} 的說明。
+算法~\ref{alg:cartesian64bits-query} 中提供的每一步操作都可以明確地在當代電腦中找到相應的指令，
+別於當初 Demaine 提出的算法，這大幅度地容易以簡單指令表示之。
 
-Our optimized row-by-row approach uses less space, has a more balanced
-workload, and a smaller thread synchronization overhead, than the
-wavefront method.  We observe that the length of the critical path of
-a wavefront method is greater than that of a row-by-row method.  In
-addition, if we can removes the data dependency among elements within
-the same row, then the computation on the elements of the same row can
-be {\em fully} and {\em evenly} parallelized.  The result is a much
-more balanced workload distribution and a much easier synchronization
-among threads.
+\input{\AlgoPath/alg-cartesian64bits-query-2e}
 
+算法~\ref{alg:cartesian64bits-query} 的正確性請參照理論~\ref{thm:correctness} 的證明。
+直觀的方法來自於找到樹根，其表示區間內最後插入到根的元素。
 
-% On the other hand, if we use the
-% Maleki's~\cite{Maleki2016EfficientPU} technique, % need to explain
-% this technique it also uses extra space to maintain state
-% translation, and spends more time to merge data.  Therefore, it is
-% crucial that our parallelization conserves {\em both} memory and
-% time.
+\begin{theorem} \label{thm:correctness}
+  算法~\ref{alg:cartesian64bits-query} 正確回答塊內區間最大值詢問
+\end{theorem}
+\begin{proof}
+當推出次數 $x$ 小於等於 0 時，其意涵著該位置為區間內的樹根，
+則最後一次成為樹根的位置則為區間內的最大值。因為笛卡爾樹具有堆性質，根為樹內最大值。
+\end{proof}
 
-% It seems that you should use the new figures to explain these???
-% Morris: how to make it to row-by-row manner
+選用塊大小 $s=16$，則所有 $t_i$ 小於 16 且每一個 $t_i$ 可以表示成 4-bit 整數，
+串接這十六個 4-bit 整數可以壓縮到 64-bit 整數來表示一個完整的笛卡爾樹，
+請參照算法~\ref{alg:cartesian-to-64bits}，其算法只需要 $O(s)$ 時間。
+算法~\ref{alg:cartesian-to-64bits} 中的左移、右移和加減法都可以很明確地對應到機器指令。
 
+\input{\AlgoPath/alg-cartesian-to-64bits-2e}
 
-A sketch of our algorithm is as follows.  Our algorithm computes $V$ one
-row at a time.  The computation of each row has two stages.  In the
-first stage, the algorithm queries each data structure $C$ for every
-column within the rectangle {\em in parallel}, so as to obtain the
-maximums of suffix of length $G_A(i) + 1$ of every column, and place
-them into an array $R$. Recall from Algorithm~\ref{alg:serial-VGLCS}
-that every column of $V$ has a data structure $C$ that supports
-incremental suffix maximum on $V$.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.
+考量到效能問題，選用塊大小 $s = \frac{\log n}{4} = 16$ 的原因來自於大部分的機器皆為 64-bit 暫存器，
+且有許多非常高效率的暫存器操作。此外，這一類的方法並沒有使用到 LCA 表，
+這意涵著我們只需要維護 64-bit 的 $t_i$ 表示笛卡爾樹的狀態，充分地改善記憶體使用和快取效能，
+從理論上已經可以支持到 $n = 2^{64}$ 大小的問題。
 
-In the second stage, our algorithm issues {\em range maximum queries},
-one for each column, on $R$ to compute all $m$ elements of the $i$-th
-row of $V$ {\em in parallel}.  Note that unlike the sequential
-algorithm, we compute all elements in the $i$-th row of $V$ in parallel,
-so we cannot query the {\em suffix} of $R$.  Instead, we need to query a
-{\em range} of $R$ for the maximum, where the range is the gap
-constraint on that column.  Please refer to
-Figure~\ref{fig:fig-VGLCS-dp-rmq} for an illustration.  Note that we
-need to add the newly computed $V[i][j]$ into the $C$ of the $j$-th
-column {\em incrementally}, so that they will contain the correct
-information for the computation of the $(i+1)$-th row.  Also, since the
-algorithm iterates in rows, these $C$'s only need to support suffix
-maximum query.  No range query on them is required.  In contrast, we do
-need to support range maximum query on $R$, and these queries will be in
-parallel.
-
-\begin{figure}[!thb]
-  \centering \subfigure[The first stage]{
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-first.pdf}
-  } \subfigure[The second stage]{
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-VGLCS-dp-rmq-second.pdf}
-  }
-  \caption{Two stages of the computation of one row of $V$.}
-  \label{fig:fig-VGLCS-dp-rmq}
-\end{figure}
-
-To resolve the data dependency, we need to consider a good data
-structure that can handle incremental suffix/range maximum query {\em in
-parallel}.  We note that it is {\em not} feasible to parallelize the
-disjoint set implementation for three reasons.  First, a query for
-disjoint set will change the data structure because a lookup will {\em
-compress} the path to the root.  It is difficult to maintain a
-consistent view of the data structure when multiple threads are
-compressing the path {\em simultaneously}.  Second, when multiple
-threads are compressing different paths, the load among them could be
-very different, and this will incur load imbalance.  Third, there will
-be a large number of threads working on different parts of the disjoint
-set, therefore it will be difficult to synchronize them efficiently.
-
-\subsubsection{Sparse Table} \label{sec:sparse-table}
-
-Since the disjoint set cannot be implemented efficiently in parallel,
-we use {\em sparse table}~\cite{Berkman1993RecursiveSP} to support
-incremental suffix/range maximum queries in our VGLCS algorithm.
-Sparse table~\cite{Berkman1993RecursiveSP} requires a $O(n \log n)$
-preprocessing, and can support range maximum query in $O(1)$ time on
-one dimensional data.  A sparse table is a two dimensional array.  The
-element of a sparse table in the $j$-th row and $i$-th column is the
-maximum among the $i$-th elements and its $2^j - 1$ predecessors in
-the input array.
-
-We give an example of the sparse table
-(Figure~\ref{fig:interval-decomposition}).  The input is in array $A$.
-We split array $A$ into five blocks so that each block has four
-elements.  Then we build a sparse table $T$ on $A$ as described
-earlier.  Now a ranged maximum query on $A$ can be answered by at most
-{\em two} queries into the sparse table.  For example, if the query is
-from 2 to 13, then the answer is the maximum of from 2 to 9
-($T[3][9]$), and from 6 to 13 ($T[3][13]$).  Both are from the third
-level of the table since each has the maximum of $2^3 = 8$ elements in
-the input.
-
-\begin{figure}[!thb]
-  \centering \subfigure[Array]{
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-interval-decomposition-origin.pdf}
-    \label{fig:fig-interval-decomposition}
-  } \subfigure[Sparse table]{
-    \includegraphics[width=0.45\linewidth]{\GraphicPath/fig-sparse-table-origin.pdf}
-    \label{fig:fig-sparse-table}
-  }
-  \caption{A sparse table example}
-  \label{fig:interval-decomposition}
-\end{figure}
-
-It is easy to see that one can build a sparse table in parallel
-efficiently.  Please refer to
-Algorithm~\ref{alg:parallel-sparse-table} for details.
-Algorithm~\ref{alg:parallel-sparse-table} builds sparse table in
-parallel and in $O(n \log n / p + \log n)$ time, where $n$ is the
-number of elements and $p$ is the number of processors.  This
-algorithm is very easy to parallelize and implement.
-
-\input{\AlgoPath/alg-parallel-sparse-table-2e}
-
-\subsubsection{A Parallel VGLCS with Sparse Table}
-
-The operations on a sparse table are much easily to parallelize than
-those on a disjoint set, which is used within the inner loop of Peng's
-sequential VGLCS algorithm.  The inner loop of Peng's algorithm
-alternates between append and query operations on $R$.  Please refer
-to Algorithm~\ref{alg:serial-VGLCS} for details.  This alternation
-between appending and querying incurs heavy data dependency.  In
-addition, the parallelism of operations on a disjoint tree is limited
-by the length of path under compression.  The length is usually very
-short and provides very limited parallelism.
-
-The pseudo code of our parallel VGLCS algorithm with sparse table is
-given in Algorithm~\ref{alg:parallel-VGLCS}.  The algorithm computes
-$V$ one row at a time.  The computation of each row has two stages.
-In the first stage, the algorithm queries the $C$'s {\em in parallel}
-to obtain the maximums of suffix of length $G_A+1$ and place them
-into an array $R$.  Then we build a sparse table $T$ with the data of
-$R$.  Then in the second stage, the algorithm queries $T$ to find the
-range maximum in $R$ to compute all elements in the $i$-th row of $V$
-{\em in parallel}.
-
-\input{\AlgoPath/alg-parallel-VGLCS-2e}
-
-The implementation of the two stages have different challenges.  The
-first stage is easier to parallelize because the operations on
-individual columns are {\em independent}.  However, it will insert new
-data into $C$, and still needs to answer suffix queries efficiently in
-order to build the $R$ array.  The second stage does {\em not}
-requires insertion so it is more static.  However, since we compute
-all $V$'s in the same row in parallel, it requires {\em ranged
-  queries}, instead of suffix queries, on the sparse table $T$.  The
-next two sections will describe our approaches to address these
-challenges of two stages.  For ease of presentation we will describe
-our approach for the second stage in Section~\ref{sec:parallelRMQ}
-first.  Then we address the first stage in Section~\ref{sec:QIUD}.
+我們提出的「右側棧出編碼」改善了快取問題，卻增加了詢問操作的複雜度。
+相較於 Fischer 算法，算法~\ref{alg:cartesian64bits-query} 提供較高的資料局部性和較有規律性的管理，
+前處理同樣需要 $O(n)$ 時間，單一詢問操作需要 $O(s)$ 的時間，其中 $s$ 為塊大小 $\frac{\log n}{4}$。
+在實作中，我們選用 $s$ 為 16 來支持 $n = 2^{64}$ 的問題，所以 $s$ 可以視為一個很小的常數，
+空間複雜度仍為 $O(n)$。帶入平行 VGLCS 算法中使用，整體時間複雜度為 $O(n^2 \log{n} / p + n \log n)$，
+其中的 $\log n$ 來自於塊大小的選用 $s = O(\log n)$ 影響。
