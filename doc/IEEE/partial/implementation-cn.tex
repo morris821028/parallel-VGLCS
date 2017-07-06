@@ -1,0 +1,175 @@
+\section{實作與優化} \label{sec:Implementation}
+
+這一章節將描述如何優化 VGLCS 算法，不論是循序或者平行環境，
+我們將討論實作上的優化策略。特別注意到，有些技術將根據硬體特性進行優化，
+如快取行為等，這些並不會影響到漸近分析。
+
+\subsection{並查集實作策略}
+
+在 VGLCS 算法中，循序版本使用的並查集，將在這一章節探討如何在實作上優化。
+
+\subsubsection{快取效能}
+
+並查集的運行效能易受到快取行為影響。
+在 Patwary，Blair 和 Manne~\cite{Patwary2010ExperimentsOU} 等人的研究中，
+探討不同的實作策略導致不同程度的快取未中問題。在實作中，
+快取未中將會發生在如何從子節點找到父節點的部分，
+這些伴隨著路徑壓縮 (path compression) 中使用指針找到父節點。
+然而，一個複雜度較低的算法，通常會有很多的「遠跳」(long jumps)，
+而這些遠跳將會存取距離較遠的記憶體位址而導致快取未中，
+請參照圖~\ref{fig:long-short-jump-disjoint} 說明。
+
+\begin{figure}[!thb]
+  \centering \subfigure[低複雜度的算法] {
+    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-long-jump.pdf}
+    \label{fig:long-short-jump-disjoint-long}
+  } \subfigure[高複雜度的算法] {
+    \includegraphics[width=0.42\linewidth]{\GraphicPath/fig-rem-short-jump.pdf}
+    \label{fig:long-short-jump-disjoint-short}
+  }
+  \caption{並查集所需的父節點跳躍}
+  \label{fig:long-short-jump-disjoint}
+\end{figure}
+
+「雷姆算法」(Rem's algorithm~\cite{dijkstra1976a}) 
+使用「索引值合併」({\em merge-by-index}) 策略以得到較好的快取效能。
+傳統的並查集使用「秩合併」({\em merge-by-rank}) 或者「權重合併」({\em
+merge-by-size}~\cite{Tarjan1975EfficiencyOA})，這些方法分別使用根的秩和節點個數決定合併方向。
+儘管它們有漸近最好的理論時間複雜度，但它們在實作上並不是這麼出色，原因在於先前的快取未中問題。
+相比之下，雷姆算法在合併操作中，將索引值「低」的集合指向索引值「高」的集合，將提供更容易預測的快取算法。
+
+在我們的實驗中，我們仍使用秩合併為主要操作，然而當秩相同時，我們偏向索引值合併，
+打破等價情況並改善快取效能。從實驗中，
+我們得到「索引值合併破壞等價」(merge-by-index tie-breaking) 提供 3 \% 的效能改善相較於隨機合併，
+請參照圖~\ref{fig:fig-perf-cache-miss-rem} 說明。
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.95\linewidth]{\GraphicPath/fig-perf-cache-miss-rem.pdf}
+  \caption{「索引值合併破壞等價」應用在不同合併策略與不同應用問題上的效能，
+  透過 Linux {\tt perf} 分析工具實驗於 E5-2620 伺服器。}
+  \label{fig:fig-perf-cache-miss-rem}
+\end{figure}
+
+\subsubsection{應用於 VGLCS 算法}
+
+% VGLCS
+
+更進一步優化 Peng 算法~\ref{alg:serial-VGLCS}，
+將採用「懶插入」({\em lazy insertion}) 技巧。在算法~\ref{alg:serial-VGLCS} 中，
+在匹配第一個字串的第 $i$ 個字元與第二個字串的第 $j$ 個字元時，
+大部分的情況由於沒有匹配而填入元素 $0$ 至 $V[i][j]$，
+存在大量的 $0$ 插入到並查集中，每一次操作頻繁地與前一個 $0$ 一同合併。
+因此，懶插入將會改善快取效能。
+
+在懶插入操作中，我們優化許多次的插入、聯結許多個零元素。
+我們直到第一個非 $0$ 元素 $v$，才將前大段的 $0$ 元素一同合併，
+直接將每一個元素的父節點指向到 $v$ 所在的集合。從實驗中，我們觀察到這減少指針鏈以及更新路徑效能。
+
+特別注意到我們不使用「懶插入」於平行環境下，
+由於多核心平台下的執行緒同步也是重要的效能影響，
+因此，在 VGLCS 算法中，懶插入降低同步效率，故將不應用於平行實驗中。
+
+\subsection{平行區間詢問於 VGLCS 算法中}
+
+We further improve the performance of range query by maintaining two
+extra tables in the blocked sparse table approach described in
+Section~\ref{sec:blocked-sparse-table}.  There are now three tables -- a
+sparse table on the block maximum $T_S$, a {\em prefix maximum table}
+$P$, and a {\em suffix maximum table} $S$.  As described in
+Section~\ref{sec:blocked-sparse-table}, the sparse table $T_S$ can
+easily answer range query of consecutive blocks on the input $A$.  The
+prefix maximum table $P$ maintains the maximum of the prefix {\em
+within} a block, and similarly the suffix maximum table $S$ maintains
+the maximum for prefix.  Please refer to
+Figure~\ref{fig:compressed-sp-opt} for an illustration.
+
+It is easy to see that any range query can be answered by {\em two}
+queries into sparse table $T_S$, {\em one} query into prefix maximum
+table $P$, and {\em one} into suffix maximum table $S$.  For example, in
+Figure~\ref{fig:compressed-sp-opt}, the query from index 2 to 18 can be
+answered by two queries into the sparse table $T_S$ -- one from block 1
+to block 2, and one from 2 to 3, a query for the suffix of length 2 into
+the first block of $S$, and a query for the prefix of length 3 into the
+last block of $P$.  Please refer to Figure~\ref{fig:compressed-sp-opt}
+for an illustration.
+
+%% The in-block query is a very small probability event due to small $s =
+%% \frac{\log n}{4}$.
+
+%% We can use prefix and suffix maximum array to reduce the number of
+%% lookup operation on LCA table.
+
+\begin{figure}[!thb]
+  \centering \subfigure[The prefix/suffix maximum tables for blocks] {
+    \includegraphics[width=0.55\linewidth]{\GraphicPath/fig-compressed-sp-prefix-suffix.pdf}
+    \label{fig:compressed-sp-opt-all}
+  } \subfigure[A Sparse Table for $T_S$] {
+    \includegraphics[width=0.35\linewidth]{\GraphicPath/fig-sparse-table-opt.pdf}
+    \label{fig:compressed-sp-opt-ts}
+  } \caption{Block maximum $T_S$, prefix maximum $P$, and suffix maximum $S$.}
+  \label{fig:compressed-sp-opt}
+\end{figure}
+
+We argue that the {\em order} to access these maximum tables is
+important.  Our implementation accesses the block maximum $T_S$ {\em
+first}, then the prefix maximum $P$ {\em second}, then the suffix
+maximum $S$ {\em last}.  The reasoning for this order is as follows.
+Since we need to access two elements in the sparse table $T_S$ in {\em
+the same level}, it is very likely that they will be in the same cache
+line, so access the first will bring in the other automatically by the
+hardware caching mechanism.  For example, in
+Figure~\ref{fig:compressed-sp-opt-ts}, we will access both $T_{S}[1][2]$
+and $T_{S}[1][3]$ in order to find the maximum from block 1 to 3.
+
+Our implementation improves performance by ``peeking'' into two
+neighboring elements in the $T_{S}$ table.  To be more specific, we
+peek the element {\em before} the first element, and the one {\em
+  after} the second element, which we just accessed from $T_S$.
+
+For example, in Figure~\ref{fig:compressed-sp-opt-ts}, we will peek into
+$T_{S}[1][1]$ and $T_{S}[1][4]$, which are very likely also present in
+cache because they are in the same level of the sparse table as the
+previously accessed elements $T_{S}[1][2]$ and $T_{S}[1][3]$.  The idea
+is that if the maximum from the block maximum, i.e., the maximum of
+$T_{S}[1][2]$ and $T_{S}[1][3]$, is already {\em larger} than the
+overall block maximum where the prefix belongs, i.e., in
+$T_{S}[1][4]$, then we do {\em not} need to check the $P$ table.
+Similarly, if the maximum from the block maximum {\em and} the prefix
+maximum is larger than the block maximum where the suffix belongs,
+i.e., in $T_{S}[1][1]$, then we do not need to check the $S$ table
+either.  This peeking is efficient since the data being peeked are
+most likely in the same cache line, and can save unnecessary access to
+$P$ and $S$ tables.
+
+Algorithm~\ref{alg:rmq-access-order-2e} shows the access order for the
+range maximum query to reduce the cache miss.  Note that we check the
+prefix maximum $P$ {\em before} the suffix maximum $S$ since the value
+of the dynamic programming table in the same row is {\em increasing},
+so it is more likely that a prefix maximum, which has a larger column
+index, can save a check into the suffix table, which has a smaller row
+index.
+
+Our experiments show that despite that these maximum arrays require
+additional $O(n)$ memory, the peeking technique improves overall
+performance by up to 8\% when $n = 10^4$, and it improves the overall
+performance of query operations by up to 35\% when $n = 10^7$.  Please
+refer to Figure~\ref{fig:fig-perf-cache-miss-peek} for an illustration.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.95\linewidth]{\GraphicPath/fig-perf-cache-miss-peek.pdf}
+  \caption{The performance of the ``peeking'' for
+  the combination of different applications and environments in blocked
+  sparse table on an E5-2620 server, which is measured by the {\tt perf}
+  analyzing tool in Linux.}
+  \label{fig:fig-perf-cache-miss-peek}
+\end{figure}
+
+% One can consider the
+% first level of the compressed sparse table $T_S[0]$ as a small cache,
+% which may prevent access to the prefix/suffix maximum array, as
+% described earlier.
+
+\input{\AlgoPath/alg-rmq-access-order-2e}
+
