@@ -1,0 +1,35 @@
+\section{相關研究} \label{sec:RelatedWork}
+
+大部分的 LCS 平行方法都著重在「波前平行」，
+然而此方法維護波形掃描整個動態規劃表，大部分的波前計算對快取並不友善，
+也就是說當實驗環境存在「快取」，那麼效能將不是效率。
+為解決這類問題，Maleki~\cite{Maleki2016EfficientPU} 
+等人提出一些技巧來拓展動態規劃問題的平行度。
+
+取代波前平行的方法如常見的「列接列」，如在 Peng 算法~\cite{Peng2011TheLC} 
+提供 $O(nm \alpha(n))$ 解決 VGLCS 問題，或者漸近最好的 $O(nm)$ 算法，
+其中 $\alpha$ 為阿克曼函數的反函數。
+
+使用傳統列接列的平行方法存在許多挑戰，
+在 VGLCS 應用上需解決有效率的後綴或區間詢問於平行環境。
+Peng 算法索使用的並查集，其由 Gabow~\cite{Gabow1983ALA} 和 
+Tarjan~\cite{Tarjan1975EfficiencyOA} 提出和分析，可用來解決後綴最大值詢問。
+而我們使用稀疏表~\cite{Berkman1993RecursiveSP} 來支持增長後綴/區間最大值詢問來解決 VGLCS 問題，
+稀疏表其易於實作的特性代給平行環境下較好的效能。
+
+理論上的進展，由 Fischer~\cite{Fischer2006TheoreticalAP} 
+提出塊狀稀疏表以改善未分塊稀疏表~\cite{Berkman1993RecursiveSP} 的效能，
+我們使用塊狀稀疏表於本篇論文的實驗和實作中。
+而 Fischer~\cite{Fischer2006TheoreticalAP} 提出的最小共同祖先表來解決塊內詢問，
+我們則是使用本篇提出的「右側棧出」來編碼笛卡爾樹。
+
+Demaine~\cite{Demaine2009OnCT} 提出「快取適性」的操作於笛卡爾樹~\cite{Vuillemin1980AUL}，
+專門解決 Fischer 使用 LCA 表造成的快取未中問題。
+而 Masud~\cite{Hasan2010CacheOA} 則使用另一種編碼方式來減少計算編碼的使用次數。
+在這篇論文中，我們減化「右側棧出」編碼，其減化了 Demaine 提出的編碼方法，
+提高了編碼速度與改善快取未中的問題。
+
+最後，本篇想指出目前最好的方法，可能都不太適用於「動態」笛卡爾樹編碼，
+或者不支援平行的 LCA 建表，也就是說它們是用於「離線」或者「循序」環境。
+相反地，我們在章節~\ref{sec:dynamic} 提出的動態笛卡爾樹編碼，不僅支持有效率的區間詢問，
+且支持增長資料的操作，同時更能更有效地平行建造 LCA 表。

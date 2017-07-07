@@ -17,7 +17,7 @@ rightmost-pops encoding that is both easy-to-implement and efficient
 in a parallel environment.  Our VGLCS algorithm using right-most-pops
 encoding sparse table runs in $O(n^2 s / p + n \; \max(\log n, s))$,
 where $n$ is the number of data, $p$ is the number of processors, and
-s is the block size.
+$s$ is the block size.
 
 We also present a tree labeling technique that order trees
 lexicographically so that we can encode every binary search tree into
@@ -26,14 +26,14 @@ tree building so that the insertion takes amortized $O(1)$ time.  As a
 result the VGLCS problem can be solved in $O(n^2 / p + n \log n)$
 time with this labeling technique.
 
-Finally we present a dynamic parallel Catalan index computation
-algorithm for sparse table.  We can answer the incremental ranged
-maximum query run in amortized $O(1)$ by our sparse table, and it can
-be applied to the incremental suffix maximum query as well.  The time
-complexity of our VGLCS algorithm is $O(n^2 / p + n \log n)$.  Note
-that this dynamic tree Catalan tree index computation technique is
-very general and can be applied to other circumstances where data is
-constantly inserted into a binary tree.
+Finally, we present a dynamic Catalan index computation algorithm for
+sparse table.  We can answer the incremental ranged maximum query run in
+amortized $O(1)$ by our sparse table, and it can be applied to the
+incremental suffix maximum query as well.  The time complexity of our
+VGLCS algorithm is $O(n^2 / p + n \log n)$.  Note that this dynamic
+Catalan index computation technique is very general and can be applied
+to other circumstances where data is constantly inserted into a binary
+tree.
 
 We observed two interesting results from our experiments.  First
 blocked sparse table outperforms unblocked sparse tables in a
