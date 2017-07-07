@@ -33,7 +33,7 @@ unblocked sparse table and blocked sparse table, and we observe that
 the blocked sparse table using rightmost-pops sparse table is more
 efficient than the unblocked sparse table when $N$ increases.  For
 example, the blocked sparse table is $1.4$ times faster than the
-unblocked sparse table when $N$ reaches $100000$.
+unblocked sparse table when $N$ reaches $10^5$.
 
 We believe that the maximum length of interval query ($L$ in
 Table~\ref{tlb:CORMQ}) affects the cache performance of accessing a
@@ -144,12 +144,11 @@ from the best block size for the rightmost-pops sparse table.
 
 We observe that the performance of the rightmost-pops sparse table is
 better than that of LCA sparse table, but the performance gain decreases
-when $q$ is close to 1.  LCA sparse table requires the Cartesian index
+when $q$ is close to 1.  LCA sparse table requires the Catalan index
 computation, which is not required in the rightmost-pops sparse table
 implementation.  When the probability $q$ is close to 1, LCA sparse
-table will require less instructions on computing Cartesian index, so
-its performance will be close to that of the rightmost-pops sparse
-table.
+table will require less instructions on computing Catalan index, so its
+performance will be close to that of the rightmost-pops sparse table.
 
 The maximum length of interval query ($L$ in Table~\ref{tlb:ISMQcmp})
 affects the performance of interval query in a rightmost-pops sparse
@@ -163,20 +162,18 @@ into the LCA table, so its performance is not affected by $L$.
 
 \subsection{Variable Gapped Longest Common Subsequence}
 
-We now compare all four data structures in the final experiments and
-evaluate their overall performance on VGLCS.  We implemented {\em
-  four} combinations of data structures in solving the VGLCS problem
-and evaluated their performance.  The first combination is a {\em
-  sequential} implementation of Peng's algorithm using disjoint set on
-{\em both} the first stage and second stage.  Note that since the
-disjoint set only supports suffix query, so the implementation must be
-sequential if the second stage uses the disjoint set.  On the other
-hand, the other three combinations are all implemented in
-parallel. The {\em DS-ST} combination uses disjoint set in the first
-stage and the standard {\em unblocked} sparse table in the second
-stage.  The {\em DS-BST} combination uses disjoint set in the first
-stage and {\em blocked} sparse table with rightmost-pops encoding in
-the second stage.  The reason we use rightmost-pops encoding, instead
+We implemented {\em four} combinations of data structures in solving the
+VGLCS problem and evaluated their performance on VGLCS.  The first
+combination is a {\em sequential} implementation of Peng's algorithm
+using disjoint set on {\em both} the first stage and second stage. Note
+that since the disjoint set only supports suffix query, so the
+implementation must be sequential if the second stage uses the disjoint
+set.  On the other hand, the other three combinations are all
+implemented in parallel. The {\em DS-ST} combination uses disjoint set
+in the first stage and the standard {\em unblocked} sparse table in the
+second stage.  The {\em DS-BST} combination uses disjoint set in the
+first stage and {\em blocked} sparse table with rightmost-pops encoding
+in the second stage.  The reason we use rightmost-pops encoding, instead
 of LCA tables, was describe earlier.  Finally, the {\em BST2}
 combination uses blocked sparse table with rightmost-pops encoding in
 both stages.
