@@ -1,7 +1,7 @@
 \section{實驗結果} \label{sec:Experiment}
 
 實驗主要分成以下三種：其一，測試分塊與未分塊之間的稀疏表，測試平行區間詢問的效能；
-其二，增長後綴最大值詢問於不同的資料結構上的效能差意；最後，
+其二，增長後綴最大值詢問於不同的資料結構上的效能差異；最後，
 計算不同資料結構應用在 VGLCS 計算上的效能差異。
 
 我們實驗於 Intel Xeon E5-2620 2.4 Ghz 處理器，其包含 384K bytes 的 L1 快取、
@@ -37,7 +37,7 @@
 這一小節，我們比較四種資料結構解決「增長後綴詢問」({\em incremental suffix} query) 的能力，
 這四個資料結構分別為並查集、未分塊稀疏表、使用右側棧出編碼的塊狀稀疏表以及使用 LCA 表的塊狀稀疏表。
 使用並查集解決增長後綴詢問的細節請參照章節~\ref{sec:parallelRMQ}。
-對於並查集的時作細節，使用「路徑壓縮」({\em path compression}) 和「秩合併」({\em merge-by-rank}) 的策略，
+對於並查集的實作細節，使用「路徑壓縮」({\em path compression}) 和「秩合併」({\em merge-by-rank}) 的策略，
 每個操作的攤銷時間複雜度為 $O(\alpha(n))$。在分塊稀疏表中，我們選用塊大小 $s$ 為 $8$，
 所有稀疏表建造時皆以「行為主」(row-major manner) 的管理來減少快取未中，
 請參照算法~\ref{alg:parallel-VGLCS} 和圖~\ref{fig:interval-decomposition} 的說明。
