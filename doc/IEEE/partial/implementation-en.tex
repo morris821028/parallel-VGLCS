@@ -16,16 +16,16 @@ sets, whose applications include VGLCS.
 
 \subsubsection{Cache Performance}
 
-Memory cache is essential to efficient implementation of disjoint sets.
-Patwary, Blair, and Manne~\cite{Patwary2010ExperimentsOU} conducted
-experiments on disjoint-set and showed that different implementations
-have different impact on different levels of caches misses.  In
-practice, the cache miss is strongly related to how we go from a child
-to its ancestors through pointer chasing during path compression.
-Usually, an algorithm with a lower time complexity, e.g., will have more
-``long jumps'' than an algorithm with a higher time complexity.  Here
-the long jump means the pointer chasing will go from a memory address to
-a far away memory address.  Please refer to
+Memory cache is essential to efficient implementation of disjoint
+sets.  Patwary, Blair, and Manne~\cite{Patwary2010ExperimentsOU}
+conducted experiments on disjoint-set and showed that different
+implementations have different impact on different levels of caches
+misses.  In practice, the cache miss is strongly related to how we go
+from a child to its ancestors through pointer chasing during path
+compression.  Usually, an algorithm with a lower time complexity,
+e.g., will have more ``long jumps'' than an algorithm with a higher
+time complexity.  Here the long jump means the pointer chasing will go
+from a memory address to a far away memory address.  Please refer to
 Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 
 \begin{figure}[!thb]
@@ -43,30 +43,34 @@ Figure~\ref{fig:long-short-jump-disjoint} for an illustration.
 The Rem's algorithm~\cite{dijkstra1976a} achieves better cache
 performance by a {\em merge-by-index} technique.  Traditional disjoint
 set merging techniques are {\em merge-by-rank} and {\em
-merge-by-size}~\cite{Tarjan1975EfficiencyOA}, which determine the root
-of new tree by the ranks and the sizes of the two trees respectively.
-Despite that they do have asymptotically better time complexity, their
-performance in practice is not so impressive due to the previously
-mentioned cache issue.  In contrast, Rem's algorithm assigns an {\em
-index} to each node, and merges two disjoint sets according the index of
-the roots of the two trees being merged.  That is, the root of the new
-merged tree will be the root with the ``larger'' index.
+  merge-by-size}~\cite{Tarjan1975EfficiencyOA}, which determine the
+root of new tree by the ranks and the sizes of the two trees
+respectively.  Despite that they do have asymptotically better time
+complexity, their performance in practice is not so impressive due to
+the previously mentioned cache issue.  In contrast, Rem's algorithm
+assigns an {\em index} to each node, and merges two disjoint sets
+according the index of the roots of the two trees being merged.  That
+is, the root of the new merged tree will be the root with the
+``larger'' index.
 
 In our experiments, we still use merge-by-rank to merge disjoint set
 trees.  However, when we have two {\em equally ranked} disjoint set
 trees to merge, we will apply the {\em merge-by-index} technique to
-break the tie, so as to improve cache performance.  Experiments show
-that the merge-by-index tie-breaking technique improves by 3\% over the
-approach that breaks the tie randomly.  Please refer to
-Figure~\ref{fig:fig-perf-cache-miss-rem} for an illustration.
+break the tie, so as to improve cache performance.
+Figure~\ref{fig:fig-perf-cache-miss-rem} compares the cache miss rate
+of merge-by-index tie-breaking and the usual random tie-breaking
+approach in both merge-by-rank and merge-by weight, and under
+different application contexts.  The experiments show that the
+merge-by-index tie-breaking technique in average reduces cache miss
+rate by 3\% of the usual random tie-breaking approach.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.95\linewidth]{\GraphicPath/fig-perf-cache-miss-rem.pdf}
-  \caption{The performance of the {\em merge-by-index tie-breaking} for
-  the combination of different applications and merge technique in
-  disjoint set data structure on an E5-2620 server, which is measured by
-  the {\tt perf} analyzing tool in Linux.}
+  \caption{The cache miss rate of the {\em merge-by-index
+      tie-breaking} for different applications and merge techniques in
+    disjoint set data structure on an E5-2620 server.  The statistics
+    are measured by the {\tt perf} analyzing tool in Linux.}
   \label{fig:fig-perf-cache-miss-rem}
 \end{figure}
 
@@ -76,14 +80,14 @@ Figure~\ref{fig:fig-perf-cache-miss-rem} for an illustration.
 
 It is possible to further optimize the implementation of Peng's
 sequential algorithm (Algorithm~\ref{alg:serial-VGLCS}) by a {\em lazy
-insertion} technique.  Recall that in Algorithm~\ref{alg:serial-VGLCS},
-when the $i$-th character from the first input string does not match the
-$j$-th character of the second input string, we need to place a zero
-into the dynamic programming table at position $V[i][j]$.  In practice,
-this mismatch will happen {\em very frequently}, and will cause frequent
-insertions of zeros into the disjoint sets.  Each insertion then links
-the newly inserted singleton node of zero to the node of zero inserted
-one iteration ago.
+  insertion} technique.  Recall that in
+Algorithm~\ref{alg:serial-VGLCS}, when the $i$-th character from the
+first input string does not match the $j$-th character of the second
+input string, we need to place a zero into the dynamic programming
+table at position $V[i][j]$.  In practice, this mismatch will happen
+{\em very frequently}, and will cause frequent insertions of zeros
+into the disjoint sets.  Each insertion then links the newly inserted
+singleton node of zero to the node of zero inserted one iteration ago.
 
 We implemented an optimization that resolves this repeated insertion,
 and linking, of zeros.  Our implementation will scan through a series of
@@ -145,34 +149,35 @@ for an illustration.
 
 We argue that the {\em order} to access these maximum tables is
 important.  Our implementation accesses the block maximum $T_S$ {\em
-first}, then the prefix maximum $P$ {\em second}, then the suffix
+  first}, then the prefix maximum $P$ {\em second}, then the suffix
 maximum $S$ {\em last}.  The reasoning for this order is as follows.
 Since we need to access two elements in the sparse table $T_S$ in {\em
-the same level}, it is very likely that they will be in the same cache
-line, so access the first will bring in the other automatically by the
-hardware caching mechanism.  For example, in
-Figure~\ref{fig:compressed-sp-opt-ts}, we will access both $T_{S}[1][2]$
-and $T_{S}[1][3]$ in order to find the maximum from block 1 to 3.
+  the same level}, it is very likely that they will be in the same
+cache line, so access the first will bring in the other automatically
+by the hardware caching mechanism.  For example, in
+Figure~\ref{fig:compressed-sp-opt-ts}, we will access both
+$T_{S}[1][2]$ and $T_{S}[1][3]$ in order to find the maximum from
+block 1 to 3.
 
 Our implementation improves performance by ``peeking'' into two
 neighboring elements in the $T_{S}$ table.  To be more specific, we
 peek the element {\em before} the first element, and the one {\em
   after} the second element, which we just accessed from $T_S$.
 
-For example, in Figure~\ref{fig:compressed-sp-opt-ts}, we will peek into
-$T_{S}[1][1]$ and $T_{S}[1][4]$, which are very likely also present in
-cache because they are in the same level of the sparse table as the
-previously accessed elements $T_{S}[1][2]$ and $T_{S}[1][3]$.  The idea
-is that if the maximum from the block maximum, i.e., the maximum of
-$T_{S}[1][2]$ and $T_{S}[1][3]$, is already {\em larger} than the
-overall block maximum where the prefix belongs, i.e., in
-$T_{S}[1][4]$, then we do {\em not} need to check the $P$ table.
-Similarly, if the maximum from the block maximum {\em and} the prefix
-maximum is larger than the block maximum where the suffix belongs,
-i.e., in $T_{S}[1][1]$, then we do not need to check the $S$ table
-either.  This peeking is efficient since the data being peeked are
-most likely in the same cache line, and can save unnecessary access to
-$P$ and $S$ tables.
+For example, in Figure~\ref{fig:compressed-sp-opt-ts}, we will peek
+into $T_{S}[1][1]$ and $T_{S}[1][4]$, which are very likely also
+present in cache because they are in the same level of the sparse
+table as the previously accessed elements $T_{S}[1][2]$ and
+$T_{S}[1][3]$.  The idea is that if the maximum from the block
+maximum, i.e., the maximum of $T_{S}[1][2]$ and $T_{S}[1][3]$, is
+already {\em larger} than the overall block maximum where the prefix
+belongs, i.e., in $T_{S}[1][4]$, then we do {\em not} need to check
+the $P$ table.  Similarly, if the maximum from the block maximum {\em
+  and} the prefix maximum is larger than the block maximum where the
+suffix belongs, i.e., in $T_{S}[1][1]$, then we do not need to check
+the $S$ table either.  This peeking is efficient since the data being
+peeked are most likely in the same cache line, and can save
+unnecessary access to $P$ and $S$ tables.
 
 Algorithm~\ref{alg:rmq-access-order-2e} shows the access order for the
 range maximum query to reduce the cache miss.  Note that we check the
@@ -186,15 +191,16 @@ Our experiments show that despite that these maximum arrays require
 additional $O(n)$ memory, the peeking technique improves overall
 performance by up to 8\% when $n = 10^4$, and it improves the overall
 performance of query operations by up to 35\% when $n = 10^7$.  Please
-refer to Figure~\ref{fig:fig-perf-cache-miss-peek} for an illustration.
+refer to Figure~\ref{fig:fig-perf-cache-miss-peek} for an
+illustration.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.95\linewidth]{\GraphicPath/fig-perf-cache-miss-peek.pdf}
-  \caption{The performance of the ``peeking'' for
-  the combination of different applications and environments in blocked
-  sparse table on an E5-2620 server, which is measured by the {\tt perf}
-  analyzing tool in Linux.}
+  \caption{The cache miss rates of the ``peeking'' for different
+    applications and environments in blocked sparse table on an
+    E5-2620 server.  The cache miss rate is measured by the {\tt perf}
+    analyzing tool in Linux.}
   \label{fig:fig-perf-cache-miss-peek}
 \end{figure}
 
