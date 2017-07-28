@@ -50,7 +50,7 @@ fig-bst-encoding.pdf: fig-bst-n1.tex \
 	fig-bst-n3.tex
 
 %.pdf: %.tex
-	pdflatex $^
+	xelatex $^
 
 clean:
 	rm -f *.aux *.log *.nav *.out *.pdf *.snm *.toc *.vrb
